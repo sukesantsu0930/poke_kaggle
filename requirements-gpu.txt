@@ -1,0 +1,8 @@
+# Add GPU training dependencies here if the base image does not already provide them.
+#
+# The default Docker image is a PyTorch CUDA runtime image, so `torch` is already installed.
+# Examples:
+# scikit-learn
+# lightgbm
+# xgboost
+# stable-baselines3

@@ -1,0 +1,128 @@
+[
+  {
+    "id": 3473330,
+    "authorName": "",
+    "postDate": "2026-06-16T10:17:04.883000",
+    "votes": 29,
+    "content": "<p>The simulator used in this competition is designed for AI-vs-AI battles, and its rules and behavior may differ in some respects from those of the official Pok\u00e9mon Trading Card Game.\nBelow is a summary of the differences we are currently aware of.</p>\n<ol>\n<li><p>Some attacks may not be selectable in the simulator even when they could be declared under the official rules\nIn the official Pok\u00e9mon TCG, there are cases where a player is allowed to declare an attack, but the effect cannot be fully resolved, and the turn simply ends after the attack declaration.\nIn the simulator, such attacks may instead be treated as not selectable from the beginning.\nExamples include the following cases:\nUsing an attack with an effect that puts a Basic Pok\u00e9mon from the deck onto the Bench when there is no open Bench space \nUsing an attack with an effect that draws cards when the player\u2019s deck has 0 cards remaining \nUsing an attack with an effect that interacts with the opponent\u2019s hand when the opponent has 0 cards in hand \nAlthough the handling is different, we believe the end result is the same, and the impact on gameplay is minimal.</p></li>\n<li><p>About Nullifying Zero, the attack of Mega Zygarde ex\nFor Mega Zygarde ex\u2019s attack, Nullifying Zero, under the official Pok\u00e9mon TCG rules, the player using the attack may choose the order in which damage is assigned to the targets.\nIn the simulator, however, the target order cannot be chosen, and coins are flipped automatically from left to right.\nThis differs from the official rules, but since Knock Out processing is handled simultaneously, we believe this does not affect the competition.</p></li>\n</ol>\n<p>Prize-taking order when both players\u2019 Pok\u00e9mon are Knocked Out at the same time\nWhen both players\u2019 Pok\u00e9mon are Knocked Out at the same time, the order of taking Prize cards differs between the official Pok\u00e9mon TCG rules and the simulator.</p>\n<p>Official Pok\u00e9mon TCG order</p>\n<ul>\n<li>The player whose turn is next chooses their Prize cards </li>\n<li>The opposing player chooses their Prize cards </li>\n<li>Both players take their Prize cards at the same time </li>\n<li>The player whose turn is next puts a Pok\u00e9mon into the Active Spot first </li>\n</ul>\n<p>Simulator order used in this competition</p>\n<ul>\n<li>The player whose turn is next chooses their Prize cards </li>\n<li>That player takes their Prize cards </li>\n<li>The opposing player chooses their Prize cards </li>\n<li>The opposing player takes their Prize cards </li>\n<li>The player whose turn is next puts a Pok\u00e9mon into the Active Spot first </li>\n</ul>\n<p>This is a different processing order from the official rules. However, in this competition, even if both players ultimately take all of their Prize cards, the result is treated as a draw, so we believe this does not affect match outcomes.</p>\n<p>In this competition, please note that the simulator behavior will be treated as the correct behavior.\nIf we identify any additional points that should be announced, we will share them in the Discussion forum as needed.</p>"
+  },
+  {
+    "id": 3473362,
+    "authorName": "",
+    "postDate": "2026-06-16T11:58:12.793000",
+    "votes": 1,
+    "content": "<p>I'm not sure I fully understand the rules.<br>\nCan participants build their own decks? \ud83d\ude04</p>"
+  },
+  {
+    "id": 3473371,
+    "authorName": "",
+    "postDate": "2026-06-16T12:35:52.127000",
+    "votes": 2,
+    "content": "<p>Participants can build their own decks based on the available cards listed on the Data tab </p>"
+  },
+  {
+    "id": 3475259,
+    "authorName": "",
+    "postDate": "2026-06-19T17:42:57.180000",
+    "votes": 0,
+    "content": "<p>Merci beaucoup pour l'\u00e9claircissement mais j'ai une par d'ombre. Les donn\u00e9es ne s'affiche pas quand je les appell. \u00c7a m'ait encore difficile de comprendre </p>"
+  },
+  {
+    "id": 3479048,
+    "authorName": "",
+    "postDate": "2026-06-23T10:00:03.600000",
+    "votes": 0,
+    "content": "<p>Hi, 2 questions. </p>\n<p>One, what's the difference between an \"ABILITY\" and a \"SKILL\" as provided in OPTIONTYPE as ID 10 and 15?</p>\n<p>Second, say I have a Pok\u00e9mon like Clefairy, which applies 2x weakness to Psychic on all opposing dragon types. Would my agent have to specify the activation of this ability everytime its my turn through the Options[] list, or are these kinds of abilities auto-trigger without needing agent input each turn?</p>"
+  },
+  {
+    "id": 3479212,
+    "authorName": "",
+    "postDate": "2026-06-23T14:44:28.837000",
+    "votes": 0,
+    "content": "<p>In OptionType, ABILITY is an explicit selectable action from an in-play Pok\u00e9mon, usually something the agent must choose to use. SKILL is generally a passive/continuous effect or rule-modifying card text exposed by the simulator, not a normal \u201cclick this ability now\u201d action in the same way.</p>\n<p>Clefairy-style continuous effects should be automatic. If the effect is already active from the Pok\u00e9mon being in play, your agent should not need to re-activate it every turn through Options[]. The agent only chooses from Options[] when the simulator presents an explicit action, such as a once-per-turn activated ability.</p>"
+  },
+  {
+    "id": 3479744,
+    "authorName": "",
+    "postDate": "2026-06-24T04:49:51.720000",
+    "votes": 0,
+    "content": "<p>Yes, the explanation above is correct.</p>\n<p>In general, effects like Clefairy\u2019s continuous effect are applied automatically by the simulator. Your agent does not need to select an option from Options[] every turn to activate that kind of effect.</p>\n<p>Your agent only needs to choose an option when the simulator explicitly presents it as a selectable action in Options[], such as an activated Ability that can be used during your turn.</p>"
+  },
+  {
+    "id": 3476630,
+    "authorName": "",
+    "postDate": "2026-06-20T18:13:38.813000",
+    "votes": 0,
+    "content": "<p>Hello,</p>\n<p>I'm still testing out the simulator API manually, but I've found that in the setup phase after I've selected my active pokemon, if I have another basic pokemon in hand then the options selections list (<code>obs.select.option</code>) does not include an \"end turn\" selection and thus I am forced to bench <em>all</em> basic pokemon that I have in hand.</p>\n<p>I expect to be able to just play an active and not be forced to bench all basic pokemon in hand.</p>"
+  },
+  {
+    "id": 3476725,
+    "authorName": "",
+    "postDate": "2026-06-20T21:00:38.023000",
+    "votes": 1,
+    "content": "<p>In setup bench selection, there may not be an explicit \"end turn\" option. Check <code>obs.select.minCount</code>.</p>\n<p>If <code>obs.select.context == SETUP_BENCH_POKEMON</code> and <code>minCount == 0</code>, you can skip benching by returning an empty list: <code>[]</code>.</p>\n<p><code>OptionType.END</code> is a main-turn action, not necessarily used for optional setup selections. So the absence of an \"end turn\" option does not mean you must bench all Basics.</p>\n<p>If <code>minCount</code> is 1 or higher during setup bench selection, then that would look like a simulator bug, because benching extra Basic Pok\u00e9mon during setup is optional.</p>"
+  },
+  {
+    "id": 3475679,
+    "authorName": "",
+    "postDate": "2026-06-20T04:48:00.017000",
+    "votes": 0,
+    "content": "<p>Hello, I have a quick question.\nUnder official rules, even if an attack has a restriction for the next turn\u2014like Mega Lucario EX's 'Mega Brave'\u2014retreating or switching the Pok\u00e9mon to the Bench and back to the Active Spot resets the effect, allowing it to attack again. Does the simulator currently handle this rule correctly?</p>"
+  },
+  {
+    "id": 3476065,
+    "authorName": "",
+    "postDate": "2026-06-20T09:32:22.350000",
+    "votes": 1,
+    "content": "<p>Yes, put a Pokemon in to the bench \"clean\" all effects. If you retreat the lucario and put it as active after that, you can use the same attack again.</p>"
+  },
+  {
+    "id": 3475647,
+    "authorName": "",
+    "postDate": "2026-06-20T04:27:53.710000",
+    "votes": 0,
+    "content": "<p>Differences Between the Rules <a href=\"https://www.kaggle.com/shimishige\" target=\"_blank\">@shimishige</a> </p>"
+  },
+  {
+    "id": 3474598,
+    "authorName": "",
+    "postDate": "2026-06-18T09:54:56.893000",
+    "votes": 0,
+    "content": "<p>Bug: Mega Lopunny EX currently does not check properly if it has been promoted during this turn, leading Gale Thrust to not deal 170 bonus dmg.</p>\n<p>How to reproduce:</p>\n<ul>\n<li>Active pokemon with ability to shuffle itself into deck (Abra 080 TWM or Dudunsparce 129 TEF)</li>\n<li>Use ability and promote Mega Lopunny EX</li>\n<li>Attack with Gale Thrust.</li>\n</ul>\n<p>Expected behaviou by TCG rules:</p>\n<ul>\n<li>230 dmg, as Mega Lopunny has been swapped from bench to active</li>\n</ul>\n<p>Actual behaviou in simulation:</p>\n<ul>\n<li>60 dmg, as ability promotion did not register Mega Lopunny EX as changing from bench to active.</li>\n</ul>\n<p>See attached replay as an example: <a href=\"https://ptcgvis.heroz.jp/Visualizer/Replay/80444352/1\" target=\"_blank\">https://ptcgvis.heroz.jp/Visualizer/Replay/80444352/1</a></p>"
+  },
+  {
+    "id": 3475137,
+    "authorName": "",
+    "postDate": "2026-06-19T12:30:05.103000",
+    "votes": 2,
+    "content": "<p>Hi there,</p>\n<p>I've consulted with the the Pok\u00e9mon team and upon checking the replay, Buneary was moved from the Bench to the Active Spot, then evolved into Mega Lopunny ex on that same turn, after which Gale Thrust was used.</p>\n<p>In the text \u201cIf this Pok\u00e9mon moved from your Bench to the Active Spot this turn,\u201d \u201cthis Pok\u00e9mon\u201d refers to Mega Lopunny ex, not Buneary. Therefore, the damage is 60, and the simulator\u2019s current behavior is correct under the rules.</p>"
+  },
+  {
+    "id": 3474570,
+    "authorName": "",
+    "postDate": "2026-06-18T08:28:26.353000",
+    "votes": 0,
+    "content": "<p>Thelepatic Energy now can search for any pokemon if attached in any type pokemon, both pokemon searched goes to the hand =).</p>"
+  },
+  {
+    "id": 3473796,
+    "authorName": "",
+    "postDate": "2026-06-17T04:36:49.983000",
+    "votes": 0,
+    "content": "<p>On current system, I can't play Cinderace(card ID 666) in battle preparetion turn from hand.\nIn fact, in real pokemon card format I can do that cuz of its Ability!\nCould you solve this?</p>\n<p>\u5b9f\u969b\u306e\u30dd\u30b1\u30e2\u30f3\u30ab\u30fc\u30c9\u3067\u306f\u30a8\u30fc\u30b9\u30d0\u30fc\u30f3\u304c\u7279\u6027\u306b\u3088\u308a\u5bfe\u6226\u6e96\u5099\u306e\u6642\u306b\u624b\u672d\u304b\u3089\u51fa\u305b\u308b\u306f\u305a\u3067\u3059\u304c\n\u73fe\u72b6\u306e\u30b7\u30b9\u30c6\u30e0\u3067\u306f\u51fa\u305b\u307e\u305b\u3093!\n\u3054\u5bfe\u5fdc\u53ef\u80fd\u3067\u3057\u3087\u3046\u304b\uff1f\uff1f</p>"
+  },
+  {
+    "id": 3473907,
+    "authorName": "",
+    "postDate": "2026-06-17T07:54:33.950000",
+    "votes": 1,
+    "content": "<p>Thank you for your question.</p>\n<p>It is possible to put Cinderace (card ID 666) into the Active Spot during the battle preparation turn.</p>\n<p>We checked the battle log:\n<a href=\"https://www.kaggle.com/competitions/pokemon-tcg-ai-battle/leaderboard?search=yukihiromaeda&amp;submissionId=53762151&amp;episodeId=80258186\" target=\"_blank\">https://www.kaggle.com/competitions/pokemon-tcg-ai-battle/leaderboard?search=yukihiromaeda&amp;submissionId=53762151&amp;episodeId=80258186</a></p>\n<p>In the observation at Step 2, the available options include the choices at index 0 and index 2. Therefore, if your agent returns [1] from the list of selectable options, Cinderace (card ID 666) should be playable during the battle preparation turn.</p>\n<p><img src=\"https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F5486027%2F801e667534f65656e3fdbb3bfb99757c%2F2026-06-17%2016.53.43.png?generation=1781682856677698&amp;alt=media\" alt=\"\"></p>"
+  },
+  {
+    "id": 3479755,
+    "authorName": "",
+    "postDate": "2026-06-24T05:05:44.900000",
+    "votes": 0,
+    "content": ""
+  }
+]

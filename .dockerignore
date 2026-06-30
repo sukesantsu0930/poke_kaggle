@@ -1,0 +1,15 @@
+.git
+.agents
+.codex
+.kaggle
+API.txt
+downloads
+build
+submissions
+training_runs
+*.zip
+*.pdf
+__pycache__
+*.pyc
+models/*
+!models/README.md

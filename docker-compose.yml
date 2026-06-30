@@ -1,0 +1,24 @@
+services:
+  ptcg:
+    build:
+      context: .
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime}
+    image: poke-kaggle-ptcg:latest
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    environment:
+      PYTHONPATH: /workspace
+      KAGGLE_CONFIG_DIR: /workspace/.kaggle
+    gpus: all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    shm_size: "16gb"
+    stdin_open: true
+    tty: true

@@ -1,0 +1,23 @@
+[
+  {
+    "id": 3484065,
+    "authorName": "",
+    "postDate": "2026-06-30T00:30:46.483000",
+    "votes": 19,
+    "content": "<p>Hey all</p>\n<p>A few quick announcements as we head into a long holiday weekend here in the US:</p>\n<ol>\n<li><p>The simulation environment has been updated, including an update to the sample submission (`sample_submission.zip` on the `Data` tab).   </p>\n<ol>\n<li>Dataset update:<br><ol>\n<li>Update: cg library now supports macOS and Linux ARM64.  </li>\n<li>We updated the cg library to fix the library-loading issue reported in the thread, and the data has been refreshed accordingly. Changes:<br><ol>\n<li>Added libcg.dylib \u2014 macOS binary  </li>\n<li>Added libcg-arm64.so \u2014 Linux ARM64 binary  </li></ol></li>\n<li>There are no changes to main.py, deck.csv, or the rest of the cg API, so existing submissions should be unaffected.  </li></ol></li>\n<li>Simulator update:<br><ol>\n<li>This update is intended to address the issue where games could end in a draw due to the step limit, instead of the looping player eventually losing by timeout.  </li>\n<li>Existing scores will be preserved. Under the updated environment, there is now a sufficiently large step limit so that, if a player enters an infinite loop, they should eventually lose by timeout rather than the game ending in a draw.</li></ol></li></ol></li>\n<li><p>We have also been working on increasing game throughput, and we are gradually increasing the game rate as improvements land. We will share updated game-rate targets once the next round of improvement ship, which we expect in the coming days. We're also continuing to monitor things like how the meta may change by rating band, the number of games required for a submission to achieve a high level of stability, etc. We'll be sure to keep everyone updated with any findings or changes to matchmaking or the post-deadline gameplay.</p></li>\n</ol>\n<p>Best,</p>\n<p>Addison</p>"
+  },
+  {
+    "id": 3484522,
+    "authorName": "",
+    "postDate": "2026-06-30T13:39:58.423000",
+    "votes": 0,
+    "content": "<p>Thanks for the update! One quick question: is the cg-lib dataset the SDK/toolkit referenced in the competition overview, or is there another SDK that participants should be using? I found it via the sample notebooks, but I wasn't sure if that was the intended entry point.</p>"
+  },
+  {
+    "id": 3484121,
+    "authorName": "",
+    "postDate": "2026-06-30T04:05:15.357000",
+    "votes": 0,
+    "content": "<p>Yay, thank you so much for the update!\nMy poor Mac can now process games about 3 times faster \ud83d\ude02</p>"
+  }
+]

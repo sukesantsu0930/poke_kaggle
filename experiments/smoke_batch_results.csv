@@ -1,0 +1,2 @@
+agent,deck,games,seed,wins,losses,draws,unfinished,start_failed,win_rate,mean_steps
+agents\rb_001_baseline.py,decks\deck_001_sample.csv,5,1,5,0,0,0,0,1.0,25.4
