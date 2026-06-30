@@ -38,7 +38,8 @@
 - `API.txt` は認証情報なので共有しない
 - `downloads/`, `models/`, `submissions/`, `build/` は生成物なので基本的にGit管理しない
 - 初心者メンバーは Git から最新版を取り、公式サイトでデッキを作る
-- 良いデッキができたら、デッキコードを助友に直接送る。CSV化とGitへの反映は助友が行う
+- デッキコードを `scripts/import_deck_code.py` に入れて、`OK` ならGUIでプレイする
+- 良いデッキができたら、デッキコードを助友に直接送る
 
 ## 評価方法
 
@@ -76,10 +77,10 @@ http://127.0.0.1:8765
 python scripts/check_decks.py
 ```
 
-公式デッキコードをCSVへ変換します。変換・検証に通った場合だけCSVが出力されます。
+公式デッキコードをCSVへ変換します。変換・検証に通った場合だけ `decks/local/` にCSVが出力され、GUIで使えます。
 
 ```bash
-python scripts/import_deck_code.py 4GGxYc-KmW2Iv-8c4c8c --output decks/deck_002_candidate.csv
+python scripts/import_deck_code.py 4GGxYc-KmW2Iv-8c4c8c
 ```
 
 ## 提出zip作成
