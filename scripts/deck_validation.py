@@ -49,11 +49,19 @@ def read_deck_file(path: Path) -> tuple[list[int], list[str]]:
 
 
 def validate_deck_file(path: Path) -> DeckValidation:
+    deck, parse_errors = read_deck_file(path)
+    return validate_deck_ids(deck, path=str(path), parse_errors=parse_errors)
+
+
+def validate_deck_ids(
+    deck: list[int],
+    path: str = "<deck>",
+    parse_errors: list[str] | None = None,
+) -> DeckValidation:
     cards = card_by_id()
     errors = []
     warnings = []
-    deck, parse_errors = read_deck_file(path)
-    errors.extend(parse_errors)
+    errors.extend(parse_errors or [])
 
     if len(deck) != 60:
         errors.append(f"デッキは60枚ちょうど必要です。現在は{len(deck)}枚です。")
@@ -100,7 +108,7 @@ def validate_deck_file(path: Path) -> DeckValidation:
             warnings.append("トレーナーズが0枚です。かなり単純なデッキです。")
 
     return DeckValidation(
-        path=str(path),
+        path=path,
         ok=not errors,
         errors=errors,
         warnings=warnings,

@@ -37,8 +37,8 @@
 
 - `API.txt` は認証情報なので共有しない
 - `downloads/`, `models/`, `submissions/`, `build/` は生成物なので基本的にGit管理しない
-- 初心者メンバーは Git から最新版を取り、`decks/local/` に手元用デッキCSVを作る
-- 良いデッキができたら、CSVを助友に直接送る。Gitへの反映は助友が行う
+- 初心者メンバーは Git から最新版を取り、公式サイトでデッキを作る
+- 良いデッキができたら、デッキコードを助友に直接送る。CSV化とGitへの反映は助友が行う
 
 ## 評価方法
 
@@ -70,10 +70,16 @@ http://127.0.0.1:8765
 
 ## デッキ検証
 
-`decks/` と `decks/local/` 内のCSVを検証します。
+`decks/` 内のコンパイル済みCSVを検証します。
 
 ```bash
 python scripts/check_decks.py
+```
+
+公式デッキコードをCSVへ変換します。変換・検証に通った場合だけCSVが出力されます。
+
+```bash
+python scripts/import_deck_code.py 4GGxYc-KmW2Iv-8c4c8c --output decks/deck_002_candidate.csv
 ```
 
 ## 提出zip作成

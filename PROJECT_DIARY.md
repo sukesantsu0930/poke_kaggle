@@ -11,7 +11,7 @@
 - 競技の中心タスクは「デッキ構築」と「エージェント開発」。
 - ユーザー本人がデッキ構築とエージェント方針を主導する。
 - Codex側は、提出準備、評価、集計、Docker/GPU環境、共同作業の土台、ドキュメント整備を担当する。
-- 友人の安福・長谷川には、IT/AIの知識を前提にせず、デッキCSV作成・カード調査・ストラテジー研究・ルール発見をお願いする。
+- 友人の安福・長谷川には、IT/AIの知識を前提にせず、公式サイトでのデッキ作成・カード調査・ストラテジー研究・ルール発見をお願いする。
 - `Competition_Rules.md` はKaggle公式ルール原文なので、英語のまま保持する。翻訳や要約で上書きしない。
 
 ### 今日作った土台
@@ -24,6 +24,7 @@
 - `scripts/batch_evaluate.py` を作り、複数Agentと複数Deckの組み合わせ評価をCSV出力できるようにした。
 - `scripts/manual_play_server.py` を作り、両プレイヤーを人間が操作する手動プレイGUIを起動できるようにした。
 - `scripts/deck_validation.py` と `scripts/check_decks.py` を作り、デッキCSVの検証を共通化した。
+- `scripts/import_deck_code.py` を作り、公式デッキコードを取得・変換・検証し、通ったものだけCSVへ出力する方式にした。
 - `models/` と `training/` を作り、将来の機械学習Agent用の受け皿を用意した。
 - Docker/GPUサーバー用に `Dockerfile`, `docker-compose.yml`, `docker/README.md` を追加した。
 - 共同作業用に `README.md`, `COLLABORATION_GUIDE.md`, `GIT_MINIMUM.md`, `安福_長谷川向け.md` を作った。
@@ -91,7 +92,7 @@ docker compose run --rm ptcg python scripts/docker_gpu_check.py
 - `API.txt` やKaggleデータ、生成zip、PDF、モデルファイルがGitに入らないことを確認する。
 - GitHubに共有用リポジトリを作る。
 - 安福・長谷川に `安福_長谷川向け.md` と `GIT_MINIMUM.md` を読んでもらう。
-- 友人には手元の `decks/local/` に60枚のデッキCSVを作ってもらい、良いものだけ助友に直接送ってもらう。
+- 友人には公式サイトでデッキを作ってもらい、良いものだけデッキコードを助友に直接送ってもらう。
 - Gitへの反映は助友が行う。友人側は基本的に `git pull` で最新版を取ってシステムを使うだけにする。
 - ユーザー本人が `agents/` と `decks/` を増やし、Codex側が評価・集計を回す。
 
@@ -99,5 +100,5 @@ docker compose run --rm ptcg python scripts/docker_gpu_check.py
 
 - `API.txt` は認証情報なので共有しない。
 - `Competition_Rules.md` は公式原文なので変更しない。
-- 初心者メンバーは基本的に `decks/local/` と `research/` だけ触る。
+- 初心者メンバーは基本的に公式サイトのデッキコードと `research/` だけ触る。CSVは直接編集しない。
 - `agents/`, `scripts/`, `submission/`, `models/`, `training/`, `docker/` は実装担当側で管理する。
