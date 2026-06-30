@@ -8,14 +8,14 @@
 
 主に触る場所:
 
-- `decks/`
+- `decks/local/`
 - `research/deck_notes/`
 - `research/card_notes/`
 
 やること:
 
 - 使いたいカードを調べる
-- デッキ案を60枚で作り、`decks/` にCSVとして保存する
+- デッキ案を60枚で作り、`decks/local/` にCSVとして保存する
 - なぜそのカードを入れたかを書く
 - 強そうな動き、弱そうな相手、事故りそうな点を書く
 
@@ -47,12 +47,14 @@
 - 勝率や失敗例をまとめる
 - Kaggle提出zipを作る
 
-## 触ってよいファイル
+## 初心者メンバーの作業場所
 
-初心者メンバーは、基本的に以下だけを編集してください。
+初心者メンバーは、基本的に以下だけを使ってください。
 
-- `decks/*.csv`
+- `decks/local/*.csv`
 - `research/**/*.md`
+
+ただし、Gitへ自分で `commit` や `push` はしません。良いデッキやメモができたら、ファイルを助友に直接送ってください。
 
 慣れるまでは以下は編集しないでください。
 
@@ -66,12 +68,12 @@
 
 ## デッキファイルのルール
 
-`decks/` に `deck_番号_名前.csv` という名前で保存します。
+`decks/local/` に `deck_番号_名前.csv` という名前で保存します。
 
 例:
 
-- `decks/deck_002_fast_attack.csv`
-- `decks/deck_003_stable_setup.csv`
+- `decks/local/deck_002_fast_attack.csv`
+- `decks/local/deck_003_stable_setup.csv`
 
 中身は60行です。1行にカードIDを1つだけ書きます。
 
@@ -97,26 +99,21 @@
 git pull
 ```
 
+初心者メンバーは、基本的にこれだけで大丈夫です。
+
 変更確認:
 
 ```bash
 git status
 ```
 
-変更を保存:
-
-```bash
-git add decks research
-git commit -m "add deck idea"
-git push
-```
-
-他人と同じファイルを同時に編集すると衝突しやすいです。基本は「自分のメモファイルを作る」運用にしてください。
+`decks/local/*.csv` はGit管理しないため、手元にだけ残ります。採用候補は助友に直接送ってください。
 
 ## 提案から評価までの流れ
 
 1. デッキ案や戦略メモを書く
-2. 実装担当がエージェントやデッキcsvに反映する
-3. `scripts/batch_evaluate.py` で評価する
-4. `experiments/` に結果を残す
-5. よかった案だけ次の候補に残す
+2. 良いデッキCSVとメモを助友に直接送る
+3. 実装担当がエージェントや共有デッキcsvに反映する
+4. `scripts/batch_evaluate.py` で評価する
+5. `experiments/` に結果を残す
+6. よかった案だけ次の候補に残す

@@ -7,7 +7,7 @@
 - `YYYYMMDD_agent_deck_notes.md`
 - `YYYYMMDD_results.csv`
 
-デッキ案は `decks/`、エージェント案は `agents/` に置きます。観察結果や評価結果はここに置きます。
+採用済みのデッキ案は `decks/`、友人の手元試作デッキは `decks/local/`、エージェント案は `agents/` に置きます。観察結果や評価結果はここに置きます。
 
 非エンジニア向けの研究メモは `research/` に置きます。
 

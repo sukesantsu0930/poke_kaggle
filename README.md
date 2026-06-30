@@ -37,7 +37,8 @@
 
 - `API.txt` は認証情報なので共有しない
 - `downloads/`, `models/`, `submissions/`, `build/` は生成物なので基本的にGit管理しない
-- 初心者メンバーは `decks/` と `research/` を中心に編集する。デッキCSV作成まで担当する
+- 初心者メンバーは Git から最新版を取り、`decks/local/` に手元用デッキCSVを作る
+- 良いデッキができたら、CSVを助友に直接送る。Gitへの反映は助友が行う
 
 ## 評価方法
 
@@ -69,7 +70,7 @@ http://127.0.0.1:8765
 
 ## デッキ検証
 
-`decks/` 内のCSVを検証します。
+`decks/` と `decks/local/` 内のCSVを検証します。
 
 ```bash
 python scripts/check_decks.py

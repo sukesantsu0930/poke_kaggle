@@ -26,3 +26,5 @@ __pycache__/
 submission_baseline.zip
 submission/cg/
 submission/deck.csv
+decks/local/*.csv
+!decks/local/README.md

@@ -112,4 +112,4 @@ def validate_deck_file(path: Path) -> DeckValidation:
 
 
 def validate_all_decks(deck_dir: Path) -> list[DeckValidation]:
-    return [validate_deck_file(path) for path in sorted(deck_dir.glob("*.csv"))]
+    return [validate_deck_file(path) for path in sorted(deck_dir.rglob("*.csv"))]

@@ -94,11 +94,11 @@ def read_deck(path: Path) -> list[int]:
 
 
 def deck_files() -> list[Path]:
-    return sorted((ROOT / "decks").glob("*.csv"))
+    return sorted((ROOT / "decks").rglob("*.csv"))
 
 
 def deck_path_from_name(name: str) -> Path:
-    candidates = {path.name: path for path in deck_files()}
+    candidates = {str(path.relative_to(ROOT)): path for path in deck_files()}
     if name not in candidates:
         raise ValueError(f"Unknown deck: {name}")
     return candidates[name]
@@ -297,10 +297,11 @@ def available_decks_payload():
     payload = []
     for path in deck_files():
         validation = validate_deck_file(path)
+        relative_path = str(path.relative_to(ROOT))
         payload.append(
             {
-                "name": path.name,
-                "path": str(path.relative_to(ROOT)),
+                "name": relative_path,
+                "path": relative_path,
                 "ok": validation.ok,
                 "errors": validation.errors,
                 "warnings": validation.warnings,

@@ -91,12 +91,13 @@ docker compose run --rm ptcg python scripts/docker_gpu_check.py
 - `API.txt` やKaggleデータ、生成zip、PDF、モデルファイルがGitに入らないことを確認する。
 - GitHubに共有用リポジトリを作る。
 - 安福・長谷川に `安福_長谷川向け.md` と `GIT_MINIMUM.md` を読んでもらう。
-- 友人には `research/` にメモを書いてもらい、あわせて `decks/` に60枚のデッキCSVも作ってもらう。
+- 友人には手元の `decks/local/` に60枚のデッキCSVを作ってもらい、良いものだけ助友に直接送ってもらう。
+- Gitへの反映は助友が行う。友人側は基本的に `git pull` で最新版を取ってシステムを使うだけにする。
 - ユーザー本人が `agents/` と `decks/` を増やし、Codex側が評価・集計を回す。
 
 ### 注意
 
 - `API.txt` は認証情報なので共有しない。
 - `Competition_Rules.md` は公式原文なので変更しない。
-- 初心者メンバーは基本的に `decks/` と `research/` だけ触る。
+- 初心者メンバーは基本的に `decks/local/` と `research/` だけ触る。
 - `agents/`, `scripts/`, `submission/`, `models/`, `training/`, `docker/` は実装担当側で管理する。
