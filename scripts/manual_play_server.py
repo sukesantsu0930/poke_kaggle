@@ -36,14 +36,34 @@ from action_abstraction import collapse_equivalent_options  # noqa: E402
 from deck_validation import validate_deck_file  # noqa: E402
 
 
+def clean_csv_value(value) -> str:
+    if value is None:
+        return ""
+    text = str(value).strip()
+    if not text or text.lower() == "n/a":
+        return ""
+    return text
+
+
 CARD_DATA = {card.cardId: card for card in all_card_data()}
 ATTACK_DATA = {attack.attackId: attack for attack in all_attack()}
 JP_CARD_NAMES = {}
+JP_ATTACK_ROWS_BY_CARD = {}
 JP_CARD_DATA = ROOT / "JP_Card_Data.csv"
 if JP_CARD_DATA.exists():
     with JP_CARD_DATA.open(encoding="utf-8-sig", newline="") as file:
         for row in csv.DictReader(file):
-            JP_CARD_NAMES.setdefault(int(row["カード ID"]), row["カード名"])
+            card_id = int(row["カード ID"])
+            JP_CARD_NAMES.setdefault(card_id, row["カード名"])
+            if clean_csv_value(row.get("ワザ名")):
+                JP_ATTACK_ROWS_BY_CARD.setdefault(card_id, []).append(row)
+JP_ATTACK_DATA = {}
+for card_id, rows in JP_ATTACK_ROWS_BY_CARD.items():
+    card = CARD_DATA.get(card_id)
+    if card is None:
+        continue
+    for attack_id, row in zip(card.attacks, rows):
+        JP_ATTACK_DATA[attack_id] = row
 CARD_IMAGE_DIR = ROOT / "card_images" / "jp"
 CARD_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
 
@@ -276,8 +296,17 @@ def energy_type_label(energy_type) -> str:
 
 def attack_summary(attack_id: int):
     attack = ATTACK_DATA.get(attack_id)
+    jp_attack = JP_ATTACK_DATA.get(attack_id)
     if attack is None:
         return {"name": f"ワザ {attack_id}", "cost": "", "damage": "", "text": ""}
+    if jp_attack is not None:
+        return {
+            "name": clean_csv_value(jp_attack.get("ワザ名")) or attack.name,
+            "cost": clean_csv_value(jp_attack.get("コスト"))
+            or " ".join(energy_type_label(energy) for energy in attack.energies),
+            "damage": clean_csv_value(jp_attack.get("ダメージ")) or attack.damage,
+            "text": clean_csv_value(jp_attack.get("効果の説明")),
+        }
     return {
         "name": attack.name,
         "cost": " ".join(energy_type_label(energy) for energy in attack.energies),
@@ -402,9 +431,10 @@ def option_label(index: int, option: Option, obs: Observation) -> str:
 
     if option.attackId is not None:
         attack = ATTACK_DATA.get(option.attackId)
+        attack_text = attack_summary(option.attackId)
         if attack is not None:
-            damage = f" / {attack.damage}ダメージ" if attack.damage else ""
-            return f"{index}: ワザ「{attack.name}」を使う{damage}"
+            damage = f" / {attack_text['damage']}ダメージ" if attack_text["damage"] else ""
+            return f"{index}: ワザ「{attack_text['name']}」を使う{damage}"
         return f"{index}: ワザを使う"
 
     if option.type == OptionType.PLAY and card_text:
@@ -591,8 +621,8 @@ def log_label(log: Log) -> str:
             if field.startswith("cardId"):
                 parts.append(f"{field}={card_name(value)}")
             elif field == "attackId":
-                attack = ATTACK_DATA.get(value)
-                parts.append(f"attack={attack.name if attack else value}")
+                attack = attack_summary(value)
+                parts.append(f"attack={attack['name'] if attack else value}")
             else:
                 parts.append(f"{field}={value}")
     return " | ".join(parts)
