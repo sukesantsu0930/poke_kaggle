@@ -401,10 +401,16 @@ def card_from_area_option(option: Option, obs: Observation) -> Card | None:
         if 0 <= option.index < len(player.active):
             pokemon = player.active[option.index]
             if pokemon is not None:
+                attached = attached_card_from_pokemon(option, pokemon)
+                if attached is not None:
+                    return attached
                 return Card(id=pokemon.id, serial=-1, playerIndex=player_index)
     if option.area == AreaType.BENCH and option.index is not None:
         if 0 <= option.index < len(player.bench):
             pokemon = player.bench[option.index]
+            attached = attached_card_from_pokemon(option, pokemon)
+            if attached is not None:
+                return attached
             return Card(id=pokemon.id, serial=-1, playerIndex=player_index)
     if option.area == AreaType.STADIUM and option.index is not None:
         if 0 <= option.index < len(current.stadium):
@@ -412,6 +418,16 @@ def card_from_area_option(option: Option, obs: Observation) -> Card | None:
     if option.area == AreaType.LOOKING and current.looking is not None and option.index is not None:
         if 0 <= option.index < len(current.looking):
             return current.looking[option.index]
+    return None
+
+
+def attached_card_from_pokemon(option: Option, pokemon: Pokemon) -> Card | None:
+    if option.type == OptionType.ENERGY_CARD and option.energyIndex is not None:
+        if 0 <= option.energyIndex < len(pokemon.energyCards):
+            return pokemon.energyCards[option.energyIndex]
+    if option.type == OptionType.TOOL_CARD and option.toolIndex is not None:
+        if 0 <= option.toolIndex < len(pokemon.tools):
+            return pokemon.tools[option.toolIndex]
     return None
 
 
@@ -456,7 +472,12 @@ def option_label(index: int, option: Option, obs: Observation) -> str:
         return f"{index}: {card_text}の特性を使う"
     if option.type == OptionType.DISCARD and card_text:
         return f"{index}: {card_text}をトラッシュする"
-    if option.type in (OptionType.CARD, OptionType.TOOL_CARD, OptionType.ENERGY_CARD) and card_text:
+    if option.type == OptionType.ENERGY_CARD and card_text:
+        location = target_label(option, obs) or area_label(option.area)
+        energy_no = f"E{option.energyIndex + 1}: " if option.energyIndex is not None else ""
+        location_text = f"（{location}）" if location else ""
+        return f"{index}: {energy_no}{card_text}{location_text}を選ぶ"
+    if option.type in (OptionType.CARD, OptionType.TOOL_CARD) and card_text:
         area = area_label(option.area)
         area_text = f"（{area}）" if area else ""
         return f"{index}: {card_text}{area_text}を選ぶ"
@@ -484,7 +505,12 @@ def area_label(area) -> str:
 
 
 def target_label(option: Option, obs: Observation) -> str:
-    if option.inPlayArea is None or option.inPlayIndex is None:
+    area = option.inPlayArea
+    index = option.inPlayIndex
+    if area is None and option.type in (OptionType.ENERGY_CARD, OptionType.TOOL_CARD, OptionType.ENERGY):
+        area = option.area
+        index = option.index
+    if area is None or index is None:
         return ""
     current = obs.current
     if current is None:
@@ -495,15 +521,15 @@ def target_label(option: Option, obs: Observation) -> str:
     if player_index < 0 or player_index >= len(current.players):
         return ""
     player = current.players[player_index]
-    if option.inPlayArea == AreaType.ACTIVE and 0 <= option.inPlayIndex < len(player.active):
-        pokemon = player.active[option.inPlayIndex]
+    if area == AreaType.ACTIVE and 0 <= index < len(player.active):
+        pokemon = player.active[index]
         if pokemon is not None:
             return f"バトル場（{card_name(pokemon.id)}）"
         return "バトル場"
-    if option.inPlayArea == AreaType.BENCH and 0 <= option.inPlayIndex < len(player.bench):
-        bench_no = option.inPlayIndex + 1
-        return f"ベンチ{bench_no}（{card_name(player.bench[option.inPlayIndex].id)}）"
-    return f"{area_label(option.inPlayArea)} {option.inPlayIndex}"
+    if area == AreaType.BENCH and 0 <= index < len(player.bench):
+        bench_no = index + 1
+        return f"ベンチ{bench_no}（{card_name(player.bench[index].id)}）"
+    return f"{area_label(area)} {index}"
 
 
 def energy_label(option: Option) -> str:
@@ -916,15 +942,33 @@ HTML = r"""<!doctype html>
     .attached {
       display: flex;
       flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 4px;
+      gap: 6px;
+      margin-top: 6px;
     }
     .tag {
       border: 1px solid var(--line);
       border-radius: 4px;
-      padding: 2px 5px;
+      padding: 3px 6px;
       background: #f6f8fa;
       font-size: 11px;
+    }
+    .energy-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-color: #7aa7d9;
+      background: #eef6ff;
+      color: #143a5f;
+      font-weight: 600;
+    }
+    .energy-index {
+      min-width: 20px;
+      border-radius: 999px;
+      padding: 1px 5px;
+      background: #0b6bcb;
+      color: #fff;
+      text-align: center;
+      font-size: 10px;
     }
     .details {
       margin-top: 6px;
@@ -1200,7 +1244,11 @@ HTML = r"""<!doctype html>
     function renderAttachedEnergies(mon) {
       const cards = mon.energyCards || [];
       if (!cards.length) return '<div class="small">付いているエネルギー: なし</div>';
-      return `<div class="attached">${cards.map(c => `<span class="tag">${esc(c.name)}</span>`).join('')}</div>`;
+      return `<div class="small">付いているエネルギー</div>
+        <div class="attached">${cards.map((c, i) => `<span class="tag energy-tag">
+          <span class="energy-index">E${i + 1}</span>
+          <span>${esc(c.name)}</span>
+        </span>`).join('')}</div>`;
     }
 
     function renderActiveDetails(mon) {
