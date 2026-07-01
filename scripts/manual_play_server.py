@@ -260,6 +260,37 @@ def energy_card_name(card_id: int | None) -> str:
     return ""
 
 
+def energy_type_label(energy_type) -> str:
+    return ENERGY_TYPE_LABELS.get(energy_type, enum_name(energy_type))
+
+
+def attack_summary(attack_id: int):
+    attack = ATTACK_DATA.get(attack_id)
+    if attack is None:
+        return {"name": f"ワザ {attack_id}", "cost": "", "damage": "", "text": ""}
+    return {
+        "name": attack.name,
+        "cost": " ".join(energy_type_label(energy) for energy in attack.energies),
+        "damage": attack.damage,
+        "text": attack.text,
+    }
+
+
+def card_detail(card_id: int | None):
+    card = CARD_DATA.get(card_id)
+    if card is None:
+        return {
+            "retreatCost": "",
+            "attacks": [],
+            "skills": [],
+        }
+    return {
+        "retreatCost": card.retreatCost,
+        "attacks": [attack_summary(attack_id) for attack_id in card.attacks],
+        "skills": [{"name": skill.name, "text": skill.text} for skill in card.skills],
+    }
+
+
 def card_from_option(option: Option, obs: Observation) -> Card | None:
     if option.cardId is not None:
         return Card(id=option.cardId, serial=option.serial or -1, playerIndex=option.playerIndex or -1)
@@ -420,13 +451,17 @@ def enum_name(value) -> str:
 def pokemon_summary(pokemon: Pokemon | None):
     if pokemon is None:
         return {"hidden": True}
+    detail = card_detail(pokemon.id)
     return {
         "id": pokemon.id,
         "name": card_name(pokemon.id),
         "imageUrl": card_image_url(pokemon.id),
         "hp": pokemon.hp,
         "maxHp": pokemon.maxHp,
-        "energies": [enum_name(energy) for energy in pokemon.energies],
+        "retreatCost": detail["retreatCost"],
+        "attacks": detail["attacks"],
+        "skills": detail["skills"],
+        "energies": [energy_type_label(energy) for energy in pokemon.energies],
         "energyCards": [card_summary(card) for card in pokemon.energyCards],
         "tools": [card_summary(card) for card in pokemon.tools],
         "preEvolution": [card_summary(card) for card in pokemon.preEvolution],
@@ -730,6 +765,30 @@ HTML = r"""<!doctype html>
       text-align: center;
     }
     .mon strong, .card strong { display: block; font-size: 13px; }
+    .attached {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .tag {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 2px 5px;
+      background: #f6f8fa;
+      font-size: 11px;
+    }
+    .details {
+      margin-top: 6px;
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+    }
+    .attack {
+      border-top: 1px solid var(--line);
+      padding-top: 6px;
+      white-space: pre-wrap;
+    }
     .small { font-size: 12px; color: var(--muted); }
     .options {
       max-height: 48vh;
@@ -900,7 +959,7 @@ HTML = r"""<!doctype html>
           <span class="pill">トラッシュ ${p.discardCount}</span>
         </div>
         <h3>バトル場</h3>
-        <div class="zone">${(p.active || []).map(renderPokemon).join('') || '<div class="small">なし</div>'}</div>
+        <div class="zone">${(p.active || []).map(mon => renderPokemon(mon, 'バトル場', true)).join('') || '<div class="small">なし</div>'}</div>
         <h3>ベンチ</h3>
         <div class="zone">${renderBench(p)}</div>
         <h3>見えている手札</h3>
@@ -917,7 +976,7 @@ HTML = r"""<!doctype html>
       return slots.join('');
     }
 
-    function renderPokemon(mon, slotLabel) {
+    function renderPokemon(mon, slotLabel, detailed = false) {
       const label = slotLabel ? `<div class="small">${esc(slotLabel)}</div>` : '';
       if (!mon) return `<div class="mon">${label}<strong>空き</strong></div>`;
       if (mon.hidden) return '<div class="mon"><strong>非公開</strong></div>';
@@ -926,9 +985,30 @@ HTML = r"""<!doctype html>
         <div>
           ${label}
           <strong>${esc(mon.name)}</strong>
-          <span class="small">HP ${esc(mon.hp)} / ${esc(mon.maxHp)} | エネルギー ${esc((mon.energies || []).join(', ') || 'なし')}</span>
+          <span class="small">HP ${esc(mon.hp)} / ${esc(mon.maxHp)}${detailed ? ` | にげる ${esc(mon.retreatCost)}` : ''}</span>
+          ${renderAttachedEnergies(mon)}
+          ${detailed ? renderActiveDetails(mon) : ''}
         </div>
       </div>`;
+    }
+
+    function renderAttachedEnergies(mon) {
+      const cards = mon.energyCards || [];
+      if (!cards.length) return '<div class="small">付いているエネルギー: なし</div>';
+      return `<div class="attached">${cards.map(c => `<span class="tag">${esc(c.name)}</span>`).join('')}</div>`;
+    }
+
+    function renderActiveDetails(mon) {
+      const skills = (mon.skills || []).map(skill => `<div class="attack">
+        <strong>特性: ${esc(skill.name)}</strong>
+        <div>${esc(skill.text)}</div>
+      </div>`).join('');
+      const attacks = (mon.attacks || []).map(attack => `<div class="attack">
+        <strong>ワザ: ${esc(attack.name)}</strong>
+        <div>必要エネルギー: ${esc(attack.cost || 'なし')} / ダメージ: ${esc(attack.damage || '-')}</div>
+        <div>${esc(attack.text || '')}</div>
+      </div>`).join('');
+      return `<div class="details">${skills}${attacks || '<div class="small">ワザなし</div>'}</div>`;
     }
 
     function renderCard(c) {
