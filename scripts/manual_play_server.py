@@ -224,7 +224,24 @@ def card_name(card_id: int | None) -> str:
 def card_from_option(option: Option, obs: Observation) -> Card | None:
     if option.cardId is not None:
         return Card(id=option.cardId, serial=option.serial or -1, playerIndex=option.playerIndex or -1)
+    if option.type == OptionType.PLAY:
+        return card_from_hand_index(option, obs)
     return card_from_area_option(option, obs)
+
+
+def card_from_hand_index(option: Option, obs: Observation) -> Card | None:
+    current = obs.current
+    if current is None or option.index is None:
+        return None
+    player_index = option.playerIndex
+    if player_index is None:
+        player_index = current.yourIndex
+    if player_index < 0 or player_index >= len(current.players):
+        return None
+    hand = current.players[player_index].hand
+    if hand is None or option.index < 0 or option.index >= len(hand):
+        return None
+    return hand[option.index]
 
 
 def card_from_area_option(option: Option, obs: Observation) -> Card | None:
