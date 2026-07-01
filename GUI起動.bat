@@ -1,10 +1,9 @@
 @echo off
-chcp 65001 > nul
 cd /d "%~dp0"
 
 echo.
-echo 手動プレイGUIを起動します。
-echo ブラウザが開いたら、デッキを選んで開始してください。
+echo Starting manual play GUI.
+echo When the browser opens, select decks and start.
 echo.
 
 start "" "http://127.0.0.1:8765"

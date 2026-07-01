@@ -1,27 +1,26 @@
 @echo off
-chcp 65001 > nul
 cd /d "%~dp0"
 
 echo.
-echo ポケカ公式サイトのデッキコードを入力してください。
-echo 例: 4GGxYc-KmW2Iv-8c4c8c
+echo Paste a Pokemon Card official deck code.
+echo Example: 4GGxYc-KmW2Iv-8c4c8c
 echo.
-set /p DECK_CODE=デッキコード: 
+set /p DECK_CODE=Deck code: 
 
 if "%DECK_CODE%"=="" (
   echo.
-  echo デッキコードが空です。もう一度やり直してください。
+  echo Deck code is empty. Please try again.
   echo.
   pause
   exit /b 1
 )
 
 echo.
-echo デッキを確認しています...
+echo Checking deck code...
 python scripts\import_deck_code.py %DECK_CODE%
 
 echo.
-echo OK と出た場合は、GUIでそのデッキを選べます。
-echo NG または ERROR と出た場合は、公式サイト側でデッキを直してください。
+echo If you see OK, the deck can be selected in the GUI.
+echo If you see NG or ERROR, edit the deck on the official site and try again.
 echo.
 pause

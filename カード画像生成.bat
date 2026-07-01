@@ -1,15 +1,24 @@
 @echo off
-chcp 65001 > nul
 cd /d "%~dp0"
 
 echo.
-echo Card_ID List_JP.pdf からカード画像を作ります。
-echo 初回だけ時間がかかります。
+echo Generating local card images from Card_ID List_JP.pdf.
+echo This is needed only once.
+echo Please do not close this window until you see "DONE".
 echo.
 
 python scripts\extract_card_images.py
+if errorlevel 1 (
+  echo.
+  echo FAILED.
+  echo Please send this screen to Suketomo.
+  echo.
+  pause
+  exit /b 1
+)
 
 echo.
-echo OK と出たら、GUIでカード画像が表示されます。
+echo DONE.
+echo Card images are ready. You can now start the GUI.
 echo.
 pause
