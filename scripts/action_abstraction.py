@@ -4,6 +4,14 @@ from typing import Callable, Iterable
 from cg.api import Card, CardData, CardType, Option, OptionType
 
 
+SAME_NAME_SINGLE_SELECT_TYPES = {
+    OptionType.PLAY,
+    OptionType.CARD,
+    OptionType.TOOL_CARD,
+    OptionType.ENERGY_CARD,
+}
+
+
 @dataclass(frozen=True)
 class ActionChoice:
     source_index: int
@@ -60,10 +68,10 @@ def option_equivalence_key(
             option.inPlayIndex,
         )
 
-    if max_count == 1 and option.type == OptionType.PLAY:
+    if max_count == 1 and option.type in SAME_NAME_SINGLE_SELECT_TYPES:
         name_key = card_name_equivalence_key(card.id, card_data_by_id)
         if name_key is not None:
-            return ("play-card-from-hand", name_key, option.playerIndex)
+            return ("same-name-card", option.type, option.area, name_key, option.playerIndex)
 
     return None
 

@@ -386,6 +386,11 @@ def card_from_area_option(option: Option, obs: Observation) -> Card | None:
     if player_index < 0 or player_index >= len(current.players):
         return None
     player = current.players[player_index]
+    if option.area == AreaType.DECK and obs.select is not None and obs.select.deck is not None and option.index is not None:
+        if 0 <= option.index < len(obs.select.deck):
+            card = obs.select.deck[option.index]
+            if card is not None:
+                return card
     if option.area == AreaType.HAND and player.hand is not None and option.index is not None:
         if 0 <= option.index < len(player.hand):
             return player.hand[option.index]
@@ -639,9 +644,44 @@ def display_options(select, obs: Observation) -> list[dict]:
         {
             "index": choice.source_index,
             "label": option_label(choice.display_index, choice.option, obs),
+            "imageUrl": card_image_url(card.id) if (card := card_from_option(choice.option, obs)) is not None else None,
         }
         for choice in choices
     ]
+
+
+def visible_deck_summary(select) -> list[dict]:
+    if select.deck is None:
+        return []
+    selectable_indexes = {
+        option.index for option in select.option if option.area == AreaType.DECK and option.index is not None
+    }
+    grouped = {}
+    order = []
+    for index, card in enumerate(select.deck):
+        if card is None:
+            key = ("hidden", index)
+            name = "非公開"
+            card_id = None
+            image_url = None
+        else:
+            key = card.id
+            name = card_name(card.id)
+            card_id = card.id
+            image_url = card_image_url(card.id)
+        if key not in grouped:
+            grouped[key] = {
+                "id": card_id,
+                "name": name,
+                "count": 0,
+                "selectableCount": 0,
+                "imageUrl": image_url,
+            }
+            order.append(key)
+        grouped[key]["count"] += 1
+        if index in selectable_indexes:
+            grouped[key]["selectableCount"] += 1
+    return sorted((grouped[key] for key in order), key=lambda item: (-item["selectableCount"], item["name"]))
 
 
 def observation_payload():
@@ -666,6 +706,7 @@ def observation_payload():
             "remainDamageCounter": select.remainDamageCounter,
             "remainEnergyCost": select.remainEnergyCost,
             "options": display_options(select, obs),
+            "visibleDeck": visible_deck_summary(select),
         },
         "logs": [log_label(log) for log in obs.logs],
         "decks": available_decks_payload(),
@@ -906,6 +947,26 @@ HTML = r"""<!doctype html>
       padding: 8px;
       white-space: pre-wrap;
     }
+    .deck-list {
+      max-height: 220px;
+      overflow: auto;
+      display: grid;
+      gap: 6px;
+    }
+    .deck-row {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px;
+      background: #fff;
+      font-size: 12px;
+    }
+    .deck-row .card-img {
+      width: 40px;
+    }
     .error { color: var(--danger); font-weight: 600; }
     .ok { color: var(--ok); font-weight: 600; }
     @media (max-width: 920px) {
@@ -939,6 +1000,10 @@ HTML = r"""<!doctype html>
         <div style="height:8px"></div>
         <button id="empty" class="secondary" disabled>何も選ばない</button>
         <p id="message" class="small"></p>
+      </section>
+      <section>
+        <h2>見えている山札</h2>
+        <div id="visibleDeck" class="deck-list small">山札を見ているときに表示します。</div>
       </section>
       <section>
         <h2>直近ログ</h2>
@@ -1014,10 +1079,12 @@ HTML = r"""<!doctype html>
       const players = document.getElementById('players');
       const options = document.getElementById('options');
       const logs = document.getElementById('logs');
+      const visibleDeck = document.getElementById('visibleDeck');
       if (!state.started) {
         status.innerHTML = '<span class="pill">未開始</span>';
         players.innerHTML = '';
         options.innerHTML = '';
+        visibleDeck.textContent = '山札を見ているときに表示します。';
         logs.textContent = '';
         document.getElementById('submit').disabled = true;
         document.getElementById('empty').disabled = true;
@@ -1151,6 +1218,7 @@ HTML = r"""<!doctype html>
       if (finished) {
         meta.innerHTML = `<span class="ok">対戦終了: winner/result ${esc(state.current.result)}</span>`;
         options.innerHTML = '';
+        renderVisibleDeck([]);
         submit.disabled = true;
         empty.disabled = true;
         return;
@@ -1158,6 +1226,7 @@ HTML = r"""<!doctype html>
       if (!state.select) {
         meta.textContent = '選択肢なし';
         options.innerHTML = '';
+        renderVisibleDeck([]);
         submit.disabled = true;
         empty.disabled = true;
         return;
@@ -1166,10 +1235,32 @@ HTML = r"""<!doctype html>
       meta.textContent = `${s.contextLabel || '選択してください'} / ${s.minCount}から${s.maxCount}個選択`;
       options.innerHTML = s.options.map(o => `<label class="option">
         <input type="checkbox" value="${o.index}">
-        <span>${esc(o.label)}</span>
+        <span>${renderOptionImage(o)}${esc(o.label)}</span>
       </label>`).join('');
+      renderVisibleDeck(s.visibleDeck || []);
       submit.disabled = false;
       empty.disabled = s.minCount !== 0;
+    }
+
+    function renderOptionImage(option) {
+      if (!option.imageUrl) return '';
+      return `<img class="card-img" src="${esc(option.imageUrl)}" alt="" style="width:40px;float:left;margin:0 8px 4px 0">`;
+    }
+
+    function renderVisibleDeck(cards) {
+      const box = document.getElementById('visibleDeck');
+      if (!cards.length) {
+        box.textContent = '山札を見ているときに表示します。';
+        return;
+      }
+      box.innerHTML = cards.map(card => `<div class="deck-row">
+        ${renderImage(card)}
+        <div>
+          <strong>${esc(card.name)}</strong>
+          <div class="small">${card.selectableCount ? `選択可 ${esc(card.selectableCount)}枚` : '今回は選択不可'}</div>
+        </div>
+        <strong>${esc(card.count)}枚</strong>
+      </div>`).join('');
     }
 
     async function startBattle() {

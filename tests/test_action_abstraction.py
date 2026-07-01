@@ -102,6 +102,27 @@ class ActionAbstractionTest(unittest.TestCase):
 
         self.assertEqual([choice.source_index for choice in choices], [0, 1])
 
+    def test_same_name_deck_cards_collapse_for_single_selection(self):
+        options = [
+            Option(type=OptionType.CARD, area=AreaType.DECK, index=7),
+            Option(type=OptionType.CARD, area=AreaType.DECK, index=29),
+            Option(type=OptionType.CARD, area=AreaType.DECK, index=37),
+        ]
+        cards = {
+            7: Card(id=722, serial=301, playerIndex=0),
+            29: Card(id=722, serial=302, playerIndex=0),
+            37: Card(id=722, serial=303, playerIndex=0),
+        }
+
+        choices = collapse_equivalent_options(
+            options,
+            lambda option: cards.get(option.index),
+            CARD_DATA,
+            max_count=1,
+        )
+
+        self.assertEqual([choice.source_index for choice in choices], [0])
+
     def test_card_name_key_ignores_serial(self):
         self.assertEqual(card_name_equivalence_key(722, CARD_DATA), ("name", CARD_DATA[722].name))
 
