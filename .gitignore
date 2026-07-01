@@ -29,3 +29,4 @@ submission/deck.csv
 decks/local/*.csv
 !decks/local/README.md
 card_images/
+experiments/visualizer/*.json

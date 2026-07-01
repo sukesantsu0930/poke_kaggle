@@ -20,7 +20,7 @@ echo Checking deck code...
 python scripts\import_deck_code.py %DECK_CODE%
 
 echo.
-echo If you see OK, the deck can be selected in the GUI.
+echo If you see OK, the deck can be used for local replay JSON export.
 echo If you see NG or ERROR, edit the deck on the official site and try again.
 echo.
 pause

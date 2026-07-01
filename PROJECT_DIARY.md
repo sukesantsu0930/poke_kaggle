@@ -22,7 +22,8 @@
 - `scripts/build_submission.py` を作り、任意のAgentとDeckから提出zipを作れるようにした。
 - `scripts/evaluate_submission.py` を作り、ローカル評価できるようにした。
 - `scripts/batch_evaluate.py` を作り、複数Agentと複数Deckの組み合わせ評価をCSV出力できるようにした。
-- `scripts/manual_play_server.py` を作り、両プレイヤーを人間が操作する手動プレイGUIを起動できるようにした。
+- `scripts/manual_play_server.py` を作ったが、公式アナウンスにより非公式Viewerとしては使わない方針に変更した。
+- `scripts/export_visualizer_json.py` を作り、公式Visualizer用のローカル対戦JSONを出力できるようにした。
 - `scripts/deck_validation.py` と `scripts/check_decks.py` を作り、デッキCSVの検証を共通化した。
 - `scripts/import_deck_code.py` を作り、公式デッキコードを取得・変換・検証し、通ったものだけCSVへ出力する方式にした。
 - `models/` と `training/` を作り、将来の機械学習Agent用の受け皿を用意した。
@@ -43,7 +44,8 @@
 - 実験結果置き場: `experiments/`
 - 提出zip作成: `scripts/build_submission.py`
 - バッチ評価: `scripts/batch_evaluate.py`
-- 手動プレイGUI: `scripts/manual_play_server.py`
+- 公式Visualizer用JSON出力: `scripts/export_visualizer_json.py`
+- 内部確認用GUI: `scripts/manual_play_server.py`
 - デッキ検証: `scripts/check_decks.py`
 - Docker/GPU手順: `docker/README.md`
 
@@ -67,10 +69,10 @@ python scripts\batch_evaluate.py --games 50 --seed 1
 python scripts\build_submission.py --agent agents\rb_001_baseline.py --deck decks\deck_001_sample.csv
 ```
 
-手動プレイGUI:
+公式Visualizer用JSON出力:
 
 ```powershell
-python scripts\manual_play_server.py --port 8765
+python scripts\export_visualizer_json.py --output experiments\visualizer\latest_replay.json
 ```
 
 デッキ検証:
@@ -92,7 +94,7 @@ docker compose run --rm ptcg python scripts/docker_gpu_check.py
 - `API.txt` やKaggleデータ、生成zip、PDF、モデルファイルがGitに入らないことを確認する。
 - GitHubに共有用リポジトリを作る。
 - 安福・長谷川に `安福_長谷川向け.md` と `GIT_MINIMUM.md` を読んでもらう。
-- 友人には公式サイトでデッキを作り、`デッキコード登録.bat` で自分でコンパイルし、`GUI起動.bat` でプレイするループを回してもらう。
+- 友人には公式サイトでデッキを作り、`デッキコード登録.bat` で自分でコンパイルし、`リプレイJSON作成.bat` と公式Visualizerで対戦を確認するループを回してもらう。
 - 良いものだけデッキコードと気づいたことを助友に直接送ってもらう。
 - Gitへの反映は助友が行う。友人側は基本的にGitHub Desktopで最新版を取ってシステムを使うだけにする。
 - ユーザー本人が `agents/` と `decks/` を増やし、Codex側が評価・集計を回す。
@@ -101,7 +103,8 @@ docker compose run --rm ptcg python scripts/docker_gpu_check.py
 
 - `API.txt` は認証情報なので共有しない。
 - `Competition_Rules.md` は公式原文なので変更しない。
-- 初心者メンバーは基本的に公式サイトのデッキコードをシステムに入れてGUIでプレイするだけ。CSVや実装ファイルは直接編集しない。
+- 初心者メンバーは基本的に公式サイトのデッキコードをシステムに入れて公式Visualizerでリプレイ確認するだけ。CSVや実装ファイルは直接編集しない。
+- 非公式Replay Viewerは規約違反という公式案内があるため、独自GUIは公式Viewer代替として使わない。
 - `agents/`, `scripts/`, `submission/`, `models/`, `training/`, `docker/` は実装担当側で管理する。
 
 ### 行動空間削減の方針

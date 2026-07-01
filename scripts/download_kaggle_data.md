@@ -12,9 +12,9 @@ Expand-Archive downloads\simulation\pokemon-tcg-ai-battle.zip -DestinationPath d
 Copy-Item downloads\simulation\extracted\sample_submission\sample_submission\* submission -Recurse -Force
 ```
 
-取得後、次でデッキ検証やGUIが使えます。
+取得後、次でデッキ検証や公式Visualizer用JSON出力が使えます。
 
 ```powershell
 python scripts\check_decks.py
-python scripts\manual_play_server.py --port 8765
+python scripts\export_visualizer_json.py --output experiments\visualizer\latest_replay.json
 ```

@@ -19,6 +19,6 @@ if errorlevel 1 (
 
 echo.
 echo DONE.
-echo Card images are ready. You can now start the GUI.
+echo Card images are ready for local internal checks.
 echo.
 pause
