@@ -496,6 +496,26 @@ def log_label(log: Log) -> str:
     return " | ".join(parts)
 
 
+def display_options(select, obs: Observation) -> list[dict]:
+    visible = []
+    seen = set()
+    for index, option in enumerate(select.option):
+        key = equivalent_option_key(option, obs)
+        if key is not None:
+            if key in seen:
+                continue
+            seen.add(key)
+        visible.append({"index": index, "label": option_label(len(visible), option, obs)})
+    return visible
+
+
+def equivalent_option_key(option: Option, obs: Observation):
+    card = card_from_option(option, obs)
+    if option.type == OptionType.ATTACH and card is not None and is_energy_card(card.id):
+        return ("attach-energy", option.inPlayArea, option.inPlayIndex, option.playerIndex)
+    return None
+
+
 def observation_payload():
     if not BATTLE.started or BATTLE.obs_dict is None:
         return {"started": False, "decks": available_decks_payload()}
@@ -517,10 +537,7 @@ def observation_payload():
             "maxCount": select.maxCount,
             "remainDamageCounter": select.remainDamageCounter,
             "remainEnergyCost": select.remainEnergyCost,
-            "options": [
-                {"index": index, "label": option_label(index, option, obs)}
-                for index, option in enumerate(select.option)
-            ],
+            "options": display_options(select, obs),
         },
         "logs": [log_label(log) for log in obs.logs],
         "decks": available_decks_payload(),
