@@ -1,4 +1,5 @@
 import argparse
+import csv
 import json
 import os
 import sys
@@ -34,6 +35,97 @@ from deck_validation import validate_deck_file  # noqa: E402
 
 CARD_DATA = {card.cardId: card for card in all_card_data()}
 ATTACK_DATA = {attack.attackId: attack for attack in all_attack()}
+JP_CARD_NAMES = {}
+JP_CARD_DATA = ROOT / "JP_Card_Data.csv"
+if JP_CARD_DATA.exists():
+    with JP_CARD_DATA.open(encoding="utf-8-sig", newline="") as file:
+        for row in csv.DictReader(file):
+            JP_CARD_NAMES.setdefault(int(row["カード ID"]), row["カード名"])
+
+AREA_LABELS = {
+    AreaType.DECK: "山札",
+    AreaType.HAND: "手札",
+    AreaType.DISCARD: "トラッシュ",
+    AreaType.ACTIVE: "バトル場",
+    AreaType.BENCH: "ベンチ",
+    AreaType.PRIZE: "サイド",
+    AreaType.STADIUM: "スタジアム",
+    AreaType.ENERGY: "エネルギー",
+    AreaType.TOOL: "ポケモンのどうぐ",
+    AreaType.PRE_EVOLUTION: "進化前",
+    AreaType.PLAYER: "プレイヤー",
+    AreaType.LOOKING: "見ているカード",
+}
+
+OPTION_LABELS = {
+    OptionType.NUMBER: "数を選ぶ",
+    OptionType.YES: "はい",
+    OptionType.NO: "いいえ",
+    OptionType.CARD: "カードを選ぶ",
+    OptionType.TOOL_CARD: "どうぐを選ぶ",
+    OptionType.ENERGY_CARD: "エネルギーを選ぶ",
+    OptionType.ENERGY: "エネルギーを選ぶ",
+    OptionType.PLAY: "手札から使う",
+    OptionType.ATTACH: "エネルギーをつける",
+    OptionType.EVOLVE: "進化する",
+    OptionType.ABILITY: "特性を使う",
+    OptionType.DISCARD: "トラッシュする",
+    OptionType.RETREAT: "にげる",
+    OptionType.ATTACK: "ワザを使う",
+    OptionType.END: "番を終わる",
+}
+
+CONTEXT_LABELS = {
+    SelectContext.MAIN: "行動を選ぶ",
+    SelectContext.SETUP_ACTIVE_POKEMON: "最初のバトルポケモンを選ぶ",
+    SelectContext.SETUP_BENCH_POKEMON: "最初にベンチへ出すポケモンを選ぶ",
+    SelectContext.SWITCH: "入れ替えるポケモンを選ぶ",
+    SelectContext.TO_ACTIVE: "バトル場に出すカードを選ぶ",
+    SelectContext.TO_BENCH: "ベンチに出すカードを選ぶ",
+    SelectContext.TO_FIELD: "場に出すカードを選ぶ",
+    SelectContext.TO_HAND: "手札に加えるカードを選ぶ",
+    SelectContext.DISCARD: "トラッシュするカードを選ぶ",
+    SelectContext.TO_DECK: "山札に戻すカードを選ぶ",
+    SelectContext.TO_DECK_BOTTOM: "山札の下に戻すカードを選ぶ",
+    SelectContext.TO_PRIZE: "サイドに置くカードを選ぶ",
+    SelectContext.NOT_MOVE: "動かさないカードを選ぶ",
+    SelectContext.DAMAGE_COUNTER: "ダメカンをのせるポケモンを選ぶ",
+    SelectContext.DAMAGE_COUNTER_ANY: "ダメカンをのせるポケモンを選ぶ",
+    SelectContext.DAMAGE: "ダメージを与えるポケモンを選ぶ",
+    SelectContext.REMOVE_DAMAGE_COUNTER: "ダメカンを取り除くポケモンを選ぶ",
+    SelectContext.HEAL: "回復するポケモンを選ぶ",
+    SelectContext.EVOLVES_FROM: "進化元を選ぶ",
+    SelectContext.EVOLVES_TO: "進化先を選ぶ",
+    SelectContext.DEVOLVE: "退化するポケモンを選ぶ",
+    SelectContext.ATTACH_FROM: "つけるカードを選ぶ",
+    SelectContext.ATTACH_TO: "つけ先のポケモンを選ぶ",
+    SelectContext.DETACH_FROM: "はがすカードを選ぶ",
+    SelectContext.LOOK: "見るカードを選ぶ",
+    SelectContext.EFFECT_TARGET: "効果の対象を選ぶ",
+    SelectContext.DISCARD_ENERGY_CARD: "トラッシュするエネルギーを選ぶ",
+    SelectContext.DISCARD_TOOL_CARD: "トラッシュするどうぐを選ぶ",
+    SelectContext.SWITCH_ENERGY_CARD: "入れ替えるエネルギーを選ぶ",
+    SelectContext.DISCARD_CARD_OR_ATTACHED_CARD: "トラッシュするカードを選ぶ",
+    SelectContext.DISCARD_ENERGY: "トラッシュするエネルギーを選ぶ",
+    SelectContext.TO_HAND_ENERGY: "手札に戻すエネルギーを選ぶ",
+    SelectContext.TO_DECK_ENERGY: "山札に戻すエネルギーを選ぶ",
+    SelectContext.SWITCH_ENERGY: "入れ替えるエネルギーを選ぶ",
+    SelectContext.SKILL_ORDER: "効果の順番を選ぶ",
+    SelectContext.ATTACK: "使うワザを選ぶ",
+    SelectContext.DISABLE_ATTACK: "使えなくするワザを選ぶ",
+    SelectContext.EVOLVE: "進化を選ぶ",
+    SelectContext.DRAW_COUNT: "引く枚数を選ぶ",
+    SelectContext.DAMAGE_COUNTER_COUNT: "のせるダメカンの数を選ぶ",
+    SelectContext.REMOVE_DAMAGE_COUNTER_COUNT: "取り除くダメカンの数を選ぶ",
+    SelectContext.IS_FIRST: "先攻にするか選ぶ",
+    SelectContext.MULLIGAN: "引き直すか選ぶ",
+    SelectContext.ACTIVATE: "効果を使うか選ぶ",
+    SelectContext.FIRST_EFFECT: "先に処理する効果を選ぶ",
+    SelectContext.MORE_DEVOLVE: "さらに退化するか選ぶ",
+    SelectContext.COIN_HEAD: "オモテを選ぶか決める",
+    SelectContext.AFFECT_SPECIAL_CONDITION: "特殊状態を選ぶ",
+    SelectContext.RECOVER_SPECIAL_CONDITION: "回復する特殊状態を選ぶ",
+}
 
 
 class ManualBattle:
@@ -118,6 +210,9 @@ def validate_selection(indexes: list[int], obs: Observation):
 def card_name(card_id: int | None) -> str:
     if card_id is None:
         return ""
+    jp_name = JP_CARD_NAMES.get(card_id)
+    if jp_name is not None:
+        return f"{jp_name} (ID {card_id})"
     card = CARD_DATA.get(card_id)
     if card is None:
         return f"#{card_id}"
@@ -127,6 +222,10 @@ def card_name(card_id: int | None) -> str:
 def card_from_option(option: Option, obs: Observation) -> Card | None:
     if option.cardId is not None:
         return Card(id=option.cardId, serial=option.serial or -1, playerIndex=option.playerIndex or -1)
+    return card_from_area_option(option, obs)
+
+
+def card_from_area_option(option: Option, obs: Observation) -> Card | None:
     current = obs.current
     if current is None:
         return None
@@ -142,31 +241,114 @@ def card_from_option(option: Option, obs: Observation) -> Card | None:
     if option.area == AreaType.DISCARD and option.index is not None:
         if 0 <= option.index < len(player.discard):
             return player.discard[option.index]
+    if option.area == AreaType.ACTIVE and option.index is not None:
+        if 0 <= option.index < len(player.active):
+            pokemon = player.active[option.index]
+            if pokemon is not None:
+                return Card(id=pokemon.id, serial=-1, playerIndex=player_index)
+    if option.area == AreaType.BENCH and option.index is not None:
+        if 0 <= option.index < len(player.bench):
+            pokemon = player.bench[option.index]
+            return Card(id=pokemon.id, serial=-1, playerIndex=player_index)
+    if option.area == AreaType.STADIUM and option.index is not None:
+        if 0 <= option.index < len(current.stadium):
+            return current.stadium[option.index]
+    if option.area == AreaType.LOOKING and current.looking is not None and option.index is not None:
+        if 0 <= option.index < len(current.looking):
+            return current.looking[option.index]
     return None
 
 
 def option_label(index: int, option: Option, obs: Observation) -> str:
-    parts = [f"{index}: {enum_name(option.type)}"]
+    if option.type == OptionType.YES:
+        return f"{index}: はい"
+    if option.type == OptionType.NO:
+        return f"{index}: いいえ"
+    if option.type == OptionType.END:
+        return f"{index}: 番を終わる"
+    if option.type == OptionType.RETREAT:
+        return f"{index}: にげる"
+
+    action = OPTION_LABELS.get(option.type, enum_name(option.type))
     card = card_from_option(option, obs)
-    if card is not None:
-        parts.append(card_name(card.id))
+    card_text = card_name(card.id) if card is not None else ""
+    target_text = target_label(option, obs)
+
+    if option.type == OptionType.NUMBER:
+        number = option.number if option.number is not None else "?"
+        return f"{index}: {number}を選ぶ"
+
     if option.attackId is not None:
         attack = ATTACK_DATA.get(option.attackId)
-        if attack is None:
-            parts.append(f"attack {option.attackId}")
-        else:
-            parts.append(f"{attack.name} / {attack.damage} damage")
-    if option.number is not None:
-        parts.append(f"number {option.number}")
+        if attack is not None:
+            damage = f" / {attack.damage}ダメージ" if attack.damage else ""
+            return f"{index}: ワザ「{attack.name}」を使う{damage}"
+        return f"{index}: ワザを使う"
+
+    if option.type == OptionType.PLAY and card_text:
+        return f"{index}: {card_text}を手札から使う"
+    if option.type == OptionType.ATTACH and card_text:
+        suffix = f" -> {target_text}" if target_text else ""
+        return f"{index}: {card_text}をつける{suffix}"
+    if option.type == OptionType.EVOLVE and card_text:
+        suffix = f" -> {target_text}" if target_text else ""
+        return f"{index}: {card_text}に進化する{suffix}"
+    if option.type == OptionType.ABILITY and card_text:
+        return f"{index}: {card_text}の特性を使う"
+    if option.type == OptionType.DISCARD and card_text:
+        return f"{index}: {card_text}をトラッシュする"
+    if option.type in (OptionType.CARD, OptionType.TOOL_CARD, OptionType.ENERGY_CARD) and card_text:
+        area = area_label(option.area)
+        area_text = f"（{area}）" if area else ""
+        return f"{index}: {card_text}{area_text}を選ぶ"
+    if option.type == OptionType.ENERGY:
+        count = f"{option.count}個分" if option.count is not None else ""
+        return f"{index}: {energy_label(option)}{count}を選ぶ"
+
+    details = []
+    if card_text:
+        details.append(card_text)
+    if target_text:
+        details.append(f"対象: {target_text}")
     if option.area is not None:
-        parts.append(f"area {enum_name(option.area)}")
-    if option.index is not None:
-        parts.append(f"index {option.index}")
-    if option.inPlayArea is not None:
-        parts.append(f"target {enum_name(option.inPlayArea)}:{option.inPlayIndex}")
-    if option.playerIndex is not None:
-        parts.append(f"player {option.playerIndex}")
-    return " | ".join(parts)
+        details.append(area_label(option.area))
+    if option.number is not None:
+        details.append(f"{option.number}")
+    suffix = " / ".join(detail for detail in details if detail)
+    return f"{index}: {action}" + (f" - {suffix}" if suffix else "")
+
+
+def area_label(area) -> str:
+    if area is None:
+        return ""
+    return AREA_LABELS.get(area, enum_name(area))
+
+
+def target_label(option: Option, obs: Observation) -> str:
+    if option.inPlayArea is None or option.inPlayIndex is None:
+        return ""
+    current = obs.current
+    if current is None:
+        return ""
+    player_index = option.playerIndex
+    if player_index is None:
+        player_index = current.yourIndex
+    if player_index < 0 or player_index >= len(current.players):
+        return ""
+    player = current.players[player_index]
+    if option.inPlayArea == AreaType.ACTIVE and 0 <= option.inPlayIndex < len(player.active):
+        pokemon = player.active[option.inPlayIndex]
+        if pokemon is not None:
+            return card_name(pokemon.id)
+    if option.inPlayArea == AreaType.BENCH and 0 <= option.inPlayIndex < len(player.bench):
+        return card_name(player.bench[option.inPlayIndex].id)
+    return f"{area_label(option.inPlayArea)} {option.inPlayIndex}"
+
+
+def energy_label(option: Option) -> str:
+    if option.area is not None:
+        return area_label(option.area)
+    return "エネルギー"
 
 
 def enum_name(value) -> str:
@@ -279,6 +461,7 @@ def observation_payload():
         else {
             "type": enum_name(select.type),
             "context": enum_name(select.context),
+            "contextLabel": CONTEXT_LABELS.get(select.context, enum_name(select.context)),
             "minCount": select.minCount,
             "maxCount": select.maxCount,
             "remainDamageCounter": select.remainDamageCounter,
@@ -640,7 +823,7 @@ HTML = r"""<!doctype html>
         return;
       }
       const s = state.select;
-      meta.textContent = `${s.type} / ${s.context} / ${s.minCount}から${s.maxCount}個選択`;
+      meta.textContent = `${s.contextLabel || '選択してください'} / ${s.minCount}から${s.maxCount}個選択`;
       options.innerHTML = s.options.map(o => `<label class="option">
         <input type="checkbox" value="${o.index}">
         <span>${esc(o.label)}</span>
