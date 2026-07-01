@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -35,9 +36,17 @@ def top_cards(counter: Counter[int], card_rows: dict[int, dict[str, str]], kind:
     return " / ".join(names) if names else "なし"
 
 
-def load_records(input_dir: Path, card_rows: dict[int, dict[str, str]]) -> list[dict]:
+def load_manifest_paths(input_dir: Path, manifest: Path | None) -> list[Path]:
+    if manifest is None:
+        return sorted(input_dir.glob("*.json"))
+    with manifest.open(encoding="utf-8-sig", newline="") as f:
+        names = [row["name"] for row in csv.DictReader(f)]
+    return [input_dir / name for name in names if (input_dir / name).exists()]
+
+
+def load_records(input_dir: Path, card_rows: dict[int, dict[str, str]], manifest: Path | None = None) -> list[dict]:
     records = []
-    for path in sorted(input_dir.glob("*.json")):
+    for path in load_manifest_paths(input_dir, manifest):
         episode = json.loads(path.read_text(encoding="utf-8"))
         decks = extract_decks(episode)
         agents = episode.get("info", {}).get("Agents", [])
@@ -194,9 +203,9 @@ def examples_to_lines(examples: list[tuple[int, int, str, int | None]]) -> list[
     ]
 
 
-def build_report(input_dir: Path, card_csv: Path, min_exact: int, min_archetype: int, min_matchup: int) -> str:
+def build_report(input_dir: Path, card_csv: Path, min_exact: int, min_archetype: int, min_matchup: int, manifest: Path | None = None) -> str:
     card_rows = load_card_rows(card_csv)
-    records = load_records(input_dir, card_rows)
+    records = load_records(input_dir, card_rows, manifest)
     exact = summarize_exact_decks(records, card_rows)
     archetypes = summarize_archetypes(records, card_rows)
     matchups = summarize_matchups(records)
@@ -274,13 +283,21 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-dir", default="downloads/episodes/2026-06-30")
     parser.add_argument("--card-csv", default="JP_Card_Data.csv")
+    parser.add_argument("--manifest", default=None)
     parser.add_argument("--out", default="research/episode_deck_analysis/2026-06-30_winrate_candidates.md")
     parser.add_argument("--min-exact", type=int, default=3)
     parser.add_argument("--min-archetype", type=int, default=5)
     parser.add_argument("--min-matchup", type=int, default=3)
     args = parser.parse_args()
 
-    report = build_report(Path(args.input_dir), Path(args.card_csv), args.min_exact, args.min_archetype, args.min_matchup)
+    report = build_report(
+        Path(args.input_dir),
+        Path(args.card_csv),
+        args.min_exact,
+        args.min_archetype,
+        args.min_matchup,
+        Path(args.manifest) if args.manifest else None,
+    )
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(report + "\n", encoding="utf-8")

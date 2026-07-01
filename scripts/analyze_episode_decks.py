@@ -95,6 +95,18 @@ def archetype_name(counter: Counter[int], card_rows: dict[int, dict[str, str]]) 
 def build_report(input_dir: Path, card_csv: Path) -> str:
     card_rows = load_card_rows(card_csv)
     json_paths = sorted(input_dir.glob("*.json"))
+    return build_report_for_paths(input_dir, json_paths, card_rows)
+
+
+def load_manifest_paths(input_dir: Path, manifest: Path | None) -> list[Path]:
+    if manifest is None:
+        return sorted(input_dir.glob("*.json"))
+    with manifest.open(encoding="utf-8-sig", newline="") as f:
+        names = [row["name"] for row in csv.DictReader(f)]
+    return [input_dir / name for name in names if (input_dir / name).exists()]
+
+
+def build_report_for_paths(input_dir: Path, json_paths: list[Path], card_rows: dict[int, dict[str, str]]) -> str:
     groups: dict[tuple[tuple[int, int], ...], dict] = {}
 
     for path in json_paths:
@@ -213,10 +225,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-dir", default="downloads/episodes/2026-06-30")
     parser.add_argument("--card-csv", default="JP_Card_Data.csv")
+    parser.add_argument("--manifest", default=None)
     parser.add_argument("--out", default="research/episode_deck_analysis/2026-06-30_sample.md")
     args = parser.parse_args()
 
-    report = build_report(Path(args.input_dir), Path(args.card_csv))
+    input_dir = Path(args.input_dir)
+    card_rows = load_card_rows(Path(args.card_csv))
+    report = build_report_for_paths(input_dir, load_manifest_paths(input_dir, Path(args.manifest) if args.manifest else None), card_rows)
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(report + "\n", encoding="utf-8")
