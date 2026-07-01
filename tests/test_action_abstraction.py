@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "submission"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from action_abstraction import collapse_equivalent_options, energy_equivalence_key  # noqa: E402
+from action_abstraction import card_name_equivalence_key, collapse_equivalent_options, energy_equivalence_key  # noqa: E402
 from cg.api import AreaType, Card, CardType, EnergyType, Option, OptionType, all_card_data  # noqa: E402
 
 
@@ -62,6 +62,48 @@ class ActionAbstractionTest(unittest.TestCase):
         self.assertEqual(energy_equivalence_key(3, CARD_DATA), ("basic", EnergyType.WATER))
         self.assertEqual(energy_equivalence_key(18, CARD_DATA), ("special", 18))
         self.assertEqual(CARD_DATA[18].cardType, CardType.SPECIAL_ENERGY)
+
+    def test_same_name_play_from_hand_collapses_for_single_selection(self):
+        options = [
+            Option(type=OptionType.PLAY, index=0),
+            Option(type=OptionType.PLAY, index=1),
+            Option(type=OptionType.END),
+        ]
+        cards = {
+            0: Card(id=722, serial=201, playerIndex=0),
+            1: Card(id=722, serial=202, playerIndex=0),
+        }
+
+        choices = collapse_equivalent_options(
+            options,
+            lambda option: cards.get(option.index),
+            CARD_DATA,
+            max_count=1,
+        )
+
+        self.assertEqual([choice.source_index for choice in choices], [0, 2])
+
+    def test_same_name_cards_do_not_collapse_for_multi_selection(self):
+        options = [
+            Option(type=OptionType.PLAY, index=0),
+            Option(type=OptionType.PLAY, index=1),
+        ]
+        cards = {
+            0: Card(id=722, serial=201, playerIndex=0),
+            1: Card(id=722, serial=202, playerIndex=0),
+        }
+
+        choices = collapse_equivalent_options(
+            options,
+            lambda option: cards.get(option.index),
+            CARD_DATA,
+            max_count=2,
+        )
+
+        self.assertEqual([choice.source_index for choice in choices], [0, 1])
+
+    def test_card_name_key_ignores_serial(self):
+        self.assertEqual(card_name_equivalence_key(722, CARD_DATA), ("name", CARD_DATA[722].name))
 
 
 if __name__ == "__main__":

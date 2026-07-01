@@ -565,6 +565,7 @@ def display_options(select, obs: Observation) -> list[dict]:
         select.option,
         lambda option: card_from_option(option, obs),
         CARD_DATA,
+        max_count=select.maxCount,
     )
     return [
         {
