@@ -41,6 +41,8 @@ if JP_CARD_DATA.exists():
     with JP_CARD_DATA.open(encoding="utf-8-sig", newline="") as file:
         for row in csv.DictReader(file):
             JP_CARD_NAMES.setdefault(int(row["カード ID"]), row["カード名"])
+CARD_IMAGE_DIR = ROOT / "card_images" / "jp"
+CARD_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
 
 AREA_LABELS = {
     AreaType.DECK: "山札",
@@ -363,6 +365,7 @@ def pokemon_summary(pokemon: Pokemon | None):
     return {
         "id": pokemon.id,
         "name": card_name(pokemon.id),
+        "imageUrl": card_image_url(pokemon.id),
         "hp": pokemon.hp,
         "maxHp": pokemon.maxHp,
         "energies": [enum_name(energy) for energy in pokemon.energies],
@@ -375,7 +378,26 @@ def pokemon_summary(pokemon: Pokemon | None):
 def card_summary(card: Card | None):
     if card is None:
         return {"hidden": True}
-    return {"id": card.id, "name": card_name(card.id), "serial": card.serial}
+    return {
+        "id": card.id,
+        "name": card_name(card.id),
+        "serial": card.serial,
+        "imageUrl": card_image_url(card.id),
+    }
+
+
+def card_image_path(card_id: int) -> Path | None:
+    for ext in CARD_IMAGE_EXTENSIONS:
+        path = CARD_IMAGE_DIR / f"{card_id}{ext}"
+        if path.exists():
+            return path
+    return None
+
+
+def card_image_url(card_id: int) -> str | None:
+    if card_image_path(card_id) is None:
+        return None
+    return f"/card-image/{card_id}"
 
 
 def state_summary(state: State | None):
@@ -616,6 +638,27 @@ HTML = r"""<!doctype html>
       background: #fff;
       overflow-wrap: anywhere;
     }
+    .card, .mon {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+    .card-img {
+      width: 56px;
+      aspect-ratio: 63 / 88;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      background: #eef1f5;
+    }
+    .card-img.placeholder {
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+    }
     .mon strong, .card strong { display: block; font-size: 13px; }
     .small { font-size: 12px; color: var(--muted); }
     .options {
@@ -776,7 +819,7 @@ HTML = r"""<!doctype html>
     function renderPlayer(p, i, active) {
       const activeCls = i === active ? ' active-player' : '';
       const hand = p.hand
-        ? p.hand.map(c => `<div class="card"><strong>${esc(c.name)}</strong><span class="small">serial ${esc(c.serial)}</span></div>`).join('')
+        ? p.hand.map(renderCard).join('')
         : `<div class="small">手札は現在の選択プレイヤーのみ表示</div>`;
       return `<div class="player${activeCls}">
         <h3>Player ${i}</h3>
@@ -798,9 +841,29 @@ HTML = r"""<!doctype html>
     function renderPokemon(mon) {
       if (mon.hidden) return '<div class="mon"><strong>非公開</strong></div>';
       return `<div class="mon">
-        <strong>${esc(mon.name)}</strong>
-        <span class="small">HP ${esc(mon.hp)} / ${esc(mon.maxHp)} | エネルギー ${esc((mon.energies || []).join(', ') || 'なし')}</span>
+        ${renderImage(mon)}
+        <div>
+          <strong>${esc(mon.name)}</strong>
+          <span class="small">HP ${esc(mon.hp)} / ${esc(mon.maxHp)} | エネルギー ${esc((mon.energies || []).join(', ') || 'なし')}</span>
+        </div>
       </div>`;
+    }
+
+    function renderCard(c) {
+      return `<div class="card">
+        ${renderImage(c)}
+        <div>
+          <strong>${esc(c.name)}</strong>
+          <span class="small">serial ${esc(c.serial)}</span>
+        </div>
+      </div>`;
+    }
+
+    function renderImage(c) {
+      if (c && c.imageUrl) {
+        return `<img class="card-img" src="${esc(c.imageUrl)}" alt="">`;
+      }
+      return `<div class="card-img placeholder">画像なし</div>`;
     }
 
     function renderOptions(finished) {
@@ -873,6 +936,9 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/state":
             self.send_json(observation_payload())
             return
+        if path.startswith("/card-image/"):
+            self.send_card_image(path.removeprefix("/card-image/"))
+            return
         self.send_error(404)
 
     def do_POST(self):
@@ -915,6 +981,25 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
         self.wfile.write(payload)
+
+    def send_card_image(self, raw_card_id: str):
+        try:
+            card_id = int(raw_card_id)
+        except ValueError:
+            self.send_error(404)
+            return
+        path = card_image_path(card_id)
+        if path is None:
+            self.send_error(404)
+            return
+        content_types = {
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".png": "image/png",
+            ".webp": "image/webp",
+        }
+        content_type = content_types.get(path.suffix.lower(), "application/octet-stream")
+        self.send_bytes(path.read_bytes(), content_type)
 
     def log_message(self, fmt, *args):
         print(f"{self.address_string()} - {fmt % args}")

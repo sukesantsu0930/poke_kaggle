@@ -59,6 +59,12 @@ python scripts/batch_evaluate.py --agent agents/rb_001_baseline.py --deck decks/
 
 両プレイヤーを自分で操作して、デッキの動きを確認できます。
 
+カード画像をローカルPDFから生成:
+
+```text
+カード画像生成.bat
+```
+
 友人向け:
 
 ```text
