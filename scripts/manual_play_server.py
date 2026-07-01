@@ -49,21 +49,32 @@ CARD_DATA = {card.cardId: card for card in all_card_data()}
 ATTACK_DATA = {attack.attackId: attack for attack in all_attack()}
 JP_CARD_NAMES = {}
 JP_ATTACK_ROWS_BY_CARD = {}
+JP_SKILL_ROWS_BY_CARD = {}
 JP_CARD_DATA = ROOT / "JP_Card_Data.csv"
 if JP_CARD_DATA.exists():
     with JP_CARD_DATA.open(encoding="utf-8-sig", newline="") as file:
         for row in csv.DictReader(file):
             card_id = int(row["カード ID"])
             JP_CARD_NAMES.setdefault(card_id, row["カード名"])
-            if clean_csv_value(row.get("ワザ名")):
+            move_name = clean_csv_value(row.get("ワザ名"))
+            if move_name.startswith("[特性]"):
+                JP_SKILL_ROWS_BY_CARD.setdefault(card_id, []).append(row)
+            elif move_name:
                 JP_ATTACK_ROWS_BY_CARD.setdefault(card_id, []).append(row)
 JP_ATTACK_DATA = {}
+JP_SKILL_DATA = {}
 for card_id, rows in JP_ATTACK_ROWS_BY_CARD.items():
     card = CARD_DATA.get(card_id)
     if card is None:
         continue
     for attack_id, row in zip(card.attacks, rows):
         JP_ATTACK_DATA[attack_id] = row
+for card_id, rows in JP_SKILL_ROWS_BY_CARD.items():
+    card = CARD_DATA.get(card_id)
+    if card is None:
+        continue
+    for skill, row in zip(card.skills, rows):
+        JP_SKILL_DATA[(card_id, skill.name)] = row
 CARD_IMAGE_DIR = ROOT / "card_images" / "jp"
 CARD_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
 
@@ -315,6 +326,17 @@ def attack_summary(attack_id: int):
     }
 
 
+def skill_summary(card_id: int, skill):
+    jp_skill = JP_SKILL_DATA.get((card_id, skill.name))
+    if jp_skill is None:
+        return {"name": skill.name.strip(), "text": skill.text}
+    name = clean_csv_value(jp_skill.get("ワザ名")).removeprefix("[特性]").strip()
+    return {
+        "name": name or skill.name.strip(),
+        "text": clean_csv_value(jp_skill.get("効果の説明")) or skill.text,
+    }
+
+
 def card_detail(card_id: int | None):
     card = CARD_DATA.get(card_id)
     if card is None:
@@ -349,7 +371,7 @@ def card_detail(card_id: int | None):
         "resistance": energy_type_label(card.resistance) if card.resistance is not None else "なし",
         "traits": traits,
         "attacks": [attack_summary(attack_id) for attack_id in card.attacks],
-        "skills": [{"name": skill.name, "text": skill.text} for skill in card.skills],
+        "skills": [skill_summary(card_id, skill) for skill in card.skills],
     }
 
 
@@ -1080,6 +1102,11 @@ HTML = r"""<!doctype html>
       <h2>盤面</h2>
       <div id="status" class="meta"></div>
       <div style="height:12px"></div>
+      <section>
+        <h3>スタジアム</h3>
+        <div id="stadium" class="zone"></div>
+      </section>
+      <div style="height:12px"></div>
       <div id="players" class="players"></div>
     </section>
   </main>
@@ -1143,11 +1170,13 @@ HTML = r"""<!doctype html>
       document.getElementById('message').textContent = '';
       const status = document.getElementById('status');
       const players = document.getElementById('players');
+      const stadium = document.getElementById('stadium');
       const options = document.getElementById('options');
       const logs = document.getElementById('logs');
       const visibleCards = document.getElementById('visibleCards');
       if (!state.started) {
         status.innerHTML = '<span class="pill">未開始</span>';
+        stadium.innerHTML = '<div class="small">なし</div>';
         players.innerHTML = '';
         options.innerHTML = '';
         visibleCards.textContent = '山札や山上など、見えているカードがあるときに表示します。';
@@ -1165,6 +1194,7 @@ HTML = r"""<!doctype html>
         `先攻 Player ${cur.firstPlayer}`,
         finished ? `結果 ${cur.result}` : '進行中'
       ].map(x => `<span class="pill">${esc(x)}</span>`).join('');
+      stadium.innerHTML = renderStadium(cur.stadium || []);
       players.innerHTML = (cur.players || []).map((p, i) => renderPlayer(p, i, cur.yourIndex)).join('');
       renderOptions(finished);
       logs.textContent = (state.logs || []).join('\n');
@@ -1190,6 +1220,17 @@ HTML = r"""<!doctype html>
         <h3>見えている手札</h3>
         <div class="zone">${hand}</div>
       </div>`;
+    }
+
+    function renderStadium(cards) {
+      if (!cards.length) return '<div class="small">なし</div>';
+      return cards.map(c => `<div class="card">
+        ${renderImage(c)}
+        <div>
+          <div class="small">場に出ているスタジアム</div>
+          <strong>${esc(c.name)}</strong>
+        </div>
+      </div>`).join('');
     }
 
     function renderBench(p) {
