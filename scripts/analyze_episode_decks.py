@@ -54,12 +54,15 @@ def format_counter(
     card_rows: dict[int, dict[str, str]],
     *,
     kind: str | None = None,
+    limit: int | None = None,
 ) -> list[str]:
     items = []
     for card_id, count in counter.most_common():
         if kind is not None and card_kind(card_rows, card_id) != kind:
             continue
-        items.append(f"- {count} x {card_name(card_rows, card_id)} (ID {card_id})")
+        items.append(f"- {card_name(card_rows, card_id)} (ID {card_id}): 延べ{count}枚")
+        if limit is not None and len(items) >= limit:
+            break
     return items
 
 
@@ -79,6 +82,8 @@ def archetype_name(counter: Counter[int], card_rows: dict[int, dict[str, str]]) 
         return "メガガルーラex多色"
     if any(name.startswith("ナンジャモの") for name in names):
         return "ナンジャモ雷"
+    if {"ドラメシヤ", "ドロンチ"} <= names:
+        return "ドラパルト系"
     main_pokemon = [
         card_name(card_rows, card_id)
         for card_id, _ in counter.most_common()
@@ -128,13 +133,34 @@ def build_report(input_dir: Path, card_csv: Path) -> str:
                 }
         )
 
-    archetypes: dict[str, dict[str, int]] = defaultdict(lambda: {"appearances": 0, "wins": 0, "losses": 0, "draws": 0})
+    archetypes: dict[str, dict] = defaultdict(
+        lambda: {
+            "appearances": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "pokemon": Counter(),
+            "energy": Counter(),
+            "trainers": Counter(),
+            "examples": [],
+        }
+    )
     for group in groups.values():
         name = archetype_name(group["counter"], card_rows)
         archetypes[name]["appearances"] += len(group["appearances"])
         archetypes[name]["wins"] += group["wins"]
         archetypes[name]["losses"] += group["losses"]
         archetypes[name]["draws"] += group["draws"]
+        for card_id, count in group["counter"].items():
+            kind = card_kind(card_rows, card_id)
+            weighted_count = count * len(group["appearances"])
+            if kind == "ポケモン":
+                archetypes[name]["pokemon"][card_id] += weighted_count
+            elif kind == "エネルギー":
+                archetypes[name]["energy"][card_id] += weighted_count
+            elif kind == "トレーナーズ":
+                archetypes[name]["trainers"][card_id] += weighted_count
+        archetypes[name]["examples"].extend(group["appearances"])
 
     lines = [
         "# 最新エピソードのデッキ概観",
@@ -150,53 +176,34 @@ def build_report(input_dir: Path, card_csv: Path) -> str:
         "- したがって、今回取得したファイルについては 60 枚を復元できる。",
         "- ただし、これは `visualize` 付き公開 episode に依存する。別形式のログでは同じとは限らない。",
         "",
-        "## ざっくりアーキタイプ分類",
+        "## アーキタイプ別の主軸カード",
         "",
     ]
 
     for name, values in sorted(archetypes.items(), key=lambda item: (-item[1]["appearances"], item[0])):
-        lines.append(
-            f"- {name}: {values['appearances']}回、{values['wins']}勝 {values['losses']}敗 {values['draws']}分"
-        )
-
-    lines.extend(
-        [
-            "",
-        "## デッキ一覧",
-        "",
-        ]
-    )
-
-    sorted_groups = sorted(
-        groups.values(),
-        key=lambda g: (-len(g["appearances"]), -g["wins"], str(g["counter"])),
-    )
-    for deck_no, group in enumerate(sorted_groups, 1):
-        counter: Counter[int] = group["counter"]
-        main_pokemon = [
-            card_name(card_rows, card_id)
-            for card_id, _ in counter.most_common()
-            if card_kind(card_rows, card_id) == "ポケモン"
-        ][:4]
-        title = " / ".join(main_pokemon) if main_pokemon else "ポケモン不明"
+        win_rate = values["wins"] / values["appearances"] if values["appearances"] else 0.0
         lines.extend(
             [
-                f"### Deck {deck_no}: {title}",
+                f"### {name}",
                 "",
-                f"- 推定アーキタイプ: {archetype_name(counter, card_rows)}",
-                f"- 出現数: {len(group['appearances'])}",
-                f"- 勝敗: {group['wins']}勝 {group['losses']}敗 {group['draws']}分",
-                "- 使用者:",
+                f"- 出現数: {values['appearances']} / {len(json_paths) * 2}",
+                f"- 勝敗: {values['wins']}勝 {values['losses']}敗 {values['draws']}分",
+                f"- 勝率: {win_rate:.1%}",
+                "- 代表 episode:",
             ]
         )
-        for app in group["appearances"]:
+        for app in values["examples"][:5]:
             lines.append(
-                f"  - Episode {app['episode_id']} P{app['player_index']}: {app['agent_name']} reward={app['reward']}"
+                f"  - Episode {app['episode_id']} P{app['player_index']}: {app['agent_name']} reward={app['reward']} "
+                f"(`downloads/episodes/2026-06-30/{app['episode_id']}.json`)"
             )
 
-        for kind in ["ポケモン", "エネルギー", "トレーナーズ"]:
-            lines.extend(["", f"{kind}:"])
-            lines.extend(format_counter(counter, card_rows, kind=kind) or ["- なし"])
+        lines.extend(["", "主軸ポケモン:"])
+        lines.extend(format_counter(values["pokemon"], card_rows, limit=8) or ["- なし"])
+        lines.extend(["", "よく入るエネルギー:"])
+        lines.extend(format_counter(values["energy"], card_rows, limit=5) or ["- なし"])
+        lines.extend(["", "よく入るトレーナーズ:"])
+        lines.extend(format_counter(values["trainers"], card_rows, limit=10) or ["- なし"])
         lines.append("")
 
     return "\n".join(lines)
