@@ -805,7 +805,7 @@ HTML = r"""<!doctype html>
     h1 { font-size: 20px; margin: 0; }
     main {
       display: grid;
-      grid-template-columns: minmax(280px, 360px) 1fr;
+      grid-template-columns: minmax(340px, 440px) 1fr;
       gap: 14px;
       padding: 14px;
     }
@@ -820,12 +820,12 @@ HTML = r"""<!doctype html>
     label { display: block; font-size: 12px; color: var(--muted); margin: 8px 0 4px; }
     select, button {
       width: 100%;
-      min-height: 36px;
+      min-height: 40px;
       border: 1px solid var(--line);
       border-radius: 6px;
       background: #fff;
       color: var(--text);
-      padding: 6px 8px;
+      padding: 8px 10px;
       font: inherit;
     }
     button {
@@ -946,7 +946,7 @@ HTML = r"""<!doctype html>
     }
     .small { font-size: 12px; color: var(--muted); }
     .options {
-      max-height: 48vh;
+      max-height: 58vh;
       overflow: auto;
       display: grid;
       gap: 8px;
@@ -970,7 +970,7 @@ HTML = r"""<!doctype html>
       white-space: pre-wrap;
     }
     .deck-list {
-      max-height: 220px;
+      max-height: 280px;
       overflow: auto;
       display: grid;
       gap: 6px;
