@@ -432,6 +432,8 @@ def option_label(index: int, option: Option, obs: Observation) -> str:
 
     if option.type == OptionType.NUMBER:
         number = option.number if option.number is not None else "?"
+        if obs.select is not None and obs.select.context == SelectContext.DRAW_COUNT:
+            return f"{index}: {number}枚引く"
         return f"{index}: {number}を選ぶ"
 
     if option.attackId is not None:
@@ -602,6 +604,7 @@ def state_summary(state: State | None):
         "result": state.result,
         "players": players,
         "stadium": [card_summary(card) for card in state.stadium],
+        "looking": visible_card_summary(state.looking, source_label="見ているカード") if state.looking is not None else [],
     }
 
 
@@ -650,15 +653,17 @@ def display_options(select, obs: Observation) -> list[dict]:
     ]
 
 
-def visible_deck_summary(select) -> list[dict]:
-    if select.deck is None:
+def visible_card_summary(cards, selectable_indexes=None, source_label="見えているカード") -> list[dict]:
+    if cards is None:
         return []
+    if selectable_indexes is None:
+        selectable_indexes = set()
     selectable_indexes = {
-        option.index for option in select.option if option.area == AreaType.DECK and option.index is not None
+        index for index in selectable_indexes if index is not None
     }
     grouped = {}
     order = []
-    for index, card in enumerate(select.deck):
+    for index, card in enumerate(cards):
         if card is None:
             key = ("hidden", index)
             name = "非公開"
@@ -676,12 +681,29 @@ def visible_deck_summary(select) -> list[dict]:
                 "count": 0,
                 "selectableCount": 0,
                 "imageUrl": image_url,
+                "source": source_label,
             }
             order.append(key)
         grouped[key]["count"] += 1
         if index in selectable_indexes:
             grouped[key]["selectableCount"] += 1
     return sorted((grouped[key] for key in order), key=lambda item: (-item["selectableCount"], item["name"]))
+
+
+def visible_deck_summary(select) -> list[dict]:
+    if select.deck is None:
+        return []
+    selectable_indexes = {
+        option.index for option in select.option if option.area == AreaType.DECK and option.index is not None
+    }
+    return visible_card_summary(select.deck, selectable_indexes=selectable_indexes, source_label="山札")
+
+
+def context_label(select) -> str:
+    label = CONTEXT_LABELS.get(select.context, enum_name(select.context))
+    if select.context == SelectContext.DRAW_COUNT:
+        return "マリガン追加ドローなど、引く枚数を選ぶ"
+    return label
 
 
 def observation_payload():
@@ -700,7 +722,7 @@ def observation_payload():
         else {
             "type": enum_name(select.type),
             "context": enum_name(select.context),
-            "contextLabel": CONTEXT_LABELS.get(select.context, enum_name(select.context)),
+            "contextLabel": context_label(select),
             "minCount": select.minCount,
             "maxCount": select.maxCount,
             "remainDamageCounter": select.remainDamageCounter,
@@ -1002,8 +1024,8 @@ HTML = r"""<!doctype html>
         <p id="message" class="small"></p>
       </section>
       <section>
-        <h2>見えている山札</h2>
-        <div id="visibleDeck" class="deck-list small">山札を見ているときに表示します。</div>
+        <h2>見えているカード</h2>
+        <div id="visibleCards" class="deck-list small">山札や山上など、見えているカードがあるときに表示します。</div>
       </section>
       <section>
         <h2>直近ログ</h2>
@@ -1079,12 +1101,12 @@ HTML = r"""<!doctype html>
       const players = document.getElementById('players');
       const options = document.getElementById('options');
       const logs = document.getElementById('logs');
-      const visibleDeck = document.getElementById('visibleDeck');
+      const visibleCards = document.getElementById('visibleCards');
       if (!state.started) {
         status.innerHTML = '<span class="pill">未開始</span>';
         players.innerHTML = '';
         options.innerHTML = '';
-        visibleDeck.textContent = '山札を見ているときに表示します。';
+        visibleCards.textContent = '山札や山上など、見えているカードがあるときに表示します。';
         logs.textContent = '';
         document.getElementById('submit').disabled = true;
         document.getElementById('empty').disabled = true;
@@ -1215,10 +1237,11 @@ HTML = r"""<!doctype html>
       const options = document.getElementById('options');
       const submit = document.getElementById('submit');
       const empty = document.getElementById('empty');
+      const cur = state.current || {};
       if (finished) {
         meta.innerHTML = `<span class="ok">対戦終了: winner/result ${esc(state.current.result)}</span>`;
         options.innerHTML = '';
-        renderVisibleDeck([]);
+        renderVisibleCards([]);
         submit.disabled = true;
         empty.disabled = true;
         return;
@@ -1226,7 +1249,7 @@ HTML = r"""<!doctype html>
       if (!state.select) {
         meta.textContent = '選択肢なし';
         options.innerHTML = '';
-        renderVisibleDeck([]);
+        renderVisibleCards(cur.looking || []);
         submit.disabled = true;
         empty.disabled = true;
         return;
@@ -1237,7 +1260,7 @@ HTML = r"""<!doctype html>
         <input type="checkbox" value="${o.index}">
         <span>${renderOptionImage(o)}${esc(o.label)}</span>
       </label>`).join('');
-      renderVisibleDeck(s.visibleDeck || []);
+      renderVisibleCards([...(s.visibleDeck || []), ...(cur.looking || [])]);
       submit.disabled = false;
       empty.disabled = s.minCount !== 0;
     }
@@ -1247,17 +1270,17 @@ HTML = r"""<!doctype html>
       return `<img class="card-img" src="${esc(option.imageUrl)}" alt="" style="width:40px;float:left;margin:0 8px 4px 0">`;
     }
 
-    function renderVisibleDeck(cards) {
-      const box = document.getElementById('visibleDeck');
+    function renderVisibleCards(cards) {
+      const box = document.getElementById('visibleCards');
       if (!cards.length) {
-        box.textContent = '山札を見ているときに表示します。';
+        box.textContent = '山札や山上など、見えているカードがあるときに表示します。';
         return;
       }
       box.innerHTML = cards.map(card => `<div class="deck-row">
         ${renderImage(card)}
         <div>
           <strong>${esc(card.name)}</strong>
-          <div class="small">${card.selectableCount ? `選択可 ${esc(card.selectableCount)}枚` : '今回は選択不可'}</div>
+          <div class="small">${esc(card.source || '見えているカード')} / ${card.selectableCount ? `選択可 ${esc(card.selectableCount)}枚` : '今回は選択不可'}</div>
         </div>
         <strong>${esc(card.count)}枚</strong>
       </div>`).join('');

@@ -38,7 +38,7 @@
 - `API.txt` は認証情報なので共有しない
 - `downloads/`, `models/`, `submissions/`, `build/` は生成物なので基本的にGit管理しない
 - 初心者メンバーは Git から最新版を取り、公式サイトでデッキを作る
-- デッキコードを `デッキコード登録.bat` に入れて、`OK` なら公式Visualizer用リプレイで確認する
+- デッキコードを `デッキコード登録.bat` に入れて、`OK` ならGUIでプレイする
 - 良いデッキができたら、デッキコードを助友に直接送る
 
 ## 評価方法
@@ -55,29 +55,35 @@ python scripts/batch_evaluate.py --games 50 --seed 1
 python scripts/batch_evaluate.py --agent agents/rb_001_baseline.py --deck decks/deck_001_sample.csv --games 100
 ```
 
-## 公式Visualizer
+## 手動プレイGUI
 
-競技運営から、非公式Replay Viewerは規約違反という案内が出ています。対戦の確認は公式Visualizerに統一します。
+両プレイヤーを自分で操作して、デッキの動きを確認できます。
 
-公式Notebook:
+カード画像をローカルPDFから生成:
 
 ```text
-https://www.kaggle.com/code/kiyotah/how-to-output-local-battle-as-json-and-view
+カード画像生成.bat
 ```
 
-ローカル対戦JSONを作成:
+友人向け:
 
 ```text
-リプレイJSON作成.bat
+GUI起動.bat
 ```
 
 実装担当向け:
 
 ```bash
-python scripts/export_visualizer_json.py --output experiments/visualizer/latest_replay.json
+python scripts/manual_play_server.py --port 8765
 ```
 
-`scripts/manual_play_server.py` は公式Viewerの代替として使いません。必要な場合も内部確認用に限定します。
+起動後、ブラウザで開きます。
+
+```text
+http://127.0.0.1:8765
+```
+
+公式VisualizerでリプレイJSONを見る場合は `OFFICIAL_VISUALIZER.md` を参照してください。
 
 ## デッキ検証
 
@@ -87,7 +93,7 @@ python scripts/export_visualizer_json.py --output experiments/visualizer/latest_
 python scripts/check_decks.py
 ```
 
-公式デッキコードをCSVへ変換します。変換・検証に通った場合だけ `decks/local/` にCSVが出力され、ローカル評価やリプレイJSON作成で使えます。
+公式デッキコードをCSVへ変換します。変換・検証に通った場合だけ `decks/local/` にCSVが出力され、GUIで使えます。
 
 友人向け:
 

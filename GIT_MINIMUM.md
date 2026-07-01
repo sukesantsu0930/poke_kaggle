@@ -18,7 +18,7 @@ GitHub Desktopで `Fetch origin` または `Pull origin` を押してくださ�
 
 ```text
 デッキコード登録.bat
-リプレイJSON作成.bat
+GUI起動.bat
 ```
 
 ## 共有する
@@ -33,6 +33,5 @@ GitHub Desktopで `Fetch origin` または `Pull origin` を押してくださ�
 - `models/` や `downloads/` は基本的に共有しない
 - デッキCSVは直接編集しない
 - デッキは公式サイトで作り、デッキコードをシステムに入れる
-- 対戦確認は公式Visualizerで見る
 - `agents/`, `scripts/`, `submission/`, `decks/` は編集しない
 - 分からなくなったら画面の文章を実装担当に送る

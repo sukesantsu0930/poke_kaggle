@@ -1,20 +1,8 @@
-# 手動プレイ用GUI案（停止）
+# 手動プレイ用GUI案
 
-公式アナウンスで、非公式Replay Viewerは規約違反という案内が出たため、この案は通常運用では使わない。
+手動で1手ずつ操作してデッキを試す用途では、このプロジェクトのGUIを使う。
 
-対戦確認は公式Visualizer/Replay Viewerに統一する。
-
-公式Notebook:
-
-```text
-https://www.kaggle.com/code/kiyotah/how-to-output-local-battle-as-json-and-view
-```
-
-ローカル対戦JSON:
-
-```powershell
-python scripts\export_visualizer_json.py --output experiments\visualizer\latest_replay.json
-```
+公式VisualizerはリプレイJSONを見る用途なので、別途 `OFFICIAL_VISUALIZER.md` に分ける。
 
 目的は、安福さん・長谷川さんが「デッキを作る -> 自分で試しにプレイする -> 気づきをメモする」を回せるようにすること。
 
