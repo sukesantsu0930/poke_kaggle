@@ -17,6 +17,7 @@ if str(SUBMISSION) not in sys.path:
 from cg.api import (  # noqa: E402
     AreaType,
     Card,
+    CardType,
     Log,
     Observation,
     Option,
@@ -209,9 +210,11 @@ def validate_selection(indexes: list[int], obs: Observation):
             raise ValueError(f"Option index out of range: {index}")
 
 
-def card_name(card_id: int | None) -> str:
+def card_name(card_id: int | None, *, generic_energy: bool = True) -> str:
     if card_id is None:
         return ""
+    if generic_energy and is_energy_card(card_id):
+        return "エネルギー"
     jp_name = JP_CARD_NAMES.get(card_id)
     if jp_name is not None:
         return f"{jp_name} (ID {card_id})"
@@ -219,6 +222,13 @@ def card_name(card_id: int | None) -> str:
     if card is None:
         return f"#{card_id}"
     return f"{card.name} (ID {card_id})"
+
+
+def is_energy_card(card_id: int | None) -> bool:
+    if card_id is None:
+        return False
+    card = CARD_DATA.get(card_id)
+    return card is not None and card.cardType in (CardType.BASIC_ENERGY, CardType.SPECIAL_ENERGY)
 
 
 def card_from_option(option: Option, obs: Observation) -> Card | None:
@@ -358,9 +368,11 @@ def target_label(option: Option, obs: Observation) -> str:
     if option.inPlayArea == AreaType.ACTIVE and 0 <= option.inPlayIndex < len(player.active):
         pokemon = player.active[option.inPlayIndex]
         if pokemon is not None:
-            return card_name(pokemon.id)
+            return f"バトル場（{card_name(pokemon.id)}）"
+        return "バトル場"
     if option.inPlayArea == AreaType.BENCH and 0 <= option.inPlayIndex < len(player.bench):
-        return card_name(player.bench[option.inPlayIndex].id)
+        bench_no = option.inPlayIndex + 1
+        return f"ベンチ{bench_no}（{card_name(player.bench[option.inPlayIndex].id)}）"
     return f"{area_label(option.inPlayArea)} {option.inPlayIndex}"
 
 
@@ -849,17 +861,29 @@ HTML = r"""<!doctype html>
         <h3>バトル場</h3>
         <div class="zone">${(p.active || []).map(renderPokemon).join('') || '<div class="small">なし</div>'}</div>
         <h3>ベンチ</h3>
-        <div class="zone">${(p.bench || []).map(renderPokemon).join('') || '<div class="small">なし</div>'}</div>
+        <div class="zone">${renderBench(p)}</div>
         <h3>見えている手札</h3>
         <div class="zone">${hand}</div>
       </div>`;
     }
 
-    function renderPokemon(mon) {
+    function renderBench(p) {
+      const cards = p.bench || [];
+      const slots = [];
+      for (let i = 0; i < 5; i++) {
+        slots.push(renderPokemon(cards[i] || null, `ベンチ${i + 1}`));
+      }
+      return slots.join('');
+    }
+
+    function renderPokemon(mon, slotLabel) {
+      const label = slotLabel ? `<div class="small">${esc(slotLabel)}</div>` : '';
+      if (!mon) return `<div class="mon">${label}<strong>空き</strong></div>`;
       if (mon.hidden) return '<div class="mon"><strong>非公開</strong></div>';
       return `<div class="mon">
         ${renderImage(mon)}
         <div>
+          ${label}
           <strong>${esc(mon.name)}</strong>
           <span class="small">HP ${esc(mon.hp)} / ${esc(mon.maxHp)} | エネルギー ${esc((mon.energies || []).join(', ') || 'なし')}</span>
         </div>
@@ -871,7 +895,6 @@ HTML = r"""<!doctype html>
         ${renderImage(c)}
         <div>
           <strong>${esc(c.name)}</strong>
-          <span class="small">serial ${esc(c.serial)}</span>
         </div>
       </div>`;
     }
