@@ -103,3 +103,12 @@ docker compose run --rm ptcg python scripts/docker_gpu_check.py
 - `Competition_Rules.md` は公式原文なので変更しない。
 - 初心者メンバーは基本的に公式サイトのデッキコードをシステムに入れてGUIでプレイするだけ。CSVや実装ファイルは直接編集しない。
 - `agents/`, `scripts/`, `submission/`, `models/`, `training/`, `docker/` は実装担当側で管理する。
+
+### 行動空間削減の方針
+
+- GUIの選択肢削減は、後段のエージェント開発における行動空間削減の土台として扱う。
+- 同質な行動だけを畳む。見た目が似ているだけの行動は削除しない。
+- 現時点では、同じ基本エネルギータイプを同じポケモンへつける選択肢だけを代表1つに畳む。
+- 付け先が違う場合、基本エネルギーのタイプが違う場合、特殊エネルギーのカードIDが違う場合は別行動として残す。
+- 共通ロジックは `scripts/action_abstraction.py` に置き、GUIだけでなく将来のAgentからも参照できる形にする。
+- 回帰テストは `tests/test_action_abstraction.py` に置く。

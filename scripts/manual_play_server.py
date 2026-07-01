@@ -18,6 +18,7 @@ from cg.api import (  # noqa: E402
     AreaType,
     Card,
     CardType,
+    EnergyType,
     Log,
     Observation,
     Option,
@@ -31,6 +32,7 @@ from cg.api import (  # noqa: E402
     to_observation_class,
 )
 from cg.game import battle_finish, battle_select, battle_start  # noqa: E402
+from action_abstraction import collapse_equivalent_options  # noqa: E402
 from deck_validation import validate_deck_file  # noqa: E402
 
 
@@ -44,6 +46,21 @@ if JP_CARD_DATA.exists():
             JP_CARD_NAMES.setdefault(int(row["カード ID"]), row["カード名"])
 CARD_IMAGE_DIR = ROOT / "card_images" / "jp"
 CARD_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
+
+ENERGY_TYPE_LABELS = {
+    EnergyType.GRASS: "草",
+    EnergyType.FIRE: "炎",
+    EnergyType.WATER: "水",
+    EnergyType.LIGHTNING: "雷",
+    EnergyType.PSYCHIC: "超",
+    EnergyType.FIGHTING: "闘",
+    EnergyType.DARKNESS: "悪",
+    EnergyType.METAL: "鋼",
+    EnergyType.COLORLESS: "無色",
+    EnergyType.DRAGON: "ドラゴン",
+    EnergyType.RAINBOW: "全タイプ",
+    EnergyType.TEAM_ROCKET: "ロケット団",
+}
 
 AREA_LABELS = {
     AreaType.DECK: "山札",
@@ -213,8 +230,10 @@ def validate_selection(indexes: list[int], obs: Observation):
 def card_name(card_id: int | None, *, generic_energy: bool = True) -> str:
     if card_id is None:
         return ""
-    if generic_energy and is_energy_card(card_id):
-        return "エネルギー"
+    if generic_energy:
+        energy_name = energy_card_name(card_id)
+        if energy_name:
+            return energy_name
     jp_name = JP_CARD_NAMES.get(card_id)
     if jp_name is not None:
         return f"{jp_name} (ID {card_id})"
@@ -224,11 +243,21 @@ def card_name(card_id: int | None, *, generic_energy: bool = True) -> str:
     return f"{card.name} (ID {card_id})"
 
 
-def is_energy_card(card_id: int | None) -> bool:
+def energy_card_name(card_id: int | None) -> str:
     if card_id is None:
-        return False
+        return ""
     card = CARD_DATA.get(card_id)
-    return card is not None and card.cardType in (CardType.BASIC_ENERGY, CardType.SPECIAL_ENERGY)
+    if card is None:
+        return ""
+    if card.cardType == CardType.BASIC_ENERGY:
+        energy_type = ENERGY_TYPE_LABELS.get(card.energyType, enum_name(card.energyType))
+        return f"基本{energy_type}エネルギー"
+    if card.cardType == CardType.SPECIAL_ENERGY:
+        jp_name = JP_CARD_NAMES.get(card_id)
+        if jp_name is not None:
+            return jp_name
+        return card.name
+    return ""
 
 
 def card_from_option(option: Option, obs: Observation) -> Card | None:
@@ -497,23 +526,18 @@ def log_label(log: Log) -> str:
 
 
 def display_options(select, obs: Observation) -> list[dict]:
-    visible = []
-    seen = set()
-    for index, option in enumerate(select.option):
-        key = equivalent_option_key(option, obs)
-        if key is not None:
-            if key in seen:
-                continue
-            seen.add(key)
-        visible.append({"index": index, "label": option_label(len(visible), option, obs)})
-    return visible
-
-
-def equivalent_option_key(option: Option, obs: Observation):
-    card = card_from_option(option, obs)
-    if option.type == OptionType.ATTACH and card is not None and is_energy_card(card.id):
-        return ("attach-energy", option.inPlayArea, option.inPlayIndex, option.playerIndex)
-    return None
+    choices = collapse_equivalent_options(
+        select.option,
+        lambda option: card_from_option(option, obs),
+        CARD_DATA,
+    )
+    return [
+        {
+            "index": choice.source_index,
+            "label": option_label(choice.display_index, choice.option, obs),
+        }
+        for choice in choices
+    ]
 
 
 def observation_payload():
