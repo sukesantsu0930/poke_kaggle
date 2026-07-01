@@ -14,10 +14,10 @@ Gitで共有するコンパイル済みデッキCSVをここに置きます。
 
 各デッキファイルは必ず60行にしてください。1行につきカードIDを1つだけ書きます。
 
-デッキコードをCSVへ変換する例:
+友人向けのデッキコード登録:
 
-```powershell
-python scripts\import_deck_code.py 4GGxYc-KmW2Iv-8c4c8c
+```text
+デッキコード登録.bat
 ```
 
 デッキとエージェントを組み合わせて提出zipを作る例:

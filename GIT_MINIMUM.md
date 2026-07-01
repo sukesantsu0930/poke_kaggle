@@ -4,36 +4,21 @@
 
 ## 最初に一度だけ
 
-GitHub Desktopを使う場合は、GitHub DesktopでリポジトリをCloneしてください。
-
-コマンドでやる場合:
-
-```bash
-git clone <repo-url>
-cd poke_kaggle
-```
+GitHub DesktopでリポジトリをCloneしてください。
 
 ## 毎回、作業前にやる
 
-```bash
-git pull
-```
+GitHub Desktopで `Fetch origin` または `Pull origin` を押してください。
 
 ## 作業する
 
 初心者メンバーは、基本的にファイルを編集しません。
 
-使うコマンドは主に次の2つです。
+使うファイルは主に次の2つです。
 
-```bash
-python scripts/import_deck_code.py <デッキコード>
-python scripts/manual_play_server.py --port 8765
-```
-
-## 変更を確認する
-
-```bash
-git status
+```text
+デッキコード登録.bat
+GUI起動.bat
 ```
 
 ## 共有する
@@ -49,4 +34,4 @@ git status
 - デッキCSVは直接編集しない
 - デッキは公式サイトで作り、デッキコードをシステムに入れる
 - `agents/`, `scripts/`, `submission/`, `decks/` は編集しない
-- 分からなくなったら `git status` の結果を実装担当に送る
+- 分からなくなったら画面の文章を実装担当に送る

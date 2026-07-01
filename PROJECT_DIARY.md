@@ -92,9 +92,9 @@ docker compose run --rm ptcg python scripts/docker_gpu_check.py
 - `API.txt` やKaggleデータ、生成zip、PDF、モデルファイルがGitに入らないことを確認する。
 - GitHubに共有用リポジトリを作る。
 - 安福・長谷川に `安福_長谷川向け.md` と `GIT_MINIMUM.md` を読んでもらう。
-- 友人には公式サイトでデッキを作り、`scripts/import_deck_code.py` で自分でコンパイルし、GUIでプレイするループを回してもらう。
+- 友人には公式サイトでデッキを作り、`デッキコード登録.bat` で自分でコンパイルし、`GUI起動.bat` でプレイするループを回してもらう。
 - 良いものだけデッキコードと気づいたことを助友に直接送ってもらう。
-- Gitへの反映は助友が行う。友人側は基本的に `git pull` で最新版を取ってシステムを使うだけにする。
+- Gitへの反映は助友が行う。友人側は基本的にGitHub Desktopで最新版を取ってシステムを使うだけにする。
 - ユーザー本人が `agents/` と `decks/` を増やし、Codex側が評価・集計を回す。
 
 ### 注意
