@@ -189,16 +189,16 @@ HTML = r"""<!doctype html>
           body: JSON.stringify({submit_command: submitCommand}),
         });
         const data = await res.json();
-        if (!res.ok || !data.ok) {
-          throw new Error(data.error || "submit failed");
-        }
         setStatus(
-          "DONE\n" +
+          (data.ok ? "DONE\n" : "FAILED\n") +
           "returncode: " + data.result.returncode + "\n" +
           data.result.stdout + "\n" +
           data.result.stderr,
           data.result.returncode === 0 ? "ok" : "error"
         );
+        if (!res.ok || !data.ok) {
+          return;
+        }
       } catch (error) {
         setStatus("ERROR: " + error.message, "error");
       } finally {

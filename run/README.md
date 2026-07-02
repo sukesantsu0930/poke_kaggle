@@ -165,6 +165,8 @@ experiments\visualizer\latest_agent_log.json
 kaggle competitions submit -c pokemon-tcg-ai-battle -f 提出zip -m "Message"
 ```
 
+Kaggle CLI の認証には、プロジェクト直下の `.kaggle\access_token` を使います。`Submit to Kaggle` が失敗した場合は、画面に表示される `stderr` を確認してください。
+
 ## 1000エピソード分析.bat
 
 Kaggle の上位エピソードをまとめて分析するときに使います。
