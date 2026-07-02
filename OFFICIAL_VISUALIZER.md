@@ -10,6 +10,18 @@
 https://www.kaggle.com/code/kiyotah/how-to-output-local-battle-as-json-and-view
 ```
 
+ローカルコピー:
+
+```text
+notebooks\official_visualizer\how-to-output-local-battle-as-json-and-view.ipynb
+```
+
+フォルダを開く:
+
+```text
+公式Visualizerフォルダを開く.bat
+```
+
 ## ローカル対戦JSONを作る
 
 ```text
