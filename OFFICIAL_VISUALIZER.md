@@ -19,13 +19,13 @@ notebooks\official_visualizer\how-to-output-local-battle-as-json-and-view.ipynb
 フォルダを開く:
 
 ```text
-公式Visualizerフォルダを開く.bat
+run\公式Visualizerフォルダを開く.bat
 ```
 
 ## ローカル対戦JSONを作る
 
 ```text
-リプレイJSON作成.bat
+run\リプレイJSON作成.bat
 ```
 
 または:
@@ -42,7 +42,7 @@ experiments\visualizer\latest_replay.json
 
 ## 使い分け
 
-- 手動でデッキを試す: `GUI起動.bat`
-- AI同士またはAgent対Randomのリプレイを見る: `リプレイJSON作成.bat` -> 公式Visualizer
+- 手動でデッキを試す: `run\GUI起動.bat`
+- AI同士またはAgent対Randomのリプレイを見る: `run\リプレイJSON作成.bat` -> 公式Visualizer
 
 非公式Replay Viewerとして公開・配布する用途では使わない。

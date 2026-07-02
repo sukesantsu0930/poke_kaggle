@@ -1,5 +1,5 @@
 @echo off
-cd /d "%~dp0"
+cd /d "%~dp0\.."
 
 echo.
 echo Creating a local replay JSON for the official Kaggle Visualiser.

@@ -10,7 +10,7 @@ https://www.kaggle.com/code/kiyotah/how-to-output-local-battle-as-json-and-view
 
 対戦後に出力したリプレイ JSON を、公式 Visualizer で確認するために使います。
 
-手動で 1 手ずつプレイする用途では、このプロジェクトの `GUI起動.bat` を使います。
+手動で 1 手ずつプレイする用途では、このプロジェクトの `run\GUI起動.bat` を使います。
 
 ## まず見るファイル
 
@@ -25,7 +25,7 @@ how-to-output-local-battle-as-json-and-view.ipynb
 プロジェクト直下で次を実行します。
 
 ```text
-リプレイJSON作成.bat
+run\リプレイJSON作成.bat
 ```
 
 出力先:
@@ -43,4 +43,3 @@ $env:KAGGLE_CONFIG_DIR = "$PWD\.kaggle"
 $env:KAGGLE_API_TOKEN = Get-Content .kaggle\access_token
 kaggle kernels pull kiyotah/how-to-output-local-battle-as-json-and-view -p notebooks\official_visualizer -m
 ```
-

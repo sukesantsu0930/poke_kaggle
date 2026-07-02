@@ -38,8 +38,12 @@
 - `API.txt` は認証情報なので共有しない
 - `downloads/`, `models/`, `submissions/`, `build/` は生成物なので基本的にGit管理しない
 - 初心者メンバーは Git から最新版を取り、公式サイトでデッキを作る
-- デッキコードを `デッキコード登録.bat` に入れて、`OK` ならGUIでプレイする
+- デッキコードを `run\デッキコード登録.bat` に入れて、`OK` ならGUIでプレイする
 - 良いデッキができたら、デッキコードを助友に直接送る
+
+## 実行用ファイル
+
+自分でダブルクリックして使う `.bat` は `run/` に集約しています。
 
 ## 評価方法
 
@@ -62,13 +66,13 @@ python scripts/batch_evaluate.py --agent agents/rb_001_baseline.py --deck decks/
 カード画像をローカルPDFから生成:
 
 ```text
-カード画像生成.bat
+run\カード画像生成.bat
 ```
 
 友人向け:
 
 ```text
-GUI起動.bat
+run\GUI起動.bat
 ```
 
 実装担当向け:
@@ -98,7 +102,7 @@ python scripts/check_decks.py
 友人向け:
 
 ```text
-デッキコード登録.bat
+run\デッキコード登録.bat
 ```
 
 実装担当向け:
@@ -114,7 +118,7 @@ deck CSVを、ローカルカード画像つきのHTMLにします。
 友人向け:
 
 ```text
-デッキ可視化.bat
+run\デッキ可視化.bat
 ```
 
 実装担当向け:

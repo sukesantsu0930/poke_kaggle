@@ -1,5 +1,5 @@
 @echo off
-cd /d "%~dp0"
+cd /d "%~dp0\.."
 
 echo.
 echo Generating local card images from Card_ID List_JP.pdf.
