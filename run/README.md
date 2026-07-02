@@ -9,6 +9,7 @@
 3. デッキ内容を確認するなら `デッキ可視化.bat`
 4. 自分で対戦して試すなら `GUI起動.bat`
 5. エージェント同士の動きを見るなら `リプレイJSON作成.bat`
+6. Kaggle に提出するなら `提出.bat`
 
 黒い画面が出たら、完了するまで閉じないでください。`DONE` や `OK` が出れば成功です。`FAILED`、`NG`、`ERROR` が出た場合は、その画面を助友に送ってください。
 
@@ -143,6 +144,27 @@ experiments\visualizer\latest_agent_log.json
 このプロジェクトの手動GUIとは別物です。公式 Visualizer は、作成済みのリプレイを見るために使います。
 
 黒い画面はローカルサーバーです。使っている間は閉じないでください。
+
+## 提出.bat
+
+Kaggle に提出する zip を作り、確認後にそのまま提出します。
+
+使い方:
+
+1. `提出.bat` をダブルクリックする
+2. `Agent` に提出するエージェントを入力する
+3. `Deck` に提出するデッキCSVを入力する
+4. `Message` に提出メッセージを入力する
+5. zip が `submissions\YYYY-MM-DD\` に作成される
+6. 本当に提出する場合だけ `SUBMIT` と入力する
+
+何も入力せず Enter を押すと、既定のクマシュン・オーガポン用エージェントとデッキで作成します。
+
+このコンペでは、`main.py`、`deck.csv`、`cg/` を含む zip を提出します。実行する Kaggle コマンドは次の形です。
+
+```text
+kaggle competitions submit -c pokemon-tcg-ai-battle -f 提出zip -m "Message"
+```
 
 ## 1000エピソード分析.bat
 
