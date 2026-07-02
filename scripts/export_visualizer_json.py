@@ -27,14 +27,14 @@ def read_deck(path: Path) -> list[int]:
     return [int(value) for value in values]
 
 
-def load_agent(path: Path):
+def load_agent(path: Path, module_name: str):
     if path.is_dir():
         path = path / "main.py"
-    spec = importlib.util.spec_from_file_location("local_agent", path)
+    spec = importlib.util.spec_from_file_location(module_name, path)
     if spec is None or spec.loader is None:
         raise ValueError(f"Cannot load agent: {path}")
     module = importlib.util.module_from_spec(spec)
-    sys.modules["local_agent"] = module
+    sys.modules[module_name] = module
     spec.loader.exec_module(module)
     if not hasattr(module, "agent"):
         raise ValueError(f"{path} does not define agent(obs).")
@@ -134,19 +134,13 @@ def option_label(obs, index: int) -> str:
     return f"{index}: {base}" + (f" {' / '.join(details)}" if details else "")
 
 
-def build_action_record(step: int, obs_dict: dict, action: list[int], actor: str, agent_module=None) -> dict:
+def build_action_record(step: int, obs_dict: dict, action: list[int], actor: str) -> dict:
     obs = to_observation_class(obs_dict)
     selected = []
     options = []
     if obs.select is not None:
         options = [option_label(obs, i) for i in range(len(obs.select.option))]
         selected = [option_label(obs, i) for i in action if 0 <= i < len(obs.select.option)]
-    reason = ""
-    if agent_module is not None and hasattr(agent_module, "explain_action"):
-        try:
-            reason = agent_module.explain_action(obs_dict, action)
-        except Exception as exc:
-            reason = f"explain_action failed: {type(exc).__name__}: {exc}"
     return {
         "step": step,
         "actor": actor,
@@ -158,7 +152,6 @@ def build_action_record(step: int, obs_dict: dict, action: list[int], actor: str
         "max_count": obs.select.maxCount if obs.select is not None else None,
         "action": action,
         "selected": selected,
-        "reason": reason,
         "options": options,
     }
 
@@ -171,11 +164,12 @@ def random_action(obs_dict: dict) -> list[int]:
     return random.sample(range(len(obs.select.option)), count)
 
 
-def run_game(agent_module, deck0: list[int], deck1: list[int], max_steps: int) -> tuple[object, dict, list[dict]]:
+def run_game(agent0_module, agent1_module, deck0: list[int], deck1: list[int], max_steps: int) -> tuple[object, dict, list[dict]]:
     obs, start = battle_start(deck0, deck1)
     if obs is None:
         raise RuntimeError(f"battle_start failed: errorPlayer={start.errorPlayer} errorType={start.errorType}")
 
+    agent_modules = [agent0_module, agent1_module]
     try:
         result = -1
         steps = 0
@@ -185,9 +179,10 @@ def run_game(agent_module, deck0: list[int], deck1: list[int], max_steps: int) -
             if typed.current is not None and typed.current.result != -1:
                 result = typed.current.result
                 break
-            if typed.current is not None and typed.current.yourIndex == 0:
-                action = agent_module.agent(obs)
-                action_log.append(build_action_record(steps, obs, action, "agent", agent_module))
+            if typed.current is not None and typed.current.yourIndex in (0, 1):
+                player_index = typed.current.yourIndex
+                action = agent_modules[player_index].agent(obs)
+                action_log.append(build_action_record(steps, obs, action, f"agent{player_index}"))
             else:
                 action = random_action(obs)
                 action_log.append(build_action_record(steps, obs, action, "random"))
@@ -209,8 +204,9 @@ def run_game(agent_module, deck0: list[int], deck1: list[int], max_steps: int) -
 
 def main():
     parser = argparse.ArgumentParser(description="公式Visualizer用のローカル対戦JSONを出力します。")
-    parser.add_argument("--agent", default="agents/cubchoo_ogerpon_rb")
+    parser.add_argument("--agent0", default="agents/cubchoo_ogerpon_rb")
     parser.add_argument("--deck0", default="decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv")
+    parser.add_argument("--agent1", default="agents/cubchoo_ogerpon_rb")
     parser.add_argument("--deck1", default="decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv")
     parser.add_argument("--output", default="experiments/visualizer/latest_replay.json")
     parser.add_argument("--agent-log", default="experiments/visualizer/latest_agent_log.json")
@@ -219,10 +215,11 @@ def main():
     args = parser.parse_args()
 
     random.seed(args.seed)
-    agent_module = load_agent((ROOT / args.agent).resolve())
+    agent0_module = load_agent((ROOT / args.agent0).resolve(), "local_agent0")
+    agent1_module = load_agent((ROOT / args.agent1).resolve(), "local_agent1")
     deck0 = read_deck((ROOT / args.deck0).resolve())
     deck1 = read_deck((ROOT / args.deck1).resolve())
-    visualizer_payload, meta, action_log = run_game(agent_module, deck0, deck1, args.max_steps)
+    visualizer_payload, meta, action_log = run_game(agent0_module, agent1_module, deck0, deck1, args.max_steps)
 
     output = (ROOT / args.output).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
