@@ -11,7 +11,7 @@ SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-from prepare_submission import DEFAULT_AGENT, DEFAULT_DECK, DEFAULT_MESSAGE, prepare_submission, submit_prepared  # noqa: E402
+from prepare_submission import DEFAULT_AGENT, DEFAULT_DECK, DEFAULT_MESSAGE, prepare_submission  # noqa: E402
 from visualizer_workflow_server import discover_agents, discover_decks  # noqa: E402
 
 
@@ -20,7 +20,7 @@ HTML = r"""<!doctype html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kaggle Submission</title>
+  <title>Submission Zip Builder</title>
   <style>
     body {
       color: #222;
@@ -79,7 +79,7 @@ HTML = r"""<!doctype html>
   </style>
 </head>
 <body>
-  <h1>Kaggle Submission</h1>
+  <h1>Submission Zip Builder</h1>
 
   <div class="grid">
     <label for="agent">Agent</label>
@@ -94,16 +94,13 @@ HTML = r"""<!doctype html>
 
   <div class="actions">
     <button id="buildButton" type="button">Build Zip</button>
-    <button id="submitButton" type="button" disabled>Submit to Kaggle</button>
   </div>
 
   <div id="status">Loading options...</div>
 
   <script>
-    let submitCommand = null;
     const status = document.getElementById("status");
     const buildButton = document.getElementById("buildButton");
-    const submitButton = document.getElementById("submitButton");
 
     function setStatus(message, className) {
       status.textContent = message;
@@ -134,8 +131,6 @@ HTML = r"""<!doctype html>
     }
 
     async function buildZip() {
-      submitCommand = null;
-      submitButton.disabled = true;
       buildButton.disabled = true;
       setStatus("Building submission zip...", "");
 
@@ -155,12 +150,13 @@ HTML = r"""<!doctype html>
         if (!res.ok || !data.ok) {
           throw new Error(data.error || "build failed");
         }
-        submitCommand = data.submit_command;
-        submitButton.disabled = false;
         setStatus(
           "DONE\n" +
           "Zip: " + data.zip_relative + "\n" +
-          "Command: " + data.submit_command.join(" "),
+          "\n" +
+          "Submit manually on Kaggle.\n" +
+          "If using CLI manually, run:\n" +
+          data.submit_command.join(" "),
           "ok"
         );
       } catch (error) {
@@ -170,45 +166,7 @@ HTML = r"""<!doctype html>
       }
     }
 
-    async function submitToKaggle() {
-      if (!submitCommand) {
-        setStatus("ERROR: Build zip first.", "error");
-        return;
-      }
-      if (!window.confirm("Submit this zip to Kaggle now?")) {
-        return;
-      }
-      submitButton.disabled = true;
-      buildButton.disabled = true;
-      setStatus("Submitting to Kaggle...", "warn");
-
-      try {
-        const res = await fetch("/api/submit", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({submit_command: submitCommand}),
-        });
-        const data = await res.json();
-        setStatus(
-          (data.ok ? "DONE\n" : "FAILED\n") +
-          "returncode: " + data.result.returncode + "\n" +
-          data.result.stdout + "\n" +
-          data.result.stderr,
-          data.result.returncode === 0 ? "ok" : "error"
-        );
-        if (!res.ok || !data.ok) {
-          return;
-        }
-      } catch (error) {
-        setStatus("ERROR: " + error.message, "error");
-      } finally {
-        submitButton.disabled = false;
-        buildButton.disabled = false;
-      }
-    }
-
     buildButton.addEventListener("click", buildZip);
-    submitButton.addEventListener("click", submitToKaggle);
     loadOptions().catch(error => setStatus("ERROR: " + error.message, "error"));
   </script>
 </body>
@@ -248,13 +206,6 @@ class Handler(BaseHTTPRequestHandler):
                 )
                 self.send_json({"ok": True, **prepared})
                 return
-            if parsed.path == "/api/submit":
-                command = body.get("submit_command")
-                if not isinstance(command, list):
-                    raise ValueError("submit_command must be a list")
-                result = submit_prepared([str(item) for item in command])
-                self.send_json({"ok": result["returncode"] == 0, "result": result})
-                return
             self.send_json({"ok": False, "error": "not found"}, status=404)
         except Exception as exc:
             self.send_json({"ok": False, "error": f"{type(exc).__name__}: {exc}"}, status=400)
@@ -286,7 +237,7 @@ def main():
     args = parser.parse_args()
 
     server = ThreadingHTTPServer((args.host, args.port), Handler)
-    print(f"Kaggle submission workflow: http://{args.host}:{args.port}")
+    print(f"Submission zip builder: http://{args.host}:{args.port}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

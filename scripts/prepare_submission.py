@@ -1,6 +1,5 @@
 import argparse
 import json
-import os
 import re
 import subprocess
 import sys
@@ -96,19 +95,6 @@ def prepare_submission(agent: str, deck: str, message: str, date: str | None = N
         "zip_relative": str(built.relative_to(ROOT)),
         "message": message,
         "submit_command": command,
-    }
-
-
-def submit_prepared(command: list[str]) -> dict:
-    env = os.environ.copy()
-    access_token = ROOT / ".kaggle" / "access_token"
-    if "KAGGLE_API_TOKEN" not in env and access_token.exists():
-        env["KAGGLE_API_TOKEN"] = access_token.read_text(encoding="utf-8").strip()
-    result = subprocess.run(command, cwd=ROOT, env=env, capture_output=True, text=True)
-    return {
-        "returncode": result.returncode,
-        "stdout": result.stdout,
-        "stderr": result.stderr,
     }
 
 

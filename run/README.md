@@ -147,7 +147,7 @@ experiments\visualizer\latest_agent_log.json
 
 ## 提出.bat
 
-ブラウザ画面で Kaggle に提出する zip を作り、確認後にそのまま提出します。
+ブラウザ画面で Kaggle に提出する zip を作ります。提出自体は Kaggle の画面から手動で行います。
 
 使い方:
 
@@ -155,7 +155,7 @@ experiments\visualizer\latest_agent_log.json
 2. ブラウザで `Agent`、`Deck`、`Message` を選ぶ
 3. `Build Zip` を押す
 4. zip が `submissions\YYYY-MM-DD\` に作成される
-5. 本当に提出する場合だけ `Submit to Kaggle` を押す
+5. Kaggle の提出画面で、その zip を手動アップロードする
 
 既定では、クマシュン・オーガポン用エージェントとデッキが選ばれます。
 
@@ -165,7 +165,7 @@ experiments\visualizer\latest_agent_log.json
 kaggle competitions submit -c pokemon-tcg-ai-battle -f 提出zip -m "Message"
 ```
 
-Kaggle CLI の認証には、プロジェクト直下の `.kaggle\access_token` を使います。`Submit to Kaggle` が失敗した場合は、画面に表示される `stderr` を確認してください。
+bat からは Kaggle へ直接提出しません。zip 作成までをこのプロジェクトで行い、提出はブラウザ上の Kaggle 画面から行ってください。
 
 ## 1000エピソード分析.bat
 
