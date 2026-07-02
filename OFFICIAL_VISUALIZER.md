@@ -38,7 +38,12 @@ python scripts\export_visualizer_json.py --output experiments\visualizer\latest_
 
 ```text
 experiments\visualizer\latest_replay.json
+experiments\visualizer\latest_agent_log.json
 ```
+
+`latest_replay.json` は公式Visualizer用です。
+
+`latest_agent_log.json` は、各ステップでエージェントがどの選択肢から何を選んだかを確認するためのローカル調査用ログです。
 
 ## 使い分け
 

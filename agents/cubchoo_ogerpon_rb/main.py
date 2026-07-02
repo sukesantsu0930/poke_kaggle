@@ -189,6 +189,41 @@ def _choose_cards(obs: Observation) -> list[int]:
     return _fill_selection(obs, _rank_by_card(obs, reverse=reverse))
 
 
+def _enum_label(value, enum_cls=None) -> str:
+    if value is None:
+        return ""
+    if enum_cls is not None and not hasattr(value, "name"):
+        try:
+            return enum_cls(value).name
+        except Exception:
+            pass
+    return getattr(value, "name", str(value))
+
+
+def _explain_selected(obs: Observation, action: list[int]) -> str:
+    if obs.select is None:
+        return "deck"
+    if obs.select.type == SelectType.MAIN:
+        types = [_enum_label(obs.select.option[i].type, OptionType) for i in action if 0 <= i < len(obs.select.option)]
+        return "main priority: " + ", ".join(types)
+    if obs.select.type == SelectType.YES_NO:
+        return f"yes/no context={_enum_label(obs.select.context, SelectContext)}"
+    if obs.select.type == SelectType.COUNT:
+        return "choose largest count"
+    if obs.select.type == SelectType.ATTACK:
+        return "choose highest damage attack"
+    discard_contexts = {
+        SelectContext.DISCARD,
+        SelectContext.DISCARD_CARD_OR_ATTACHED_CARD,
+        SelectContext.DISCARD_ENERGY,
+        SelectContext.DISCARD_ENERGY_CARD,
+        SelectContext.DISCARD_TOOL_CARD,
+    }
+    if obs.select.context in discard_contexts:
+        return "discard lowest priority card"
+    return "choose highest priority card"
+
+
 def agent(obs_dict: dict) -> list[int]:
     obs: Observation = to_observation_class(obs_dict)
     if obs.select is None:
@@ -206,3 +241,8 @@ def agent(obs_dict: dict) -> list[int]:
         return _fill_selection(obs, attacks)
 
     return _choose_cards(obs)
+
+
+def explain_action(obs_dict: dict, action: list[int]) -> str:
+    obs: Observation = to_observation_class(obs_dict)
+    return _explain_selected(obs, action)

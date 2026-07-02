@@ -6,9 +6,10 @@ echo Creating a local replay JSON for the official Kaggle Visualiser.
 echo.
 echo Output:
 echo   experiments\visualizer\latest_replay.json
+echo   experiments\visualizer\latest_agent_log.json
 echo.
 
-python scripts\export_visualizer_json.py --output experiments\visualizer\latest_replay.json
+python scripts\export_visualizer_json.py --output experiments\visualizer\latest_replay.json --agent-log experiments\visualizer\latest_agent_log.json
 if errorlevel 1 (
   echo.
   echo FAILED.
