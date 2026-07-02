@@ -147,18 +147,17 @@ experiments\visualizer\latest_agent_log.json
 
 ## 提出.bat
 
-Kaggle に提出する zip を作り、確認後にそのまま提出します。
+ブラウザ画面で Kaggle に提出する zip を作り、確認後にそのまま提出します。
 
 使い方:
 
 1. `提出.bat` をダブルクリックする
-2. `Agent` に提出するエージェントを入力する
-3. `Deck` に提出するデッキCSVを入力する
-4. `Message` に提出メッセージを入力する
-5. zip が `submissions\YYYY-MM-DD\` に作成される
-6. 本当に提出する場合だけ `SUBMIT` と入力する
+2. ブラウザで `Agent`、`Deck`、`Message` を選ぶ
+3. `Build Zip` を押す
+4. zip が `submissions\YYYY-MM-DD\` に作成される
+5. 本当に提出する場合だけ `Submit to Kaggle` を押す
 
-何も入力せず Enter を押すと、既定のクマシュン・オーガポン用エージェントとデッキで作成します。
+既定では、クマシュン・オーガポン用エージェントとデッキが選ばれます。
 
 このコンペでは、`main.py`、`deck.csv`、`cg/` を含む zip を提出します。実行する Kaggle コマンドは次の形です。
 

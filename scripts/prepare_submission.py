@@ -62,27 +62,17 @@ def write_readme(out_dir: Path, zip_path: Path, agent: str, deck: str, message: 
     (out_dir / "README.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--agent", default=DEFAULT_AGENT)
-    parser.add_argument("--deck", default=DEFAULT_DECK)
-    parser.add_argument("--message", default=DEFAULT_MESSAGE)
-    parser.add_argument("--date", default=datetime.now().strftime("%Y-%m-%d"))
-    parser.add_argument("--submit", action="store_true")
-    return parser.parse_args()
-
-
-def main():
-    args = parse_args()
-    out_dir = ROOT / "submissions" / args.date
-    agent_name = safe_name(args.agent)
-    deck_name = safe_name(args.deck)
+def prepare_submission(agent: str, deck: str, message: str, date: str | None = None) -> dict:
+    date = date or datetime.now().strftime("%Y-%m-%d")
+    out_dir = ROOT / "submissions" / date
+    agent_name = safe_name(agent)
+    deck_name = safe_name(deck)
     zip_path = out_dir / f"{agent_name}__{deck_name}.zip"
     work_dir = ROOT / "build" / "submission_work"
 
     built = build_submission(
-        ROOT / args.agent,
-        ROOT / args.deck,
+        ROOT / agent,
+        ROOT / deck,
         zip_path,
         work_dir,
         extras=[],
@@ -97,15 +87,45 @@ def main():
         "-f",
         str(built),
         "-m",
-        args.message,
+        message,
     ]
-    write_readme(out_dir, built, args.agent, args.deck, args.message, command)
+    write_readme(out_dir, built, agent, deck, message, command)
+    return {
+        "zip": str(built),
+        "zip_relative": str(built.relative_to(ROOT)),
+        "message": message,
+        "submit_command": command,
+    }
 
-    print(f"OK built={built}")
-    print("submit_command=" + " ".join(f'"{item}"' if " " in item else item for item in command))
+
+def submit_prepared(command: list[str]) -> dict:
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
+    return {
+        "returncode": result.returncode,
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+    }
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--agent", default=DEFAULT_AGENT)
+    parser.add_argument("--deck", default=DEFAULT_DECK)
+    parser.add_argument("--message", default=DEFAULT_MESSAGE)
+    parser.add_argument("--date", default=datetime.now().strftime("%Y-%m-%d"))
+    parser.add_argument("--submit", action="store_true")
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    prepared = prepare_submission(args.agent, args.deck, args.message, args.date)
+
+    print(f"OK built={prepared['zip']}")
+    print("submit_command=" + " ".join(f'"{item}"' if " " in item else item for item in prepared["submit_command"]))
 
     if args.submit:
-        result = subprocess.run(command, cwd=ROOT)
+        result = subprocess.run(prepared["submit_command"], cwd=ROOT)
         raise SystemExit(result.returncode)
 
 
