@@ -56,7 +56,7 @@ python scripts/batch_evaluate.py --games 50 --seed 1
 特定の組み合わせを評価:
 
 ```bash
-python scripts/batch_evaluate.py --agent agents/rb_001_baseline.py --deck decks/deck_001_sample.csv --games 100
+python scripts/batch_evaluate.py --agent agents/cubchoo_ogerpon_rb --deck decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv --games 100
 ```
 
 ## 手動プレイGUI
@@ -136,5 +136,5 @@ experiments/deck_views/
 ## 提出zip作成
 
 ```bash
-python scripts/build_submission.py --agent agents/rb_001_baseline.py --deck decks/deck_001_sample.csv
+python scripts/build_submission.py --agent agents/cubchoo_ogerpon_rb --deck decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv
 ```

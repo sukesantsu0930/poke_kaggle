@@ -14,7 +14,11 @@ ROOT = Path(__file__).resolve().parents[1]
 def _collect(paths: list[str], directory: str, suffix: str) -> list[Path]:
     if paths:
         return [Path(path) for path in paths]
-    return sorted((ROOT / directory).glob(f"*{suffix}"))
+    base = ROOT / directory
+    found = list(base.glob(f"*{suffix}"))
+    if directory == "agents":
+        found.extend(path.parent for path in base.glob("*/main.py"))
+    return sorted(found)
 
 
 def _default_output() -> Path:

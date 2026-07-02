@@ -9,6 +9,15 @@ from deck_validation import validate_deck_file
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def resolve_agent_entry(agent_path: Path) -> Path:
+    if agent_path.is_dir():
+        entry = agent_path / "main.py"
+        if not entry.exists():
+            raise FileNotFoundError(f"{agent_path} does not contain main.py")
+        return entry
+    return agent_path
+
+
 def _validate_deck(deck_path: Path) -> list[str]:
     lines = [line.strip() for line in deck_path.read_text().splitlines() if line.strip()]
     validation = validate_deck_file(deck_path)
@@ -63,7 +72,9 @@ def build_submission(
     output_path = output_path.resolve()
     work_dir = work_dir.resolve()
 
-    _validate_agent(agent_path)
+    agent_entry = resolve_agent_entry(agent_path)
+
+    _validate_agent(agent_entry)
     deck_lines = _validate_deck(deck_path)
 
     if work_dir.exists():
@@ -75,7 +86,19 @@ def build_submission(
         work_dir / "cg",
         ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
     )
-    shutil.copy2(agent_path, work_dir / "main.py")
+    if agent_path.is_dir():
+        for path in sorted(agent_path.rglob("*")):
+            if not path.is_file():
+                continue
+            if "__pycache__" in path.parts or path.suffix == ".pyc":
+                continue
+            if path.name.lower() == "readme.md":
+                continue
+            dest = work_dir / path.relative_to(agent_path)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(path, dest)
+    else:
+        shutil.copy2(agent_entry, work_dir / "main.py")
     (work_dir / "deck.csv").write_text("\n".join(deck_lines) + "\n")
 
     for extra in extras or []:
@@ -118,7 +141,8 @@ def main():
     if args.output:
         output_path = Path(args.output)
     else:
-        output_name = f"{agent_path.stem}__{deck_path.stem}.zip"
+        agent_name = agent_path.name if agent_path.is_dir() else agent_path.stem
+        output_name = f"{agent_name}__{deck_path.stem}.zip"
         output_path = ROOT / "submissions" / output_name
 
     built = build_submission(agent_path, deck_path, output_path, ROOT / args.work_dir, args.extra)
