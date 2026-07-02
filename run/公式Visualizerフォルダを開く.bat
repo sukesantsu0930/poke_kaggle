@@ -1,19 +1,13 @@
 @echo off
 cd /d "%~dp0\.."
 
-echo Official Visualizer notebook is prepared locally.
+echo Starting replay JSON / official visualizer workflow.
 echo.
-echo Local loader:
-echo notebooks\official_visualizer\visualizer.html
-echo.
-echo Replay JSON created by this project:
-echo experiments\visualizer\latest_replay.json
-echo.
+echo Browser:
+echo http://127.0.0.1:8766
 
-start "" "notebooks\official_visualizer\visualizer.html"
-explorer "experiments\visualizer"
+start "" "http://127.0.0.1:8766"
+python scripts\visualizer_workflow_server.py --port 8766
 
 echo.
-echo Choose latest_replay.json in the browser.
-
 pause

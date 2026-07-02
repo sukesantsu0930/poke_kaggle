@@ -16,14 +16,14 @@ https://www.kaggle.com/code/kiyotah/how-to-output-local-battle-as-json-and-view
 notebooks\official_visualizer\how-to-output-local-battle-as-json-and-view.ipynb
 ```
 
-フォルダを開く:
+統合画面を開く:
 
 ```text
 run\公式Visualizerフォルダを開く.bat
 ```
 
-この bat は Kaggle の notebook ページではなく、ローカルの `visualizer.html` を開きます。
-ブラウザで `experiments\visualizer\latest_replay.json` を選ぶと、公式 Visualizer が別タブで開きます。
+この bat はローカル画面を開きます。
+画面上で Agent 0 / Deck 0 / Agent 1 / Deck 1 を選び、リプレイJSONを生成してから公式 Visualizer を開けます。
 
 ## ローカル対戦JSONを作る
 
@@ -50,10 +50,10 @@ experiments\visualizer\latest_agent_log.json
 
 ## リプレイを見る
 
-1. `run\リプレイJSON作成.bat` を実行する
-2. `run\公式Visualizerフォルダを開く.bat` を実行する
-3. ブラウザで `experiments\visualizer\latest_replay.json` を選ぶ
-4. 公式 Visualizer が別タブで開く
+1. `run\公式Visualizerフォルダを開く.bat` を実行する
+2. ブラウザで Agent 0 / Deck 0 / Agent 1 / Deck 1 を選ぶ
+3. `Generate Replay JSON` を押す
+4. `Open Official Visualizer` を押す
 
 ## 使い分け
 

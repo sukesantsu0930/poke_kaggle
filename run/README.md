@@ -130,18 +130,19 @@ experiments\visualizer\latest_agent_log.json
 
 ## 公式Visualizerフォルダを開く.bat
 
-公式 Visualizer にリプレイ JSON を渡すためのローカル画面を開きます。
+エージェントとデッキを選び、リプレイ JSON を作り、そのまま公式 Visualizer を開くための画面を起動します。
 
 使い方:
 
-1. 先に `リプレイJSON作成.bat` を実行する
-2. `公式Visualizerフォルダを開く.bat` をダブルクリックする
-3. ブラウザで `experiments\visualizer\latest_replay.json` を選ぶ
-4. 公式 Visualizer が別タブで開く
+1. `公式Visualizerフォルダを開く.bat` をダブルクリックする
+2. ブラウザで `Agent 0`、`Deck 0`、`Agent 1`、`Deck 1` を選ぶ
+3. `Generate Replay JSON` を押す
+4. `DONE` と表示されたら `Open Official Visualizer` を押す
+5. 公式 Visualizer が別タブで開く
 
 このプロジェクトの手動GUIとは別物です。公式 Visualizer は、作成済みのリプレイを見るために使います。
 
-Kaggle のページに飛ぶだけではありません。ローカルの `notebooks\official_visualizer\visualizer.html` を開き、そこから JSON を選びます。
+黒い画面はローカルサーバーです。使っている間は閉じないでください。
 
 ## 1000エピソード分析.bat
 
