@@ -22,6 +22,9 @@ notebooks\official_visualizer\how-to-output-local-battle-as-json-and-view.ipynb
 run\公式Visualizerフォルダを開く.bat
 ```
 
+この bat は Kaggle の notebook ページではなく、ローカルの `visualizer.html` を開きます。
+ブラウザで `experiments\visualizer\latest_replay.json` を選ぶと、公式 Visualizer が別タブで開きます。
+
 ## ローカル対戦JSONを作る
 
 ```text
@@ -44,6 +47,13 @@ experiments\visualizer\latest_agent_log.json
 `latest_replay.json` は公式Visualizer用です。
 
 `latest_agent_log.json` は、P0/P1 の各ステップで、選択肢一覧と選択結果を確認するためのローカル調査用ログです。
+
+## リプレイを見る
+
+1. `run\リプレイJSON作成.bat` を実行する
+2. `run\公式Visualizerフォルダを開く.bat` を実行する
+3. ブラウザで `experiments\visualizer\latest_replay.json` を選ぶ
+4. 公式 Visualizer が別タブで開く
 
 ## 使い分け
 

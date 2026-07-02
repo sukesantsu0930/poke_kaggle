@@ -3,16 +3,17 @@ cd /d "%~dp0\.."
 
 echo Official Visualizer notebook is prepared locally.
 echo.
-echo Folder:
-echo notebooks\official_visualizer
+echo Local loader:
+echo notebooks\official_visualizer\visualizer.html
 echo.
 echo Replay JSON created by this project:
 echo experiments\visualizer\latest_replay.json
 echo.
 
-explorer "notebooks\official_visualizer"
+start "" "notebooks\official_visualizer\visualizer.html"
+explorer "experiments\visualizer"
 
-echo The official Kaggle page will also be opened.
-start "" "https://www.kaggle.com/code/kiyotah/how-to-output-local-battle-as-json-and-view"
+echo.
+echo Choose latest_replay.json in the browser.
 
 pause
