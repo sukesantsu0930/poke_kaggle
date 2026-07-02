@@ -30,4 +30,5 @@ decks/local/*.csv
 !decks/local/README.md
 card_images/
 experiments/visualizer/*.json
+experiments/deck_views/
 research/episode_deck_analysis/runs/

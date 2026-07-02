@@ -107,6 +107,28 @@ python scripts/check_decks.py
 python scripts/import_deck_code.py 4GGxYc-KmW2Iv-8c4c8c
 ```
 
+## デッキ可視化
+
+deck CSVを、ローカルカード画像つきのHTMLにします。
+
+友人向け:
+
+```text
+デッキ可視化.bat
+```
+
+実装担当向け:
+
+```bash
+python scripts/render_deck_html.py decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv --open
+```
+
+出力先:
+
+```text
+experiments/deck_views/
+```
+
 ## 提出zip作成
 
 ```bash
