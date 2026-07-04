@@ -1,5 +1,6 @@
-﻿@echo off
+@echo off
 cd /d "%~dp0\..\.."
+set "UV_CACHE_DIR=%CD%\.uv-cache"
 
 echo.
 echo Starting manual play GUI.

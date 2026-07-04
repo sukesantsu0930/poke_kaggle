@@ -1,5 +1,6 @@
 @echo off
 cd /d "%~dp0\..\.."
+set "UV_CACHE_DIR=%CD%\.uv-cache"
 
 echo Running all proposal evaluations.
 echo Output will be written under experiments\proposals\

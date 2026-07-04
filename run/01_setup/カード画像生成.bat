@@ -1,5 +1,6 @@
-﻿@echo off
+@echo off
 cd /d "%~dp0\..\.."
+set "UV_CACHE_DIR=%CD%\.uv-cache"
 
 echo.
 echo Generating local card images from Card_ID List_JP.pdf.

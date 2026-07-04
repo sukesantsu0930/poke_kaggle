@@ -21,6 +21,7 @@ training_runs/
 __pycache__/
 *.pyc
 .venv/
+.uv-cache/
 .env
 .env.*
 !.env.example

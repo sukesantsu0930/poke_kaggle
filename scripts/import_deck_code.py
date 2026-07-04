@@ -35,6 +35,13 @@ BASIC_ENERGY_BY_NAME = {
     "基本鋼エネルギー": 8,
 }
 
+# Some cards in the Kaggle JP card CSV use competition/internal expansion marks
+# that differ from the official card image and deck page notation.
+# Keep these as narrow print-level aliases so same-name cards stay unambiguous.
+PRINT_ALIASES = {
+    ("シェイミ", "SV9A", "6"): ("シェイミ", "MA", "1"),
+}
+
 
 @dataclass(frozen=True)
 class OfficialCard:
@@ -73,6 +80,10 @@ def normalize_name(value: str) -> str:
 
 def normalize_collection_no(value: str) -> str:
     return value.split("/", 1)[0].lstrip("0")
+
+
+def normalize_expansion(value: str) -> str:
+    return value.strip().upper()
 
 
 def fetch_deck_page(deck_code: str) -> str:
@@ -164,7 +175,7 @@ def build_indexes(cards: list[KaggleCard]):
         by_print[
             (
                 name,
-                card.expansion,
+                normalize_expansion(card.expansion),
                 normalize_collection_no(card.collection_no),
             )
         ] = card.card_id
@@ -184,13 +195,21 @@ def map_official_to_kaggle(
         kaggle_id = BASIC_ENERGY_BY_NAME.get(normalized_name)
 
         if kaggle_id is None and card.expansion and card.collection_no:
-            kaggle_id = by_print.get(
-                (
-                    normalized_name,
-                    card.expansion,
-                    normalize_collection_no(card.collection_no),
-                )
+            official_key = (
+                normalized_name,
+                normalize_expansion(card.expansion),
+                normalize_collection_no(card.collection_no),
             )
+            kaggle_id = by_print.get(official_key)
+            if kaggle_id is None and official_key in PRINT_ALIASES:
+                alias_key = PRINT_ALIASES[official_key]
+                kaggle_id = by_print.get(alias_key)
+                if kaggle_id is not None:
+                    notes.append(
+                        f"{describe_official_card(card)}: 公式表記 {card.expansion} "
+                        f"{card.collection_no} を Kaggle表記 {alias_key[1]} "
+                        f"{alias_key[2]} としてKaggle ID {kaggle_id}に対応しました。"
+                    )
 
         if kaggle_id is None:
             candidates = sorted(by_name.get(normalized_name, set()))
