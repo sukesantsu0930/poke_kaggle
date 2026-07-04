@@ -2,7 +2,7 @@
 
 手動で1手ずつ操作してデッキを試す用途では、このプロジェクトのGUIを使う。
 
-公式VisualizerはリプレイJSONを見る用途なので、別途 `OFFICIAL_VISUALIZER.md` に分ける。
+公式VisualizerはリプレイJSONを見る用途なので、別途 `docs/official/OFFICIAL_VISUALIZER.md` に分ける。
 
 目的は、安福さん・長谷川さんが「デッキを作る -> 自分で試しにプレイする -> 気づきをメモする」を回せるようにすること。
 
@@ -77,7 +77,7 @@
 手動で両プレイヤーを操作するGUI:
 
 ```powershell
-python scripts\manual_play_server.py --port 8765
+uv run python scripts\manual_play_server.py --port 8765
 ```
 
 ブラウザで開く:
@@ -88,6 +88,6 @@ http://127.0.0.1:8765
 
 ## 注意
 
-- `Competition_Rules.md` は公式原文なので変更しない。
+- `docs/official/Competition_Rules.md` は公式原文なので変更しない。
 - 競技データやポケモン要素を競技外に公開しない。
 - リプレイ表示は公式Visualizerを優先する。

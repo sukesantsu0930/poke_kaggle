@@ -1,5 +1,5 @@
-@echo off
-cd /d "%~dp0\.."
+﻿@echo off
+cd /d "%~dp0\..\.."
 
 echo.
 echo Creating a local replay JSON for the official Kaggle Visualiser.
@@ -33,7 +33,7 @@ echo Agent 1: %AGENT1%
 echo Deck 1 : %DECK1%
 echo.
 
-python scripts\export_visualizer_json.py --agent0 "%AGENT0%" --deck0 "%DECK0%" --agent1 "%AGENT1%" --deck1 "%DECK1%" --output experiments\visualizer\latest_replay.json --agent-log experiments\visualizer\latest_agent_log.json
+uv run python scripts\export_visualizer_json.py --agent0 "%AGENT0%" --deck0 "%DECK0%" --agent1 "%AGENT1%" --deck1 "%DECK1%" --output experiments\visualizer\latest_replay.json --agent-log experiments\visualizer\latest_agent_log.json
 if errorlevel 1 (
   echo.
   echo FAILED.

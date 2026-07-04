@@ -14,11 +14,11 @@
 全組み合わせ評価:
 
 ```powershell
-python scripts\batch_evaluate.py --games 50 --seed 1
+uv run python scripts\batch_evaluate.py --games 50 --seed 1
 ```
 
 特定の組み合わせだけ評価:
 
 ```powershell
-python scripts\batch_evaluate.py --agent agents\agent_a.py --agent agents\agent_b.py --deck decks\deck_a.csv --games 100
+uv run python scripts\batch_evaluate.py --agent agents\agent_a.py --agent agents\agent_b.py --deck decks\deck_a.csv --games 100
 ```

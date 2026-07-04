@@ -17,8 +17,8 @@ GitHub Desktopで `Fetch origin` または `Pull origin` を押してくださ�
 使うファイルは主に次の2つです。
 
 ```text
-run\デッキコード登録.bat
-run\GUI起動.bat
+run\02_deck\デッキコード登録.bat
+run\03_play\GUI起動.bat
 ```
 
 ## 共有する

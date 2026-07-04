@@ -33,13 +33,13 @@ docker compose run --rm ptcg python -c "import torch; print(torch.cuda.is_availa
 例:
 
 ```bash
-docker compose run --rm ptcg python training/train_policy.py --output models/policy_v001.pkl
+docker compose run --rm ptcg uv run python training/train_policy.py --output models/policy_v001.pkl
 ```
 
 ## 評価
 
 ```bash
-docker compose run --rm ptcg python scripts/evaluate_submission.py \
+docker compose run --rm ptcg uv run python scripts/evaluate_submission.py \
   --agent agents/ml_agent_v001.py \
   --deck decks/deck_v001.csv \
   --extra models/policy_v001.pkl=model.pkl \
@@ -49,7 +49,7 @@ docker compose run --rm ptcg python scripts/evaluate_submission.py \
 ## 提出zip作成
 
 ```bash
-docker compose run --rm ptcg python scripts/build_submission.py \
+docker compose run --rm ptcg uv run python scripts/build_submission.py \
   --agent agents/ml_agent_v001.py \
   --deck decks/deck_v001.csv \
   --extra models/policy_v001.pkl=model.pkl

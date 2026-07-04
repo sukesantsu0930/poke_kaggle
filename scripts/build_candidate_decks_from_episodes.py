@@ -10,10 +10,10 @@ from analyze_episode_decks import archetype_name, card_kind, card_name, extract_
 from rank_episode_deck_winrates import wilson_lower_bound
 
 
-POPULAR_ARCHETYPES = ["ブリジュラスex鋼", "フーディン超", "メガスターミーex水"]
+POPULAR_ARCHETYPES = ["ブリジュラスex鋼", "フーディン超", "メガスターミーex水", "ドラパルト系"]
 WINRATE_ARCHETYPES = ["クマシュン / オーガポン いしずえのめんex", "マリィのベロバー / マシマシラ"]
 
-POPULAR_FILE_STEMS = ["archaludon_steel", "alakazam_psychic", "mega_starmie_water"]
+POPULAR_FILE_STEMS = ["archaludon_steel", "alakazam_psychic", "mega_starmie_water", "dragapult"]
 WINRATE_FILE_STEMS = ["cubchoo_ogerpon", "marnie_grimmsnarl"]
 
 
@@ -94,13 +94,22 @@ def format_cards(counter: Counter[int], card_rows: dict[int, dict[str, str]], ki
 
 def build_summary(picks: list[tuple[str, str, dict, Path]], card_rows: dict[int, dict[str, str]]) -> str:
     lines = [
-        "# 候補デッキ5種",
+        "# 候補デッキ",
         "",
-        "1000 episode 解析から、出現数上位3種と勝率候補2種を1つずつ exact 60枚で抜き出したものです。",
+        "episode 解析から、指定した注目アーキタイプを exact 60枚で抜き出したものです。",
         "",
         "## 一覧",
         "",
     ]
+    if not picks:
+        lines.extend(
+            [
+                "- 条件に合う候補デッキは見つかりませんでした。",
+                "- 少件数の動作確認では正常です。本番分析では取得件数を増やしてください。",
+            ]
+        )
+        return "\n".join(lines) + "\n"
+
     for label, reason, group, path in picks:
         games = group["appearances"]
         wins = group["wins"]
@@ -153,13 +162,21 @@ def main() -> None:
 
     selected: list[tuple[str, str, dict, Path]] = []
     for index, archetype in enumerate(POPULAR_ARCHETYPES, 1):
-        group = pick_representative(groups, archetype)
+        try:
+            group = pick_representative(groups, archetype)
+        except ValueError as exc:
+            print(f"skip {archetype}: {exc}")
+            continue
         path = Path(args.out_dir) / f"popular_{index}_{POPULAR_FILE_STEMS[index - 1]}.csv"
         write_deck_csv(group["deck_ids"], path)
         selected.append((archetype, "母数が多いデッキ", group, path))
 
     for index, archetype in enumerate(WINRATE_ARCHETYPES, 1):
-        group = pick_representative(groups, archetype)
+        try:
+            group = pick_representative(groups, archetype)
+        except ValueError as exc:
+            print(f"skip {archetype}: {exc}")
+            continue
         path = Path(args.out_dir) / f"winrate_{index}_{WINRATE_FILE_STEMS[index - 1]}.csv"
         write_deck_csv(group["deck_ids"], path)
         selected.append((archetype, "勝率候補デッキ", group, path))

@@ -1,5 +1,5 @@
-@echo off
-cd /d "%~dp0\.."
+﻿@echo off
+cd /d "%~dp0\..\.."
 
 echo.
 echo Paste a Pokemon Card official deck code.
@@ -17,7 +17,7 @@ if "%DECK_CODE%"=="" (
 
 echo.
 echo Checking deck code...
-python scripts\import_deck_code.py %DECK_CODE%
+uv run python scripts\import_deck_code.py %DECK_CODE%
 
 echo.
 echo If you see OK, the deck can be selected in the GUI.

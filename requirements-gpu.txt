@@ -1,8 +1,5 @@
-# Add GPU training dependencies here if the base image does not already provide them.
+# GPU dependencies are managed by uv.
+# Add optional GPU/training packages to pyproject.toml with:
+#   uv add <package>
 #
-# The default Docker image is a PyTorch CUDA runtime image, so `torch` is already installed.
-# Examples:
-# scikit-learn
-# lightgbm
-# xgboost
-# stable-baselines3
+# The default Docker image is a PyTorch CUDA runtime image, so torch is provided by the image.

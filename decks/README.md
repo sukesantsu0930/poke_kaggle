@@ -17,11 +17,11 @@ Gitで共有するコンパイル済みデッキCSVをここに置きます。
 友人向けのデッキコード登録:
 
 ```text
-run\デッキコード登録.bat
+run\02_deck\デッキコード登録.bat
 ```
 
 デッキとエージェントを組み合わせて提出zipを作る例:
 
 ```powershell
-python scripts\build_submission.py --agent agents\my_agent.py --deck decks\my_deck.csv
+uv run python scripts\build_submission.py --agent agents\my_agent.py --deck decks\my_deck.csv
 ```

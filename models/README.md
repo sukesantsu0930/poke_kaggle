@@ -14,11 +14,11 @@
 例:
 
 ```powershell
-python scripts\build_submission.py --agent agents\ml_agent_v001.py --deck decks\deck_v001.csv --extra models\policy_v001.pkl
+uv run python scripts\build_submission.py --agent agents\ml_agent_v001.py --deck decks\deck_v001.csv --extra models\policy_v001.pkl
 ```
 
 エージェント側で固定ファイル名を期待する場合は `SRC=DEST` 形式を使います。
 
 ```powershell
-python scripts\build_submission.py --agent agents\ml_agent_v001.py --deck decks\deck_v001.csv --extra models\policy_v001.pkl=model.pkl
+uv run python scripts\build_submission.py --agent agents\ml_agent_v001.py --deck decks\deck_v001.csv --extra models\policy_v001.pkl=model.pkl
 ```

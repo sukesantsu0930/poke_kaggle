@@ -1,0 +1,8 @@
+name: cubchoo_ogerpon
+deck: decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv
+agent: agents/cubchoo_ogerpon_rb
+concept: クマシュン/オーガポン候補デッキの動きを確認する
+protocol: protocol.py
+default_games: 20
+max_steps: 500
+

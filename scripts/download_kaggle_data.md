@@ -15,6 +15,6 @@ Copy-Item downloads\simulation\extracted\sample_submission\sample_submission\* s
 取得後、次でデッキ検証やGUIが使えます。
 
 ```powershell
-python scripts\check_decks.py
-python scripts\manual_play_server.py --port 8765
+uv run python scripts\check_decks.py
+uv run python scripts\manual_play_server.py --port 8765
 ```

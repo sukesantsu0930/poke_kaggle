@@ -1,5 +1,5 @@
-kaggle
-numpy
-pandas
-tqdm
-pyyaml
+# Dependencies are managed by uv.
+# Use:
+#   uv sync
+#
+# See pyproject.toml and uv.lock.

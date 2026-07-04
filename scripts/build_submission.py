@@ -28,7 +28,7 @@ def _validate_deck(deck_path: Path) -> list[str]:
 
 
 def _validate_agent(agent_path: Path) -> str:
-    text = agent_path.read_text()
+    text = agent_path.read_text(encoding="utf-8")
     missing = []
     if "def agent(" not in text:
         missing.append("def agent(...)")

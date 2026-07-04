@@ -1,6 +1,6 @@
 # 公式Visualizer Notebook
 
-このフォルダは Kaggle 公式 notebook のローカルコピーです。
+このフォルダは Kaggle 公式notebook のローカルコピーです。
 
 ```text
 https://www.kaggle.com/code/kiyotah/how-to-output-local-battle-as-json-and-view
@@ -8,9 +8,8 @@ https://www.kaggle.com/code/kiyotah/how-to-output-local-battle-as-json-and-view
 
 ## 何に使うか
 
-対戦後に出力したリプレイ JSON を、公式 Visualizer で確認するために使います。
-
-手動で 1 手ずつプレイする用途では、このプロジェクトの `run\GUI起動.bat` を使います。
+対戦後に出力したリプレイJSONを、公式Visualizerで確認するために使います。
+手動で1手ずつプレイする用途では、このプロジェクトの `run\03_play\GUI起動.bat` を使います。
 
 ## まず見るファイル
 
@@ -18,14 +17,14 @@ https://www.kaggle.com/code/kiyotah/how-to-output-local-battle-as-json-and-view
 how-to-output-local-battle-as-json-and-view.ipynb
 ```
 
-この notebook に、リプレイ JSON の作成例と、公式 Visualizer に JSON を渡す HTML 例が入っています。
+この notebook に、リプレイJSONの作成例と、公式VisualizerにJSONを渡すHTML例が入っています。
 
-## このプロジェクトで JSON を作る
+## このプロジェクトでJSONを作る
 
 プロジェクト直下で次を実行します。
 
 ```text
-run\リプレイJSON作成.bat
+run\03_play\リプレイJSON作成.bat
 ```
 
 出力先:
@@ -34,7 +33,7 @@ run\リプレイJSON作成.bat
 experiments\visualizer\latest_replay.json
 ```
 
-## Kaggle から取り直す場合
+## Kaggleから取り直す場合
 
 Kaggle API の認証が済んでいる状態で、プロジェクト直下から次を実行します。
 

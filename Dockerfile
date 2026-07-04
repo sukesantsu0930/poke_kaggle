@@ -3,9 +3,10 @@ FROM ${BASE_IMAGE}
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PIP_NO_CACHE_DIR=1
 
 WORKDIR /workspace
+
+COPY --from=ghcr.io/astral-sh/uv:0.11.26 /uv /uvx /usr/local/bin/
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -14,10 +15,10 @@ RUN apt-get update \
         zip \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt requirements.txt
-COPY requirements-gpu.txt requirements-gpu.txt
-RUN python -m pip install --upgrade pip \
-    && python -m pip install -r requirements.txt \
-    && if [ -s requirements-gpu.txt ]; then python -m pip install -r requirements-gpu.txt; fi
+COPY pyproject.toml uv.lock ./
+RUN uv venv --system-site-packages .venv \
+    && uv sync --frozen --no-install-project
+
+ENV PATH="/workspace/.venv/bin:${PATH}"
 
 CMD ["bash"]

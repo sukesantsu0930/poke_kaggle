@@ -1,5 +1,5 @@
-@echo off
-cd /d "%~dp0\.."
+﻿@echo off
+cd /d "%~dp0\..\.."
 
 echo.
 echo Deck CSV visualizer
@@ -11,7 +11,7 @@ echo.
 set /p DECK_CSV=Deck CSV: 
 if "%DECK_CSV%"=="" set DECK_CSV=decks\candidates\2026-06-30_top5\winrate_1_cubchoo_ogerpon.csv
 
-python scripts\render_deck_html.py "%DECK_CSV%" --open
+uv run python scripts\render_deck_html.py "%DECK_CSV%" --open
 
 echo.
 pause

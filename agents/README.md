@@ -30,13 +30,24 @@ Kaggle提出zipの中では、各ディレクトリの `main.py` がルートの
 エージェントとデッキを組み合わせて提出zipを作る例:
 
 ```powershell
-python scripts\build_submission.py --agent agents\cubchoo_ogerpon_rb --deck decks\candidates\2026-06-30_top5\winrate_1_cubchoo_ogerpon.csv
+uv run python scripts\build_submission.py --agent agents\cubchoo_ogerpon_rb --deck decks\candidates\2026-06-30_top5\winrate_1_cubchoo_ogerpon.csv
 ```
+
+## デッキ対応Agent
+
+このコンペでは、完全に汎用的なAgentを作るより、デッキのコンセプトに対応したAgentを複数持つ方針にします。
+
+候補例:
+
+- `agents/cubchoo_ogerpon_rb` + `decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv`
+- `agents/dragapult_ex_rb` + `decks/candidates/2026-06-30_top5/popular_4_dragapult.csv`
+
+新しいデッキを追加するときは、対応するAgentか、既存Agentをそのデッキ向けに調整した派生Agentも一緒に用意してください。
 
 機械学習エージェントの場合は、学習済みファイルを `models/` に置き、`--extra` で提出zipに入れます。
 
 ```powershell
-python scripts\build_submission.py --agent agents\ml_agent --deck decks\my_deck.csv --extra models\policy.pkl=model.pkl
+uv run python scripts\build_submission.py --agent agents\ml_agent --deck decks\my_deck.csv --extra models\policy.pkl=model.pkl
 ```
 
 提出される `main.py` では、まずカレントディレクトリからファイルを読み、見つからない場合に `/kaggle_simulations/agent/` を読むようにしてください。
