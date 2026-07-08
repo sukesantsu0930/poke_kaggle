@@ -651,12 +651,19 @@ class BasePolicy(ABC):
         """決定ログ1件（JSONプリミティブのみ）。scored はソート済みタプル列を読むだけで
         score_option の再評価はしない（オプション評価の左→右順序依存を壊さないため）。
         options は元のオプション順（index 昇順）で出力する。sorted() は新リストを返すので
-        scored 自体は不変（in-place の .sort() は選択順を壊すため禁止）。"""
+        scored 自体は不変（in-place の .sort() は選択順を壊すため禁止）。
+        ここで例外を出すと make_agent の R-01 がフォールバックに落として挙動が変わるため、
+        フィールド取得は防御的に書く（context は素の int のことがある — .name 直読み禁止）。"""
+        ctx_i = int(obs.select.context)
+        try:
+            ctx_name = SelectContext(ctx_i).name
+        except ValueError:
+            ctx_name = str(ctx_i)
         return {
             "deck": self.DECK_NAME,
-            "turn": obs.current.turn,
-            "ctx": int(obs.select.context),
-            "ctx_name": obs.select.context.name,
+            "turn": getattr(obs.current, "turn", None),
+            "ctx": ctx_i,
+            "ctx_name": ctx_name,
             "phase": self.t["phase"],
             "matchup": self.t["matchup"],
             "lethal_route": (self.t["lethal"] or {}).get("route"),
