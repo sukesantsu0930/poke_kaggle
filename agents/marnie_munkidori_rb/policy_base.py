@@ -61,6 +61,33 @@ CARD_DB = {c.cardId: c for c in all_card_data()}
 
 LETHAL_BAND = 1_000_000  # R-07: リーサル手の専用スコア帯（全優先則より上）
 
+
+def band_of(score):
+    """スコアの粗い帯分類 — ロギング/アサーション専用。ソートキーには絶対に使わない。
+
+    choose() の挙動と厳密に対応する境界のみを持つ:
+      (1) score >= LETHAL_BAND-1 …… apply_protocol のリーサル昇格帯（1_000_000 / 999_999）
+      (2) score == -999999      …… score_option の例外サンチネル（等値比較）
+      (3) 符号                  …… 負 = minCount 超過分では選ばれない（マスクの表現）
+
+    これ以上の細分類（ハードマスク帯/ソフト帯の分離など）は挙動と対応しないため行わない。
+    既知の桁例外（2026-07-09 全デッキ調査。band 再割当を禁止する根拠）:
+      - R-08 の -15000 加算はデッキにより「マスク」にも「ソフト差分」にもなる（基礎スコア依存）
+      - mega_kangaskhan は score_combat 内から直接 LETHAL_BAND を返す（Prime Catcher 経路）
+      - dragapult は独自スケール（5万〜20万、(0,1] の小数、UNNECESSARY=-10_000_000）
+      - 1e5〜2e5 の正スコアが複数デッキに存在（ACTIVATE=100000 等）
+      - ハード意図の -1 と -100000 が混在し、強制充足時は負値間の順序も意味を持つ
+    """
+    if score >= LETHAL_BAND - 1:
+        return "lethal"
+    if score == -999999:
+        return "error"
+    if score > 0:
+        return "positive"
+    if score == 0:
+        return "zero"
+    return "negative"
+
 # R-01 検査用カウンタ（check_agent が main.DIAG 経由で読む）
 DIAG = {"decisions": 0, "policy_ok": 0, "errors": 0, "option_errors": 0}
 
@@ -299,6 +326,10 @@ class BasePolicy(ABC):
         # R-17: 相手の前ターン技の追跡
         self._opp_last_attack_id = None
         self._cur_turn_logs = []
+        # 決定ログ（模倣学習の訓練データ受け皿）。None = 無効（デプロイ時の既定）。
+        # ハーネスが `policy.decision_log = []` を代入して有効化し、drain/clear も
+        # ハーネス側が管理する。reset_game() では触らない（ゲーム境界で消さない）。
+        self.decision_log = None
 
     # ── ゲーム間リセット（obs.select is None = デッキ選択 = 新ゲーム） ──
     def reset_game(self):
@@ -605,10 +636,40 @@ class BasePolicy(ABC):
                 continue
             selected.append(i)
 
+        forced_fill = False
         if len(selected) < obs.select.minCount:
             selected = [i for _, i, _ in scored[:obs.select.minCount]]
+            forced_fill = True
+
+        if self.decision_log is not None:
+            self.decision_log.append(
+                self._decision_record(obs, scored, selected, forced_fill))
 
         return selected
+
+    def _decision_record(self, obs, scored, selected, forced_fill):
+        """決定ログ1件（JSONプリミティブのみ）。scored はソート済みタプル列を読むだけで
+        score_option の再評価はしない（オプション評価の左→右順序依存を壊さないため）。
+        options は元のオプション順（index 昇順）で出力する。sorted() は新リストを返すので
+        scored 自体は不変（in-place の .sort() は選択順を壊すため禁止）。"""
+        return {
+            "deck": self.DECK_NAME,
+            "turn": obs.current.turn,
+            "ctx": int(obs.select.context),
+            "ctx_name": obs.select.context.name,
+            "phase": self.t["phase"],
+            "matchup": self.t["matchup"],
+            "lethal_route": (self.t["lethal"] or {}).get("route"),
+            "n_threats": len(self.t["threats"]),
+            "min_count": obs.select.minCount,
+            "max_count": obs.select.maxCount,
+            "forced_fill": forced_fill,
+            "options": [
+                {"i": i, "score": s, "reason": r, "band": band_of(s)}
+                for s, i, r in sorted(scored, key=lambda x: x[1])
+            ],
+            "selected": list(selected),
+        }
 
 
 # ═══════════════════════════════ 安全ラッパー（R-01/R-02） ═══════════════════════════════
