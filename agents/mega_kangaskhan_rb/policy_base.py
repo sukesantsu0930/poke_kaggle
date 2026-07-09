@@ -613,8 +613,13 @@ class BasePolicy(ABC):
         adj = theta.get(reason)
         if not adj:
             return score
+        band = band_of(score)
+        if band == "lethal" or band == "error":
+            # リーサル帯は帯内の順序（LETHAL_BAND と LETHAL_BAND-1 の関係）も守るため凍結。
+            # kanga のように scorer から直接 LETHAL_BAND を出す経路があってもここで守られる。
+            return score
         new = score + adj
-        if band_of(new) != band_of(score):
+        if band_of(new) != band:
             return score
         return new
 
