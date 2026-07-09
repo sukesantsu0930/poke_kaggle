@@ -1,0 +1,7 @@
+name: chandelure
+deck: decks/candidates/chandelure_top.csv
+agent: agents/chandelure_rb
+concept: "コンフィのFlower Shower+シャンデラのAlluring Lightで相手を山札切れに追い込む（サブゴール: エネ付きコンフィ+シャンデラ着地）"
+protocol: protocol.py
+default_games: 20
+max_steps: 500

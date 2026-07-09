@@ -16,6 +16,11 @@
 - `solo_evaluate.py`: 一人回し評価。相手はなるべくドローして番を返す
 - `run_proposal.py`: `proposals/` のデッキ+Agent+評価をまとめて実行
 - `action_abstraction.py`: 行動選択の補助
+- `sync_base.py`: 共有基盤（agents/_base/）を各エージェントdirへ同期（`--check` で照合のみ）
+- `check_agent.py`: エージェント不変条件チェッカー（違法手・クラッシュ・エネ過剰付与・基盤同期・R-25）
+- `ab_battle.py`: 2エージェント対戦A/B（席入替）と `--shadow`（挙動一致率。リファクタ検証用）
+- `validate_episode.py`: **提出前の必須ゲート**。Kaggle と同じ kaggle_environments 経由で検証エピソードを再現（`--zip` か `--dir`）
+- `log_ladder_scores.py`: 提出物スコアの定点記録 → `research/ladder/scores.csv`（泳がせ時間の較正用。タスクスケジューラ定期実行を想定）
 
 ## 外部メタ分析
 

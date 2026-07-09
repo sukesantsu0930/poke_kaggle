@@ -1,0 +1,7 @@
+name: cynthia_garchomp
+deck: decks/candidates/cynthia_garchomp_top.csv
+agent: agents/cynthia_garchomp_rb
+concept: "ガブリアスexのCorkscrew Diveを打つ（サブゴール: 場のガブリアスexにエネ1枚）"
+protocol: protocol.py
+default_games: 20
+max_steps: 500

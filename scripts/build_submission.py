@@ -1,4 +1,5 @@
 import argparse
+import hashlib
 import shutil
 import zipfile
 from pathlib import Path
@@ -7,6 +8,25 @@ from deck_validation import validate_deck_file
 
 
 ROOT = Path(__file__).resolve().parents[1]
+BASE_SYNC_FILES = ("policy_base.py", "meta_tables.py")
+
+
+def _check_base_sync(agent_path: Path):
+    """共有基盤のコピーが正本 (agents/_base/) と一致するか検査する。
+    古い基盤を含む提出を構造的に不可能にする（scripts/sync_base.py で同期）。"""
+    base_dir = ROOT / "agents" / "_base"
+    for name in BASE_SYNC_FILES:
+        copy = agent_path / name
+        canonical = base_dir / name
+        if not copy.exists():
+            continue
+        if not canonical.exists():
+            raise ValueError(f"{copy} exists but canonical {canonical} is missing")
+        if (hashlib.sha256(copy.read_bytes()).hexdigest()
+                != hashlib.sha256(canonical.read_bytes()).hexdigest()):
+            raise ValueError(
+                f"{copy} is stale (differs from agents/_base/{name}). "
+                "Run: uv run python scripts\\sync_base.py")
 
 
 def resolve_agent_entry(agent_path: Path) -> Path:
@@ -36,6 +56,15 @@ def _validate_agent(agent_path: Path) -> str:
         missing.append("def read_deck_csv(...)")
     if missing:
         raise ValueError(f"{agent_path} is missing: {', '.join(missing)}")
+    # R-25: Kaggle のローダーは「最後に定義された callable」を agent として呼ぶ
+    # (kaggle_environments get_last_callable)。トップレベルの最後の def は agent であること。
+    top_defs = [line for line in text.splitlines()
+                if line.startswith("def ") or line.startswith("class ")]
+    if top_defs and not top_defs[-1].startswith("def agent("):
+        raise ValueError(
+            f"{agent_path}: R-25 violation — 最後のトップレベル定義が `def agent(` ではありません"
+            f"（{top_defs[-1].strip()!r}）。Kaggle は最後の callable をエージェントとして呼ぶため、"
+            "def agent をファイル末尾に移動してください。")
     return text
 
 
@@ -75,6 +104,8 @@ def build_submission(
     agent_entry = resolve_agent_entry(agent_path)
 
     _validate_agent(agent_entry)
+    if agent_path.is_dir():
+        _check_base_sync(agent_path)
     deck_lines = _validate_deck(deck_path)
 
     if work_dir.exists():

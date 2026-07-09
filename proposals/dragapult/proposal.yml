@@ -1,0 +1,7 @@
+name: dragapult
+deck: decks/candidates/2026-06-30_top5/popular_4_dragapult.csv
+agent: agents/dragapult_rb
+concept: "Phantom Dive の配分プランで複数KO（サブゴール: 場のドラパルトexにエネ2枚）"
+protocol: protocol.py
+default_games: 20
+max_steps: 500

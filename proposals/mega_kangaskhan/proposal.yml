@@ -1,0 +1,7 @@
+name: mega_kangaskhan
+deck: decks/candidates/mega_kangaskhan_top.csv
+agent: agents/mega_kangaskhan_rb
+concept: "メガガルーラexのRapid-Fire Comboを打つ（サブゴール: 場のガルーラにエネ3枚）"
+protocol: protocol.py
+default_games: 20
+max_steps: 500

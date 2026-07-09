@@ -1,0 +1,7 @@
+name: alakazam
+deck: decks/candidates/alakazam_5th.csv
+agent: agents/alakazam_rb
+concept: "フーディンのPowerful Handを打つ（サブゴール: 場のフーディンに超エネが付いている）"
+protocol: protocol.py
+default_games: 20
+max_steps: 500
