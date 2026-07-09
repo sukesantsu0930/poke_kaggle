@@ -26,7 +26,6 @@ __pycache__/
 .env.*
 !.env.example
 submission_baseline.zip
-submission/cg/
 submission/deck.csv
 decks/local/*.csv
 !decks/local/README.md
@@ -35,3 +34,5 @@ experiments/visualizer/*.json
 experiments/deck_views/
 experiments/proposals/
 research/episode_deck_analysis/runs/
+research/external/ptcg-abc/
+research/external/kaggle_notebooks/
