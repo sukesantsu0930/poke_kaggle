@@ -15,8 +15,10 @@ RUN apt-get update \
         zip \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml uv.lock ./
-RUN uv venv --system-site-packages .venv \
+COPY pyproject.toml uv.lock .python-version ./
+# --python 3.12 明示: ピン無しだと uv が最新(3.14等)を選び、pygame 等の
+# wheel が無い Python でソースビルドに落ちて失敗する（2026-07-09 サーバーで実測）
+RUN uv venv --python 3.12 --system-site-packages .venv \
     && uv sync --frozen --no-install-project
 
 ENV PATH="/workspace/.venv/bin:${PATH}"
