@@ -37,6 +37,8 @@
 コードの出所: agents/archaludon_rb v1（Apache-2.0 Kaggle Notebook 系譜）から抽出。
 ptcg-abc は設計参照のみ（無ライセンスのためコード引用なし）。
 """
+import json
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
@@ -87,6 +89,21 @@ def band_of(score):
     if score == 0:
         return "zero"
     return "negative"
+
+
+def load_theta():
+    """学習済みルール強度 θ（reason 文字列 → スコア加算値）を theta.json から読む。
+
+    置き場所は policy_base.py と同じディレクトリ（= エージェントdir。ローカルでも
+    Kaggle の /kaggle_simulations/agent でも同じ相対関係）。ファイル不在・破損時は
+    空 dict = θ なし = 手書きスコアのまま（挙動不変のフォールバック。R-01 と同思想）。"""
+    fp = os.path.join(os.path.dirname(os.path.abspath(__file__)), "theta.json")
+    try:
+        with open(fp, encoding="utf-8") as f:
+            raw = json.load(f)
+        return {str(k): float(v) for k, v in raw.items() if v}
+    except Exception:
+        return {}
 
 # R-01 検査用カウンタ（check_agent が main.DIAG 経由で読む）
 DIAG = {"decisions": 0, "policy_ok": 0, "errors": 0, "option_errors": 0}
@@ -330,6 +347,9 @@ class BasePolicy(ABC):
         # ハーネスが `policy.decision_log = []` を代入して有効化し、drain/clear も
         # ハーネス側が管理する。reset_game() では触らない（ゲーム境界で消さない）。
         self.decision_log = None
+        # 学習済みルール強度 θ（reason → 加算値）。theta.json 不在なら {} = 素通し。
+        # 訓練ハーネスは policy.theta = candidate_dict の直接代入で差し替えられる。
+        self.theta = load_theta()
 
     # ── ゲーム間リセット（obs.select is None = デッキ選択 = 新ゲーム） ──
     def reset_game(self):
@@ -580,18 +600,39 @@ class BasePolicy(ABC):
                 return -100000, "R-07: don't break lethal (no retreat)"
         return score, reason
 
+    def _apply_theta(self, score, reason):
+        """学習済み強度 θ をバンド内加算として適用する（②選好スコアの学習の実体）。
+
+        聖域ガード: 調整後のスコアが band_of() の帯を跨ぐ場合は適用しない。
+        これにより θ は「正の選好同士の順位」「負のマスク同士の順位（強制充足時）」
+        だけを動かせ、マスクの解除・新設・リーサル帯への昇格は構造的に不可能。
+        apply_protocol の出力（R-07 系）には適用されない（呼び出し位置が手前のため）。"""
+        theta = self.theta
+        if not theta:
+            return score
+        adj = theta.get(reason)
+        if not adj:
+            return score
+        new = score + adj
+        if band_of(new) != band_of(score):
+            return score
+        return new
+
     def score_option(self, obs, opt):
         ctx = obs.select.context
 
         if ctx in {SelectContext.IS_FIRST, SelectContext.MULLIGAN,
                    SelectContext.SETUP_ACTIVE_POKEMON, SelectContext.SETUP_BENCH_POKEMON}:
-            return self.score_setup_context(obs, opt)
+            score, reason = self.score_setup_context(obs, opt)
+            return self._apply_theta(score, reason), reason
 
         if opt.type in {OptionType.YES, OptionType.NO}:
-            return self.score_yes_no(obs, opt)
+            score, reason = self.score_yes_no(obs, opt)
+            return self._apply_theta(score, reason), reason
 
         if opt.type == OptionType.NUMBER:
-            return self.score_number(obs, opt)
+            score, reason = self.score_number(obs, opt)
+            return self._apply_theta(score, reason), reason
 
         # フェーズ分岐（S-0 の現在値で切替。判定は常時、反応をフェーズで変える）
         if self.t["phase"] == "combat":
@@ -601,6 +642,7 @@ class BasePolicy(ABC):
 
         score, reason = self.mask_extra(obs, opt, score, reason)
         score, reason = self.apply_overrides(obs, opt, score, reason)
+        score = self._apply_theta(score, reason)
         return self.apply_protocol(obs, opt, score, reason)
 
     def update_belief(self, obs):
