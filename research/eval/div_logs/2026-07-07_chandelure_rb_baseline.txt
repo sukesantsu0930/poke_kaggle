@@ -1,0 +1,164 @@
+games=12 pilots={'kidekikish(1069)': 12}
+
+TOTAL agree 480/663 = 72.4%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 297/458 = 65%
+                   DISCARD: 4/13 = 31%
+                   TO_HAND: 59/64 = 92%
+                    SWITCH: 19/22 = 86%
+            DISCARD_ENERGY: 20/23 = 87%
+                 TO_ACTIVE: 29/31 = 94%
+                  IS_FIRST: 10/10 = 100%
+      SETUP_ACTIVE_POKEMON: 12/12 = 100%
+       SETUP_BENCH_POKEMON: 5/5 = 100%
+                  TO_BENCH: 19/19 = 100%
+                    EVOLVE: 4/4 = 100%
+                DRAW_COUNT: 2/2 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 10}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    4x               MAIN: human=[0]PLAY/Poké  ours=[1]END
+    3x               MAIN: human=[0]PLAY/Poké  ours=[1]PLAY/Buddy-Buddy
+    2x               MAIN: human=[0]PLAY/Energy  ours=[1]ATTACK/Flower
+    2x               MAIN: human=[2]ATTACK/Flower  ours=[0]PLAY/Buddy-Buddy
+    2x               MAIN: human=[0]RETREAT  ours=[1]END
+    2x     DISCARD_ENERGY: human=[0]ENERGY/Crustle  ours=[5]ENERGY/Mega
+    1x               MAIN: human=[2]PLAY/Battle  ours=[3]END
+    1x               MAIN: human=[4]PLAY/Boss’s  ours=[3]PLAY/Crushing
+    1x               MAIN: human=[2]PLAY/Switch  ours=[5]ATTACH/Basic
+    1x               MAIN: human=[0]PLAY/Poké  ours=[2]ATTACK/Flower
+    1x               MAIN: human=[5]ATTACH/Telepath  ours=[11]EVOLVE/Chandelure/->Lampent
+    1x             SWITCH: human=[0]CARD/Meowth  ours=[2]CARD/Latias
+    1x               MAIN: human=[14]PLAY/Rare  ours=[19]PLAY/Neutralization
+    1x               MAIN: human=[0]ATTACH/Basic  ours=[18]PLAY/Neutralization
+    1x               MAIN: human=[0]PLAY/Boss’s  ours=[10]PLAY/Neutralization
+    1x               MAIN: human=[1]ATTACH/Gravity  ours=[0]PLAY/Buddy-Buddy
+    1x               MAIN: human=[5]PLAY/Boss’s  ours=[12]PLAY/Crushing
+    1x               MAIN: human=[8]PLAY/Poké  ours=[7]PLAY/Crushing
+    1x               MAIN: human=[0]ATTACH/Basic  ours=[5]PLAY/Buddy-Buddy
+    1x          TO_ACTIVE: human=[0]CARD/Shaymin  ours=[3]CARD/Lampent
+
+-- 不一致サンプル --
+  84487121 kidekikish MAIN
+    human: [2]PLAY/Battle Cage
+    ours : [3]END
+  84487121 kidekikish MAIN
+    human: [4]PLAY/Boss’s Orders
+    ours : [3]PLAY/Crushing Hammer
+  84487949 kidekikish MAIN
+    human: [2]PLAY/Switch
+    ours : [5]ATTACH/Basic {P} Energy/->Comfey
+  84487949 kidekikish MAIN
+    human: [0]PLAY/Poké Pad
+    ours : [2]ATTACK/Flower Shower
+  84487949 kidekikish MAIN
+    human: [0]PLAY/Energy Search
+    ours : [1]ATTACK/Flower Shower
+  84487949 kidekikish MAIN
+    human: [5]ATTACH/Telepath Psychic Energy/->Comfey
+    ours : [11]EVOLVE/Chandelure/->Lampent
+  84487949 kidekikish SWITCH
+    human: [0]CARD/Meowth ex
+    ours : [2]CARD/Latias ex
+  84487949 kidekikish MAIN
+    human: [14]PLAY/Rare Candy
+    ours : [19]PLAY/Neutralization Zone
+  84487949 kidekikish MAIN
+    human: [0]ATTACH/Basic {P} Energy/->Comfey
+    ours : [18]PLAY/Neutralization Zone
+  84487949 kidekikish MAIN
+    human: [0]PLAY/Boss’s Orders
+    ours : [10]PLAY/Neutralization Zone
+  84487949 kidekikish MAIN
+    human: [0]PLAY/Poké Pad
+    ours : [1]PLAY/Buddy-Buddy Poffin
+  84487949 kidekikish MAIN
+    human: [1]ATTACH/Gravity Gemstone/->Comfey
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84487949 kidekikish MAIN
+    human: [2]ATTACK/Flower Shower
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84487949 kidekikish MAIN
+    human: [5]PLAY/Boss’s Orders
+    ours : [12]PLAY/Crushing Hammer
+  84487949 kidekikish MAIN
+    human: [8]PLAY/Poké Pad
+    ours : [7]PLAY/Crushing Hammer
+  84487949 kidekikish MAIN
+    human: [0]ATTACH/Basic {P} Energy/->Comfey
+    ours : [5]PLAY/Buddy-Buddy Poffin
+  84487949 kidekikish MAIN
+    human: [2]ATTACK/Flower Shower
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84487949 kidekikish TO_ACTIVE
+    human: [0]CARD/Shaymin
+    ours : [3]CARD/Lampent
+  84487949 kidekikish MAIN
+    human: [7]PLAY/Xerosic’s Machinations
+    ours : [14]ABILITY/Chandelure
+  84487949 kidekikish MAIN
+    human: [14]ATTACK/Flower Shower
+    ours : [12]ABILITY/Chandelure
+  84488659 kidekikish MAIN
+    human: [0]ATTACH/Basic {P} Energy/->Comfey
+    ours : [3]PLAY/Poké Pad
+  84488659 kidekikish MAIN
+    human: [0]PLAY/Xerosic’s Machinations
+    ours : [3]PLAY/Buddy-Buddy Poffin
+  84488659 kidekikish MAIN
+    human: [0]PLAY/Night Stretcher
+    ours : [1]PLAY/Buddy-Buddy Poffin
+  84488659 kidekikish MAIN
+    human: [0]PLAY/Boss’s Orders
+    ours : [2]ATTACH/Gravity Gemstone/->Comfey
+  84488659 kidekikish SWITCH
+    human: [0]CARD/Solrock
+    ours : [3]CARD/Barbaracle
+  84488659 kidekikish MAIN
+    human: [0]PLAY/Neutralization Zone
+    ours : [1]ATTACH/Gravity Gemstone/->Comfey
+  84488659 kidekikish MAIN
+    human: [1]ATTACH/Gravity Gemstone/->Comfey
+    ours : [4]PLAY/Comfey
+  84488659 kidekikish MAIN
+    human: [0]PLAY/Xerosic’s Machinations
+    ours : [10]ABILITY/Chandelure
+  84488659 kidekikish MAIN
+    human: [3]ATTACH/Basic {P} Energy/->Comfey
+    ours : [6]ABILITY/Chandelure
+  84488659 kidekikish MAIN
+    human: [4]ATTACK/Flower Shower
+    ours : [3]ABILITY/Chandelure
+  84489410 kidekikish MAIN
+    human: [0]PLAY/Hilda
+    ours : [3]PLAY/Energy Search
+  84489410 kidekikish MAIN
+    human: [0]PLAY/Energy Search
+    ours : [2]END
+  84489410 kidekikish DISCARD
+    human: [5]CARD/Telepath Psychic Energy [6]CARD/Basic {P} Energy [0]CARD/Xerosic’s Machinations [2]CARD/Night Stretcher
+    ours : [0]CARD/Xerosic’s Machinations [2]CARD/Night Stretcher [3]CARD/Lillie's Determination [5]CARD/Telepath Psychic Energy
+  84489410 kidekikish MAIN
+    human: [1]ATTACH/Basic {P} Energy/->Lampent
+    ours : [8]EVOLVE/Chandelure/->Lampent
+  84489410 kidekikish MAIN
+    human: [4]PLAY/Litwick
+    ours : [3]EVOLVE/Chandelure/->Lampent
+  84489410 kidekikish MAIN
+    human: [4]RETREAT
+    ours : [3]EVOLVE/Chandelure/->Lampent
+  84489410 kidekikish MAIN
+    human: [0]PLAY/Eri
+    ours : [1]PLAY/Lillie's Determination
+  84489410 kidekikish MAIN
+    human: [0]PLAY/Rare Candy
+    ours : [3]EVOLVE/Lampent/->Litwick
+  84489410 kidekikish MAIN
+    human: [1]PLAY/Dawn
+    ours : [5]PLAY/Buddy-Buddy Poffin
+  84489410 kidekikish MAIN
+    human: [2]PLAY/Neutralization Zone
+    ours : [3]PLAY/Litwick

@@ -1,0 +1,16 @@
+mega_kangaskhan_rb vs marnie [target=p0]: p0=12 p1=18 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs marnie [target=p1]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs marnie: 27-33 (45.0%) share=34.0%
+
+mega_kangaskhan_rb vs archaludon [target=p0]: p0=9 p1=21 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs archaludon [target=p1]: p0=21 p1=9 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs archaludon: 18-42 (30.0%) share=2.0%
+
+
+=== gauntlet: agents/mega_kangaskhan_rb (60 games/matchup) ===
+       archetype  share%     W-L    WR%
+          marnie    34.0  27-33   45.0
+      archaludon     2.0  18-42   30.0
+----------------------------------------
+制圧度（シェア加重勝率）: 44.2%  (covered share 36.0%)
+最弱マッチアップ: archaludon 30%, marnie 45%

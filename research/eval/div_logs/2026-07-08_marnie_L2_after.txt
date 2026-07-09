@@ -1,0 +1,16 @@
+marnie_munkidori_rb vs alakazam [target=p0]: p0=25 p1=5 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs alakazam [target=p1]: p0=8 p1=22 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs alakazam: 47-13 (78.3%) share=20.0%
+
+marnie_munkidori_rb vs archaludon [target=p0]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs archaludon [target=p1]: p0=18 p1=12 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs archaludon: 26-34 (43.3%) share=2.0%
+
+
+=== gauntlet: agents/marnie_munkidori_rb (60 games/matchup) ===
+       archetype  share%     W-L    WR%
+        alakazam    20.0  47-13   78.3
+      archaludon     2.0  26-34   43.3
+----------------------------------------
+制圧度（シェア加重勝率）: 75.2%  (covered share 22.0%)
+最弱マッチアップ: archaludon 43%, alakazam 78%

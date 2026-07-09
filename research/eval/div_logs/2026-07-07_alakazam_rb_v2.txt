@@ -1,0 +1,137 @@
+games=60 pilots={'Majkel1337(1157)': 8, 'Rmy(1076)': 21, 'aaa(1076)': 7, 'bono(1088)': 11, '豆本豆豆包(1042)': 7, 'THIRD PTCG Club(1073)': 1, 'Ajishio(1005)': 4, 'kawachi(1021)': 1}
+
+TOTAL agree 2379/4126 = 57.7%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 957/2331 = 41%
+                   TO_HAND: 516/733 = 70%
+                 TO_ACTIVE: 152/193 = 79%
+                   DISCARD: 3/31 = 10%
+                    SWITCH: 30/53 = 57%
+                  ACTIVATE: 319/337 = 95%
+                  TO_BENCH: 134/149 = 90%
+                   TO_DECK: 15/29 = 52%
+      SETUP_ACTIVE_POKEMON: 52/60 = 87%
+                    EVOLVE: 85/89 = 96%
+                DRAW_COUNT: 7/9 = 78%
+            DISCARD_ENERGY: 54/56 = 96%
+       SETUP_BENCH_POKEMON: 17/18 = 94%
+                  IS_FIRST: 37/37 = 100%
+               SKILL_ORDER: 1/1 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 37}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   17x           ACTIVATE: human=[1]NO  ours=[0]YES
+    7x            TO_HAND: human=[4]CARD  ours=[0]CARD
+    6x            TO_HAND: human=[0]CARD/Kadabra  ours=[2]CARD/Alakazam
+    5x               MAIN: human=[0]ABILITY/Dudunsparce  ours=[1]END
+    5x               MAIN: human=[2]EVOLVE/Kadabra/->Abra  ours=[1]EVOLVE/Kadabra/->Abra
+    5x            TO_HAND: human=[0]CARD/Dudunsparce  ours=[1]CARD/Kadabra
+    5x               MAIN: human=[0]RETREAT  ours=[1]END
+    5x            TO_HAND: human=[0]CARD/Dudunsparce  ours=[2]CARD/Kadabra
+    5x            TO_HAND: human=[5]CARD  ours=[0]CARD
+    5x               MAIN: human=[1]ATTACK/Powerful  ours=[0]PLAY/Sacred
+    5x            TO_DECK: human=[0]CARD/Alakazam  ours=[0]CARD/Alakazam
+    5x          TO_ACTIVE: human=[3]CARD/Dunsparce  ours=[0]CARD/Alakazam
+    5x               MAIN: human=[6]END  ours=[3]PLAY/Poké
+    4x             SWITCH: human=[2]CARD/Dunsparce  ours=[0]CARD/Abra
+    4x            DISCARD: human=[0]CARD/Enhanced  ours=[0]CARD/Enhanced
+    4x            TO_HAND: human=[2]CARD/Alakazam  ours=[0]CARD/Alakazam
+    4x SETUP_ACTIVE_POKEMON: human=[1]CARD/Dunsparce  ours=[0]CARD/Abra
+    4x               MAIN: human=[3]ATTACK/Powerful  ours=[0]PLAY/Dunsparce
+    4x           TO_BENCH: human=[0]CARD/Dunsparce  ours=[1]CARD/Abra
+    4x               MAIN: human=[2]END  ours=[0]PLAY/Poké
+
+-- 不一致サンプル --
+  84486998 Majkel1337 DRAW_COUNT
+    human: [1]NUMBER
+    ours : [2]NUMBER
+  84486998 Majkel1337 MAIN
+    human: [1]ATTACH/Telepath Psychic Energy/->Abra
+    ours : [2]EVOLVE/Dudunsparce/->Dunsparce
+  84486998 Majkel1337 MAIN
+    human: [0]ABILITY/Dudunsparce
+    ours : [1]END
+  84486998 Majkel1337 MAIN
+    human: [0]PLAY/Buddy-Buddy Poffin
+    ours : [1]PLAY/Dunsparce
+  84486998 Majkel1337 MAIN
+    human: [0]PLAY/Dunsparce
+    ours : [1]ATTACK/Teleportation Attack
+  84486998 Majkel1337 SWITCH
+    human: [2]CARD/Dunsparce
+    ours : [0]CARD/Abra
+  84486998 Majkel1337 MAIN
+    human: [2]EVOLVE/Kadabra/->Abra
+    ours : [1]EVOLVE/Kadabra/->Abra
+  84486998 Majkel1337 MAIN
+    human: [6]ATTACH/Enriching Energy/->Dunsparce
+    ours : [1]EVOLVE/Kadabra/->Abra
+  84486998 Majkel1337 MAIN
+    human: [6]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [1]EVOLVE/Kadabra/->Abra
+  84486998 Majkel1337 MAIN
+    human: [2]PLAY/Rare Candy
+    ours : [1]EVOLVE/Kadabra/->Abra
+  84486998 Majkel1337 EVOLVE
+    human: [2]EVOLVE/Alakazam/->Abra
+    ours : [0]EVOLVE/Alakazam/->Abra
+  84486998 Majkel1337 MAIN
+    human: [0]PLAY/Night Stretcher
+    ours : [3]PLAY/Buddy-Buddy Poffin
+  84486998 Majkel1337 MAIN
+    human: [3]PLAY/Dawn
+    ours : [6]PLAY/Poké Pad
+  84486998 Majkel1337 TO_HAND
+    human: [3]CARD/Dudunsparce
+    ours : [0]CARD/Dudunsparce
+  84486998 Majkel1337 MAIN
+    human: [1]PLAY/Buddy-Buddy Poffin
+    ours : [3]PLAY/Dunsparce
+  84486998 Majkel1337 MAIN
+    human: [0]PLAY/Night Stretcher
+    ours : [3]PLAY/Poké Pad
+  84486998 Majkel1337 MAIN
+    human: [1]PLAY/Dunsparce
+    ours : [2]PLAY/Poké Pad
+  84486998 Majkel1337 MAIN
+    human: [18]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [0]EVOLVE/Kadabra/->Abra
+  84486998 Majkel1337 MAIN
+    human: [25]ABILITY/Dudunsparce
+    ours : [0]EVOLVE/Kadabra/->Abra
+  84486998 Majkel1337 MAIN
+    human: [22]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [0]EVOLVE/Kadabra/->Abra
+  84486998 Majkel1337 MAIN
+    human: [27]ABILITY/Dudunsparce
+    ours : [0]EVOLVE/Kadabra/->Abra
+  84486998 Majkel1337 MAIN
+    human: [11]PLAY/Rare Candy
+    ours : [13]PLAY/Dunsparce
+  84486998 Majkel1337 MAIN
+    human: [9]PLAY/Night Stretcher
+    ours : [11]PLAY/Dunsparce
+  84486998 Majkel1337 MAIN
+    human: [1]ATTACH/Basic {P} Energy/->Alakazam
+    ours : [26]PLAY/Abra
+  84486998 Majkel1337 MAIN
+    human: [8]PLAY/Dawn
+    ours : [5]PLAY/Poké Pad
+  84486998 Majkel1337 MAIN
+    human: [7]ABILITY/Dudunsparce
+    ours : [2]PLAY/Poké Pad
+  84486998 Majkel1337 MAIN
+    human: [7]ATTACK/Powerful Hand
+    ours : [4]PLAY/Dunsparce
+  84486998 Majkel1337 MAIN
+    human: [8]PLAY/Rare Candy
+    ours : [29]PLAY/Abra
+  84486998 Majkel1337 MAIN
+    human: [12]ATTACH/Basic {P} Energy/->Alakazam
+    ours : [25]PLAY/Abra
+  84486998 Majkel1337 MAIN
+    human: [17]PLAY/Lana’s Aid
+    ours : [19]ATTACK/Powerful Hand

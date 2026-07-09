@@ -8,6 +8,7 @@
 - `card_notes/`: 個別カードのメモ
 - `strategy_notes/`: プレイ方針、エージェントに入れたい判断ルール
 - `rule_findings/`: ルールや仕様の発見
+- `external/`: 外部公開資産の取り込み場所（実装担当向け。ptcg-abc、公開Notebook。中身はGit管理外、詳細は `external/README.md`）
 
 ## ルール
 

@@ -73,6 +73,9 @@ def main():
     parser.add_argument("--keys", help="最適化する reason のカンマ区切り（省略時は init の上位から）")
     parser.add_argument("--top-k", type=int, default=24,
                         help="init から |θ| 上位いくつを最適化対象にするか（次元制御）")
+    parser.add_argument("--init-scale", type=float, default=1.0,
+                        help="初期平均 = init値 × この係数。0 で「reason の選定だけ init から借り、"
+                             "初期値は手書き基準(θ=0)」のコールドスタート（EXP-002 の教訓）")
     parser.add_argument("--pop", type=int, default=12)
     parser.add_argument("--elite", type=int, default=3)
     parser.add_argument("--iters", type=int, default=20)
@@ -122,7 +125,7 @@ def main():
     hcsv.writerow(["iter", "candidate", "control", "best", "mean", "elapsed_s"])
 
     rng = np.random.default_rng(args.seed)
-    mean = np.array([init.get(k, 0.0) for k in keys])
+    mean = np.array([init.get(k, 0.0) * args.init_scale for k in keys])
     sigma = np.full(len(keys), args.sigma)
     best_score = -1.0
     best_theta = dict(init)

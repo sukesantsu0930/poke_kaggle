@@ -1,0 +1,145 @@
+games=61 pilots={'Yushin Ito(1122)': 11, 'ごんさくよねきち(1038)': 8, 'tonakaiiii(1082)': 4, 'tw_shin(1039)': 3, 'THIRD PTCG Club(1073)': 7, 'jiatu.l(1016)': 7, '渡邊征央(1054)': 16, 'Eduardo Rocha de Andrade(1017)': 1, 'Sota Uchiyama(1068)': 3, 'The Debauchery Tea Party(1004)': 1}
+
+TOTAL agree 3615/5471 = 66.1%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 1291/2378 = 54%
+                   TO_HAND: 514/749 = 69%
+               ATTACH_FROM: 243/363 = 67%
+            DAMAGE_COUNTER: 191/297 = 64%
+                 ATTACH_TO: 52/139 = 37%
+                    DAMAGE: 174/247 = 70%
+                  TO_BENCH: 45/82 = 55%
+     REMOVE_DAMAGE_COUNTER: 260/297 = 88%
+                   DISCARD: 2/21 = 10%
+                 TO_ACTIVE: 101/118 = 86%
+                    SWITCH: 47/61 = 77%
+  REMOVE_DAMAGE_COUNTER_COUNT: 272/284 = 96%
+      SETUP_ACTIVE_POKEMON: 56/61 = 92%
+       SETUP_BENCH_POKEMON: 20/25 = 80%
+                   TO_DECK: 4/6 = 67%
+         DISCARD_TOOL_CARD: 2/2 = 100%
+                    EVOLVE: 79/79 = 100%
+                  ACTIVATE: 144/144 = 100%
+                  IS_FIRST: 30/30 = 100%
+             SWITCH_ENERGY: 20/20 = 100%
+            DISCARD_ENERGY: 45/45 = 100%
+                DRAW_COUNT: 14/14 = 100%
+               SKILL_ORDER: 9/9 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 30}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   68x          ATTACH_TO: human=[0]CARD/Basic  ours=[0]CARD/Basic
+   56x        ATTACH_FROM: human=[1]CARD/Marnie's  ours=[0]CARD/Marnie's
+   27x        ATTACH_FROM: human=[2]CARD/Marnie's  ours=[0]CARD/Marnie's
+   18x            TO_HAND: human=[1]CARD/Marnie's  ours=[0]CARD/Marnie's
+   15x REMOVE_DAMAGE_COUNTER: human=[1]CARD/Munkidori  ours=[0]CARD/Marnie's
+   12x             DAMAGE: human=[0]CARD/Crustle  ours=[1]CARD/Crustle
+   12x     DAMAGE_COUNTER: human=[0]CARD/Okidogi  ours=[1]CARD/Barbaracle
+   10x            TO_HAND: human=[0]CARD/Marnie's  ours=[2]CARD/Marnie's
+    9x        ATTACH_FROM: human=[0]CARD/Marnie's  ours=[1]CARD/Marnie's
+    9x            TO_HAND: human=[2]CARD/Marnie's  ours=[0]CARD/Marnie's
+    8x           TO_BENCH: human=[0]CARD/Marnie's  ours=[0]CARD/Marnie's
+    8x     DAMAGE_COUNTER: human=[0]CARD/Marnie's  ours=[1]CARD/Munkidori
+    7x REMOVE_DAMAGE_COUNTER_COUNT: human=[0]NUMBER  ours=[2]NUMBER
+    7x            TO_HAND: human=[0]CARD/Marnie's  ours=[1]CARD/Marnie's
+    7x            TO_HAND: human=(none)  ours=[0]CARD/Marnie's
+    7x            TO_HAND: human=[2]CARD/Marnie's  ours=[1]CARD/Marnie's
+    6x            TO_HAND: human=[3]CARD/Marnie's  ours=[0]CARD/Marnie's
+    6x               MAIN: human=[0]PLAY/Lillie's  ours=[1]ABILITY/Munkidori
+    6x     DAMAGE_COUNTER: human=[0]CARD/Marnie's  ours=[1]CARD/Marnie's
+    5x          ATTACH_TO: human=(none)  ours=[0]CARD/Basic
+
+-- 不一致サンプル --
+  84487123 Yushin Ito SETUP_ACTIVE_POKEMON
+    human: [0]CARD/Yveltal
+    ours : [1]CARD/Marnie's Impidimp
+  84487123 Yushin Ito SETUP_BENCH_POKEMON
+    human: [0]CARD/Marnie's Impidimp
+    ours : [0]CARD/Marnie's Impidimp [1]CARD/Fezandipiti ex
+  84487123 Yushin Ito MAIN
+    human: [4]PLAY/Tool Scrapper
+    ours : [3]PLAY/Fezandipiti ex
+  84487123 Yushin Ito MAIN
+    human: [0]PLAY/Buddy-Buddy Poffin
+    ours : [3]PLAY/Fezandipiti ex
+  84487123 Yushin Ito TO_BENCH
+    human: [0]CARD/Marnie's Impidimp [2]CARD/Dunsparce
+    ours : [0]CARD/Marnie's Impidimp [1]CARD/Marnie's Impidimp
+  84487123 Yushin Ito MAIN
+    human: [0]ATTACH/Hero’s Cape/->Yveltal
+    ours : [6]END
+  84487123 Yushin Ito MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [1]ABILITY/Dudunsparce
+  84487123 Yushin Ito MAIN
+    human: [13]ABILITY/Dudunsparce
+    ours : [11]PLAY/Poké Pad
+  84487123 Yushin Ito MAIN
+    human: [12]PLAY/Rare Candy
+    ours : [0]PLAY/Dunsparce
+  84487123 Yushin Ito ATTACH_TO
+    human: [0]CARD/Basic {D} Energy [1]CARD/Basic {D} Energy [2]CARD/Basic {D} Energy [3]CARD/Basic {D} Energy
+    ours : [0]CARD/Basic {D} Energy [1]CARD/Basic {D} Energy
+  84487123 Yushin Ito ATTACH_FROM
+    human: [0]CARD/Marnie's Morgrem
+    ours : [1]CARD/Marnie's Grimmsnarl ex
+  84487123 Yushin Ito ATTACH_FROM
+    human: [0]CARD/Marnie's Morgrem
+    ours : [1]CARD/Marnie's Grimmsnarl ex
+  84487123 Yushin Ito MAIN
+    human: [13]RETREAT
+    ours : [0]PLAY/Dunsparce
+  84487123 Yushin Ito MAIN
+    human: [10]PLAY/Poké Pad
+    ours : [12]PLAY/Spikemuth Gym
+  84487123 Yushin Ito MAIN
+    human: [13]PLAY/Munkidori
+    ours : [11]PLAY/Spikemuth Gym
+  84487123 Yushin Ito MAIN
+    human: [5]ATTACH/Basic {D} Energy/->Munkidori
+    ours : [12]PLAY/Spikemuth Gym
+  84487123 Yushin Ito TO_HAND
+    human: [1]CARD/Marnie's Impidimp
+    ours : [0]CARD/Marnie's Grimmsnarl ex
+  84487123 Yushin Ito MAIN
+    human: [12]ABILITY/Fezandipiti ex
+    ours : [13]ABILITY/Spikemuth Gym
+  84487123 Yushin Ito MAIN
+    human: [7]EVOLVE/Marnie's Grimmsnarl ex/->Marnie's Morgrem
+    ours : [19]ABILITY/Spikemuth Gym
+  84487123 Yushin Ito ATTACH_TO
+    human: (none)
+    ours : [0]CARD/Basic {D} Energy
+  84487123 Yushin Ito MAIN
+    human: [11]PLAY/Boss’s Orders
+    ours : [18]ABILITY/Spikemuth Gym
+  84487123 Yushin Ito MAIN
+    human: [9]PLAY/Poké Pad
+    ours : [15]ABILITY/Spikemuth Gym
+  84487123 Yushin Ito MAIN
+    human: [14]PLAY/Munkidori
+    ours : [15]ABILITY/Spikemuth Gym
+  84487123 Yushin Ito MAIN
+    human: [5]ATTACH/Basic {D} Energy/->Munkidori
+    ours : [12]ABILITY/Spikemuth Gym
+  84487123 Yushin Ito MAIN
+    human: [10]PLAY/Risky Ruins
+    ours : [7]PLAY/Dawn
+  84487123 Yushin Ito TO_HAND
+    human: [3]CARD/Munkidori
+    ours : [0]CARD/Dunsparce
+  84487123 Yushin Ito TO_HAND
+    human: [0]CARD/Dudunsparce
+    ours : [1]CARD/Marnie's Morgrem
+  84487123 Yushin Ito MAIN
+    human: [6]ABILITY/Dudunsparce
+    ours : [7]ATTACK/Shadow Bullet
+  84487123 Yushin Ito MAIN
+    human: [9]PLAY/Munkidori
+    ours : [0]PLAY/Marnie's Impidimp
+  84487123 Yushin Ito MAIN
+    human: [5]ATTACH/Basic {D} Energy/->Munkidori
+    ours : [6]PLAY/Poké Pad

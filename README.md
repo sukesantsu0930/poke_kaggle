@@ -4,9 +4,10 @@
 
 ## まず見る場所
 
+- 運用の回し方: `運用ガイド.md`（プロジェクト直下）
 - 実行入口: `run/README.md`
 - 共同作業ルール: `docs/collaboration/COLLABORATION_GUIDE.md`
-- 安福・長谷川向け案内: `docs/collaboration/安福_長谷川向け.md`
+- 安福・長谷川向け案内: `安福_長谷川向け.md`（プロジェクト直下）
 - 作業日記: `docs/planning/PROJECT_DIARY.md`
 
 ## 主要ディレクトリ

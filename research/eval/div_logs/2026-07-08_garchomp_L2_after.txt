@@ -1,0 +1,21 @@
+cynthia_garchomp_rb vs marnie [target=p0]: p0=20 p1=10 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs marnie [target=p1]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs marnie: 35-25 (58.3%) share=34.0%
+
+cynthia_garchomp_rb vs alakazam [target=p0]: p0=16 p1=14 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs alakazam [target=p1]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs alakazam: 32-28 (53.3%) share=20.0%
+
+cynthia_garchomp_rb vs archaludon [target=p0]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs archaludon [target=p1]: p0=9 p1=21 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs archaludon: 36-24 (60.0%) share=2.0%
+
+
+=== gauntlet: agents/cynthia_garchomp_rb (60 games/matchup) ===
+       archetype  share%     W-L    WR%
+          marnie    34.0  35-25   58.3
+        alakazam    20.0  32-28   53.3
+      archaludon     2.0  36-24   60.0
+----------------------------------------
+制圧度（シェア加重勝率）: 56.6%  (covered share 56.0%)
+最弱マッチアップ: alakazam 53%, marnie 58%, archaludon 60%
