@@ -99,8 +99,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--episodes", required=True)
     parser.add_argument("--agent", required=True)
-    parser.add_argument("--archetype-cards", required=True,
+    parser.add_argument("--archetype-cards",
                         help="対象デッキの識別カードID（カンマ区切り、全て含むデッキが対象）")
+    parser.add_argument("--match-deck",
+                        help="デッキCSVパス。エピソードのデッキとの重なり枚数（多重度込み）で"
+                             "対象を選ぶ（--archetype-cards の代替。模倣対象を自リスト近傍に絞る）")
+    parser.add_argument("--min-overlap", type=int, default=45,
+                        help="--match-deck 時の最小重なり枚数（60枚中。既定45）")
     parser.add_argument("--leaderboard", default="downloads/leaderboard")
     parser.add_argument("--min-score", type=float, default=900)
     parser.add_argument("--max-games", type=int, default=80)
@@ -110,7 +115,13 @@ def main():
                              "上位者の選択。模倣学習の訓練データ。BasePolicy エージェント専用）")
     args = parser.parse_args()
 
-    want = {int(x) for x in args.archetype_cards.split(",")}
+    if not args.archetype_cards and not args.match_deck:
+        raise SystemExit("--archetype-cards か --match-deck のどちらかを指定")
+    want = {int(x) for x in args.archetype_cards.split(",")} if args.archetype_cards else None
+    ref_deck = None
+    if args.match_deck:
+        from ab_battle import read_deck
+        ref_deck = Counter(read_deck(ROOT / args.match_deck))
     scores = load_scores(ROOT / args.leaderboard)
     agent_mod = load_agent(ROOT / args.agent)
 
@@ -157,8 +168,14 @@ def main():
                 deck = steps[1][pi]["action"]
             except Exception:
                 continue
-            if not (isinstance(deck, list) and len(deck) == 60 and want <= set(deck)):
+            if not (isinstance(deck, list) and len(deck) == 60):
                 continue
+            if want is not None and not (want <= set(deck)):
+                continue
+            if ref_deck is not None:
+                overlap = sum((Counter(deck) & ref_deck).values())
+                if overlap < args.min_overlap:
+                    continue
             team = teams[pi] if pi < len(teams) else "?"
             score = scores.get(team, 0)
             if score < args.min_score:
