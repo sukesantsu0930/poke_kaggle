@@ -69,6 +69,9 @@ def main():
     parser.add_argument("--deck", required=True)
     parser.add_argument("--field", default="research/meta/2026-07-08_field.csv")
     parser.add_argument("--only", help="アーキタイプ名のカンマ区切り（高速スモーク用）")
+    parser.add_argument("--exclude",
+                        help="プールから除外するアーキタイプのカンマ区切り（holdout 用。"
+                             "除外した相手への非劣化検証は gauntlet --only で別途行う）")
     parser.add_argument("--init", help="初期 θ の theta.json（省略時は --keys 必須で 0 初期化）")
     parser.add_argument("--keys", help="最適化する reason のカンマ区切り（省略時は init の上位から）")
     parser.add_argument("--top-k", type=int, default=24,
@@ -96,12 +99,22 @@ def main():
         keys = [k for k, _ in sorted(init.items(), key=lambda kv: -abs(kv[1]))[:args.top_k]]
     else:
         raise SystemExit("--init か --keys のどちらかを指定")
-    fixed = {k: v for k, v in init.items() if k not in keys}   # 対象外の θ は固定値で保持
+    # 対象外の θ にも init-scale を適用（--init-scale 0 なら fixed は空 = 模倣θ完全排除）。
+    # 旧実装は top-k 外の θ を模倣値のまま固定注入しており、EXP-002 で reject した
+    # 「play pokemon -4796」等が全評価の土台に混入するバグだった。
+    fixed = {k: v * args.init_scale for k, v in init.items()
+             if k not in keys and v * args.init_scale}
 
     field = read_field(ROOT / args.field)
     if args.only:
         names = {n.strip() for n in args.only.split(",")}
         field = [r for r in field if r["archetype"] in names]
+    if args.exclude:
+        names = {n.strip() for n in args.exclude.split(",")}
+        missing = names - {r["archetype"] for r in field}
+        if missing:
+            raise SystemExit(f"--exclude: unknown archetypes: {sorted(missing)}")
+        field = [r for r in field if r["archetype"] not in names]
     opponents = []
     for row in field:
         try:

@@ -23,6 +23,7 @@
 """
 import argparse
 import csv
+import json
 import sys
 import time
 from pathlib import Path
@@ -33,7 +34,20 @@ sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "submission"))
 sys.path.insert(0, str(ROOT / "agents" / "_base"))
 
-from ab_battle import load_agent, read_deck, run_battles  # noqa: E402
+from ab_battle import get_policy, load_agent, read_deck, run_battles  # noqa: E402
+
+
+def _freeze_opponent_theta(mod):
+    """プール凍結（p=0 運用）: 相手役は常に手書き基準 θ=0 で指す。
+
+    build_opponent はライブの agents/<deck>_rb/ をロードするため、θ を採用して
+    theta.json を置いた瞬間に「相手プールの同デッキも強化される」= 目的関数が
+    こちらの採用判断で動く裏口があった。場は外生の固定モデルなので相手側の θ は
+    常時空にする（正典: docs/strategy/エージェントアーキテクチャと実験計画.md §4。
+    将来ラダーの強化を織り込む場合は field CSV に別行として明示的に足す）。"""
+    policy = get_policy(mod)
+    if policy is not None:
+        policy.theta = {}
 
 
 def read_field(path: Path):
@@ -56,7 +70,9 @@ def build_opponent(row):
         import generic_policy
         agent_fn = generic_policy.make_generic_agent(deck, name=row["archetype"])
         return SimpleNamespace(agent=agent_fn), deck
-    return load_agent(ROOT / row["agent_or_deck"]), deck
+    mod = load_agent(ROOT / row["agent_or_deck"])
+    _freeze_opponent_theta(mod)
+    return mod, deck
 
 
 def find_frozen(agent_or_deck: str):
@@ -81,12 +97,16 @@ def build_opponent_style(row, style):
     if style == "tuned":
         if row["agent_or_deck"] == "generic":
             return None
-        return load_agent(ROOT / row["agent_or_deck"]), deck
+        mod = load_agent(ROOT / row["agent_or_deck"])
+        _freeze_opponent_theta(mod)
+        return mod, deck
     if style == "frozen":
         frozen = find_frozen(row["agent_or_deck"])
         if frozen is None:
             return None
-        return load_agent(frozen), deck
+        mod = load_agent(frozen)
+        _freeze_opponent_theta(mod)
+        return mod, deck
     raise SystemExit(f"unknown style: {style}（tuned/generic/frozen）")
 
 
@@ -99,6 +119,7 @@ def run_styles(args, field, target_deck):
         for style in styles:
             # マッチアップ毎に対象エージェントをロードし直す（モジュール隔離）
             target_mod = load_agent(ROOT / args.agent)
+            inject_target_theta(target_mod, args.theta)
             try:
                 built = build_opponent_style(row, style)
             except SystemExit:
@@ -174,6 +195,22 @@ def _print_throughput(results, elapsed):
               f"{total / elapsed * 60:.1f} games/min ({elapsed / total:.2f} s/game)")
 
 
+def inject_target_theta(mod, theta_arg):
+    """対象機の θ を上書きする（候補θの L1 計測用）。
+    theta_arg: None = そのまま（agent dir の theta.json = 採用済みθ）/
+    'zero' = θ空（手書き基準のベースライン計測）/ パス = その JSON を注入。"""
+    if theta_arg is None:
+        return
+    policy = get_policy(mod)
+    if policy is None:
+        raise SystemExit("--theta: BasePolicy エージェントではない（theta 注入不可）")
+    if theta_arg == "zero":
+        policy.theta = {}
+        return
+    raw = json.loads((ROOT / theta_arg).read_text(encoding="utf-8"))
+    policy.theta = {str(k): float(v) for k, v in raw.items() if v}
+
+
 def run_matchup(target_mod, target_deck, opp_mod, opp_deck, games, max_steps, label):
     """席入替つき対戦。target 視点の (wins, losses, draws, unfinished) を返す。"""
     half = games // 2
@@ -196,6 +233,12 @@ def main():
     parser.add_argument("--games", type=int, default=40, help="1マッチアップあたりのゲーム数")
     parser.add_argument("--max-steps", type=int, default=600)
     parser.add_argument("--only", help="アーキタイプ名のカンマ区切り（部分再計測用）")
+    parser.add_argument("--exclude",
+                        help="除外するアーキタイプのカンマ区切り（CEM の学習プールと同じ条件で"
+                             "測るとき holdout をここに指定）")
+    parser.add_argument("--theta",
+                        help="対象機に注入する θ: theta.json のパス、または 'zero'（θ空 = 手書き基準）。"
+                             "省略時は agent dir の theta.json（採用済みθ）。候補θの L1 計測用")
     parser.add_argument("--out", help="結果を CSV 追記するパス（省略時は表示のみ）")
     parser.add_argument("--styles",
                         help="P-11 感度チェック: 相手スタイルのカンマ区切り（tuned,generic,frozen）。"
@@ -209,6 +252,12 @@ def main():
         missing = names - {r["archetype"] for r in field}
         if missing:
             raise SystemExit(f"unknown archetypes: {sorted(missing)}")
+    if args.exclude:
+        names = {n.strip() for n in args.exclude.split(",")}
+        missing = names - {r["archetype"] for r in field}
+        if missing:
+            raise SystemExit(f"--exclude: unknown archetypes: {sorted(missing)}")
+        field = [r for r in field if r["archetype"] not in names]
 
     target_deck = read_deck(ROOT / args.deck)
     if args.styles:
@@ -219,6 +268,7 @@ def main():
     for row in field:
         # マッチアップ毎に対象エージェントをロードし直す（モジュール隔離・状態持越し防止）
         target_mod = load_agent(ROOT / args.agent)
+        inject_target_theta(target_mod, args.theta)
         try:
             opp_mod, opp_deck = build_opponent(row)
         except Exception as e:
