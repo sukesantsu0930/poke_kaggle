@@ -23,6 +23,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "submission"))
+# policy_net/turn_search の遅延 import 用（load_agent はエージェントdirを import 後に
+# sys.path から外すため、ここに無いと npz があってもネットが黙ってルール縮退し、
+# DIAG の net_calls が常に 0 になる。2026-07-15 PPO 評価で発覚）
+sys.path.insert(0, str(ROOT / "agents" / "_base"))
 
 from cg import game  # noqa: E402
 from cg import api  # noqa: E402

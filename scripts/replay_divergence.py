@@ -22,6 +22,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "submission"))
 sys.path.insert(0, str(ROOT / "scripts"))
+# policy_net の遅延 import 用（無いと agent dir の policy_net.npz が黙って無効化され、
+# ネット込みの divergence を測ったつもりでルールのみを測ることになる）
+sys.path.insert(0, str(ROOT / "agents" / "_base"))
 
 from cg.api import OptionType, SelectContext, all_attack, all_card_data, to_observation_class  # noqa: E402
 
