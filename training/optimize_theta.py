@@ -9,7 +9,7 @@
 
 使い方:
   uv run python training/optimize_theta.py --agent agents/marnie_munkidori_rb \
-      --deck decks/candidates/2026-06-30_top5/winrate_2_marnie_grimmsnarl.csv \
+      --deck decks/fleet/winrate_2_marnie_grimmsnarl.csv \
       --init agents/marnie_munkidori_rb/theta.json --top-k 24 \
       [--pop 12] [--elite 3] [--iters 20] [--games 8] [--sigma 2000] \
       [--only marnie,alakazam] [--out build/cem/marnie]
@@ -67,7 +67,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--agent", required=True)
     parser.add_argument("--deck", required=True)
-    parser.add_argument("--field", default="research/meta/2026-07-08_field.csv")
+    parser.add_argument("--field", default="research/meta/2026-07-14_field.csv")
     parser.add_argument("--only", help="アーキタイプ名のカンマ区切り（高速スモーク用）")
     parser.add_argument("--exclude",
                         help="プールから除外するアーキタイプのカンマ区切り（holdout 用。"

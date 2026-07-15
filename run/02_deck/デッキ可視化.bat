@@ -6,11 +6,11 @@ echo.
 echo Deck CSV visualizer
 echo.
 echo Enter deck CSV path.
-echo If empty, the Cubchoo / Ogerpon candidate deck is used.
+echo If empty, the Dragapult Dusknoir fleet deck is used.
 echo.
 
 set /p DECK_CSV=Deck CSV: 
-if "%DECK_CSV%"=="" set DECK_CSV=decks\candidates\2026-06-30_top5\winrate_1_cubchoo_ogerpon.csv
+if "%DECK_CSV%"=="" set DECK_CSV=decks\fleet\dragapult_dusknoir_paper.csv
 
 uv run python scripts\render_deck_html.py "%DECK_CSV%" --open
 

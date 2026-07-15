@@ -22,14 +22,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # デッキ設定: name -> (agent dir, 候補デッキCSV)
 DECKS = {
-    "archaludon": ("agents/archaludon_rb", "decks/candidates/archaludon_cityleague.csv"),
-    "alakazam": ("agents/alakazam_rb", "decks/candidates/alakazam_5th.csv"),
-    "chandelure": ("agents/chandelure_rb", "decks/candidates/chandelure_top.csv"),
-    "cynthia_garchomp": ("agents/cynthia_garchomp_rb", "decks/candidates/cynthia_garchomp_top.csv"),
-    "kangaskhan": ("agents/mega_kangaskhan_rb", "decks/candidates/mega_kangaskhan_top.csv"),
-    "dragapult": ("agents/dragapult_rb", "decks/candidates/2026-06-30_top5/popular_4_dragapult.csv"),
+    "archaludon": ("agents/archaludon_rb", "decks/fleet/archaludon_cityleague.csv"),
+    "alakazam": ("agents/alakazam_rb", "decks/fleet/alakazam_5th.csv"),
+    "chandelure": ("agents/chandelure_rb", "decks/fleet/chandelure_top.csv"),
+    "cynthia_garchomp": ("agents/cynthia_garchomp_rb", "decks/fleet/cynthia_garchomp_top.csv"),
+    "kangaskhan": ("agents/mega_kangaskhan_rb", "decks/fleet/mega_kangaskhan_top.csv"),
+    "dragapult": ("agents/dragapult_rb", "decks/fleet/popular_4_dragapult.csv"),
     "marnie": ("agents/marnie_munkidori_rb",
-               "decks/candidates/2026-06-30_top5/winrate_2_marnie_grimmsnarl.csv"),
+               "decks/fleet/winrate_2_marnie_grimmsnarl.csv"),
 }
 
 

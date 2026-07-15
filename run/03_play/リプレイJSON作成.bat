@@ -10,10 +10,10 @@ echo   experiments\visualizer\latest_replay.json
 echo   experiments\visualizer\latest_agent_log.json
 echo.
 
-set "DEFAULT_AGENT0=agents\cubchoo_ogerpon_rb"
-set "DEFAULT_DECK0=decks\candidates\2026-06-30_top5\winrate_1_cubchoo_ogerpon.csv"
-set "DEFAULT_AGENT1=agents\cubchoo_ogerpon_rb"
-set "DEFAULT_DECK1=decks\candidates\2026-06-30_top5\winrate_1_cubchoo_ogerpon.csv"
+set "DEFAULT_AGENT0=agents\dragapult_dusknoir_rb"
+set "DEFAULT_DECK0=decks\fleet\dragapult_dusknoir_paper.csv"
+set "DEFAULT_AGENT1=agents\dragapult_rb"
+set "DEFAULT_DECK1=decks\fleet\popular_4_dragapult.csv"
 
 set /p AGENT0="Agent 0 [%DEFAULT_AGENT0%]: "
 if "%AGENT0%"=="" set "AGENT0=%DEFAULT_AGENT0%"
