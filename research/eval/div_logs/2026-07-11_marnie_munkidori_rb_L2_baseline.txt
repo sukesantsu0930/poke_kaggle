@@ -1,0 +1,62 @@
+marnie_munkidori_rb vs marnie [target=p0]: p0=5 p1=10 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs marnie [target=p1]: p0=10 p1=5 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs marnie: 10-20 (33.3%) share=34.0%
+
+marnie_munkidori_rb vs alakazam [target=p0]: p0=15 p1=0 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs alakazam [target=p1]: p0=3 p1=12 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs alakazam: 27-3 (90.0%) share=20.0%
+
+marnie_munkidori_rb vs kangaskhan [target=p0]: p0=11 p1=4 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs kangaskhan [target=p1]: p0=8 p1=7 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs kangaskhan: 18-12 (60.0%) share=9.5%
+
+marnie_munkidori_rb vs garchomp [target=p0]: p0=9 p1=6 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs garchomp [target=p1]: p0=8 p1=7 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs garchomp: 16-14 (53.3%) share=8.5%
+
+marnie_munkidori_rb vs okidogi [target=p0]: p0=13 p1=2 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs okidogi [target=p1]: p0=1 p1=14 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs okidogi: 27-3 (90.0%) share=4.8%
+
+marnie_munkidori_rb vs comfey_yveltal [target=p0]: p0=14 p1=1 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs comfey_yveltal [target=p1]: p0=1 p1=14 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs comfey_yveltal: 28-2 (93.3%) share=4.8%
+
+marnie_munkidori_rb vs chandelure [target=p0]: p0=5 p1=10 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs chandelure [target=p1]: p0=9 p1=6 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs chandelure: 11-19 (36.7%) share=4.5%
+
+marnie_munkidori_rb vs lopunny [target=p0]: p0=15 p1=0 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs lopunny [target=p1]: p0=2 p1=13 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs lopunny: 28-2 (93.3%) share=3.8%
+
+marnie_munkidori_rb vs megastarmie [target=p0]: p0=15 p1=0 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs megastarmie [target=p1]: p0=5 p1=10 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs megastarmie: 25-5 (83.3%) share=3.5%
+
+marnie_munkidori_rb vs rocket [target=p0]: p0=15 p1=0 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs rocket [target=p1]: p0=1 p1=14 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs rocket: 29-1 (96.7%) share=2.0%
+
+marnie_munkidori_rb vs archaludon [target=p0]: p0=7 p1=8 draw=0 unfinished=0 start_failed=0
+marnie_munkidori_rb vs archaludon [target=p1]: p0=9 p1=6 draw=0 unfinished=0 start_failed=0
+==> marnie_munkidori_rb vs archaludon: 13-17 (43.3%) share=2.0%
+
+
+=== gauntlet: agents/marnie_munkidori_rb (30 games/matchup) ===
+       archetype  share%     W-L    WR%
+          marnie    34.0  10-20   33.3
+        alakazam    20.0  27-3    90.0
+      kangaskhan     9.5  18-12   60.0
+        garchomp     8.5  16-14   53.3
+         okidogi     4.8  27-3    90.0
+  comfey_yveltal     4.8  28-2    93.3
+      chandelure     4.5  11-19   36.7
+         lopunny     3.8  28-2    93.3
+     megastarmie     3.5  25-5    83.3
+          rocket     2.0  29-1    96.7
+      archaludon     2.0  13-17   43.3
+----------------------------------------
+制圧度（シェア加重勝率）: 60.9%  (covered share 97.4%)
+最弱マッチアップ: marnie 33%, chandelure 37%, archaludon 43%
+throughput: 330 games / 42s = 472.6 games/min (0.13 s/game)

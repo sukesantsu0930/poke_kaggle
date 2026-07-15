@@ -1,0 +1,163 @@
+games=3 pilots={'Star-mine(1039)': 2, 'Taimo(933)': 1}
+
+TOTAL agree 122/207 = 58.9%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 78/152 = 51%
+                   TO_HAND: 11/15 = 73%
+                   DISCARD: 2/5 = 40%
+            DISCARD_ENERGY: 5/7 = 71%
+                  TO_BENCH: 3/4 = 75%
+       SETUP_BENCH_POKEMON: 1/2 = 50%
+                  IS_FIRST: 2/2 = 100%
+      SETUP_ACTIVE_POKEMON: 3/3 = 100%
+                 TO_ACTIVE: 11/11 = 100%
+                    SWITCH: 4/4 = 100%
+                DRAW_COUNT: 2/2 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 2}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    3x               MAIN: human=[11]ATTACK/Play  ours=[9]ABILITY/Chandelure
+    3x               MAIN: human=[1]ATTACK/Flower  ours=[0]PLAY/Energy
+    2x               MAIN: human=[10]END  ours=[0]PLAY/Lillie's
+    1x               MAIN: human=[5]ATTACH/Telepath  ours=[6]PLAY/Buddy-Buddy
+    1x           TO_BENCH: human=[0]CARD/Litwick  ours=[1]CARD/Comfey
+    1x               MAIN: human=[12]PLAY/Crushing  ours=[2]ATTACH/Basic
+    1x               MAIN: human=[0]PLAY/Eri  ours=[1]END
+    1x               MAIN: human=[7]ATTACK/Flower  ours=[1]PLAY/Buddy-Buddy
+    1x               MAIN: human=[10]PLAY/Xerosic’s  ours=[6]PLAY/Poké
+    1x               MAIN: human=[7]ATTACK/Flower  ours=[3]PLAY/Poké
+    1x               MAIN: human=[0]PLAY/Boss’s  ours=[8]PLAY/Night
+    1x               MAIN: human=[2]PLAY/Poké  ours=[5]PLAY/Night
+    1x               MAIN: human=[6]PLAY/Poké  ours=[4]PLAY/Night
+    1x            TO_HAND: human=[0]CARD/Shaymin  ours=[2]CARD/Chandelure
+    1x               MAIN: human=[1]ATTACH/Gravity  ours=[0]PLAY/Night
+    1x               MAIN: human=[1]ATTACK/Flower  ours=[0]PLAY/Night
+    1x            DISCARD: human=[8]CARD/Energy  ours=[1]CARD/Lillie's
+    1x               MAIN: human=[1]ATTACK/Flower  ours=[0]PLAY/Lillie's
+    1x     DISCARD_ENERGY: human=[0]ENERGY/Crustle  ours=[6]ENERGY/Crustle
+    1x               MAIN: human=[3]PLAY/Poké  ours=[12]END
+
+-- 不一致サンプル --
+  84927237 Star-mine MAIN
+    human: [5]ATTACH/Telepath Psychic Energy/->Comfey
+    ours : [6]PLAY/Buddy-Buddy Poffin
+  84927237 Star-mine TO_BENCH
+    human: [0]CARD/Litwick [1]CARD/Comfey
+    ours : [1]CARD/Comfey [0]CARD/Litwick
+  84927237 Star-mine MAIN
+    human: [12]PLAY/Crushing Hammer
+    ours : [2]ATTACH/Basic {P} Energy/->Comfey
+  84927237 Star-mine MAIN
+    human: [0]PLAY/Eri
+    ours : [1]END
+  84927237 Star-mine MAIN
+    human: [7]ATTACK/Flower Shower
+    ours : [1]PLAY/Buddy-Buddy Poffin
+  84927237 Star-mine MAIN
+    human: [10]PLAY/Xerosic’s Machinations
+    ours : [6]PLAY/Poké Pad
+  84927237 Star-mine MAIN
+    human: [7]ATTACK/Flower Shower
+    ours : [3]PLAY/Poké Pad
+  84927237 Star-mine MAIN
+    human: [0]PLAY/Boss’s Orders
+    ours : [8]PLAY/Night Stretcher
+  84927237 Star-mine MAIN
+    human: [2]PLAY/Poké Pad
+    ours : [5]PLAY/Night Stretcher
+  84927237 Star-mine MAIN
+    human: [6]PLAY/Poké Pad
+    ours : [4]PLAY/Night Stretcher
+  84927237 Star-mine TO_HAND
+    human: [0]CARD/Shaymin
+    ours : [2]CARD/Chandelure
+  84927237 Star-mine MAIN
+    human: [1]ATTACH/Gravity Gemstone/->Comfey
+    ours : [0]PLAY/Night Stretcher
+  84927237 Star-mine MAIN
+    human: [1]ATTACK/Flower Shower
+    ours : [0]PLAY/Night Stretcher
+  84927237 Star-mine DISCARD
+    human: [8]CARD/Energy Search [5]CARD/Night Stretcher [4]CARD/Eri [2]CARD/Basic {P} Energy [7]CARD/Dawn [6]CARD/Xerosic’s Machinations
+    ours : [1]CARD/Lillie's Determination [2]CARD/Basic {P} Energy [4]CARD/Eri [5]CARD/Night Stretcher [6]CARD/Xerosic’s Machinations [7]CARD/Dawn
+  84927237 Star-mine MAIN
+    human: [1]ATTACK/Flower Shower
+    ours : [0]PLAY/Lillie's Determination
+  84927237 Star-mine DISCARD_ENERGY
+    human: [0]ENERGY/Crustle
+    ours : [6]ENERGY/Crustle
+  84927237 Star-mine MAIN
+    human: [3]PLAY/Poké Pad
+    ours : [12]END
+  84927237 Star-mine MAIN
+    human: [11]ATTACH/Gravity Gemstone/->Shaymin
+    ours : [1]PLAY/Battle Cage
+  84927237 Star-mine MAIN
+    human: [11]PLAY/Buddy-Buddy Poffin
+    ours : [1]PLAY/Battle Cage
+  84927237 Star-mine MAIN
+    human: [10]END
+    ours : [0]PLAY/Lillie's Determination
+  84927237 Star-mine MAIN
+    human: [10]PLAY/Buddy-Buddy Poffin
+    ours : [11]END
+  84927237 Star-mine MAIN
+    human: [10]END
+    ours : [0]PLAY/Lillie's Determination
+  84927237 Star-mine MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [13]ABILITY/Chandelure
+  84927237 Star-mine MAIN
+    human: [10]PLAY/Switch
+    ours : [1]PLAY/Crushing Hammer
+  84927237 Star-mine MAIN
+    human: [0]PLAY/Enhanced Hammer
+    ours : [1]PLAY/Crushing Hammer
+  84927237 Star-mine DISCARD_ENERGY
+    human: [0]ENERGY/Crustle
+    ours : [5]ENERGY/Crustle
+  84927237 Star-mine MAIN
+    human: [10]END
+    ours : [8]ATTACK/Flower Shower
+  84927237 Star-mine MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [10]ABILITY/Chandelure
+  84927237 Star-mine MAIN
+    human: [11]ATTACK/Play Rough
+    ours : [9]ABILITY/Chandelure
+  84928206 Taimo SETUP_BENCH_POKEMON
+    human: [0]CARD/Litwick
+    ours : [0]CARD/Litwick [1]CARD/Litwick
+  84928206 Taimo MAIN
+    human: [1]EVOLVE/Lampent/->Litwick
+    ours : [0]EVOLVE/Lampent/->Litwick
+  84928206 Taimo MAIN
+    human: [0]PLAY/Crushing Hammer
+    ours : [1]PLAY/Energy Search
+  84928206 Taimo MAIN
+    human: [0]PLAY/Comfey
+    ours : [2]PLAY/Crushing Hammer
+  84928206 Taimo MAIN
+    human: [0]PLAY/Battle Cage
+    ours : [1]ATTACK/Flower Shower
+  84928206 Taimo MAIN
+    human: [7]PLAY/Lillie's Determination
+    ours : [4]ATTACH/Basic {P} Energy/->Comfey
+  84928206 Taimo MAIN
+    human: [0]ATTACH/Gravity Gemstone/->Comfey
+    ours : [5]PLAY/Energy Search
+  84928206 Taimo MAIN
+    human: [1]PLAY/Buddy-Buddy Poffin
+    ours : [0]PLAY/Energy Search
+  84928206 Taimo MAIN
+    human: [1]ATTACK/Flower Shower
+    ours : [0]PLAY/Energy Search
+  84928206 Taimo MAIN
+    human: [6]ATTACH/Gravity Gemstone/->Comfey
+    ours : [10]PLAY/Neutralization Zone
+  84928206 Taimo MAIN
+    human: [1]PLAY/Xerosic’s Machinations
+    ours : [6]PLAY/Neutralization Zone

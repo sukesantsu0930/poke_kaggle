@@ -1,5 +1,5 @@
 name: dragapult_ex
-deck: decks/candidates/2026-06-30_top5/popular_4_dragapult.csv
+deck: decks/fleet/popular_4_dragapult.csv
 agent: agents/dragapult_ex_rb
 concept: Dragapult exでPhantom Diveを打つ
 protocol: protocol.py

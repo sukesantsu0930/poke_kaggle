@@ -1,0 +1,62 @@
+chandelure_rb vs marnie [target=p0]: p0=21 p1=9 draw=0 unfinished=0 start_failed=0
+chandelure_rb vs marnie [target=p1]: p0=12 p1=18 draw=0 unfinished=0 start_failed=0
+==> chandelure_rb vs marnie: 39-21 (65.0%) share=34.0%
+
+chandelure_rb vs alakazam [target=p0]: p0=29 p1=1 draw=0 unfinished=0 start_failed=0
+chandelure_rb vs alakazam [target=p1]: p0=2 p1=28 draw=0 unfinished=0 start_failed=0
+==> chandelure_rb vs alakazam: 57-3 (95.0%) share=20.0%
+
+chandelure_rb vs kangaskhan [target=p0]: p0=22 p1=8 draw=0 unfinished=0 start_failed=0
+chandelure_rb vs kangaskhan [target=p1]: p0=3 p1=27 draw=0 unfinished=0 start_failed=0
+==> chandelure_rb vs kangaskhan: 49-11 (81.7%) share=9.5%
+
+chandelure_rb vs garchomp [target=p0]: p0=19 p1=11 draw=0 unfinished=0 start_failed=0
+chandelure_rb vs garchomp [target=p1]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+==> chandelure_rb vs garchomp: 35-25 (58.3%) share=8.5%
+
+chandelure_rb vs okidogi [target=p0]: p0=24 p1=6 draw=0 unfinished=0 start_failed=0
+chandelure_rb vs okidogi [target=p1]: p0=8 p1=22 draw=0 unfinished=0 start_failed=0
+==> chandelure_rb vs okidogi: 46-14 (76.7%) share=4.8%
+
+chandelure_rb vs comfey_yveltal [target=p0]: p0=19 p1=11 draw=0 unfinished=0 start_failed=0
+chandelure_rb vs comfey_yveltal [target=p1]: p0=5 p1=25 draw=0 unfinished=0 start_failed=0
+==> chandelure_rb vs comfey_yveltal: 44-16 (73.3%) share=4.8%
+
+chandelure_rb vs chandelure [target=p0]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+chandelure_rb vs chandelure [target=p1]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+==> chandelure_rb vs chandelure: 31-29 (51.7%) share=4.5%
+
+chandelure_rb vs lopunny [target=p0]: p0=26 p1=4 draw=0 unfinished=0 start_failed=0
+chandelure_rb vs lopunny [target=p1]: p0=3 p1=27 draw=0 unfinished=0 start_failed=0
+==> chandelure_rb vs lopunny: 53-7 (88.3%) share=3.8%
+
+chandelure_rb vs megastarmie [target=p0]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+chandelure_rb vs megastarmie [target=p1]: p0=18 p1=12 draw=0 unfinished=0 start_failed=0
+==> chandelure_rb vs megastarmie: 27-33 (45.0%) share=3.5%
+
+chandelure_rb vs rocket [target=p0]: p0=30 p1=0 draw=0 unfinished=0 start_failed=0
+chandelure_rb vs rocket [target=p1]: p0=1 p1=29 draw=0 unfinished=0 start_failed=0
+==> chandelure_rb vs rocket: 59-1 (98.3%) share=2.0%
+
+chandelure_rb vs archaludon [target=p0]: p0=26 p1=4 draw=0 unfinished=0 start_failed=0
+chandelure_rb vs archaludon [target=p1]: p0=6 p1=24 draw=0 unfinished=0 start_failed=0
+==> chandelure_rb vs archaludon: 50-10 (83.3%) share=2.0%
+
+
+=== gauntlet: agents/chandelure_rb (60 games/matchup) ===
+       archetype  share%     W-L    WR%
+          marnie    34.0  39-21   65.0
+        alakazam    20.0  57-3    95.0
+      kangaskhan     9.5  49-11   81.7
+        garchomp     8.5  35-25   58.3
+         okidogi     4.8  46-14   76.7
+  comfey_yveltal     4.8  44-16   73.3
+      chandelure     4.5  31-29   51.7
+         lopunny     3.8  53-7    88.3
+     megastarmie     3.5  27-33   45.0
+          rocket     2.0  59-1    98.3
+      archaludon     2.0  50-10   83.3
+----------------------------------------
+制圧度（シェア加重勝率）: 73.8%  (covered share 97.4%)
+最弱マッチアップ: megastarmie 45%, chandelure 52%, garchomp 58%
+throughput: 660 games / 100s = 395.8 games/min (0.15 s/game)

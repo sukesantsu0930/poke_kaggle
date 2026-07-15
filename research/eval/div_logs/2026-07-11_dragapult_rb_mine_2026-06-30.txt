@@ -1,0 +1,23 @@
+games=1 pilots={'Yasuo 0/10/0(903)': 1}
+
+TOTAL agree 18/19 = 94.7%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                  IS_FIRST: 0/1 = 0%
+      SETUP_ACTIVE_POKEMON: 1/1 = 100%
+       SETUP_BENCH_POKEMON: 1/1 = 100%
+                      MAIN: 12/12 = 100%
+                   TO_HAND: 1/1 = 100%
+                    SWITCH: 1/1 = 100%
+                 TO_ACTIVE: 2/2 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'NO': 1}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    1x           IS_FIRST: human=[1]NO  ours=[0]YES
+
+-- 不一致サンプル --
+  82724781 Yasuo 0/10/0 IS_FIRST
+    human: [1]NO
+    ours : [0]YES

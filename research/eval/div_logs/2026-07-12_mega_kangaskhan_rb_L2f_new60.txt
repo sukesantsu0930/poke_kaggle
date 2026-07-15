@@ -1,0 +1,62 @@
+mega_kangaskhan_rb vs marnie [target=p0]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs marnie [target=p1]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs marnie: 30-30 (50.0%) share=34.0%
+
+mega_kangaskhan_rb vs alakazam [target=p0]: p0=11 p1=19 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs alakazam [target=p1]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs alakazam: 27-33 (45.0%) share=20.0%
+
+mega_kangaskhan_rb vs kangaskhan [target=p0]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs kangaskhan [target=p1]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs kangaskhan: 29-31 (48.3%) share=9.5%
+
+mega_kangaskhan_rb vs garchomp [target=p0]: p0=9 p1=21 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs garchomp [target=p1]: p0=21 p1=9 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs garchomp: 18-42 (30.0%) share=8.5%
+
+mega_kangaskhan_rb vs okidogi [target=p0]: p0=17 p1=13 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs okidogi [target=p1]: p0=17 p1=13 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs okidogi: 30-30 (50.0%) share=4.8%
+
+mega_kangaskhan_rb vs comfey_yveltal [target=p0]: p0=25 p1=5 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs comfey_yveltal [target=p1]: p0=5 p1=25 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs comfey_yveltal: 50-10 (83.3%) share=4.8%
+
+mega_kangaskhan_rb vs chandelure [target=p0]: p0=9 p1=21 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs chandelure [target=p1]: p0=26 p1=4 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs chandelure: 13-47 (21.7%) share=4.5%
+
+mega_kangaskhan_rb vs lopunny [target=p0]: p0=23 p1=7 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs lopunny [target=p1]: p0=8 p1=22 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs lopunny: 45-15 (75.0%) share=3.8%
+
+mega_kangaskhan_rb vs megastarmie [target=p0]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs megastarmie [target=p1]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs megastarmie: 29-31 (48.3%) share=3.5%
+
+mega_kangaskhan_rb vs rocket [target=p0]: p0=28 p1=2 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs rocket [target=p1]: p0=4 p1=26 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs rocket: 54-6 (90.0%) share=2.0%
+
+mega_kangaskhan_rb vs archaludon [target=p0]: p0=9 p1=21 draw=0 unfinished=0 start_failed=0
+mega_kangaskhan_rb vs archaludon [target=p1]: p0=25 p1=5 draw=0 unfinished=0 start_failed=0
+==> mega_kangaskhan_rb vs archaludon: 14-46 (23.3%) share=2.0%
+
+
+=== gauntlet: agents/mega_kangaskhan_rb (60 games/matchup) ===
+       archetype  share%     W-L    WR%
+          marnie    34.0  30-30   50.0
+        alakazam    20.0  27-33   45.0
+      kangaskhan     9.5  29-31   48.3
+        garchomp     8.5  18-42   30.0
+         okidogi     4.8  30-30   50.0
+  comfey_yveltal     4.8  50-10   83.3
+      chandelure     4.5  13-47   21.7
+         lopunny     3.8  45-15   75.0
+     megastarmie     3.5  29-31   48.3
+          rocket     2.0  54-6    90.0
+      archaludon     2.0  14-46   23.3
+----------------------------------------
+制圧度（シェア加重勝率）: 48.6%  (covered share 97.4%)
+最弱マッチアップ: chandelure 22%, archaludon 23%, garchomp 30%
+throughput: 660 games / 54s = 737.1 games/min (0.08 s/game)

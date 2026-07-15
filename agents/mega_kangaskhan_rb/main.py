@@ -97,9 +97,17 @@ ATK_TUCK_TAIL = 1546   # ニャース {C}{C}{C} 60+自身を手札に戻す
 POKEMON_IDS = {KANGA, OGERPON_TEAL, OGERPON_WELL, RAGING_BOLT, LATIAS,
                CLEFAIRY, FEZANDIPITI, MEOWTH}
 
-# Bellowing Thunder / 強制エネトラッシュの移動元・優先度（高いほど捨ててよい）
+# 強制エネトラッシュ（minCount>0）の移動元・優先度（高いほど捨ててよい）
 _ENERGY_OWNER_PREF = {OGERPON_TEAL: 100, MEOWTH: 95, FEZANDIPITI: 90, CLEFAIRY: 80,
                       LATIAS: 70, OGERPON_WELL: 60, RAGING_BOLT: 50, KANGA: 10}
+
+# div-K13（2026-07-11 divergence 実測・調整日 07-08/07-09 両日・10サンプル）:
+# Bellowing Thunder の弾選びは上位ピロットの実測順に = タケルライコ自身のエネから燃やし、
+# Teal Dance で毎ターン再生できるオーガポンのエネは最後まで守る
+# （旧テーブルは Teal 最優先・RB/ガルーラ保護で真逆だった。
+#  実測: human=(RB,RB)/(RB,RB,RB)/(RB,RB,Teal)/(Meowth,RB,RB,Teal,Teal)/(Kanga,RB,RB,Teal,Teal) 等）
+_BT_OWNER_PREF = {RAGING_BOLT: 95, MEOWTH: 90, FEZANDIPITI: 85, CLEFAIRY: 80,
+                  LATIAS: 70, OGERPON_WELL: 60, KANGA: 50, OGERPON_TEAL: 45}
 
 
 def _energy_types(pokemon):
@@ -400,9 +408,12 @@ class MegaKangaskhanPolicy(BasePolicy):
             has_supporter_in_hand = any(
                 hc[s] for s in (CRISPIN, CYRANO, mt.BOSS, XEROSIC))
             if cid == MEOWTH:
-                # Last-Ditch Catch はサポートが引けていない時にだけ切る
-                if not has_supporter_in_hand and not obs.current.supporterPlayed:
-                    score, reason = 20500, "S-4: Meowth (fetch supporter)"
+                # div-K16（2026-07-11 divergence 実測・07-08/07-09 両日）: div-K4 のゲートが
+                # 強すぎた（human=PLAY/Meowth 17+10件 / ours=3+4件）。1体目は手札サポートの
+                # 有無に関係なく出して次のサポートをストック。2体目以降のみ旧ゲート
+                if fc[MEOWTH] == 0 or (not has_supporter_in_hand
+                                       and not obs.current.supporterPlayed):
+                    score, reason = 20500, "S-4/div-K16: Meowth (fetch supporter)"
             elif cid == OGERPON_TEAL:
                 if fc[OGERPON_TEAL] == 0:
                     score, reason = 20450, "S-2: Ogerpon (Teal Dance)"
@@ -412,10 +423,20 @@ class MegaKangaskhanPolicy(BasePolicy):
                 if fc[KANGA] == 0:
                     score, reason = 20400, "S-2: Kangaskhan (attacker)"
                 elif fc[KANGA] == 1:
-                    score, reason = 12500, "S-2: backup Kangaskhan"
+                    # div-K16: 2体目は「1体目が負傷 or 直前に被KO」の時だけ（E-4 ローテ用。
+                    # 上位ピロットは余剰ガルーラを手札温存→ボール/ロアーの捨て札にする。
+                    # 実測 ours=PLAY/Mega 25+36件 / human=6+4件、DISCARD では余剰ガルーラを捨てる）
+                    kanga_hurt = any(pk.id == KANGA and damage_on(pk) >= 100
+                                     for pk in all_my_pokemon(obs))
+                    if kanga_hurt or p.get("ko_recent"):
+                        score, reason = 12500, "S-2/div-K16: backup Kangaskhan (rotate)"
             elif cid == CLEFAIRY:
-                if p["opp_has_dragon"] and fc[CLEFAIRY] == 0:
-                    score, reason = 20350, "E-5: Clefairy (Fairy Zone tech)"
+                # div-K14（2026-07-11 divergence 実測・07-08/07-09 両日）: 上位ピロットは
+                # Clefairy を対ドラゴン専用テックではなく Full Moon Rondo（20+両ベンチ×20、
+                # エリアゼロ下で最大340）のメインアタッカーとして交戦期に素出しする
+                # （human=PLAY/Clefairy 7+8件 / ours=0件、ATTACH→Clefairy 9+10件、Rondo 攻撃 5+2件）
+                if fc[CLEFAIRY] == 0 and (p["opp_has_dragon"] or combat):
+                    score, reason = 20350, "div-K14: Clefairy (Full Moon Rondo / Fairy Zone)"
             elif cid == LATIAS:
                 if fc[LATIAS] == 0:
                     score, reason = 20300, "S-2: Latias (Skyliner)"
@@ -438,12 +459,17 @@ class MegaKangaskhanPolicy(BasePolicy):
             return score, reason
 
         # スタジアム
+        # div-K15（2026-07-11 divergence 実測・07-08/07-09 両日）: グッズ/スタジアムは
+        # 「使うターンまで手札に温存」。上位ピロットは human=END で温存する局面で我々が
+        # PLAY を連発していた（不一致実測: ours=AZ 19+26 / ES 33+22 / NS 21+20 / UB 20+37 に対し
+        # human 側の実使用は各 2〜9 件。human=END 28+37 / ours=END 0+2）
         if cid == AREA_ZERO:
             if p["stadium_id"] == AREA_ZERO:
                 return -1, "Area Zero already up"
-            if p["tera_in_play"]:
-                return 19500, "S-6: Area Zero (bench 8)"
-            return -1, "Area Zero: no Tera yet"
+            # div-K15: ベンチ枠が要る時（満杯近く）か Rondo プラン（Clefairy 在場）だけ置く
+            if p["tera_in_play"] and (p["bench_free"] <= 1 or fc[CLEFAIRY] >= 1):
+                return 19500, "S-6/div-K15: Area Zero (bench 8 needed)"
+            return -1, "div-K15: hold Area Zero"
 
         # グッズ
         if cid == ULTRA_BALL:
@@ -451,7 +477,12 @@ class MegaKangaskhanPolicy(BasePolicy):
                 return -1, "Ultra Ball: hand too thin"
             missing_core = ((fc[KANGA] == 0 and hc[KANGA] == 0)
                             or (fc[OGERPON_TEAL] == 0 and hc[OGERPON_TEAL] == 0))
-            return (17000 if missing_core else 9000), "S-4: Ultra Ball"
+            if missing_core:
+                return 17000, "S-4: Ultra Ball"
+            # div-K15: コアが揃っていれば薄い手札の掘り直しだけに使う
+            if p["hand_size"] <= 4:
+                return 9000, "S-4/div-K15: Ultra Ball (dig thin hand)"
+            return -1, "div-K15: hold Ultra Ball"
         if cid == GLASS_TRUMPET:
             benched_c = any(pk.id in (KANGA, MEOWTH) and energy_count(pk) < 3
                             for pk in my_state(obs).bench if pk)
@@ -459,17 +490,22 @@ class MegaKangaskhanPolicy(BasePolicy):
                 return 15000, "S-5: Glass Trumpet (discard accel)"
             return -1, "Glass Trumpet: no value"
         if cid == ENERGY_SWITCH:
-            if p["kanga_need"] and p["donor_spare"] >= 1:
-                return 14000, "S-5: Energy Switch -> Kangaskhan"
-            return -1, "Energy Switch: no need"
+            # div-K15: 「ガルーラの3枚目が今ターン間に合う」時だけ（kanga_need==1。
+            # 設計md S-5 の原義に戻す。human の実使用は 2+3 件のみ）
+            if p["kanga_need"] == 1 and p["donor_spare"] >= 1:
+                return 14000, "S-5/div-K15: Energy Switch -> Kangaskhan (3rd now)"
+            return -1, "div-K15: hold Energy Switch"
         if cid == NIGHT_STRETCHER:
             dcc = p["dc"]
+            # div-K15: コア回収は「場+手札のコアが尽きかけ（<2）」まで温存
             if (dcc[KANGA] + dcc[OGERPON_TEAL] >= 1
-                    and fc[KANGA] + hc[KANGA] + fc[OGERPON_TEAL] + hc[OGERPON_TEAL] < 3):
-                return 13000, "Night Stretcher: recover core"
-            if p["discard_energy"] >= 1 and p["hand_energy"] == 0:
-                return 11000, "Night Stretcher: recover energy"
-            return -1, "Night Stretcher: nothing"
+                    and fc[KANGA] + hc[KANGA] + fc[OGERPON_TEAL] + hc[OGERPON_TEAL] < 2):
+                return 13000, "div-K15: Night Stretcher (core nearly out)"
+            # div-K15: エネ回収は「今ガルーラに足りない」時だけ
+            if (p["discard_energy"] >= 1 and p["hand_energy"] == 0
+                    and (p["kanga_need"] or 0) >= 1):
+                return 11000, "div-K15: Night Stretcher (fuel needed now)"
+            return -1, "div-K15: hold Night Stretcher"
         if cid == PRIME_CATCHER:
             lethal = self.t.get("lethal")
             if lethal is not None and lethal.get("via") == "prime":
@@ -526,8 +562,10 @@ class MegaKangaskhanPolicy(BasePolicy):
             score = (7900 + e * 10) if e < 3 else -1
             reason = "S-5: Myriad scaling / Energy Switch fodder"
         elif tid == CLEFAIRY:
-            score = 7700 if etype == 5 and e < 2 and p["opp_has_dragon"] else -1
-            reason = "E-5: fuel Full Moon Rondo"
+            # div-K14: Rondo コスト {P}{C} は色不問側を G 等でも払う（実測 human=ATTACH G→Clefairy
+            # 9+10件。ドラゴンゲートは撤去し、P を微優先）
+            score = (7950 if etype == 5 else 7925) if e < 2 else -1
+            reason = "div-K14: fuel Full Moon Rondo"
         elif tid == OGERPON_WELL:
             score = 7600 if etype == 3 and e < 3 else -1
             reason = "S-5: fuel Torrential Pump"
@@ -614,12 +652,19 @@ class MegaKangaskhanPolicy(BasePolicy):
                         score -= 6000   # E-4/R-09: megaEx=3枚を終盤に晒さない
                         reason = "R-09: avoid exposing 3-prize Kangaskhan"
                 elif cid == LATIAS:
-                    score, reason = 9200 + e * 200, "div-K9: promote Latias (Skyliner)"
+                    # div-K18（2026-07-11 divergence 実測・07-08/07-09 両日）: エネ付き Teal より
+                    # 優先して前出し（実測 human=Latias / ours=Teal ×6。div-K9 の 9200 では
+                    # Teal の e*400 に逆転されていた。SWITCH +2/+1・TO_ACTIVE 改善を確認）
+                    score, reason = 9900 + e * 200, "div-K9/K18: promote Latias (Skyliner)"
                 elif cid == OGERPON_TEAL:
                     score, reason = 9000 + e * 400, "promote Ogerpon"
                 elif cid == CLEFAIRY:
-                    score = 6000 + (2000 if p["opp_has_dragon"] else 0) + e * 200
-                    reason = "promote Clefairy"
+                    # div-K14: エリアゼロ下の Rondo アタッカーとして前出し（実測 SWITCH/TO_ACTIVE
+                    # human=Clefairy 2+2件。エネが乗り AZ が立っている時はラティアス級に昇格）
+                    score = (6000 + e * 300
+                             + (2500 if p["stadium_id"] == AREA_ZERO else 0)
+                             + (2000 if p["opp_has_dragon"] else 0))
+                    reason = "div-K14: promote Clefairy (Full Moon Rondo)"
                 elif cid == OGERPON_WELL:
                     score, reason = 5500 + e * 200, "promote Wellspring"
                 elif cid == RAGING_BOLT:
@@ -665,7 +710,7 @@ class MegaKangaskhanPolicy(BasePolicy):
                 if cid == OGERPON_WELL and e < 3:
                     return 50, "S-5: Wellspring"
                 if cid == CLEFAIRY and e < 2:
-                    return (65 if p["opp_has_dragon"] else 45), "S-5: Clefairy"
+                    return 70, "div-K14: load Clefairy (Rondo)"
                 if cid == LATIAS and e < 3:
                     return 40, "S-5: Latias"
                 if cid == KANGA:
@@ -717,6 +762,10 @@ class MegaKangaskhanPolicy(BasePolicy):
         dup_penalty = seen.get(cid, 0) * 60
         seen[cid] = seen.get(cid, 0) + 1
         base = 100 - hc.get(cid, 0) * 40 - dup_penalty
+        # div-K17【棄却・2026-07-11】: シアノ指名の実測順（Latias 先取り・盤面済みコア2枚目の
+        # 後回し・Crispin 恒常優先）をテーブル化したが TO_HAND 43%→40%（07-08）/ 57%→57%−1件
+        # （07-09）と両日悪化して差し戻し（取得順は盤面文脈依存が強く一律表では写せない。
+        # div-K7 と同型の教訓）
         if cid == OGERPON_TEAL:
             return base + (85 if fc[OGERPON_TEAL] == 0 else 65), "take Ogerpon"
         if cid == KANGA:
@@ -738,7 +787,8 @@ class MegaKangaskhanPolicy(BasePolicy):
         if cid == RAGING_BOLT:
             return base + 35, "take Raging Bolt"
         if cid == CLEFAIRY:
-            return base + (50 if p["opp_has_dragon"] else -20), "take Clefairy"
+            # div-K14: Rondo アタッカーとしてサーチ対象（実測 Cyrano 3枚指名に Clefairy が入る）
+            return base + (50 if p["opp_has_dragon"] else 42), "take Clefairy"
         if cid in (W_ENERGY, L_ENERGY, P_ENERGY, F_ENERGY):
             return base + 25, "take colored energy"
         if cid == OGERPON_WELL:
@@ -762,35 +812,33 @@ class MegaKangaskhanPolicy(BasePolicy):
             hp = opp_act.hp if opp_act is not None else 0
             need = (hp + 69) // 70 if hp > 0 else 0
             if self.t.get("lethal") is None:
-                spare = sum(energy_count(pk) for pk in all_my_pokemon(obs) if pk.id != KANGA)
-                # KO に届かないなら1枚も捨てない（盤面エネの空焚き禁止）
-                need = need if need <= spare else 0
+                # div-K13: KO に必要ならガルーラ/ライコ自身のエネも燃やす（上位ピロット実測。
+                # 旧 spare 計算は非ガルーラのみで、human=3枚 / ours=0枚 の空振りが出ていた）。
+                # 選択肢プール全体でも届かない時だけ空焚き禁止（0枚）を維持
+                avail = min(len(obs.select.option), obs.select.maxCount)
+                need = need if need <= avail else 0
             ranked = []
             for i, o in enumerate(obs.select.option):
                 ow = option_card(obs, o)
-                pref = _ENERGY_OWNER_PREF.get(ow.id if ow else None, 40)
+                pref = _BT_OWNER_PREF.get(ow.id if ow else None, 40)
                 ranked.append((pref, -i, id(o)))
             ranked.sort(reverse=True)
             p["bt_pick"] = {oid_ for _, _, oid_ in ranked[:min(need, obs.select.maxCount)]}
         if id(opt) in p["bt_pick"]:
-            return 100 + _ENERGY_OWNER_PREF.get(oid, 40), "E-2: Bellowing fuel"
+            return 100 + _BT_OWNER_PREF.get(oid, 40), "div-K13/E-2: Bellowing fuel"
         return -1, "E-2: keep board energy"
 
     # ── 手札からのトラッシュ（ハイパーボール等。R-13 独自版） ──
 
     def _score_discard(self, obs, opt):
-        p = self.p
+        # div-K12（2026-07-11 divergence 実測・調整日 07-08/07-09 両日で同方向・38サンプル）:
+        # 上位ピロット zoroark190 の捨て順を写した優先表に全面書き換え。実測 =
+        # エリアゼロ最優先（17件・単独でも捨てる）> 役目を終えた駒（ニャース/ガルーラ余剰/
+        # ラティアス/キチキギス）> クセロシキ > 色エネ（単発でも捨てる）> シアノ >
+        # ボール/エネつけかえ/タンカは後回し。同名スタック（Meowth×3, AZ×2, UB×2, G+G）が
+        # 実測で多発しており、div-K5 の一律分散ペナルティ（-3000/枚）は撤廃【K5 は本則で置換】。
         card = option_card(obs, opt)
         cid = card.id if card else getattr(opt, "cardId", None)
-        # div-K5（2026-07-07 divergence 実測）: 上位ピロットの捨て順 =
-        # 余りグッズ（ボール/エリアゼロ/つけかえ）> 余剰エネ > 供給過多のアタッカー（ガルーラ4枚目等）。
-        # かつ**同名を2枚重ねて捨てない**（G+G ではなく G+ボール、のように分散させる）
-        seen = p.setdefault("_dc_seen", {})
-        dup = seen.get(cid, 0) * 3000
-        seen[cid] = seen.get(cid, 0) + 1
-        if dup:
-            base_score, base_reason = self._score_discard_base(obs, cid)
-            return base_score - dup, f"div-K5: spread discards ({base_reason})"
         return self._score_discard_base(obs, cid)
 
     def _score_discard_base(self, obs, cid):
@@ -798,30 +846,58 @@ class MegaKangaskhanPolicy(BasePolicy):
         fc, hc = p["fc"], p["hc"]
         if cid == PRIME_CATCHER:
             return -5000, "R-13: keep Prime Catcher (ACE SPEC)"
-        if cid == mt.BOSS and hc.get(mt.BOSS, 0) <= 1:
+        if cid == mt.BOSS:
+            if hc.get(mt.BOSS, 0) >= 2:
+                return 8600, "div-K12: discard extra Boss"
+            if p["opp_prizes"] >= 5:
+                return 6000, "div-K12: early Boss is fodder"
             return -4000, "R-13: keep last Boss"
-        if cid == AREA_ZERO and (p["stadium_id"] == AREA_ZERO or hc.get(AREA_ZERO, 0) >= 2):
-            return 11000, "div-K5: discard extra Area Zero"
-        if cid == ULTRA_BALL and hc.get(ULTRA_BALL, 0) >= 2:
-            return 10500, "div-K5: discard extra Ultra Ball"
-        if cid == G_ENERGY and hc.get(G_ENERGY, 0) >= 3:
-            return 10000, "discard surplus G energy"
-        if cid == ENERGY_SWITCH and (hc.get(ENERGY_SWITCH, 0) >= 2 or not p["kanga_need"]):
-            return 9600, "div-K5: discard idle Energy Switch"
-        if cid in ALL_ENERGY and hc.get(cid, 0) >= 2:
-            return 9000, "discard surplus energy"
-        if cid == KANGA and fc.get(KANGA, 0) + hc.get(KANGA, 0) >= 3:
-            return 8600, "div-K5: discard oversupplied Kangaskhan"
+        if cid == AREA_ZERO:
+            return 11500, "div-K12: Area Zero is top fodder"
+        if cid == MEOWTH and (fc.get(MEOWTH, 0) >= 1 or hc.get(MEOWTH, 0) >= 2):
+            return 11000, "div-K12: Meowth done its job"
+        if cid == KANGA and fc.get(KANGA, 0) >= 1:
+            return 10800, "div-K12: surplus Kangaskhan"
         if cid == LATIAS and fc.get(LATIAS, 0) >= 1:
-            return 8400, "div-K5: discard extra Latias (Skyliner up)"
+            return 10700, "div-K12: extra Latias (Skyliner up)"
+        if cid == FEZANDIPITI and (fc.get(FEZANDIPITI, 0) >= 1
+                                   or hc.get(FEZANDIPITI, 0) >= 2):
+            return 10600, "div-K12: extra Fezandipiti"
+        if cid == XEROSIC:
+            return 10300, "div-K12: Xerosic is fodder"
+        if cid == OGERPON_TEAL and fc.get(OGERPON_TEAL, 0) >= 2:
+            return 10200, "div-K12: 3rd Ogerpon"
+        if cid == G_ENERGY:
+            if hc.get(G_ENERGY, 0) >= 3:
+                return 10000, "discard surplus G energy"
+            if hc.get(G_ENERGY, 0) == 2:
+                return 9400, "div-K12: discard 2nd G energy"
+            return 1500, "discard lone G energy"
+        if cid in ALL_ENERGY:
+            return 9800, "div-K12: colored energy is fodder (Crispin refetches)"
+        if cid == RAGING_BOLT and (fc.get(RAGING_BOLT, 0) >= 1
+                                   or hc.get(RAGING_BOLT, 0) >= 2):
+            return 9700, "div-K12: extra Raging Bolt"
+        if cid == CYRANO:
+            return 9300, "div-K12: Cyrano is fodder"
+        if cid == ULTRA_BALL:
+            return (9000 if hc.get(ULTRA_BALL, 0) >= 2 else 8400), "div-K12: Ultra Ball late fodder"
+        if cid == ENERGY_SWITCH:
+            if hc.get(ENERGY_SWITCH, 0) >= 2 or not p["kanga_need"]:
+                return 8700, "div-K12: idle Energy Switch"
+            return 4000, "keep Energy Switch (Kangaskhan needs fuel)"
+        if cid == NIGHT_STRETCHER:
+            return 8300, "div-K12: Night Stretcher late fodder"
+        if cid == GLASS_TRUMPET:
+            return 8200, "div-K12: Glass Trumpet late fodder"
+        if cid == CRISPIN and hc.get(CRISPIN, 0) >= 2:
+            return 8100, "div-K12: discard extra Crispin"
         if cid is not None and hc.get(cid, 0) > 1:
             return 8000, "discard duplicate"
         if cid in POKEMON_IDS and fc.get(cid, 0) >= 1:
             return 2500, "discard pokemon already in play"
         if cid == KANGA or cid == OGERPON_TEAL:
             return -3000, "R-13: keep core line"
-        if cid in ALL_ENERGY:
-            return 1500, "discard lone energy"
         return 1000, "generic discard"
 
 

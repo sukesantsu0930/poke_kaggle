@@ -1,0 +1,97 @@
+games=3 pilots={'milix(851)': 1, 'nattomaki(895)': 1, 'Yasuo 0/10/0(903)': 1}
+
+TOTAL agree 141/159 = 88.7%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 71/81 = 88%
+                   TO_HAND: 18/22 = 82%
+               ATTACH_FROM: 0/2 = 0%
+                  IS_FIRST: 0/2 = 0%
+      SETUP_ACTIVE_POKEMON: 3/3 = 100%
+                DRAW_COUNT: 1/1 = 100%
+                  TO_BENCH: 2/2 = 100%
+            DISCARD_ENERGY: 3/3 = 100%
+                 TO_ACTIVE: 7/7 = 100%
+                    EVOLVE: 3/3 = 100%
+                 ATTACH_TO: 2/2 = 100%
+        DAMAGE_COUNTER_ANY: 24/24 = 100%
+                   DISCARD: 3/3 = 100%
+       SETUP_BENCH_POKEMON: 2/2 = 100%
+                    SWITCH: 2/2 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'NO': 2}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    2x           IS_FIRST: human=[1]NO  ours=[0]YES
+    2x               MAIN: human=[7]PLAY/Crushing  ours=[6]PLAY/Night
+    1x        ATTACH_FROM: human=[1]CARD/Dreepy  ours=[0]CARD/Dragapult
+    1x            TO_HAND: human=[0]CARD/Fezandipiti  ours=[2]CARD/Budew
+    1x               MAIN: human=[6]PLAY/Fezandipiti  ours=[4]PLAY/Night
+    1x               MAIN: human=[9]PLAY/Crushing  ours=[0]ATTACH/Basic
+    1x               MAIN: human=[7]EVOLVE/Drakloak/->Dreepy  ours=[0]ATTACH/Basic
+    1x               MAIN: human=[7]ABILITY/Drakloak  ours=[0]ATTACH/Basic
+    1x            TO_HAND: human=[1]CARD  ours=[0]CARD
+    1x        ATTACH_FROM: human=[2]CARD/Dreepy  ours=[0]CARD/Dreepy
+    1x            TO_HAND: human=[4]CARD/Fezandipiti  ours=[1]CARD/Drakloak
+    1x               MAIN: human=[12]ABILITY/Drakloak  ours=[2]ATTACH/Basic
+    1x            TO_HAND: human=[2]CARD/Dreepy  ours=[7]CARD/Basic
+    1x               MAIN: human=[7]ABILITY/Fezandipiti  ours=[6]PLAY/Night
+    1x               MAIN: human=[11]ATTACH/Basic  ours=[6]PLAY/Night
+    1x               MAIN: human=[7]ATTACK/Jet  ours=[6]PLAY/Night
+
+-- 不一致サンプル --
+  82721949 milix ATTACH_FROM
+    human: [1]CARD/Dreepy
+    ours : [0]CARD/Dragapult ex
+  82721949 milix TO_HAND
+    human: [0]CARD/Fezandipiti ex
+    ours : [2]CARD/Budew
+  82721949 milix MAIN
+    human: [6]PLAY/Fezandipiti ex
+    ours : [4]PLAY/Night Stretcher
+  82721949 milix MAIN
+    human: [9]PLAY/Crushing Hammer
+    ours : [0]ATTACH/Basic {P} Energy/->Dragapult ex
+  82721949 milix MAIN
+    human: [7]EVOLVE/Drakloak/->Dreepy
+    ours : [0]ATTACH/Basic {P} Energy/->Dragapult ex
+  82721949 milix MAIN
+    human: [7]ABILITY/Drakloak
+    ours : [0]ATTACH/Basic {P} Energy/->Dragapult ex
+  82721949 milix TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  82722024 nattomaki IS_FIRST
+    human: [1]NO
+    ours : [0]YES
+  82722024 nattomaki ATTACH_FROM
+    human: [2]CARD/Dreepy
+    ours : [0]CARD/Dreepy
+  82722024 nattomaki TO_HAND
+    human: [4]CARD/Fezandipiti ex
+    ours : [1]CARD/Drakloak
+  82722024 nattomaki MAIN
+    human: [12]ABILITY/Drakloak
+    ours : [2]ATTACH/Basic {R} Energy/->Dragapult ex
+  82722024 nattomaki TO_HAND
+    human: [2]CARD/Dreepy
+    ours : [7]CARD/Basic {P} Energy
+  82722024 nattomaki MAIN
+    human: [7]ABILITY/Fezandipiti ex
+    ours : [6]PLAY/Night Stretcher
+  82722024 nattomaki MAIN
+    human: [7]PLAY/Crushing Hammer
+    ours : [6]PLAY/Night Stretcher
+  82722024 nattomaki MAIN
+    human: [7]PLAY/Crushing Hammer
+    ours : [6]PLAY/Night Stretcher
+  82722024 nattomaki MAIN
+    human: [11]ATTACH/Basic {R} Energy/->Dreepy
+    ours : [6]PLAY/Night Stretcher
+  82722024 nattomaki MAIN
+    human: [7]ATTACK/Jet Headbutt
+    ours : [6]PLAY/Night Stretcher
+  82724781 Yasuo 0/10/0 IS_FIRST
+    human: [1]NO
+    ours : [0]YES

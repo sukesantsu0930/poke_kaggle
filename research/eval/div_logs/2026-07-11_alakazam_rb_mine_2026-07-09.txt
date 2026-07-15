@@ -1,0 +1,167 @@
+games=81 pilots={'THIRD PTCG Club(1073)': 17, 'capbloo(1008)': 14, 'aaa(1076)': 9, 'Michael Long(1030)': 1, 'Majkel1337(1157)': 12, 'Bozo Boys(1100)': 2, 'matsurih(1068)': 2, 'Rmy(1076)': 7, 'wkonishi(922)': 5, 'NoOne(1003)': 5, '豆本豆豆包(1042)': 2, 'bono(1088)': 2, 'Klein Houmani(1066)': 2, 'kawachi(1021)': 1}
+
+TOTAL agree 3436/6485 = 53.0%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 1516/3985 = 38%
+                   TO_HAND: 641/943 = 68%
+                    SWITCH: 64/124 = 52%
+                   DISCARD: 3/60 = 5%
+                 TO_ACTIVE: 229/279 = 82%
+                  ACTIVATE: 433/467 = 93%
+                  TO_BENCH: 163/193 = 84%
+                   TO_DECK: 19/42 = 45%
+      SETUP_ACTIVE_POKEMON: 71/81 = 88%
+            DISCARD_ENERGY: 97/105 = 92%
+                    EVOLVE: 106/111 = 95%
+       SETUP_BENCH_POKEMON: 29/30 = 97%
+                  IS_FIRST: 39/39 = 100%
+                DRAW_COUNT: 21/21 = 100%
+         DISCARD_TOOL_CARD: 5/5 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 39}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   63x               MAIN: human=[8]EVOLVE/Dudunsparce/->Dunsparce  ours=[10]ATTACK/Powerful
+   62x               MAIN: human=[8]ABILITY/Dudunsparce  ours=[9]ATTACK/Powerful
+   33x               MAIN: human=[8]EVOLVE/Dudunsparce/->Dunsparce  ours=[14]ATTACK/Powerful
+   33x               MAIN: human=[10]ABILITY/Dudunsparce  ours=[11]ATTACK/Powerful
+   27x               MAIN: human=[8]EVOLVE/Dudunsparce/->Dunsparce  ours=[12]ATTACK/Powerful
+   27x               MAIN: human=[9]ABILITY/Dudunsparce  ours=[10]ATTACK/Powerful
+   19x               MAIN: human=[22]ATTACH/Basic  ours=[24]ATTACK/Powerful
+   19x           ACTIVATE: human=[1]NO  ours=[0]YES
+   17x               MAIN: human=[20]ATTACH/Basic  ours=[26]ATTACK/Powerful
+   17x               MAIN: human=[14]ABILITY/Dudunsparce  ours=[15]ATTACK/Powerful
+   16x               MAIN: human=[22]ATTACH/Basic  ours=[26]ATTACK/Powerful
+   16x               MAIN: human=[14]EVOLVE/Dudunsparce/->Dunsparce  ours=[16]ATTACK/Powerful
+   15x           ACTIVATE: human=[0]YES  ours=[1]NO
+   13x            TO_HAND: human=[4]CARD  ours=[0]CARD
+   12x           TO_BENCH: human=[0]CARD/Dunsparce  ours=[1]CARD/Abra
+    8x            TO_HAND: human=[1]CARD/Kadabra  ours=[0]CARD/Dudunsparce
+    8x               MAIN: human=[20]ATTACH/Basic  ours=[24]ATTACK/Powerful
+    8x               MAIN: human=[14]EVOLVE/Dudunsparce/->Dunsparce  ours=[20]ATTACK/Powerful
+    8x               MAIN: human=[16]ABILITY/Dudunsparce  ours=[17]ATTACK/Powerful
+    7x               MAIN: human=[0]ABILITY/Dudunsparce  ours=[1]END
+
+-- 不一致サンプル --
+  84926033 THIRD PTCG Club MAIN
+    human: [4]PLAY/Dawn
+    ours : [2]EVOLVE/Dudunsparce/->Dunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [1]ATTACH/Telepath Psychic Energy/->Abra
+    ours : [2]EVOLVE/Dudunsparce/->Dunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [0]ABILITY/Dudunsparce
+    ours : [1]END
+  84926033 THIRD PTCG Club MAIN
+    human: [2]ATTACH/Telepath Psychic Energy/->Alakazam
+    ours : [7]PLAY/Buddy-Buddy Poffin
+  84926033 THIRD PTCG Club MAIN
+    human: [7]PLAY/Xerosic’s Machinations
+    ours : [5]PLAY/Buddy-Buddy Poffin
+  84926033 THIRD PTCG Club MAIN
+    human: [3]RETREAT
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84926033 THIRD PTCG Club MAIN
+    human: [1]ATTACK/Powerful Hand
+    ours : [0]PLAY/Poké Pad
+  84926033 THIRD PTCG Club DISCARD
+    human: [4]CARD/Enhanced Hammer [9]CARD/Tool Scrapper [2]CARD/Boss’s Orders [0]CARD/Hilda [8]CARD/Poké Pad [1]CARD/Hilda [5]CARD/Dawn
+    ours : [0]CARD/Hilda [1]CARD/Hilda [2]CARD/Boss’s Orders [3]CARD/Dudunsparce [4]CARD/Enhanced Hammer [5]CARD/Dawn [6]CARD/Dudunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [2]ATTACH/Telepath Psychic Energy/->Alakazam
+    ours : [0]EVOLVE/Dudunsparce/->Dunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [1]PLAY/Dawn
+    ours : [0]EVOLVE/Dudunsparce/->Dunsparce
+  84926033 THIRD PTCG Club TO_HAND
+    human: [0]CARD/Fezandipiti ex
+    ours : [1]CARD/Dunsparce
+  84926033 THIRD PTCG Club TO_HAND
+    human: [0]CARD/Kadabra
+    ours : [2]CARD/Dudunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [4]PLAY/Fezandipiti ex
+    ours : [0]EVOLVE/Dudunsparce/->Dunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [4]ABILITY/Fezandipiti ex
+    ours : [0]EVOLVE/Dudunsparce/->Dunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [0]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [4]PLAY/Dunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [4]PLAY/Night Stretcher
+    ours : [3]PLAY/Dunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [0]PLAY/Battle Cage
+    ours : [3]PLAY/Dunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [1]PLAY/Poké Pad
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84926033 THIRD PTCG Club MAIN
+    human: [2]ATTACK/Powerful Hand
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84926033 THIRD PTCG Club TO_ACTIVE
+    human: [0]CARD/Fezandipiti ex
+    ours : [1]CARD/Dunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [4]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [6]ABILITY/Spikemuth Gym
+  84926033 THIRD PTCG Club MAIN
+    human: [4]ABILITY/Fezandipiti ex
+    ours : [5]ABILITY/Dudunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [6]ABILITY/Dudunsparce
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84926033 THIRD PTCG Club MAIN
+    human: [5]PLAY/Hilda
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84926033 THIRD PTCG Club TO_HAND
+    human: [0]CARD/Enriching Energy
+    ours : [1]CARD/Telepath Psychic Energy
+  84926033 THIRD PTCG Club MAIN
+    human: [7]ATTACH/Enriching Energy/->Dunsparce
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84926033 THIRD PTCG Club MAIN
+    human: [4]END
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84926033 THIRD PTCG Club MAIN
+    human: [12]ABILITY/Fezandipiti ex
+    ours : [13]ABILITY/Spikemuth Gym
+  84926033 THIRD PTCG Club MAIN
+    human: [13]PLAY/Sacred Ash
+    ours : [15]ABILITY/Spikemuth Gym
+  84926033 THIRD PTCG Club TO_DECK
+    human: [0]CARD/Alakazam [2]CARD/Alakazam [1]CARD/Abra [3]CARD/Abra [4]CARD/Abra
+    ours : [0]CARD/Alakazam [1]CARD/Abra [2]CARD/Alakazam [3]CARD/Abra [4]CARD/Abra
+  84926033 THIRD PTCG Club MAIN
+    human: [5]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [14]ABILITY/Spikemuth Gym
+  84926033 THIRD PTCG Club MAIN
+    human: [8]PLAY/Boss’s Orders
+    ours : [13]ABILITY/Spikemuth Gym
+  84926033 THIRD PTCG Club SWITCH
+    human: [0]CARD/Munkidori
+    ours : [2]CARD/Marnie's Grimmsnarl ex
+  84926033 THIRD PTCG Club MAIN
+    human: [8]PLAY/Dunsparce
+    ours : [10]ABILITY/Spikemuth Gym
+  84926033 THIRD PTCG Club MAIN
+    human: [1]ATTACH/Basic {P} Energy/->Fezandipiti ex
+    ours : [10]ABILITY/Dudunsparce
+  84926033 THIRD PTCG Club MAIN
+    human: [7]END
+    ours : [4]ABILITY/Dudunsparce
+  84926041 capbloo MAIN
+    human: [1]PLAY/Hilda
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84926041 capbloo TO_HAND
+    human: [1]CARD/Dudunsparce
+    ours : [3]CARD/Alakazam
+  84926041 capbloo TO_HAND
+    human: [2]CARD/Telepath Psychic Energy
+    ours : [0]CARD/Basic {P} Energy
+  84926041 capbloo TO_BENCH
+    human: [2]CARD/Dunsparce [4]CARD/Dunsparce
+    ours : [0]CARD/Abra [1]CARD/Abra

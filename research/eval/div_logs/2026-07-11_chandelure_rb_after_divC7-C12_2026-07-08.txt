@@ -1,0 +1,135 @@
+games=8 pilots={'Star-mine(1039)': 7, 'kidekikish(1069)': 1}
+
+TOTAL agree 266/370 = 71.9%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 161/247 = 65%
+                   TO_HAND: 36/44 = 82%
+            DISCARD_ENERGY: 2/7 = 29%
+                   DISCARD: 3/5 = 60%
+                 TO_ACTIVE: 17/19 = 89%
+                  TO_BENCH: 11/12 = 92%
+                  IS_FIRST: 4/4 = 100%
+      SETUP_ACTIVE_POKEMON: 8/8 = 100%
+                DRAW_COUNT: 2/2 = 100%
+                    SWITCH: 13/13 = 100%
+               SKILL_ORDER: 4/4 = 100%
+       SETUP_BENCH_POKEMON: 3/3 = 100%
+                    EVOLVE: 2/2 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 4}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    2x               MAIN: human=[6]ATTACK/Flower  ours=[4]PLAY/Crushing
+    2x               MAIN: human=[17]END  ours=[6]ATTACH/Gravity
+    2x               MAIN: human=[2]PLAY/Buddy-Buddy  ours=[6]ATTACH/Basic
+    1x            TO_HAND: human=[3]CARD/Comfey  ours=[2]CARD/Chandelure
+    1x               MAIN: human=[4]PLAY/Comfey  ours=[0]PLAY/Energy
+    1x               MAIN: human=[1]ATTACK/Flower  ours=[0]PLAY/Xerosic’s
+    1x               MAIN: human=[4]PLAY/Litwick  ours=[6]ABILITY/Chandelure
+    1x               MAIN: human=[3]PLAY/Hilda  ours=[0]PLAY/Xerosic’s
+    1x               MAIN: human=[4]EVOLVE/Lampent/->Litwick  ours=[16]ABILITY/Chandelure
+    1x               MAIN: human=[9]PLAY/Hilda  ours=[0]PLAY/Xerosic’s
+    1x               MAIN: human=[15]EVOLVE/Chandelure/->Lampent  ours=[32]ABILITY/Chandelure
+    1x               MAIN: human=[0]PLAY/Xerosic’s  ours=[31]ABILITY/Chandelure
+    1x            DISCARD: human=[10]CARD/Buddy-Buddy  ours=[3]CARD/Telepath
+    1x           TO_BENCH: human=[0]CARD/Litwick  ours=[2]CARD/Comfey
+    1x               MAIN: human=[3]ATTACK/Flower  ours=[2]ABILITY/Spikemuth
+    1x               MAIN: human=[15]PLAY/Crushing  ours=[2]ATTACH/Basic
+    1x     DISCARD_ENERGY: human=[0]ENERGY/Marnie's  ours=[4]ENERGY/Munkidori
+    1x               MAIN: human=[1]PLAY/Hilda  ours=[2]PLAY/Comfey
+    1x            TO_HAND: human=[0]CARD/Basic  ours=[1]CARD/Telepath
+    1x               MAIN: human=[3]ATTACK/Flower  ours=[1]PLAY/Comfey
+
+-- 不一致サンプル --
+  84743078 Star-mine TO_HAND
+    human: [3]CARD/Comfey
+    ours : [2]CARD/Chandelure
+  84743078 Star-mine MAIN
+    human: [4]PLAY/Comfey
+    ours : [0]PLAY/Energy Search
+  84743078 Star-mine MAIN
+    human: [1]ATTACK/Flower Shower
+    ours : [0]PLAY/Xerosic’s Machinations
+  84743078 Star-mine MAIN
+    human: [4]PLAY/Litwick
+    ours : [6]ABILITY/Chandelure
+  84743078 Star-mine MAIN
+    human: [3]PLAY/Hilda
+    ours : [0]PLAY/Xerosic’s Machinations
+  84743078 Star-mine MAIN
+    human: [4]EVOLVE/Lampent/->Litwick
+    ours : [16]ABILITY/Chandelure
+  84743078 Star-mine MAIN
+    human: [9]PLAY/Hilda
+    ours : [0]PLAY/Xerosic’s Machinations
+  84743078 Star-mine MAIN
+    human: [15]EVOLVE/Chandelure/->Lampent
+    ours : [32]ABILITY/Chandelure
+  84743078 Star-mine MAIN
+    human: [0]PLAY/Xerosic’s Machinations
+    ours : [31]ABILITY/Chandelure
+  84743078 Star-mine DISCARD
+    human: [10]CARD/Buddy-Buddy Poffin [12]CARD/Buddy-Buddy Poffin [15]CARD/Buddy-Buddy Poffin [7]CARD/Gravity Gemstone [2]CARD/Eri [14]CARD/Eri [3]CARD/Telepath Psychic Energy [4]CARD/Basic {P} Energy [6]CARD/Telepath Psychic Energy [9]CARD/Telepath Psychic Energy [11]CARD/Basic {P} Energy [1]CARD/Xerosic’s Machinations [8]CARD/Poké Pad
+    ours : [3]CARD/Telepath Psychic Energy [4]CARD/Basic {P} Energy [6]CARD/Telepath Psychic Energy [9]CARD/Telepath Psychic Energy [11]CARD/Basic {P} Energy [0]CARD/Lillie's Determination [2]CARD/Eri [5]CARD/Lillie's Determination [8]CARD/Poké Pad [10]CARD/Buddy-Buddy Poffin [12]CARD/Buddy-Buddy Poffin [13]CARD/Poké Pad [14]CARD/Eri
+  84743078 Star-mine MAIN
+    human: [6]ATTACK/Flower Shower
+    ours : [4]PLAY/Crushing Hammer
+  84744093 Star-mine TO_BENCH
+    human: [0]CARD/Litwick [1]CARD/Litwick
+    ours : [2]CARD/Comfey [0]CARD/Litwick
+  84744093 Star-mine MAIN
+    human: [3]ATTACK/Flower Shower
+    ours : [2]ABILITY/Spikemuth Gym
+  84744093 Star-mine MAIN
+    human: [15]PLAY/Crushing Hammer
+    ours : [2]ATTACH/Basic {P} Energy/->Comfey
+  84744093 Star-mine DISCARD_ENERGY
+    human: [0]ENERGY/Marnie's Grimmsnarl ex
+    ours : [4]ENERGY/Munkidori
+  84744093 Star-mine MAIN
+    human: [1]PLAY/Hilda
+    ours : [2]PLAY/Comfey
+  84744093 Star-mine TO_HAND
+    human: [0]CARD/Basic {P} Energy
+    ours : [1]CARD/Telepath Psychic Energy
+  84744093 Star-mine MAIN
+    human: [3]ATTACK/Flower Shower
+    ours : [1]PLAY/Comfey
+  84744093 Star-mine TO_HAND
+    human: [2]CARD/Lampent
+    ours : [0]CARD/Chandelure
+  84744093 Star-mine MAIN
+    human: [5]PLAY/Boss’s Orders
+    ours : [1]PLAY/Comfey
+  84744093 Star-mine MAIN
+    human: [5]ATTACK/Flower Shower
+    ours : [1]PLAY/Comfey
+  84744093 Star-mine MAIN
+    human: [1]PLAY/Comfey
+    ours : [11]PLAY/Litwick
+  84744093 Star-mine MAIN
+    human: [11]PLAY/Litwick
+    ours : [6]ATTACH/Basic {P} Energy/->Comfey
+  84744093 Star-mine MAIN
+    human: [11]PLAY/Boss’s Orders
+    ours : [6]ATTACH/Basic {P} Energy/->Comfey
+  84744093 Star-mine MAIN
+    human: [10]ATTACK/Flower Shower
+    ours : [6]ATTACH/Basic {P} Energy/->Comfey
+  84744093 Star-mine MAIN
+    human: [10]PLAY/Crushing Hammer
+    ours : [6]ATTACH/Basic {P} Energy/->Comfey
+  84744093 Star-mine DISCARD_ENERGY
+    human: [0]ENERGY/Marnie's Grimmsnarl ex
+    ours : [3]ENERGY/Munkidori
+  84744093 Star-mine MAIN
+    human: [5]PLAY/Boss’s Orders
+    ours : [7]PLAY/Poké Pad
+  84744093 Star-mine MAIN
+    human: [6]ATTACK/Flower Shower
+    ours : [4]PLAY/Poké Pad
+  84744093 Star-mine MAIN
+    human: [9]PLAY/Xerosic’s Machinations
+    ours : [13]ABILITY/Chandelure

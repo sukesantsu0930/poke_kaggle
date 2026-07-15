@@ -8,7 +8,9 @@ from deck_validation import validate_deck_file
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE_SYNC_FILES = ("policy_base.py", "meta_tables.py")
+BASE_SYNC_FILES = ("policy_base.py", "meta_tables.py",
+                   "turn_search.py", "value_model.py", "opp_decks.py", "generic_policy.py",
+                   "policy_net.py")
 
 
 def _check_base_sync(agent_path: Path):

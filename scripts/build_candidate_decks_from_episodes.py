@@ -153,7 +153,7 @@ def main() -> None:
     parser.add_argument("--input-dir", default="downloads/episodes/2026-06-30")
     parser.add_argument("--card-csv", default="JP_Card_Data.csv")
     parser.add_argument("--manifest", default=None)
-    parser.add_argument("--out-dir", default="decks/candidates/2026-06-30_top5")
+    parser.add_argument("--out-dir", default="decks/candidates")
     args = parser.parse_args()
 
     input_dir = Path(args.input_dir)

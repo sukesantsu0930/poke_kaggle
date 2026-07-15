@@ -1,0 +1,951 @@
+games=64 pilots={'Raihan Ramadistra(1029)': 26, 'Alberto Bonsanto(958)': 9, 'bono(1088)': 13, 'zoroark190(1086)': 12, 'MPGaming(1041)': 4}
+
+TOTAL agree 1259/3382 = 37.2%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 550/2267 = 24%
+                   TO_HAND: 245/429 = 57%
+                   DISCARD: 21/96 = 22%
+                    SWITCH: 80/131 = 61%
+               ATTACH_FROM: 37/57 = 65%
+                 TO_ACTIVE: 56/74 = 76%
+       SETUP_BENCH_POKEMON: 10/24 = 42%
+                 ATTACH_TO: 54/68 = 79%
+             SWITCH_ENERGY: 6/12 = 50%
+                  IS_FIRST: 26/31 = 84%
+      SETUP_ACTIVE_POKEMON: 59/64 = 92%
+                  TO_BENCH: 36/41 = 88%
+        SWITCH_ENERGY_CARD: 7/10 = 70%
+       DISCARD_ENERGY_CARD: 4/7 = 57%
+               SKILL_ORDER: 15/17 = 88%
+                EVOLVES_TO: 16/17 = 94%
+                DRAW_COUNT: 11/11 = 100%
+                  ACTIVATE: 17/17 = 100%
+            DISCARD_ENERGY: 9/9 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 26, 'NO': 5}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   21x               MAIN: human=[1]END  ours=[0]PLAY/Mega
+   17x               MAIN: human=[1]END  ours=[0]PLAY/Switch
+   12x               MAIN: human=[2]END  ours=[0]PLAY/Mega
+   10x            TO_HAND: human=[2]CARD  ours=[0]CARD
+   10x            TO_HAND: human=[0]CARD  ours=[1]CARD
+    8x               MAIN: human=[2]ATTACK/Superb  ours=[0]PLAY/Mega
+    8x            TO_HAND: human=[3]CARD  ours=[0]CARD
+    8x               MAIN: human=[1]END  ours=[0]PLAY/Ultra
+    8x            TO_HAND: human=[1]CARD  ours=[0]CARD
+    8x SETUP_BENCH_POKEMON: human=[0]CARD/Dwebble  ours=(none)
+    7x          ATTACH_TO: human=[1]CARD/Basic  ours=[0]CARD/Basic
+    7x               MAIN: human=[3]END  ours=[0]PLAY/Mega
+    7x               MAIN: human=[5]ATTACK/Rapid-Fire  ours=[4]ABILITY/Mega
+    7x            DISCARD: human=[0]CARD  ours=[0]CARD
+    6x               MAIN: human=[4]END  ours=[0]PLAY/Mega
+    6x            TO_HAND: human=[4]CARD  ours=[0]CARD
+    6x      SWITCH_ENERGY: human=[1]ENERGY/Crustle  ours=[0]ENERGY/Crustle
+    6x               MAIN: human=[2]ATTACK/Rapid-Fire  ours=[0]PLAY/Mega
+    6x               MAIN: human=[2]ATTACK/Sob  ours=[0]PLAY/Night
+    5x           IS_FIRST: human=[1]NO  ours=[0]YES
+
+-- 不一致サンプル --
+  84926045 Raihan Ramadistra MAIN
+    human: [1]PLAY/Community Center
+    ours : [2]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [2]END
+    ours : [1]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [8]PLAY/Buddy-Buddy Poffin
+    ours : [6]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [11]PLAY/Hilda
+    ours : [8]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [1]ATTACH/Grow Grass Energy/->Dwebble
+    ours : [3]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [8]EVOLVE/Crustle/->Dwebble
+    ours : [21]ABILITY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [11]EVOLVE/Crustle/->Dwebble
+    ours : [18]ABILITY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [0]PLAY/Boss’s Orders
+    ours : [5]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84926045 Raihan Ramadistra SWITCH
+    human: [3]CARD/Munkidori
+    ours : [1]CARD/Marnie's Impidimp
+  84926045 Raihan Ramadistra MAIN
+    human: [4]ATTACH/Spiky Energy/->Crustle
+    ours : [0]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [19]PLAY/Team Rocket's Factory
+    ours : [4]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [11]ATTACH/Spiky Energy/->Crustle
+    ours : [4]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84926045 Raihan Ramadistra TO_HAND
+    human: [0]CARD/Team Rocket's Petrel
+    ours : [1]CARD/Jumbo Ice Cream
+  84926045 Raihan Ramadistra MAIN
+    human: [1]ABILITY/Team Rocket's Factory
+    ours : [0]PLAY/Switch
+  84926045 Raihan Ramadistra MAIN
+    human: [1]END
+    ours : [0]PLAY/Switch
+  84926045 Raihan Ramadistra MAIN
+    human: [21]ATTACH/Spiky Energy/->Crustle
+    ours : [3]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [12]END
+    ours : [0]PLAY/Eri
+  84926045 Raihan Ramadistra MAIN
+    human: [22]ATTACH/Grow Grass Energy/->Crustle
+    ours : [23]ABILITY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [13]END
+    ours : [11]ABILITY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [20]PLAY/Buddy-Buddy Poffin
+    ours : [21]ABILITY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [25]END
+    ours : [23]ABILITY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [25]END
+    ours : [23]ABILITY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [26]END
+    ours : [24]ABILITY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [30]ATTACH/Grow Grass Energy/->Crustle
+    ours : [32]PLAY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [0]PLAY/Eri
+    ours : [12]PLAY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [4]END
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [31]END
+    ours : [29]ABILITY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [18]PLAY/Lillie's Determination
+    ours : [37]ABILITY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [10]END
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra TO_ACTIVE
+    human: [1]CARD/Crustle
+    ours : [0]CARD/Crustle
+  84926045 Raihan Ramadistra MAIN
+    human: [3]PLAY/Jumbo Ice Cream
+    ours : [7]PLAY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [3]PLAY/Jumbo Ice Cream
+    ours : [6]PLAY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [8]PLAY/Boss’s Orders
+    ours : [5]PLAY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra SWITCH
+    human: [4]CARD/Munkidori
+    ours : [1]CARD/Froslass
+  84926045 Raihan Ramadistra MAIN
+    human: [0]ATTACH/Grow Grass Energy/->Crustle
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [4]END
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [10]END
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [1]PLAY/Lillie's Determination
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84926045 Raihan Ramadistra MAIN
+    human: [1]PLAY/Hand Trimmer
+    ours : [3]ATTACK/Superb Scissors
+  84926045 Raihan Ramadistra MAIN
+    human: [3]END
+    ours : [2]ATTACK/Superb Scissors
+  84926045 Raihan Ramadistra MAIN
+    human: [1]PLAY/Boss’s Orders
+    ours : [7]ATTACK/Superb Scissors
+  84926045 Raihan Ramadistra MAIN
+    human: [0]ATTACH/Mist Energy/->Crustle
+    ours : [2]ATTACK/Superb Scissors
+  84926045 Raihan Ramadistra MAIN
+    human: [2]END
+    ours : [1]ATTACK/Superb Scissors
+  84926045 Raihan Ramadistra MAIN
+    human: [4]PLAY/Boss’s Orders
+    ours : [6]ATTACK/Superb Scissors
+  84926045 Raihan Ramadistra MAIN
+    human: [2]END
+    ours : [1]ATTACK/Superb Scissors
+  84926045 Raihan Ramadistra MAIN
+    human: [8]END
+    ours : [7]ATTACK/Superb Scissors
+  84926045 Raihan Ramadistra MAIN
+    human: [6]PLAY/Lisia’s Appeal
+    ours : [8]ATTACK/Superb Scissors
+  84926045 Raihan Ramadistra MAIN
+    human: [4]END
+    ours : [3]ATTACK/Superb Scissors
+  84926045 Raihan Ramadistra MAIN
+    human: [9]END
+    ours : [8]ATTACK/Superb Scissors
+  84926550 Alberto Bonsanto IS_FIRST
+    human: [1]NO
+    ours : [0]YES
+  84926550 Alberto Bonsanto TO_BENCH
+    human: [1]CARD/Dwebble [0]CARD/Dwebble
+    ours : [0]CARD/Dwebble [1]CARD/Dwebble
+  84926550 Alberto Bonsanto MAIN
+    human: [3]ATTACH/Grow Grass Energy/->Dwebble
+    ours : [9]PLAY/Switch
+  84926550 Alberto Bonsanto MAIN
+    human: [1]ATTACK/Ascension
+    ours : [0]PLAY/Switch
+  84926550 Alberto Bonsanto MAIN
+    human: [4]ATTACH/Grow Grass Energy/->Crustle
+    ours : [7]PLAY/Switch
+  84926550 Alberto Bonsanto MAIN
+    human: [0]PLAY/Xerosic’s Machinations
+    ours : [1]PLAY/Switch
+  84926550 Alberto Bonsanto MAIN
+    human: [1]END
+    ours : [0]PLAY/Switch
+  84926550 Alberto Bonsanto MAIN
+    human: [7]ATTACH/Spiky Energy/->Crustle
+    ours : [3]PLAY/Switch
+  84926550 Alberto Bonsanto MAIN
+    human: [3]ATTACH/Spiky Energy/->Dwebble
+    ours : [2]PLAY/Switch
+  84926550 Alberto Bonsanto MAIN
+    human: [1]PLAY/Pokégear 3.0
+    ours : [0]PLAY/Switch
+  84926550 Alberto Bonsanto MAIN
+    human: [1]PLAY/Team Rocket's Petrel
+    ours : [0]PLAY/Switch
+  84926550 Alberto Bonsanto TO_HAND
+    human: [25]CARD/Hero’s Cape
+    ours : [12]CARD/Boss’s Orders
+  84926550 Alberto Bonsanto MAIN
+    human: [1]ATTACH/Hero’s Cape/->Dwebble
+    ours : [0]PLAY/Switch
+  84926550 Alberto Bonsanto MAIN
+    human: [1]ATTACK/Ascension
+    ours : [0]PLAY/Switch
+  84926550 Alberto Bonsanto MAIN
+    human: [0]ATTACH/Mist Energy/->Crustle
+    ours : [1]PLAY/Hand Trimmer
+  84926583 Raihan Ramadistra MAIN
+    human: [0]ATTACH/Spiky Energy/->Mega Kangaskhan ex
+    ours : [5]PLAY/Dwebble
+  84926583 Raihan Ramadistra MAIN
+    human: [4]ATTACH/Handheld Fan/->Mega Kangaskhan ex
+    ours : [3]PLAY/Xerosic’s Machinations
+  84926583 Raihan Ramadistra MAIN
+    human: [2]PLAY/Eri
+    ours : [3]PLAY/Xerosic’s Machinations
+  84926583 Raihan Ramadistra MAIN
+    human: [1]END
+    ours : [0]PLAY/Switch
+  84926583 Raihan Ramadistra MAIN
+    human: [5]ATTACH/Grow Grass Energy/->Dwebble
+    ours : [6]PLAY/Xerosic’s Machinations
+  84926583 Raihan Ramadistra MAIN
+    human: [3]PLAY/Lillie's Determination
+    ours : [2]PLAY/Xerosic’s Machinations
+  84926583 Raihan Ramadistra MAIN
+    human: [0]EVOLVE/Crustle/->Dwebble
+    ours : [1]PLAY/Pokégear 3.0
+  84926583 Raihan Ramadistra TO_HAND
+    human: [0]CARD
+    ours : [2]CARD
+  84926583 Raihan Ramadistra DISCARD
+    human: [1]CARD/Mist Energy [3]CARD/Hilda [4]CARD/Mist Energy [5]CARD/Team Rocket's Petrel
+    ours : [1]CARD/Mist Energy [3]CARD/Hilda [4]CARD/Mist Energy [6]CARD/Hilda
+  84926583 Raihan Ramadistra MAIN
+    human: [3]PLAY/Lillie's Determination
+    ours : [0]PLAY/Eri
+  84926583 Raihan Ramadistra MAIN
+    human: [4]ATTACH/Hero’s Cape/->Dwebble
+    ours : [9]END
+  84926583 Raihan Ramadistra MAIN
+    human: [1]ATTACH/Grow Grass Energy/->Dwebble
+    ours : [6]END
+  84926583 Raihan Ramadistra MAIN
+    human: [5]EVOLVE/Crustle/->Dwebble
+    ours : [6]PLAY/Team Rocket's Petrel
+  84926583 Raihan Ramadistra MAIN
+    human: [1]ATTACH/Spiky Energy/->Crustle
+    ours : [4]ATTACK/Ascension
+  84926583 Raihan Ramadistra MAIN
+    human: [0]PLAY/Boss’s Orders
+    ours : [4]END
+  84926583 Raihan Ramadistra SWITCH
+    human: [2]CARD/Fezandipiti ex
+    ours : [3]CARD/Abra
+  84926583 Raihan Ramadistra MAIN
+    human: [0]ATTACH/Spiky Energy/->Crustle
+    ours : [1]END
+  84926595 bono MAIN
+    human: [4]PLAY/Buddy-Buddy Poffin
+    ours : [6]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [1]ATTACH/Hero’s Cape/->Mega Kangaskhan ex
+    ours : [7]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [2]PLAY/Boss’s Orders
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [2]END
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [4]PLAY/Hand Trimmer
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84926595 bono DISCARD
+    human: [0]CARD/Lillie's Determination [1]CARD/Eri [2]CARD/Team Rocket's Petrel
+    ours : [4]CARD/Crustle [7]CARD/Crustle [3]CARD/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [3]PLAY/Boss’s Orders
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [1]EVOLVE/Crustle/->Dwebble
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [4]EVOLVE/Crustle/->Dwebble
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [1]ATTACH/Grow Grass Energy/->Mega Kangaskhan ex
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [1]END
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [1]PLAY/Lillie's Determination
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [5]PLAY/Buddy-Buddy Poffin
+    ours : [2]PLAY/Buddy-Buddy Poffin
+  84926595 bono MAIN
+    human: [0]ATTACH/Mist Energy/->Crustle
+    ours : [6]END
+  84926595 bono MAIN
+    human: [6]PLAY/Hilda
+    ours : [7]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [4]EVOLVE/Crustle/->Dwebble
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [4]ATTACH/Mist Energy/->Crustle
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [6]ATTACH/Spiky Energy/->Mega Kangaskhan ex
+    ours : [0]PLAY/Lillie's Determination
+  84926595 bono MAIN
+    human: [3]END
+    ours : [2]PLAY/Ultra Ball
+  84926595 bono MAIN
+    human: [12]ATTACH/Spiky Energy/->Mega Kangaskhan ex
+    ours : [3]PLAY/Ultra Ball
+  84926595 bono MAIN
+    human: [2]PLAY/Lillie's Determination
+    ours : [3]PLAY/Ultra Ball
+  84926595 bono MAIN
+    human: [3]ATTACH/Spiky Energy/->Mega Kangaskhan ex
+    ours : [16]END
+  84926595 bono MAIN
+    human: [3]ATTACH/Handheld Fan/->Mega Kangaskhan ex
+    ours : [4]END
+  84926595 bono MAIN
+    human: [9]ATTACH/Spiky Energy/->Mega Kangaskhan ex
+    ours : [0]PLAY/Team Rocket's Petrel
+  84926595 bono MAIN
+    human: [1]PLAY/Eri
+    ours : [0]PLAY/Team Rocket's Petrel
+  84926595 bono MAIN
+    human: [4]ATTACH/Mist Energy/->Mega Kangaskhan ex
+    ours : [0]PLAY/Team Rocket's Petrel
+  84926595 bono MAIN
+    human: [3]END
+    ours : [0]PLAY/Team Rocket's Petrel
+  84926595 bono MAIN
+    human: [10]ATTACH/Grow Grass Energy/->Mega Kangaskhan ex
+    ours : [11]PLAY/Ultra Ball
+  84926595 bono MAIN
+    human: [0]PLAY/Team Rocket's Petrel
+    ours : [3]PLAY/Ultra Ball
+  84926595 bono TO_HAND
+    human: [0]CARD/Switch
+    ours : [8]CARD/Boss’s Orders
+  84926595 bono MAIN
+    human: [1]PLAY/Switch
+    ours : [0]PLAY/Ultra Ball
+  84926595 bono SWITCH
+    human: [2]CARD/Mega Kangaskhan ex
+    ours : [0]CARD/Crustle
+  84926595 bono MAIN
+    human: [2]ATTACK/Rapid-Fire Combo
+    ours : [1]ABILITY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [13]ATTACK/Rapid-Fire Combo
+    ours : [12]ABILITY/Mega Kangaskhan ex
+  84926595 bono TO_HAND
+    human: [4]CARD
+    ours : [0]CARD
+  84926595 bono MAIN
+    human: [15]ATTACK/Rapid-Fire Combo
+    ours : [14]ABILITY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [15]ATTACK/Rapid-Fire Combo
+    ours : [14]ABILITY/Mega Kangaskhan ex
+  84926595 bono MAIN
+    human: [19]ATTACK/Rapid-Fire Combo
+    ours : [18]ABILITY/Mega Kangaskhan ex
+  84926607 zoroark190 MAIN
+    human: [1]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [2]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [3]END
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [9]PLAY/Meowth ex
+    ours : [2]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [14]PLAY/Cyrano
+    ours : [5]PLAY/Ultra Ball
+  84926607 zoroark190 TO_HAND
+    human: [1]CARD/Latias ex [7]CARD/Teal Mask Ogerpon ex [4]CARD/Meowth ex
+    ours : [7]CARD/Teal Mask Ogerpon ex [4]CARD/Meowth ex [1]CARD/Latias ex
+  84926607 zoroark190 MAIN
+    human: [16]PLAY/Latias ex
+    ours : [18]ABILITY/Teal Mask Ogerpon ex
+  84926607 zoroark190 MAIN
+    human: [12]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [5]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [5]END
+    ours : [1]PLAY/Ultra Ball
+  84926607 zoroark190 TO_HAND
+    human: [2]CARD/Basic {W} Energy
+    ours : [5]CARD/Basic {G} Energy
+  84926607 zoroark190 ATTACH_TO
+    human: [3]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {L} Energy
+  84926607 zoroark190 ATTACH_FROM
+    human: [2]CARD/Teal Mask Ogerpon ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84926607 zoroark190 MAIN
+    human: [14]ATTACH/Basic {W} Energy/->Mega Kangaskhan ex
+    ours : [6]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [5]END
+    ours : [1]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [12]PLAY/Boss’s Orders
+    ours : [6]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [25]RETREAT
+    ours : [6]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [2]ATTACH/Basic {F} Energy/->Mega Kangaskhan ex
+    ours : [6]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [5]ATTACK/Myriad Leaf Shower
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 TO_HAND
+    human: [4]CARD
+    ours : [0]CARD
+  84926607 zoroark190 MAIN
+    human: [7]PLAY/Meowth ex
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [23]PLAY/Crispin
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 TO_HAND
+    human: [1]CARD/Basic {L} Energy
+    ours : [0]CARD/Basic {G} Energy
+  84926607 zoroark190 MAIN
+    human: [29]RETREAT
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [29]ATTACK/Rapid-Fire Combo
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [31]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [6]PLAY/Mega Kangaskhan ex
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [6]PLAY/Ultra Ball
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 DISCARD
+    human: [3]CARD/Area Zero Underdepths [4]CARD/Area Zero Underdepths
+    ours : [3]CARD/Area Zero Underdepths [8]CARD/Energy Switch
+  84926607 zoroark190 TO_HAND
+    human: [3]CARD/Fezandipiti ex
+    ours : [0]CARD/Meowth ex
+  84926607 zoroark190 MAIN
+    human: [6]PLAY/Fezandipiti ex
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [6]PLAY/Lillie’s Clefairy ex
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [7]ATTACK/Rapid-Fire Combo
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [17]ATTACH/Basic {P} Energy/->Lillie’s Clefairy ex
+    ours : [46]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [7]ATTACK/Rapid-Fire Combo
+    ours : [6]PLAY/Ultra Ball
+  84926607 zoroark190 TO_ACTIVE
+    human: [4]CARD/Mega Kangaskhan ex
+    ours : [2]CARD/Teal Mask Ogerpon ex
+  84926607 zoroark190 MAIN
+    human: [36]ABILITY/Mega Kangaskhan ex
+    ours : [37]ABILITY/Fezandipiti ex
+  84926607 zoroark190 MAIN
+    human: [38]ABILITY/Fezandipiti ex
+    ours : [25]PLAY/Mega Kangaskhan ex
+  84926607 zoroark190 MAIN
+    human: [47]ABILITY/Teal Mask Ogerpon ex
+    ours : [46]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [38]PLAY/Teal Mask Ogerpon ex
+    ours : [39]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [26]ATTACH/Basic {L} Energy/->Lillie’s Clefairy ex
+    ours : [42]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [13]END
+    ours : [10]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [21]ATTACH/Basic {W} Energy/->Mega Kangaskhan ex
+    ours : [34]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [14]END
+    ours : [10]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [28]ATTACH/Basic {L} Energy/->Mega Kangaskhan ex
+    ours : [26]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [13]ATTACK/Rapid-Fire Combo
+    ours : [6]PLAY/Ultra Ball
+  84926607 Raihan Ramadistra MAIN
+    human: [2]ATTACH/Hero’s Cape/->Dwebble
+    ours : [0]PLAY/Hilda
+  84926607 Raihan Ramadistra MAIN
+    human: [4]ATTACH/Spiky Energy/->Dwebble
+    ours : [0]PLAY/Hilda
+  84926607 Raihan Ramadistra MAIN
+    human: [2]PLAY/Team Rocket's Petrel
+    ours : [0]PLAY/Hilda
+  84926607 Raihan Ramadistra TO_HAND
+    human: [0]CARD/Hilda
+    ours : [1]CARD/Boss’s Orders
+  84926607 Raihan Ramadistra MAIN
+    human: [8]PLAY/Team Rocket's Petrel
+    ours : [0]PLAY/Hilda
+  84926607 Raihan Ramadistra MAIN
+    human: [0]ATTACH/Mist Energy/->Crustle
+    ours : [6]END
+  84926607 Raihan Ramadistra MAIN
+    human: [6]ATTACH/Grow Grass Energy/->Crustle
+    ours : [9]END
+  84926607 Raihan Ramadistra TO_ACTIVE
+    human: [1]CARD/Crustle
+    ours : [0]CARD/Crustle
+  84926607 Raihan Ramadistra MAIN
+    human: [6]PLAY/Pokégear 3.0
+    ours : [7]ATTACK/Superb Scissors
+  84926607 Raihan Ramadistra MAIN
+    human: [6]PLAY/Eri
+    ours : [7]ATTACK/Superb Scissors
+  84926607 Raihan Ramadistra DISCARD
+    human: [0]CARD [1]CARD
+    ours : [2]CARD [0]CARD
+  84926607 Raihan Ramadistra MAIN
+    human: [2]ATTACH/Basic {G} Energy/->Crustle
+    ours : [4]ATTACK/Superb Scissors
+  84926607 Raihan Ramadistra MAIN
+    human: [3]PLAY/Boss’s Orders
+    ours : [5]ATTACK/Superb Scissors
+  84926607 Raihan Ramadistra MAIN
+    human: [4]PLAY/Eri
+    ours : [5]PLAY/Mega Kangaskhan ex
+  84926607 Raihan Ramadistra MAIN
+    human: [1]ATTACH/Mist Energy/->Crustle
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84926607 Raihan Ramadistra MAIN
+    human: [1]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926607 Raihan Ramadistra MAIN
+    human: [1]PLAY/Team Rocket's Petrel
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84926607 Raihan Ramadistra TO_HAND
+    human: [0]CARD/Ultra Ball
+    ours : [3]CARD/Boss’s Orders
+  84926607 Raihan Ramadistra MAIN
+    human: [2]ATTACH/Grow Grass Energy/->Crustle
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926607 Raihan Ramadistra MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926607 Raihan Ramadistra MAIN
+    human: [8]ATTACK/Superb Scissors
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84926607 Raihan Ramadistra MAIN
+    human: [8]ATTACH/Spiky Energy/->Crustle
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84926607 Raihan Ramadistra MAIN
+    human: [0]PLAY/Hilda
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84926607 Raihan Ramadistra MAIN
+    human: [4]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [3]PLAY/Teal Mask Ogerpon ex
+    ours : [0]PLAY/Area Zero Underdepths
+  84926613 zoroark190 MAIN
+    human: [3]END
+    ours : [0]PLAY/Area Zero Underdepths
+  84926613 zoroark190 MAIN
+    human: [2]PLAY/Ultra Ball
+    ours : [1]PLAY/Area Zero Underdepths
+  84926613 zoroark190 DISCARD
+    human: [3]CARD/Area Zero Underdepths [2]CARD/Area Zero Underdepths
+    ours : [2]CARD/Area Zero Underdepths [3]CARD/Area Zero Underdepths
+  84926613 zoroark190 MAIN
+    human: [4]PLAY/Meowth ex
+    ours : [0]PLAY/Crispin
+  84926613 zoroark190 MAIN
+    human: [5]PLAY/Cyrano
+    ours : [0]PLAY/Crispin
+  84926613 zoroark190 TO_HAND
+    human: [4]CARD/Latias ex [3]CARD/Meowth ex [8]CARD/Lillie’s Clefairy ex
+    ours : [3]CARD/Meowth ex [9]CARD/Teal Mask Ogerpon ex [4]CARD/Latias ex
+  84926613 zoroark190 MAIN
+    human: [6]PLAY/Lillie’s Clefairy ex
+    ours : [0]ATTACH/Basic {F} Energy/->Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [5]ATTACH/Basic {F} Energy/->Lillie’s Clefairy ex
+    ours : [0]ATTACH/Basic {F} Energy/->Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [2]END
+    ours : [0]PLAY/Energy Switch
+  84926613 zoroark190 MAIN
+    human: [9]PLAY/Area Zero Underdepths
+    ours : [11]ABILITY/Teal Mask Ogerpon ex
+  84926613 zoroark190 MAIN
+    human: [0]PLAY/Crispin
+    ours : [12]ABILITY/Teal Mask Ogerpon ex
+  84926613 zoroark190 TO_HAND
+    human: [3]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {L} Energy
+  84926613 zoroark190 ATTACH_TO
+    human: [1]CARD/Basic {P} Energy
+    ours : [0]CARD/Basic {L} Energy
+  84926613 zoroark190 MAIN
+    human: [5]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [12]ABILITY/Teal Mask Ogerpon ex
+  84926613 zoroark190 MAIN
+    human: [2]PLAY/Prime Catcher
+    ours : [0]PLAY/Energy Switch
+  84926613 zoroark190 SWITCH
+    human: [3]CARD/Latias ex
+    ours : [0]CARD/Teal Mask Ogerpon ex
+  84926613 zoroark190 MAIN
+    human: [4]ATTACK/Rapid-Fire Combo
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 TO_HAND
+    human: [3]CARD
+    ours : [0]CARD
+  84926613 zoroark190 TO_HAND
+    human: [0]CARD/Crispin
+    ours : [3]CARD/Cyrano
+  84926613 zoroark190 MAIN
+    human: [12]PLAY/Crispin
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 ATTACH_TO
+    human: [2]CARD/Basic {P} Energy
+    ours : [0]CARD/Basic {L} Energy
+  84926613 zoroark190 ATTACH_FROM
+    human: [5]CARD/Lillie’s Clefairy ex
+    ours : [1]CARD/Teal Mask Ogerpon ex
+  84926613 zoroark190 MAIN
+    human: [13]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [5]ATTACK/Rapid-Fire Combo
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [12]PLAY/Lillie’s Clefairy ex
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [11]ATTACH/Basic {W} Energy/->Lillie’s Clefairy ex
+    ours : [1]PLAY/Ultra Ball
+  84926613 zoroark190 MAIN
+    human: [5]ATTACK/Rapid-Fire Combo
+    ours : [1]PLAY/Ultra Ball
+  84926613 zoroark190 TO_ACTIVE
+    human: [3]CARD/Latias ex
+    ours : [0]CARD/Teal Mask Ogerpon ex
+  84926613 zoroark190 MAIN
+    human: [2]PLAY/Fezandipiti ex
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [15]PLAY/Crispin
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 TO_HAND
+    human: [2]CARD/Basic {L} Energy
+    ours : [0]CARD/Basic {G} Energy
+  84926613 zoroark190 MAIN
+    human: [4]PLAY/Glass Trumpet
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 ATTACH_TO
+    human: [2]CARD/Basic {P} Energy
+    ours : [0]CARD/Basic {G} Energy
+  84926613 zoroark190 MAIN
+    human: [12]PLAY/Glass Trumpet
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [24]END
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 DISCARD
+    human: [0]CARD/Mega Kangaskhan ex [3]CARD/Fezandipiti ex [8]CARD/Basic {L} Energy [1]CARD/Ultra Ball [2]CARD/Energy Switch [5]CARD/Energy Switch
+    ours : [2]CARD/Energy Switch [5]CARD/Energy Switch [3]CARD/Fezandipiti ex [4]CARD/Basic {F} Energy [8]CARD/Basic {L} Energy [1]CARD/Ultra Ball
+  84926613 zoroark190 MAIN
+    human: [12]END
+    ours : [10]PLAY/Ultra Ball
+  84926613 zoroark190 DISCARD
+    human: [4]CARD/Meowth ex [2]CARD/Meowth ex
+    ours : [0]CARD/Teal Mask Ogerpon ex [2]CARD/Meowth ex
+  84926613 zoroark190 MAIN
+    human: [11]ATTACK/Myriad Leaf Shower
+    ours : [10]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [10]ATTACK/Myriad Leaf Shower
+    ours : [8]PLAY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [4]PLAY/Buddy-Buddy Poffin
+    ours : [7]ABILITY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [6]PLAY/Hilda
+    ours : [8]ABILITY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra TO_HAND
+    human: [0]CARD/Mist Energy
+    ours : [7]CARD/Basic {G} Energy
+  84926739 Raihan Ramadistra MAIN
+    human: [2]ATTACH/Handheld Fan/->Dwebble
+    ours : [0]PLAY/Pokégear 3.0
+  84926739 Raihan Ramadistra MAIN
+    human: [2]ATTACH/Mist Energy/->Dwebble
+    ours : [0]PLAY/Pokégear 3.0
+  84926739 Raihan Ramadistra MAIN
+    human: [2]END
+    ours : [0]PLAY/Pokégear 3.0
+  84926739 Raihan Ramadistra MAIN
+    human: [4]EVOLVE/Crustle/->Dwebble
+    ours : [9]ABILITY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [9]ATTACH/Basic {G} Energy/->Crustle
+    ours : [8]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [7]PLAY/Boss’s Orders
+    ours : [0]PLAY/Pokégear 3.0
+  84926739 Raihan Ramadistra SWITCH
+    human: [2]CARD/Munkidori
+    ours : [0]CARD/Marnie's Impidimp
+  84926739 Raihan Ramadistra MAIN
+    human: [3]END
+    ours : [0]PLAY/Pokégear 3.0
+  84926739 Raihan Ramadistra DISCARD
+    human: [0]CARD/Pokégear 3.0 [4]CARD/Hand Trimmer [5]CARD/Team Rocket's Petrel [6]CARD/Buddy-Buddy Poffin
+    ours : [1]CARD/Lillie's Determination [3]CARD/Lillie's Determination [0]CARD/Pokégear 3.0 [2]CARD/Eri
+  84926739 Raihan Ramadistra MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [4]ABILITY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [3]PLAY/Dwebble
+    ours : [4]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [1]ATTACH/Grow Grass Energy/->Crustle
+    ours : [4]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [2]ATTACH/Hero’s Cape/->Crustle
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [1]EVOLVE/Crustle/->Dwebble
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [1]ABILITY/Spikemuth Gym
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [1]END
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [2]PLAY/Hilda
+    ours : [10]ABILITY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [6]EVOLVE/Crustle/->Dwebble
+    ours : [11]ABILITY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [8]ATTACH/Spiky Energy/->Crustle
+    ours : [10]ABILITY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [1]PLAY/Switch
+    ours : [2]ABILITY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [7]PLAY/Boss’s Orders
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra SWITCH
+    human: [0]CARD/Munkidori
+    ours : [3]CARD/Dunsparce
+  84926739 Raihan Ramadistra MAIN
+    human: [6]ATTACK/Superb Scissors
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [8]PLAY/Boss’s Orders
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra SWITCH
+    human: [1]CARD/Munkidori
+    ours : [3]CARD/Dunsparce
+  84926739 Raihan Ramadistra MAIN
+    human: [5]ATTACK/Superb Scissors
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [9]ATTACH/Spiky Energy/->Crustle
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [3]PLAY/Xerosic’s Machinations
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [2]PLAY/Eri
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [8]ATTACK/Superb Scissors
+    ours : [0]PLAY/Ultra Ball
+  84926739 Raihan Ramadistra MAIN
+    human: [2]ATTACH/Mist Energy/->Crustle
+    ours : [10]PLAY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [6]END
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [10]END
+    ours : [7]PLAY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [10]END
+    ours : [7]PLAY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [11]END
+    ours : [7]PLAY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [4]ATTACH/Grow Grass Energy/->Crustle
+    ours : [7]PLAY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [8]ATTACK/Superb Scissors
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [8]ATTACH/Spiky Energy/->Crustle
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84926739 Raihan Ramadistra MAIN
+    human: [9]ATTACK/Superb Scissors
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84926740 zoroark190 MAIN
+    human: [0]PLAY/Cyrano
+    ours : [2]PLAY/Fezandipiti ex
+  84926740 zoroark190 TO_HAND
+    human: [1]CARD/Mega Kangaskhan ex [7]CARD/Teal Mask Ogerpon ex [2]CARD/Wellspring Mask Ogerpon ex
+    ours : [7]CARD/Teal Mask Ogerpon ex [1]CARD/Mega Kangaskhan ex [5]CARD/Meowth ex
+  84926740 zoroark190 MAIN
+    human: [7]PLAY/Mega Kangaskhan ex
+    ours : [9]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [10]ABILITY/Teal Mask Ogerpon ex
+    ours : [11]RETREAT
+  84926740 zoroark190 MAIN
+    human: [4]PLAY/Lillie’s Clefairy ex
+    ours : [9]RETREAT
+  84926740 zoroark190 MAIN
+    human: [3]ATTACH/Basic {P} Energy/->Lillie’s Clefairy ex
+    ours : [9]RETREAT
+  84926740 zoroark190 MAIN
+    human: [4]PLAY/Teal Mask Ogerpon ex
+    ours : [5]RETREAT
+  84926740 zoroark190 SWITCH
+    human: [2]CARD/Lillie’s Clefairy ex
+    ours : [1]CARD/Mega Kangaskhan ex
+  84926740 zoroark190 ATTACH_FROM
+    human: [0]CARD/Lillie’s Clefairy ex
+    ours : [1]CARD/Mega Kangaskhan ex
+  84926740 zoroark190 TO_HAND
+    human: [4]CARD
+    ours : [0]CARD
+  84926740 zoroark190 MAIN
+    human: [2]PLAY/Wellspring Mask Ogerpon ex
+    ours : [12]RETREAT
+  84926740 zoroark190 MAIN
+    human: [6]ATTACH/Basic {G} Energy/->Wellspring Mask Ogerpon ex
+    ours : [10]RETREAT
+  84926740 zoroark190 MAIN
+    human: [1]ATTACK/Full Moon Rondo
+    ours : [2]RETREAT
+  84926740 zoroark190 MAIN
+    human: [4]ATTACH/Basic {F} Energy/->Mega Kangaskhan ex
+    ours : [2]PLAY/Energy Switch
+  84926740 zoroark190 MAIN
+    human: [3]ATTACK/Rapid-Fire Combo
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84926740 zoroark190 TO_HAND
+    human: [3]CARD
+    ours : [0]CARD
+  84926740 zoroark190 TO_ACTIVE
+    human: [1]CARD/Latias ex
+    ours : [2]CARD/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [4]PLAY/Lillie’s Clefairy ex
+    ours : [9]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [1]PLAY/Meowth ex
+    ours : [9]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 TO_HAND
+    human: [0]CARD/Crispin
+    ours : [1]CARD/Boss’s Orders
+  84926740 zoroark190 MAIN
+    human: [8]PLAY/Crispin
+    ours : [9]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 TO_HAND
+    human: [1]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {W} Energy
+  84926740 zoroark190 ATTACH_TO
+    human: [2]CARD/Basic {P} Energy
+    ours : [0]CARD/Basic {W} Energy
+  84926740 zoroark190 ATTACH_FROM
+    human: [4]CARD/Lillie’s Clefairy ex
+    ours : [1]CARD/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [14]ABILITY/Teal Mask Ogerpon ex
+    ours : [13]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [5]ATTACH/Basic {G} Energy/->Lillie’s Clefairy ex
+    ours : [7]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [0]RETREAT
+    ours : [1]END
+  84926740 zoroark190 SWITCH
+    human: [3]CARD/Lillie’s Clefairy ex
+    ours : [1]CARD/Teal Mask Ogerpon ex

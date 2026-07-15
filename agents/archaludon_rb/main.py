@@ -99,7 +99,9 @@ ITEMS = {POKE_PAD, ULTRA_BALL, POKEGEAR, NIGHT_STRETCHER, JUMBO_ICE_CREAM, HERO_
 
 class ArchaludonPolicy(BasePolicy):
     DECK_NAME = "archaludon_cityleague"
-    GO_FIRST = False           # R-21 暫定: 参照実装は後攻。上位ピロットのデータで要確認
+    GO_FIRST = True            # R-21 → div-A1【ソフト・暫定 2026-07-11】上位ピロット実選択で確認:
+                               # 07-08 YES7/NO3, 07-09 YES8/NO3（07-06/07 含む4日計 YES22/NO8）。
+                               # 参照実装の後攻(False)を先攻(True)に反転
     TAKE_MULLIGAN = True       # R-22【ハード・ユーザー決定 2026-07-07】常にマックス引く
                                # （参照実装・keidroid は NO だったが、ユーザー決定が優先。
                                #   注意: ラダーで凍結中の v1(879.7) は NO のまま）
@@ -344,6 +346,11 @@ class ArchaludonPolicy(BasePolicy):
         cid = card.id if card else None
         ids = hand_ids(obs)
 
+        # div-A3【棄却 2026-07-11】セットアップ停滞時（t15+ サブゴール未達）に展開・アイテム掘りを
+        # -200/-300 に落とす案は両調整日 MAIN -2 で悪化 → 差し戻し。END 大量クラスタの主因は
+        # 変種（アルティクノ壁+手札リサイクル）スタルロック1ゲームの attach 拒否であり移植不能。
+        # 詳細は 設計md divergence 節の div-A3 を参照
+
         if cid in {DURALUDON, RELICANTH}:
             return 18000, "S-3: play Pokemon"
 
@@ -351,7 +358,8 @@ class ArchaludonPolicy(BasePolicy):
             active = active_pokemon(obs)
             if active and active.id not in {DURALUDON, ARCHALUDON_EX}:
                 return -200, "skip FML: Active not Metal"
-            return 20000, "play Full Metal Lab"
+            # div-A4: スタジアムは盤面アクション（展開 7x/10x・手張り 4x/6x・進化 4x/3x）より後
+            return 17500, "play Full Metal Lab"
 
         if cid in ITEMS:
             if cid == HERO_CAPE:
@@ -388,7 +396,10 @@ class ArchaludonPolicy(BasePolicy):
                 if self._safe_discard_count(obs) >= 2 and (self._need_archaludon(obs) or self._need_duraludon(obs)):
                     return 20000, "Ultra Ball: search line"
                 return -1000, "skip Ultra Ball"
-            return 20000, "play item"
+            # div-A4【ソフト・暫定 2026-07-11】盤面アクション優先: 上位ピロットは
+            # エネ手張り(29x/26x)・ポケモン展開(21x/22x)をアイテムより先に行う（両調整日とも逆方向0件）。
+            # 20000 → 17800 で attach(18500+)・play Pokemon(18000) の下、FML(17500) の上に配置
+            return 17800, "div-A4: play item (after board actions)"
 
         if cid == EXPLORER:
             if obs.current.supporterPlayed:
@@ -552,7 +563,12 @@ class ArchaludonPolicy(BasePolicy):
         if obs.current.energyAttached:
             return -1000, "already attached"
 
-        return self.attach_target_score(obs, target, opt.inPlayArea), "S-5: attach Metal"
+        base = self.attach_target_score(obs, target, opt.inPlayArea)
+        if base > 0:
+            # div-A4: 有効ターゲットへの手張りはアイテム・展開より先（human=ATTACH/ours=ITEM
+            # 29x/26x・逆方向0件）。ターゲット間の相対順序は base//10 で保存
+            return 18500 + base // 10, "S-5: attach Metal (div-A4 board-first)"
+        return base, "S-5: attach Metal"
 
     # ── RETREAT ──
 
@@ -606,10 +622,15 @@ class ArchaludonPolicy(BasePolicy):
             return 20000, "take Archaludon ex"
         if cid == DURALUDON and self._need_duraludon(obs):
             return 18000, "take Duraludon"
+        if cid == DURALUDON:
+            # div-A5【ソフト・暫定 2026-07-11】場に2体いても上位ピロットはジュラルドンを
+            # 追加確保する（human=Duraludon/ours=Relicanth: 07-08 2件, 07-09 3件, 07-06/07 も同傾向）
+            return 8200, "div-A5: stockpile Duraludon"
         if cid == CINDERACE:
             return -2000, "skip Cinderace (Explosiveness only)"
         if cid == RELICANTH and not has_in_play(obs, RELICANTH):
-            return 9000, "take Relicanth"
+            # div-A5: 9000 → 7800。鋼エネ(8000)より下（human=Metal/ours=Relicanth 07-08 3件）
+            return 7800, "div-A5: take Relicanth (deprioritized)"
         if cid == METAL_ENERGY:
             return 8000, "take Metal Energy"
         if cid == EXPLORER and not obs.current.supporterPlayed:
@@ -638,10 +659,18 @@ class ArchaludonPolicy(BasePolicy):
         if effect_id == ULTRA_BALL:
             mh = ids.count(METAL_ENERGY)
             if cid == METAL_ENERGY:
+                # div-A2【ソフト・暫定 2026-07-11】UB コストは鋼2枚ペアが人間の定跡:
+                # 07-08 8件 / 07-09 7件でユーティリティ(8500)や余剰サポ(12000)より
+                # 2枚目の鋼を優先（逆方向は crustle 対面の2件のみ → crustle は除外）
+                metal_first = self.t["matchup"] != "crustle"
                 if mtd < 2 and mh >= 1:
                     if getattr(opt, 'index', None) == first_option_index(obs, METAL_ENERGY):
                         return 20000, "S-4: UB discard 1st Metal (fuel Alloy)"
+                    if metal_first:
+                        return 13000, "div-A2: UB 2nd Metal (pair with 1st)"
                     return 8000, "UB: 2nd Metal"
+                if metal_first:
+                    return 9000, "div-A2: UB Metal over utility"
                 return 8000, "UB: Metal"
             if cid == CINDERACE:
                 return (18000, "UB: Cinderace") if (mtd >= 2 or mh == 0) else (14000, "UB: Cinderace")

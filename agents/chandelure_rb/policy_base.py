@@ -106,7 +106,9 @@ def load_theta():
         return {}
 
 # R-01 検査用カウンタ（check_agent が main.DIAG 経由で読む）
-DIAG = {"decisions": 0, "policy_ok": 0, "errors": 0, "option_errors": 0}
+DIAG = {"decisions": 0, "policy_ok": 0, "errors": 0, "option_errors": 0,
+        "search_calls": 0, "search_used": 0, "search_errors": 0,
+        "net_calls": 0, "net_used": 0, "net_errors": 0}
 
 
 # ═══════════════════════════════ 盤面ヘルパー（判定の材料） ═══════════════════════════════
@@ -326,6 +328,19 @@ class BasePolicy(ABC):
     SELF_SCALING_ATTACK_IDS = frozenset()   # R-10 例外（エネ枚数で打点が伸びる技）
     ATTACK_ENERGY_TYPE = None               # 弱点計算に使う自軍の攻撃タイプ（EnergyType値）
 
+    # ── ターン内探索（turn_search.py。既定 OFF = 挙動不変） ──
+    SEARCH = False                    # マスタースイッチ（インスタンスは search_enabled）
+    SEARCH_MODE = "rollout"           # "rollout"（基準線）| "value"（V(s) 葉。npz 必須）
+    SEARCH_TIME_PER_DECISION = 1.0    # 秒/決定（rollout ≈30本、value は決定化8回で早期終了）
+    SEARCH_GAME_BUDGET = 240.0        # 秒/試合の累計上限（R-23: 600秒プールへの安全マージン）
+    SEARCH_MIN_OVERAGE = 120.0        # remainingOverageTime がこれ未満なら探索しない（R-23）
+    SEARCH_MAX_CANDIDATES = 5         # 探索する候補手の数（ルールスコア上位から）
+    SEARCH_MIN_CANDIDATES = 2         # 正帯の候補がこれ未満なら探索しない
+    SEARCH_SKIP_MARGIN = 8000         # ルールの1位2位差がこれ以上なら探索しない（自明な手）
+
+    # ── 方策ネット（policy_net.py。npz 不在 = 挙動不変） ──
+    NET_MAX_CANDIDATES = 12           # 再ランクする候補手の数（ルールスコア上位から）
+
     _REQUIRED = ("DECK_NAME", "GO_FIRST", "TAKE_MULLIGAN",
                  "ATTACKER_IDS", "ENERGY_IDS", "LINE_PROTECT_IDS")
 
@@ -350,12 +365,36 @@ class BasePolicy(ABC):
         # 学習済みルール強度 θ（reason → 加算値）。theta.json 不在なら {} = 素通し。
         # 訓練ハーネスは policy.theta = candidate_dict の直接代入で差し替えられる。
         self.theta = load_theta()
+        # ターン内探索（turn_search.py）。search_enabled は実行時に注入可能
+        # （gauntlet --search が代入する。SEARCH=False のクラスでも A/B 可能）。
+        self.search_enabled = bool(self.SEARCH)
+        self.my_deck_list = None          # make_agent のデッキ選択時 or ハーネスが注入
+        self.overage_remaining = None     # make_agent が obs_dict から毎手更新（R-23）
+        self._search_time_used = 0.0
+        self._searcher = None
+        # 方策ネット（policy_net.py）。既定 = agent dir の policy_net.npz を遅延ロード
+        # （不在なら None = 挙動不変）。訓練/評価ハーネスは以下を直接注入できる:
+        #   policy._net = PolicyNet相当   … 重み差し替え（gauntlet --net / train_ppo）
+        #   policy.net_enabled = False    … A/B の OFF 側
+        #   policy.net_sample = True + policy.net_rng … softmax サンプリング（訓練時のみ）
+        #   policy.net_log = []           … 遷移ログの受け皿（X/k/logp。訓練時のみ）
+        self._net = None
+        self._net_load_tried = False
+        self.net_enabled = True
+        self.net_sample = False
+        self.net_rng = None
+        self.net_log = None
 
     # ── ゲーム間リセット（obs.select is None = デッキ選択 = 新ゲーム） ──
     def reset_game(self):
         self._opp_last_attack_id = None
         self._cur_turn_logs = []
         self.t = {"phase": "setup", "lethal": None, "threats": [], "matchup": "generic"}
+        self._search_time_used = 0.0
+        if self._searcher is not None:
+            for p in (self._searcher._pilot_self, self._searcher._pilot_opp):
+                if p is not None:
+                    p.reset_game()
 
     def track_logs(self, obs):
         # R-17: TURN_END で区切って相手の最終攻撃を記録
@@ -659,6 +698,172 @@ class BasePolicy(ABC):
         self.t["lethal"] = self.judge_lethal(obs)                          # R-07
         self.t["threats"] = self.judge_loss_threats(obs)                   # R-08
 
+    def _sequencing_override(self, obs, scored):
+        """R-26/R-28（2026-07-13 新設）: ドロー系プレイの直前に「先に済ませるべき手」を
+        割り込ませる。リプレイ 85690212 の一般不具合（手張り権を残したままアンフェア
+        スタンプ）の対策。デッキ毎のスコア帯に依存しない「正帯同士の順序入れ替え」のみ:
+        ドロー札は選ばれ損ねるのではなく、割り込んだ手の実行後の決定で再び最上位に残る。
+
+          R-26 手張り先行: 手札リフレッシュ札（アンフェアスタンプ/リーリエ等 = 手札を
+               山へ戻す）を打つ前に、未使用のエネ手張りを済ませる（戻すと手札のエネが
+               山へ消える。先に張れば確実に1加速）。
+          R-28 山札圧縮先行: ドロー札の前に山札圧縮アイテム（確定サーチ）を使い、
+               山の質を上げる。手札リフレッシュの前は盤面直行サーチ（ポフィン等）のみ
+               （手札行きサーチは戻されて無駄）。相手が LO アーキタイプと確認できたら
+               （R-20）停止 — LO 相手では山札=寿命なので不要な山消費をしない。
+
+        聖域との関係: リーサル成立時は発動しない（R-07 の昇格が常に勝つ）。対象も
+        割り込み先も正帯のみ = マスク（負帯）の解除は構造上ない。"""
+        if obs.select.context != SelectContext.MAIN or obs.select.maxCount != 1:
+            return None
+        if self.t["lethal"] is not None:
+            return None
+        if not scored:
+            return None
+        top_score, top_i, _ = scored[0]
+        if not (0 < top_score < LETHAL_BAND - 1):
+            return None
+        top_opt = obs.select.option[top_i]
+        if top_opt.type != OptionType.PLAY:
+            return None
+        card = option_card(obs, top_opt)
+        if card is None:
+            return None
+        refresh = card.id in mt.HAND_REFRESH_IDS
+        if not refresh and card.id not in mt.DRAW_SUPPORT_IDS:
+            return None
+
+        # R-26: エネ手張りが未使用なら先に張る（最上位の正帯 ATTACH エネを採用）
+        if refresh and not obs.current.energyAttached:
+            for s, i, _ in scored[1:]:
+                if s <= 0:
+                    break
+                o = obs.select.option[i]
+                if o.type == OptionType.ATTACH:
+                    c = option_card(obs, o)
+                    if c is not None and c.id in self.ENERGY_IDS:
+                        return i, "R-26: attach before hand refresh"
+
+        # R-28: 圧縮アイテムを先に使う（LO 相手と確認できたら停止）
+        if self.t["matchup"] in mt.LO_ARCHETYPES:
+            return None
+        thin_ids = (mt.THIN_TO_BOARD_IDS if refresh
+                    else (mt.THIN_TO_BOARD_IDS | mt.THIN_TO_HAND_IDS))
+        for s, i, _ in scored[1:]:
+            if s <= 0:
+                break
+            o = obs.select.option[i]
+            if o.type == OptionType.PLAY:
+                c = option_card(obs, o)
+                if c is not None and c.id in thin_ids:
+                    return i, "R-28: thin deck before draw"
+        return None
+
+    def _maybe_search(self, obs, scored):
+        """ターン内探索の許可判定と実行。探索しない/できない/失敗 → None（ルール順位のまま）。
+
+        聖域との関係: リーサル成立時（t["lethal"]）は探索しない = R-07 の昇格が常に勝つ。
+        候補は正帯（score >= 0）のみ = マスク（負帯）を探索が復活させることは構造上ない。"""
+        if not self.search_enabled:
+            return None
+        if self.t["lethal"] is not None:
+            return None
+        if obs.select.context != SelectContext.MAIN or obs.select.maxCount != 1:
+            return None
+        cands = [(i, s) for s, i, r in scored if 0 <= s < 100_000]
+        cands = cands[:self.SEARCH_MAX_CANDIDATES]
+        if len(cands) < self.SEARCH_MIN_CANDIDATES:
+            return None
+        if cands[0][1] - cands[1][1] >= self.SEARCH_SKIP_MARGIN:
+            return None                   # ルールが確信している自明な手
+        if self._search_time_used >= self.SEARCH_GAME_BUDGET:
+            return None
+        if (self.overage_remaining is not None
+                and self.overage_remaining < self.SEARCH_MIN_OVERAGE):
+            return None
+        DIAG["search_calls"] += 1
+        try:
+            if self._searcher is None:
+                # 遅延 import（起動時の失敗を探索時に局所化 = R-01）。ローカル評価で複数
+                # エージェントを同一プロセスに載せると sys.path 順で他機の copy に解決される
+                # ことがあるが、sync_base がハッシュ同一を保証しているため無害。
+                import turn_search
+                self._searcher = turn_search.TurnSearcher(self)
+            best = self._searcher.choose_root(obs, cands)
+        except Exception:
+            DIAG["search_errors"] += 1
+            import traceback
+            DIAG["last_search_error"] = traceback.format_exc(limit=5)
+            return None
+        if best is None:
+            return None
+        DIAG["search_used"] += 1
+        return best
+
+    def _ensure_net(self):
+        """policy_net.npz の遅延ロード（1回だけ試す）。訓練/評価ハーネスが self._net を
+        直接注入している場合はそれを使う。不在・版不一致・例外 → None = ルール順位。"""
+        if self._net is not None or self._net_load_tried:
+            return self._net
+        self._net_load_tried = True
+        try:
+            # 遅延 import（turn_search と同じ。他機 dir の copy に解決されても
+            # sync_base がハッシュ同一を保証。npz はポリシー基準のパスから読む）
+            import policy_net
+            self._net = policy_net.load_for_policy(self)
+        except Exception:
+            self._net = None
+        return self._net
+
+    def _maybe_net(self, obs, scored):
+        """方策ネットによる候補再ランク。対象外/不在/失敗 → None（ルール順位のまま）。
+
+        聖域との関係は探索と同一: リーサル成立時は呼ばない（R-07 の昇格が常に勝つ）、
+        候補は正帯（0 <= score < 100_000）のみ = マスク（負帯）の復活は構造上ない。
+        デプロイは argmax（決定的）。net_sample はハーネス専用（訓練時の探索）。"""
+        if not self.net_enabled:
+            return None
+        if self.t["lethal"] is not None:
+            return None
+        if obs.select.context != SelectContext.MAIN or obs.select.maxCount != 1:
+            return None
+        cands = [(i, s, r) for s, i, r in scored if 0 <= s < 100_000]
+        cands = cands[:self.NET_MAX_CANDIDATES]
+        if len(cands) < 2:
+            return None
+        net = self._ensure_net()
+        if net is None:
+            return None
+        DIAG["net_calls"] += 1
+        try:
+            import numpy as np
+            X = net.features(obs, cands)
+            logits = net.logits(X)
+            z = logits - logits.max()
+            p = np.exp(z)
+            p /= p.sum()
+            if self.net_sample and self.net_rng is not None:
+                k = int(self.net_rng.choice(len(p), p=p))
+            else:
+                k = int(np.argmax(logits))
+            if self.net_log is not None:
+                self.net_log.append({
+                    "X": X,
+                    "k": k,
+                    "logp": float(np.log(max(float(p[k]), 1e-12))),
+                    "cand_idx": [i for i, _, _ in cands],
+                    "reasons": [r for _, _, r in cands],
+                    "scores": [s for _, s, _ in cands],
+                    "turn": getattr(obs.current, "turn", None),
+                })
+        except Exception:
+            DIAG["net_errors"] += 1
+            import traceback
+            DIAG["last_net_error"] = traceback.format_exc(limit=5)
+            return None
+        DIAG["net_used"] += 1
+        return cands[k][0]
+
     def choose(self, obs):
         # 判定は毎手番・常時実行（安いので常時。反応の強弱はフェーズと優先則側で制御）
         self.update_belief(obs)
@@ -673,6 +878,34 @@ class BasePolicy(ABC):
             scored.append((score, i, reason))
 
         scored.sort(key=lambda x: (x[0], -x[1]), reverse=True)
+
+        # R-26/R-28: ドロー系プレイの前の順序割り込み（決定的ルール = 探索/ネットより先）
+        seq = self._sequencing_override(obs, scored)
+        if seq is not None:
+            selected = [seq[0]]
+            if self.decision_log is not None:
+                rec = self._decision_record(obs, scored, selected, False)
+                rec["sequencing"] = seq[1]
+                self.decision_log.append(rec)
+            return selected
+
+        # ターン内探索（許可条件を満たす MAIN のみ。失敗は必ずルール順位に縮退 = R-01）
+        best_search = self._maybe_search(obs, scored)
+        if best_search is not None:
+            selected = [best_search]
+            if self.decision_log is not None:
+                self.decision_log.append(
+                    self._decision_record(obs, scored, selected, False))
+            return selected
+
+        # 方策ネット（探索と同じ許可条件。npz 不在なら常に None = 挙動不変）
+        best_net = self._maybe_net(obs, scored)
+        if best_net is not None:
+            selected = [best_net]
+            if self.decision_log is not None:
+                self.decision_log.append(
+                    self._decision_record(obs, scored, selected, False))
+            return selected
 
         # 負スコア = minCount 超過分では選ばない（マスクの表現）
         selected = []
@@ -735,10 +968,17 @@ def make_agent(policy_cls):
     def agent(obs_dict):
         DIAG["decisions"] += 1
         try:
+            try:
+                policy.overage_remaining = obs_dict.get("remainingOverageTime")
+            except AttributeError:
+                policy.overage_remaining = getattr(
+                    obs_dict, "remainingOverageTime", None)
             obs = to_observation_class(obs_dict)
             if obs.select is None:
                 policy.reset_game()
-                return read_deck_csv()
+                deck = read_deck_csv()
+                policy.my_deck_list = list(deck)   # 探索の決定化に使う自リスト
+                return deck
             policy.track_logs(obs)
             if not obs.select.option:
                 return []

@@ -1,0 +1,953 @@
+games=50 pilots={'bono(1088)': 17, 'junlee789(1042)': 15, 'zoroark190(1086)': 18}
+
+TOTAL agree 1301/3172 = 41.0%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 600/1956 = 31%
+                   TO_HAND: 211/450 = 47%
+                    SWITCH: 63/137 = 46%
+                   DISCARD: 7/57 = 12%
+               ATTACH_FROM: 42/82 = 51%
+                 ATTACH_TO: 109/132 = 83%
+                 TO_ACTIVE: 46/66 = 70%
+       SETUP_BENCH_POKEMON: 15/29 = 52%
+        SWITCH_ENERGY_CARD: 10/22 = 45%
+       DISCARD_ENERGY_CARD: 1/13 = 8%
+                EVOLVES_TO: 9/17 = 53%
+      SETUP_ACTIVE_POKEMON: 45/50 = 90%
+               SKILL_ORDER: 14/19 = 74%
+             SWITCH_ENERGY: 5/10 = 50%
+                  TO_BENCH: 27/30 = 90%
+                    DAMAGE: 3/6 = 50%
+            DISCARD_ENERGY: 4/6 = 67%
+                DRAW_COUNT: 7/7 = 100%
+                  IS_FIRST: 25/25 = 100%
+                  ACTIVATE: 40/40 = 100%
+            TO_DECK_ENERGY: 18/18 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 25}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   28x            TO_HAND: human=[2]CARD  ours=[0]CARD
+   20x            TO_HAND: human=[1]CARD  ours=[0]CARD
+   14x            TO_HAND: human=[4]CARD  ours=[0]CARD
+   14x          ATTACH_TO: human=[1]CARD/Basic  ours=[0]CARD/Basic
+   12x               MAIN: human=[1]END  ours=[0]PLAY/Switch
+   12x               MAIN: human=[1]END  ours=[0]PLAY/Mega
+   11x               MAIN: human=[2]ATTACK/Superb  ours=[0]PLAY/Mega
+   10x SETUP_BENCH_POKEMON: human=[0]CARD/Dwebble  ours=(none)
+    8x               MAIN: human=[1]ATTACK/Superb  ours=[0]PLAY/Mega
+    8x               MAIN: human=[4]END  ours=[0]PLAY/Mega
+    7x            TO_HAND: human=[3]CARD  ours=[0]CARD
+    7x               MAIN: human=[3]ATTACK/Rapid-Fire  ours=[2]ABILITY/Mega
+    6x               MAIN: human=[0]PLAY/Buddy-Buddy  ours=[1]PLAY/Mega
+    6x               MAIN: human=[2]END  ours=[0]PLAY/Mega
+    6x            TO_HAND: human=[0]CARD/Basic  ours=[1]CARD/Basic
+    6x         EVOLVES_TO: human=[1]CARD/Crustle  ours=[0]CARD/Crustle
+    5x        SKILL_ORDER: human=[1]SKILL  ours=[0]SKILL
+    5x            TO_HAND: human=[0]CARD  ours=[0]CARD
+    5x               MAIN: human=[1]END  ours=[0]PLAY/Ultra
+    5x               MAIN: human=[3]END  ours=[0]PLAY/Mega
+
+-- 不一致サンプル --
+  84743036 bono SETUP_ACTIVE_POKEMON
+    human: [0]CARD/Dwebble
+    ours : [1]CARD/Mega Kangaskhan ex
+  84743036 bono SETUP_BENCH_POKEMON
+    human: [0]CARD/Mega Kangaskhan ex
+    ours : (none)
+  84743036 bono MAIN
+    human: [8]PLAY/Hilda
+    ours : [2]PLAY/Pokégear 3.0
+  84743036 bono TO_HAND
+    human: [2]CARD/Mist Energy
+    ours : [8]CARD/Basic {G} Energy
+  84743036 bono MAIN
+    human: [0]ATTACH/Grow Grass Energy/->Dwebble
+    ours : [2]PLAY/Pokégear 3.0
+  84743036 bono MAIN
+    human: [1]ATTACH/Hero’s Cape/->Dwebble
+    ours : [0]PLAY/Pokégear 3.0
+  84743036 bono MAIN
+    human: [2]ATTACK/Ascension
+    ours : [0]PLAY/Pokégear 3.0
+  84743036 bono MAIN
+    human: [3]ATTACH/Mist Energy/->Mega Kangaskhan ex
+    ours : [0]PLAY/Pokégear 3.0
+  84743036 bono MAIN
+    human: [1]PLAY/Buddy-Buddy Poffin
+    ours : [0]PLAY/Pokégear 3.0
+  84743036 bono MAIN
+    human: [3]PLAY/Lisia’s Appeal
+    ours : [0]PLAY/Team Rocket's Petrel
+  84743036 bono MAIN
+    human: [3]ATTACH/Spiky Energy/->Mega Kangaskhan ex
+    ours : [0]EVOLVE/Crustle/->Dwebble
+  84743036 bono MAIN
+    human: [2]END
+    ours : [0]EVOLVE/Crustle/->Dwebble
+  84743036 bono MAIN
+    human: [6]ATTACH/Mist Energy/->Mega Kangaskhan ex
+    ours : [0]PLAY/Team Rocket's Petrel
+  84743036 bono MAIN
+    human: [1]EVOLVE/Crustle/->Dwebble
+    ours : [6]ATTACK/Rapid-Fire Combo
+  84743036 bono MAIN
+    human: [0]PLAY/Team Rocket's Petrel
+    ours : [4]ATTACK/Rapid-Fire Combo
+  84743036 bono TO_HAND
+    human: [11]CARD/Hand Trimmer
+    ours : [0]CARD/Handheld Fan
+  84743036 bono MAIN
+    human: [0]PLAY/Hand Trimmer
+    ours : [1]ATTACK/Rapid-Fire Combo
+  84743036 bono MAIN
+    human: [3]EVOLVE/Crustle/->Dwebble
+    ours : [8]ATTACK/Rapid-Fire Combo
+  84743036 bono MAIN
+    human: [3]ATTACH/Handheld Fan/->Mega Kangaskhan ex
+    ours : [7]ATTACK/Rapid-Fire Combo
+  84743036 bono MAIN
+    human: [1]PLAY/Boss’s Orders
+    ours : [4]ATTACK/Rapid-Fire Combo
+  84743036 bono TO_HAND
+    human: [4]CARD
+    ours : [0]CARD
+  84743036 bono MAIN
+    human: [4]PLAY/Buddy-Buddy Poffin
+    ours : [5]PLAY/Mega Kangaskhan ex
+  84743036 bono MAIN
+    human: [5]ATTACK/Rapid-Fire Combo
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84743036 bono MAIN
+    human: [5]ATTACH/Mist Energy/->Mega Kangaskhan ex
+    ours : [8]ABILITY/Mega Kangaskhan ex
+  84743036 bono MAIN
+    human: [7]ATTACK/Rapid-Fire Combo
+    ours : [6]ABILITY/Mega Kangaskhan ex
+  84743036 bono MAIN
+    human: [6]PLAY/Hilda
+    ours : [7]ABILITY/Mega Kangaskhan ex
+  84743036 bono TO_HAND
+    human: [3]CARD/Mist Energy
+    ours : [5]CARD/Basic {G} Energy
+  84743036 bono MAIN
+    human: [2]ATTACH/Mist Energy/->Crustle
+    ours : [3]ABILITY/Mega Kangaskhan ex
+  84743036 bono MAIN
+    human: [2]ATTACK/Rapid-Fire Combo
+    ours : [1]ABILITY/Mega Kangaskhan ex
+  84743039 junlee789 SETUP_BENCH_POKEMON
+    human: [0]CARD/Dwebble
+    ours : (none)
+  84743039 junlee789 MAIN
+    human: [4]ATTACH/Spiky Energy/->Dwebble
+    ours : [5]ABILITY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [8]EVOLVE/Crustle/->Dwebble
+    ours : [9]ABILITY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [0]PLAY/Team Rocket's Petrel
+    ours : [9]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 TO_HAND
+    human: [11]CARD/Hero’s Cape
+    ours : [0]CARD/Team Rocket's Petrel
+  84743039 junlee789 MAIN
+    human: [3]ATTACH/Spiky Energy/->Crustle
+    ours : [5]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [3]ATTACH/Hero’s Cape/->Crustle
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ABILITY/Team Rocket's Factory
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [0]PLAY/Buddy-Buddy Poffin
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 TO_BENCH
+    human: [0]CARD/Dwebble
+    ours : [0]CARD/Dwebble [1]CARD/Dwebble
+  84743039 junlee789 MAIN
+    human: [2]END
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [9]ATTACH/Basic {G} Energy/->Crustle
+    ours : [14]ABILITY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [4]PLAY/Switch
+    ours : [5]ABILITY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [0]PLAY/Boss’s Orders
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [1]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [3]PLAY/Boss’s Orders
+    ours : [5]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [6]ATTACH/Grow Grass Energy/->Dwebble
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [6]EVOLVE/Crustle/->Dwebble
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ATTACH/Mist Energy/->Crustle
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [0]PLAY/Hilda
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 TO_HAND
+    human: [1]CARD/Grow Grass Energy
+    ours : [0]CARD/Mist Energy
+  84743039 junlee789 MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ATTACH/Grow Grass Energy/->Crustle
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ATTACH/Spiky Energy/->Crustle
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [3]ATTACH/Mist Energy/->Mega Kangaskhan ex
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]PLAY/Boss’s Orders
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [3]PLAY/Jumbo Ice Cream
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [0]PLAY/Jumbo Ice Cream
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [4]ATTACH/Spiky Energy/->Crustle
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [1]PLAY/Buddy-Buddy Poffin
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 TO_BENCH
+    human: (none)
+    ours : [0]CARD/Dwebble
+  84743039 junlee789 MAIN
+    human: [1]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 TO_HAND
+    human: [4]CARD [2]CARD [0]CARD
+    ours : [0]CARD [1]CARD [2]CARD
+  84743039 junlee789 MAIN
+    human: [2]PLAY/Pokégear 3.0
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [3]PLAY/Lillie's Determination
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [3]ATTACH/Grow Grass Energy/->Crustle
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [0]PLAY/Community Center
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ABILITY/Community Center
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743039 junlee789 MAIN
+    human: [2]ABILITY/Community Center
+    ours : [0]PLAY/Ultra Ball
+  84743039 junlee789 MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Ultra Ball
+  84743039 junlee789 MAIN
+    human: [0]PLAY/Eri
+    ours : [3]PLAY/Ultra Ball
+  84743039 junlee789 DISCARD
+    human: [1]CARD [2]CARD
+    ours : [0]CARD [1]CARD
+  84743039 junlee789 MAIN
+    human: [3]ABILITY/Community Center
+    ours : [0]PLAY/Ultra Ball
+  84743039 junlee789 MAIN
+    human: [3]ATTACK/Superb Scissors
+    ours : [0]PLAY/Ultra Ball
+  84743039 junlee789 SKILL_ORDER
+    human: [1]SKILL [0]SKILL [2]SKILL
+    ours : [0]SKILL [1]SKILL [2]SKILL
+  84743039 junlee789 TO_ACTIVE
+    human: [1]CARD/Crustle
+    ours : [0]CARD/Mega Kangaskhan ex
+  84743039 junlee789 TO_HAND
+    human: [0]CARD [2]CARD [1]CARD
+    ours : [0]CARD [1]CARD [2]CARD
+  84743044 junlee789 MAIN
+    human: [0]PLAY/Buddy-Buddy Poffin
+    ours : [7]ABILITY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [6]ATTACH/Handheld Fan/->Dwebble
+    ours : [0]PLAY/Xerosic’s Machinations
+  84743044 junlee789 MAIN
+    human: [2]END
+    ours : [0]PLAY/Community Center
+  84743044 junlee789 MAIN
+    human: [6]EVOLVE/Crustle/->Dwebble
+    ours : [7]PLAY/Ultra Ball
+  84743044 junlee789 MAIN
+    human: [4]PLAY/Lillie's Determination
+    ours : [5]PLAY/Ultra Ball
+  84743044 junlee789 MAIN
+    human: [2]ATTACH/Grow Grass Energy/->Crustle
+    ours : [3]PLAY/Pokégear 3.0
+  84743044 junlee789 MAIN
+    human: [2]END
+    ours : [0]PLAY/Pokégear 3.0
+  84743044 junlee789 MAIN
+    human: [7]ATTACH/Spiky Energy/->Crustle
+    ours : [8]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [1]PLAY/Eri
+    ours : [5]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [3]ABILITY/Community Center
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [3]END
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [9]ATTACH/Mist Energy/->Crustle
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [5]PLAY/Team Rocket's Petrel
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 TO_HAND
+    human: [13]CARD/Hero’s Cape
+    ours : [1]CARD/Switch
+  84743044 junlee789 MAIN
+    human: [4]ABILITY/Community Center
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [0]PLAY/Pokégear 3.0
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84743044 junlee789 MAIN
+    human: [0]PLAY/Buddy-Buddy Poffin
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 TO_BENCH
+    human: (none)
+    ours : [0]CARD/Dwebble
+  84743044 junlee789 MAIN
+    human: [2]END
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [5]ATTACH/Basic {G} Energy/->Crustle
+    ours : [10]ABILITY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [9]PLAY/Switch
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [8]PLAY/Pokégear 3.0
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 TO_HAND
+    human: [2]CARD
+    ours : [0]CARD
+  84743044 junlee789 MAIN
+    human: [6]PLAY/Eri
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [3]ABILITY/Community Center
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [3]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [3]PLAY/Team Rocket's Petrel
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 TO_HAND
+    human: [9]CARD/Jumbo Ice Cream
+    ours : [1]CARD/Hilda
+  84743044 junlee789 MAIN
+    human: [5]ABILITY/Community Center
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [5]ATTACK/Superb Scissors
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 TO_HAND
+    human: [2]CARD
+    ours : [0]CARD
+  84743044 junlee789 MAIN
+    human: [9]PLAY/Boss’s Orders
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 SWITCH
+    human: [0]CARD/Crustle
+    ours : [1]CARD/Crustle
+  84743044 junlee789 MAIN
+    human: [4]ATTACK/Superb Scissors
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 SWITCH_ENERGY
+    human: [1]ENERGY/Crustle
+    ours : [0]ENERGY/Crustle
+  84743044 junlee789 MAIN
+    human: [7]PLAY/Jumbo Ice Cream
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [2]PLAY/Jumbo Ice Cream
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [0]PLAY/Team Rocket's Petrel
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 TO_HAND
+    human: [9]CARD/Jumbo Ice Cream
+    ours : [0]CARD/Pokégear 3.0
+  84743044 junlee789 MAIN
+    human: [3]ABILITY/Team Rocket's Factory
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [4]ATTACH/Grow Grass Energy/->Crustle
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 MAIN
+    human: [3]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84743044 junlee789 TO_HAND
+    human: [2]CARD
+    ours : [0]CARD
+  84743044 junlee789 DISCARD
+    human: [4]CARD/Team Rocket's Factory [8]CARD/Mega Kangaskhan ex [6]CARD/Mega Kangaskhan ex [1]CARD/Mega Kangaskhan ex [7]CARD/Hilda [0]CARD/Boss’s Orders [2]CARD/Boss’s Orders [10]CARD/Spiky Energy [11]CARD/Spiky Energy
+    ours : [1]CARD/Mega Kangaskhan ex [0]CARD/Boss’s Orders [10]CARD/Spiky Energy [6]CARD/Mega Kangaskhan ex [2]CARD/Boss’s Orders [11]CARD/Spiky Energy [8]CARD/Mega Kangaskhan ex [3]CARD/Hero’s Cape [4]CARD/Team Rocket's Factory
+  84743044 junlee789 MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [2]ATTACK/Superb Scissors
+  84743044 junlee789 MAIN
+    human: [1]ATTACH/Grow Grass Energy/->Crustle
+    ours : [0]PLAY/Dwebble
+  84743044 junlee789 MAIN
+    human: [1]ATTACK/Superb Scissors
+    ours : [0]PLAY/Dwebble
+  84743044 junlee789 SWITCH_ENERGY
+    human: [1]ENERGY/Crustle
+    ours : [0]ENERGY/Crustle
+  84743044 junlee789 MAIN
+    human: [2]ATTACH/Hero’s Cape/->Dwebble
+    ours : [3]ATTACK/Superb Scissors
+  84743044 junlee789 TO_HAND
+    human: [3]CARD
+    ours : [0]CARD
+  84743044 junlee789 MAIN
+    human: [2]EVOLVE/Crustle/->Dwebble
+    ours : [3]ATTACK/Superb Scissors
+  84743044 junlee789 MAIN
+    human: [2]ATTACH/Grow Grass Energy/->Crustle
+    ours : [3]ATTACK/Superb Scissors
+  84743044 junlee789 TO_HAND
+    human: [2]CARD [1]CARD [0]CARD
+    ours : [0]CARD [1]CARD [2]CARD
+  84743046 bono SETUP_ACTIVE_POKEMON
+    human: [1]CARD/Dwebble
+    ours : [0]CARD/Mega Kangaskhan ex
+  84743046 bono SETUP_BENCH_POKEMON
+    human: [0]CARD/Mega Kangaskhan ex
+    ours : (none)
+  84743046 bono TO_HAND
+    human: [7]CARD/Grow Grass Energy
+    ours : [5]CARD/Basic {G} Energy
+  84743046 bono MAIN
+    human: [8]ATTACH/Grow Grass Energy/->Dwebble
+    ours : [12]END
+  84743046 bono TO_ACTIVE
+    human: [2]CARD/Dwebble
+    ours : [0]CARD/Mega Kangaskhan ex
+  84743046 bono MAIN
+    human: [6]EVOLVE/Crustle/->Dwebble
+    ours : [10]PLAY/Lillie's Determination
+  84743046 bono MAIN
+    human: [6]EVOLVE/Crustle/->Dwebble
+    ours : [7]PLAY/Lillie's Determination
+  84743046 bono MAIN
+    human: [1]PLAY/Pokégear 3.0
+    ours : [0]PLAY/Switch
+  84743046 bono MAIN
+    human: [1]PLAY/Team Rocket's Factory
+    ours : [0]PLAY/Switch
+  84743046 bono MAIN
+    human: [1]PLAY/Buddy-Buddy Poffin
+    ours : [0]PLAY/Switch
+  84743046 bono MAIN
+    human: [1]END
+    ours : [0]PLAY/Switch
+  84743046 bono MAIN
+    human: [4]PLAY/Boss’s Orders
+    ours : [7]PLAY/Mega Kangaskhan ex
+  84743046 bono MAIN
+    human: [1]ATTACH/Mist Energy/->Mega Kangaskhan ex
+    ours : [0]PLAY/Switch
+  84743046 bono SWITCH
+    human: [0]CARD/Crustle
+    ours : [1]CARD/Mega Kangaskhan ex
+  84743046 bono TO_HAND
+    human: [4]CARD/Hand Trimmer
+    ours : [1]CARD/Boss’s Orders
+  84743046 bono MAIN
+    human: [3]PLAY/Hand Trimmer
+    ours : [2]PLAY/Community Center
+  84743046 bono MAIN
+    human: [0]ATTACH/Mist Energy/->Mega Kangaskhan ex
+    ours : [2]END
+  84743095 zoroark190 MAIN
+    human: [3]PLAY/Cyrano
+    ours : [1]PLAY/Meowth ex
+  84743095 zoroark190 TO_HAND
+    human: [4]CARD/Latias ex [2]CARD/Mega Kangaskhan ex [0]CARD/Teal Mask Ogerpon ex
+    ours : [0]CARD/Teal Mask Ogerpon ex [2]CARD/Mega Kangaskhan ex [4]CARD/Latias ex
+  84743095 zoroark190 MAIN
+    human: [6]PLAY/Latias ex
+    ours : [8]ABILITY/Teal Mask Ogerpon ex
+  84743095 zoroark190 MAIN
+    human: [8]PLAY/Mega Kangaskhan ex
+    ours : [9]ABILITY/Teal Mask Ogerpon ex
+  84743095 zoroark190 MAIN
+    human: [10]ABILITY/Teal Mask Ogerpon ex
+    ours : [12]RETREAT
+  84743095 zoroark190 MAIN
+    human: [10]ABILITY/Spikemuth Gym
+    ours : [11]RETREAT
+  84743095 zoroark190 MAIN
+    human: [7]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [1]ATTACH/Basic {P} Energy/->Mega Kangaskhan ex
+  84743095 zoroark190 MAIN
+    human: [18]ABILITY/Spikemuth Gym
+    ours : [16]PLAY/Area Zero Underdepths
+  84743095 zoroark190 TO_HAND
+    human: [0]CARD/Basic {G} Energy
+    ours : [1]CARD/Basic {W} Energy
+  84743095 zoroark190 MAIN
+    human: [20]RETREAT
+    ours : [14]PLAY/Energy Switch
+  84743095 zoroark190 MAIN
+    human: [11]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [14]PLAY/Energy Switch
+  84743095 zoroark190 MAIN
+    human: [4]ATTACK/Myriad Leaf Shower
+    ours : [2]PLAY/Energy Switch
+  84743095 zoroark190 TO_HAND
+    human: [0]CARD [2]CARD
+    ours : [0]CARD [1]CARD
+  84743095 zoroark190 MAIN
+    human: [4]ATTACK/Myriad Leaf Shower
+    ours : [5]RETREAT
+  84743095 zoroark190 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84743095 zoroark190 DISCARD
+    human: [7]CARD/Xerosic’s Machinations [1]CARD/Basic {P} Energy
+    ours : [3]CARD/Energy Switch [0]CARD/Meowth ex
+  84743095 zoroark190 TO_HAND
+    human: [5]CARD/Wellspring Mask Ogerpon ex
+    ours : [4]CARD/Teal Mask Ogerpon ex
+  84743095 zoroark190 MAIN
+    human: [12]PLAY/Wellspring Mask Ogerpon ex
+    ours : [4]PLAY/Crispin
+  84743095 zoroark190 MAIN
+    human: [4]PLAY/Crispin
+    ours : [12]ATTACH/Basic {W} Energy/->Wellspring Mask Ogerpon ex
+  84743095 zoroark190 ATTACH_FROM
+    human: [5]CARD/Wellspring Mask Ogerpon ex
+    ours : [4]CARD/Raging Bolt ex
+  84743095 zoroark190 SWITCH
+    human: [4]CARD/Wellspring Mask Ogerpon ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84743095 zoroark190 MAIN
+    human: [2]PLAY/Energy Switch
+    ours : [6]ATTACK/Sob
+  84743095 zoroark190 SWITCH_ENERGY_CARD
+    human: [3]ENERGY_CARD/Mega Kangaskhan ex
+    ours : [0]ENERGY_CARD/Teal Mask Ogerpon ex
+  84743095 zoroark190 ATTACH_FROM
+    human: [0]CARD/Wellspring Mask Ogerpon ex
+    ours : [3]CARD/Raging Bolt ex
+  84743095 zoroark190 MAIN
+    human: [6]ATTACK/Torrential Pump
+    ours : [4]PLAY/Energy Switch
+  84743095 zoroark190 DAMAGE
+    human: [0]CARD/Munkidori
+    ours : [1]CARD/Marnie's Morpeko
+  84743095 zoroark190 TO_HAND
+    human: [2]CARD
+    ours : [0]CARD
+  84743095 zoroark190 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84743095 zoroark190 MAIN
+    human: [19]ABILITY/Teal Mask Ogerpon ex
+    ours : [20]RETREAT
+  84743095 zoroark190 SWITCH
+    human: [4]CARD/Teal Mask Ogerpon ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84743095 zoroark190 MAIN
+    human: [8]ATTACH/Basic {W} Energy/->Mega Kangaskhan ex
+    ours : [19]ATTACK/Myriad Leaf Shower
+  84743551 junlee789 MAIN
+    human: [2]PLAY/Buddy-Buddy Poffin
+    ours : [3]ABILITY/Mega Kangaskhan ex
+  84743551 junlee789 MAIN
+    human: [2]ATTACH/Basic {G} Energy/->Dwebble
+    ours : [1]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+  84743551 junlee789 MAIN
+    human: [1]END
+    ours : [0]PLAY/Community Center
+  84743551 junlee789 MAIN
+    human: [1]EVOLVE/Crustle/->Dwebble
+    ours : [9]ABILITY/Mega Kangaskhan ex
+  84743551 junlee789 MAIN
+    human: [2]ATTACH/Spiky Energy/->Crustle
+    ours : [7]ABILITY/Mega Kangaskhan ex
+  84743551 junlee789 TO_HAND
+    human: [1]CARD/Hero’s Cape
+    ours : [0]CARD/Team Rocket's Factory
+  84743551 junlee789 MAIN
+    human: [1]ATTACH/Hero’s Cape/->Crustle
+    ours : [3]END
+  84743551 junlee789 MAIN
+    human: [2]PLAY/Team Rocket's Petrel
+    ours : [9]ABILITY/Mega Kangaskhan ex
+  84743551 junlee789 TO_HAND
+    human: [20]CARD/Handheld Fan
+    ours : [0]CARD/Buddy-Buddy Poffin
+  84743551 junlee789 MAIN
+    human: [9]ATTACH/Mist Energy/->Crustle
+    ours : [14]END
+  84743551 junlee789 MAIN
+    human: [0]ATTACH/Handheld Fan/->Mega Kangaskhan ex
+    ours : [2]END
+  84743551 junlee789 SWITCH_ENERGY
+    human: [1]ENERGY/Okidogi
+    ours : [0]ENERGY/Okidogi
+  84743551 junlee789 ATTACH_FROM
+    human: [2]CARD/Solrock
+    ours : [0]CARD/Barbaracle
+  84743551 junlee789 MAIN
+    human: [1]PLAY/Boss’s Orders
+    ours : [8]PLAY/Ultra Ball
+  84743551 junlee789 SWITCH
+    human: [4]CARD/Lunatone
+    ours : [1]CARD/Lunatone
+  84743551 junlee789 MAIN
+    human: [2]ATTACH/Spiky Energy/->Crustle
+    ours : [6]PLAY/Ultra Ball
+  84743551 junlee789 MAIN
+    human: [1]ATTACK/Superb Scissors
+    ours : [0]PLAY/Ultra Ball
+  84743551 junlee789 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84743551 junlee789 SKILL_ORDER
+    human: [1]SKILL [0]SKILL
+    ours : [0]SKILL [1]SKILL
+  84743551 junlee789 MAIN
+    human: [1]PLAY/Jumbo Ice Cream
+    ours : [7]PLAY/Ultra Ball
+  84743551 junlee789 MAIN
+    human: [1]PLAY/Boss’s Orders
+    ours : [6]PLAY/Ultra Ball
+  84743551 junlee789 MAIN
+    human: [3]ATTACH/Grow Grass Energy/->Crustle
+    ours : [5]PLAY/Ultra Ball
+  84743551 junlee789 MAIN
+    human: [0]PLAY/Jumbo Ice Cream
+    ours : [1]PLAY/Ultra Ball
+  84743551 junlee789 MAIN
+    human: [3]ATTACK/Superb Scissors
+    ours : [0]PLAY/Ultra Ball
+  84743551 junlee789 TO_HAND
+    human: [4]CARD
+    ours : [0]CARD
+  84743551 junlee789 SKILL_ORDER
+    human: [1]SKILL [0]SKILL
+    ours : [0]SKILL [1]SKILL
+  84743551 junlee789 MAIN
+    human: [7]PLAY/Lisia’s Appeal
+    ours : [2]PLAY/Ultra Ball
+  84743551 junlee789 MAIN
+    human: [1]ATTACH/Spiky Energy/->Dwebble
+    ours : [2]PLAY/Ultra Ball
+  84743551 junlee789 MAIN
+    human: [1]PLAY/Hand Trimmer
+    ours : [0]PLAY/Ultra Ball
+  84743551 junlee789 MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Ultra Ball
+  84743551 junlee789 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84743551 junlee789 SKILL_ORDER
+    human: [1]SKILL [0]SKILL
+    ours : [0]SKILL [1]SKILL
+  84743551 junlee789 MAIN
+    human: [3]ATTACH/Grow Grass Energy/->Dwebble
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84743551 junlee789 MAIN
+    human: [2]ATTACK/Ascension
+    ours : [0]PLAY/Ultra Ball
+  84743551 junlee789 EVOLVES_TO
+    human: [1]CARD/Crustle
+    ours : [0]CARD/Crustle
+  84743551 junlee789 MAIN
+    human: [2]PLAY/Buddy-Buddy Poffin
+    ours : [0]PLAY/Ultra Ball
+  84743551 junlee789 MAIN
+    human: [4]PLAY/Hilda
+    ours : [0]PLAY/Ultra Ball
+  84743551 junlee789 TO_HAND
+    human: [4]CARD/Grow Grass Energy
+    ours : [0]CARD/Mist Energy
+  84743551 junlee789 MAIN
+    human: [3]ATTACH/Spiky Energy/->Dwebble
+    ours : [0]PLAY/Ultra Ball
+  84743551 junlee789 MAIN
+    human: [2]END
+    ours : [0]PLAY/Ultra Ball
+  84743552 junlee789 SETUP_BENCH_POKEMON
+    human: [0]CARD/Dwebble
+    ours : (none)
+  84743552 junlee789 MAIN
+    human: [0]ATTACH/Spiky Energy/->Mega Kangaskhan ex
+    ours : [2]PLAY/Ultra Ball
+  84743552 junlee789 MAIN
+    human: [1]PLAY/Mega Kangaskhan ex
+    ours : [0]PLAY/Ultra Ball
+  84743552 junlee789 MAIN
+    human: [1]END
+    ours : [0]PLAY/Ultra Ball
+  84743552 junlee789 MAIN
+    human: [1]PLAY/Hilda
+    ours : [0]PLAY/Hilda
+  84743552 junlee789 TO_HAND
+    human: [1]CARD/Crustle
+    ours : [0]CARD/Crustle
+  84743552 junlee789 TO_HAND
+    human: [4]CARD/Grow Grass Energy
+    ours : [9]CARD/Basic {G} Energy
+  84743552 junlee789 MAIN
+    human: [3]ATTACH/Grow Grass Energy/->Mega Kangaskhan ex
+    ours : [6]END
+  84743552 junlee789 MAIN
+    human: [10]PLAY/Dwebble
+    ours : [0]PLAY/Hilda
+  84743552 junlee789 MAIN
+    human: [4]ATTACH/Mist Energy/->Crustle
+    ours : [0]PLAY/Hilda
+  84743552 junlee789 MAIN
+    human: [3]PLAY/Xerosic’s Machinations
+    ours : [0]PLAY/Hilda
+  84743552 junlee789 MAIN
+    human: [9]PLAY/Pokégear 3.0
+    ours : [1]PLAY/Ultra Ball
+  84743552 junlee789 TO_HAND
+    human: [3]CARD
+    ours : [0]CARD
+  84743552 junlee789 MAIN
+    human: [0]PLAY/Hilda
+    ours : [1]PLAY/Ultra Ball
+  84743552 junlee789 TO_HAND
+    human: [7]CARD/Grow Grass Energy
+    ours : [5]CARD/Basic {G} Energy
+  84743552 junlee789 MAIN
+    human: [10]ATTACH/Grow Grass Energy/->Crustle
+    ours : [0]PLAY/Ultra Ball
+  84743552 junlee789 MAIN
+    human: [4]EVOLVE/Crustle/->Dwebble
+    ours : [0]PLAY/Ultra Ball
+  84743552 junlee789 MAIN
+    human: [2]PLAY/Community Center
+    ours : [0]PLAY/Ultra Ball
+  84743552 junlee789 MAIN
+    human: [2]ABILITY/Community Center
+    ours : [0]PLAY/Ultra Ball
+  84743552 junlee789 DISCARD
+    human: [6]CARD/Mega Kangaskhan ex [7]CARD/Hilda
+    ours : [6]CARD/Mega Kangaskhan ex [0]CARD/Jumbo Ice Cream
+  84743552 junlee789 TO_HAND
+    human: [0]CARD/Dwebble
+    ours : [1]CARD/Mega Kangaskhan ex
+  84743552 junlee789 MAIN
+    human: [0]PLAY/Dwebble
+    ours : [1]END
+  84743552 junlee789 MAIN
+    human: [8]PLAY/Pokégear 3.0
+    ours : [9]ABILITY/Mega Kangaskhan ex
+  84743552 junlee789 MAIN
+    human: [8]PLAY/Team Rocket's Petrel
+    ours : [0]PLAY/Eri
+  84743552 junlee789 TO_HAND
+    human: [8]CARD/Handheld Fan
+    ours : [1]CARD/Boss’s Orders
+  84743552 junlee789 MAIN
+    human: [8]ATTACH/Handheld Fan/->Crustle
+    ours : [0]EVOLVE/Crustle/->Dwebble
+  84743552 junlee789 MAIN
+    human: [1]ATTACH/Grow Grass Energy/->Crustle
+    ours : [6]END
+  84743552 junlee789 MAIN
+    human: [0]PLAY/Eri
+    ours : [6]ATTACK/Superb Scissors
+  84743552 junlee789 DISCARD
+    human: [1]CARD [0]CARD
+    ours : [0]CARD [1]CARD
+  84743552 junlee789 MAIN
+    human: [0]ATTACH/Grow Grass Energy/->Crustle
+    ours : [5]ATTACK/Superb Scissors
+  84743552 junlee789 MAIN
+    human: [1]PLAY/Hand Trimmer
+    ours : [2]ATTACK/Superb Scissors
+  84743565 zoroark190 MAIN
+    human: [3]END
+    ours : [1]PLAY/Raging Bolt ex
+  84743565 zoroark190 DISCARD
+    human: [0]CARD/Cyrano [6]CARD/Area Zero Underdepths [2]CARD/Boss’s Orders [1]CARD/Energy Switch
+    ours : [1]CARD/Energy Switch [3]CARD/Basic {L} Energy [0]CARD/Cyrano [4]CARD/Crispin
+  84743565 zoroark190 MAIN
+    human: [1]PLAY/Crispin
+    ours : [2]PLAY/Raging Bolt ex
+  84743565 zoroark190 TO_HAND
+    human: [0]CARD/Basic {W} Energy
+    ours : [3]CARD/Basic {G} Energy
+  84743565 zoroark190 ATTACH_TO
+    human: [2]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {L} Energy
+  84743565 zoroark190 MAIN
+    human: [6]END
+    ours : [2]PLAY/Area Zero Underdepths
+  84743565 zoroark190 MAIN
+    human: [7]END
+    ours : [2]PLAY/Area Zero Underdepths
+  84743565 zoroark190 MAIN
+    human: [2]PLAY/Area Zero Underdepths
+    ours : [0]ATTACH/Basic {L} Energy/->Raging Bolt ex
+  84743565 zoroark190 MAIN
+    human: [6]END
+    ours : [0]ATTACH/Basic {L} Energy/->Raging Bolt ex
+  84743565 zoroark190 MAIN
+    human: [4]END
+    ours : [3]ATTACH/Basic {P} Energy/->Latias ex
+  84744060 junlee789 SETUP_BENCH_POKEMON
+    human: [0]CARD/Dwebble
+    ours : (none)
+  84744060 junlee789 MAIN
+    human: [3]ATTACH/Spiky Energy/->Dwebble
+    ours : [8]END
+  84744060 junlee789 MAIN
+    human: [0]EVOLVE/Crustle/->Dwebble
+    ours : [11]ABILITY/Mega Kangaskhan ex
+  84744060 junlee789 MAIN
+    human: [7]ATTACH/Grow Grass Energy/->Crustle
+    ours : [9]ABILITY/Mega Kangaskhan ex
+  84744060 junlee789 MAIN
+    human: [1]PLAY/Team Rocket's Petrel
+    ours : [3]ABILITY/Mega Kangaskhan ex
+  84744060 junlee789 TO_HAND
+    human: [8]CARD/Hero’s Cape
+    ours : [2]CARD/Boss’s Orders
+  84744060 junlee789 MAIN
+    human: [1]ATTACH/Hero’s Cape/->Crustle
+    ours : [4]END
+  84744060 junlee789 MAIN
+    human: [3]ATTACH/Spiky Energy/->Crustle
+    ours : [11]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 MAIN
+    human: [4]PLAY/Boss’s Orders
+    ours : [5]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 SWITCH
+    human: [2]CARD/Latias ex
+    ours : [1]CARD/Meowth ex
+  84744060 junlee789 MAIN
+    human: [0]EVOLVE/Crustle/->Dwebble
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 MAIN
+    human: [1]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 MAIN
+    human: [4]PLAY/Eri
+    ours : [5]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 DISCARD
+    human: [2]CARD [1]CARD
+    ours : [0]CARD [1]CARD
+  84744060 junlee789 MAIN
+    human: [0]ATTACH/Spiky Energy/->Crustle
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 MAIN
+    human: [1]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 TO_ACTIVE
+    human: [1]CARD/Crustle
+    ours : [0]CARD/Crustle
+  84744060 junlee789 MAIN
+    human: [0]PLAY/Xerosic’s Machinations
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 MAIN
+    human: [1]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 MAIN
+    human: [2]PLAY/Boss’s Orders
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 SWITCH
+    human: [2]CARD/Latias ex
+    ours : [4]CARD/Lillie’s Clefairy ex
+  84744060 junlee789 MAIN
+    human: [1]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 TO_HAND
+    human: [4]CARD [3]CARD
+    ours : [0]CARD [1]CARD
+  84744060 junlee789 MAIN
+    human: [1]PLAY/Team Rocket's Petrel
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 TO_HAND
+    human: [15]CARD/Hand Trimmer
+    ours : [5]CARD/Boss’s Orders
+  84744060 junlee789 MAIN
+    human: [2]ATTACK/Superb Scissors
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 MAIN
+    human: [1]PLAY/Lillie's Determination
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84744060 junlee789 MAIN
+    human: [2]ATTACH/Spiky Energy/->Crustle
+    ours : [5]ATTACK/Superb Scissors
+  84744060 junlee789 MAIN
+    human: [2]PLAY/Hand Trimmer
+    ours : [3]ATTACK/Superb Scissors
+  84744060 junlee789 TO_HAND
+    human: [3]CARD [2]CARD [1]CARD
+    ours : [0]CARD [1]CARD [2]CARD
+  84744060 junlee789 MAIN
+    human: [1]PLAY/Lisia’s Appeal
+    ours : [9]ATTACK/Superb Scissors
+  84744060 junlee789 SWITCH
+    human: [1]CARD/Meowth ex
+    ours : [3]CARD/Lillie’s Clefairy ex
+  84744060 junlee789 MAIN
+    human: [2]PLAY/Pokégear 3.0
+    ours : [6]ATTACK/Superb Scissors
+  84744060 junlee789 TO_HAND
+    human: [2]CARD
+    ours : [0]CARD

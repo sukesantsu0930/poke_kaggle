@@ -1,0 +1,34 @@
+id,name,hp,appear,attack,rate,attacker
+849,Mega Lopunny ex,330,22,22,1.0,1
+861,Mega Froslass ex,310,16,16,1.0,1
+245,Alakazam,140,6,6,1.0,1
+743,Alakazam,140,927,924,0.997,1
+648,Marnie's Grimmsnarl ex,320,711,706,0.993,1
+381,Cynthia's Garchomp ex,330,208,206,0.99,1
+121,Dragapult ex,320,68,67,0.985,1
+1031,Mega Starmie ex,330,174,171,0.983,1
+401,Team Rocket's Spidops,130,42,41,0.976,1
+678,Mega Lucario ex,340,124,120,0.968,1
+190,Archaludon ex,300,95,92,0.968,1
+108,Wellspring Mask Ogerpon ex,210,46,44,0.957,1
+116,Okidogi,130,106,101,0.953,1
+272,Lillie’s Clefairy ex,190,55,47,0.855,1
+63,Raging Bolt ex,240,56,47,0.839,1
+58,Great Tusk,140,30,25,0.833,1
+431,Team Rocket's Mewtwo ex,280,21,14,0.667,1
+96,Teal Mask Ogerpon ex,210,96,63,0.656,1
+169,Duraludon,130,106,67,0.632,1
+666,Cinderace,160,69,43,0.623,1
+345,Crustle,150,378,233,0.616,1
+117,Cornerstone Mask Ogerpon ex,210,70,38,0.543,1
+674,Hariyama,150,10,5,0.5,1
+756,Mega Kangaskhan ex,300,380,188,0.495,0
+135,Bloodmoon Ursaluna,150,9,4,0.444,0
+1052,Barbaracle,130,40,2,0.05,0
+140,Fezandipiti ex,210,141,1,0.007,0
+66,Dudunsparce,140,610,3,0.005,0
+184,Latias ex,210,93,0,0.0,0
+342,Cynthia's Roserade,130,56,0,0.0,0
+1071,Meowth ex,170,20,0,0.0,0
+98,Chandelure,130,10,0,0.0,0
+607,Terrakion,140,5,0,0.0,0

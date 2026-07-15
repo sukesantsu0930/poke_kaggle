@@ -12,7 +12,7 @@ from build_submission import build_submission
 ROOT = Path(__file__).resolve().parents[1]
 COMPETITION = "pokemon-tcg-ai-battle"
 DEFAULT_AGENT = "agents/cubchoo_ogerpon_rb"
-DEFAULT_DECK = "decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv"
+DEFAULT_DECK = "decks/archive/winrate_1_cubchoo_ogerpon.csv"
 DEFAULT_MESSAGE = "cubchoo_ogerpon_rb + winrate_1_cubchoo_ogerpon"
 
 

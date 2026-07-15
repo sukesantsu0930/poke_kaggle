@@ -1,0 +1,11 @@
+games=0 pilots={}
+no decisions
+
+-- SelectContext別 一致率（不一致の多い順） --
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+
+-- 不一致サンプル --

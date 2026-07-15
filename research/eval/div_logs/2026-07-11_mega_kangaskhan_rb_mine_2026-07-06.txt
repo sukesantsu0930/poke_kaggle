@@ -1,0 +1,171 @@
+games=39 pilots={'zoroark190(1086)': 37, 'Atomu Naka(970)': 2}
+
+TOTAL agree 1337/2634 = 50.8%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 577/1349 = 43%
+                   TO_HAND: 134/365 = 37%
+                    SWITCH: 66/133 = 50%
+               ATTACH_FROM: 83/146 = 57%
+                 ATTACH_TO: 195/248 = 79%
+                   DISCARD: 2/44 = 5%
+        SWITCH_ENERGY_CARD: 20/44 = 45%
+                 TO_ACTIVE: 31/54 = 57%
+                    DAMAGE: 5/14 = 36%
+       DISCARD_ENERGY_CARD: 11/19 = 58%
+                  TO_BENCH: 1/4 = 25%
+                  IS_FIRST: 20/21 = 95%
+       SETUP_BENCH_POKEMON: 30/31 = 97%
+      SETUP_ACTIVE_POKEMON: 39/39 = 100%
+                DRAW_COUNT: 14/14 = 100%
+                  ACTIVATE: 64/64 = 100%
+            TO_DECK_ENERGY: 42/42 = 100%
+               SKILL_ORDER: 2/2 = 100%
+            DISCARD_ENERGY: 1/1 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 20, 'NO': 1}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   33x            TO_HAND: human=[1]CARD  ours=[0]CARD
+   24x            TO_HAND: human=[2]CARD  ours=[0]CARD
+   18x            TO_HAND: human=[3]CARD  ours=[0]CARD
+   17x          ATTACH_TO: human=[1]CARD/Basic  ours=[0]CARD/Basic
+   16x          ATTACH_TO: human=[2]CARD/Basic  ours=[0]CARD/Basic
+    9x            TO_HAND: human=[4]CARD  ours=[0]CARD
+    9x          ATTACH_TO: human=[3]CARD/Basic  ours=[0]CARD/Basic
+    8x            TO_HAND: human=[0]CARD/Basic  ours=[1]CARD/Basic
+    7x          ATTACH_TO: human=[4]CARD/Basic  ours=[0]CARD/Basic
+    6x            TO_HAND: human=[1]CARD/Basic  ours=[0]CARD/Basic
+    5x            TO_HAND: human=[5]CARD  ours=[0]CARD
+    5x            TO_HAND: human=[2]CARD/Basic  ours=[0]CARD/Basic
+    5x            TO_HAND: human=[0]CARD  ours=[0]CARD
+    4x             SWITCH: human=[1]CARD/Raging  ours=[0]CARD/Latias
+    4x          TO_ACTIVE: human=[2]CARD/Latias  ours=[1]CARD/Teal
+    4x            TO_HAND: human=[3]CARD/Basic  ours=[0]CARD/Basic
+    3x        ATTACH_FROM: human=[4]CARD/Wellspring  ours=[0]CARD/Mega
+    3x            TO_HAND: human=[4]CARD/Basic  ours=[2]CARD/Basic
+    3x        ATTACH_FROM: human=[2]CARD/Raging  ours=[0]CARD/Mega
+    3x SWITCH_ENERGY_CARD: human=[2]ENERGY_CARD/Meowth  ours=[0]ENERGY_CARD/Teal
+
+-- 不一致サンプル --
+  84228477 zoroark190 TO_HAND
+    human: [8]CARD/Latias ex [0]CARD/Mega Kangaskhan ex [3]CARD/Teal Mask Ogerpon ex
+    ours : [3]CARD/Teal Mask Ogerpon ex [4]CARD/Meowth ex [0]CARD/Mega Kangaskhan ex
+  84228477 zoroark190 MAIN
+    human: [10]PLAY/Latias ex
+    ours : [12]ABILITY/Teal Mask Ogerpon ex
+  84228477 zoroark190 MAIN
+    human: [15]PLAY/Mega Kangaskhan ex
+    ours : [16]ABILITY/Teal Mask Ogerpon ex
+  84228477 zoroark190 MAIN
+    human: [20]ABILITY/Teal Mask Ogerpon ex
+    ours : [21]RETREAT
+  84228477 zoroark190 MAIN
+    human: [21]ATTACH/Basic {P} Energy/->Lillie’s Clefairy ex
+    ours : [8]PLAY/Energy Switch
+  84228477 zoroark190 MAIN
+    human: [1]PLAY/Prime Catcher
+    ours : [0]PLAY/Energy Switch
+  84228477 zoroark190 SWITCH
+    human: [3]CARD/Okidogi
+    ours : [2]CARD/Binacle
+  84228477 zoroark190 SWITCH
+    human: [2]CARD/Lillie’s Clefairy ex
+    ours : [0]CARD/Teal Mask Ogerpon ex
+  84228477 zoroark190 ATTACH_FROM
+    human: [0]CARD/Lillie’s Clefairy ex
+    ours : [2]CARD/Mega Kangaskhan ex
+  84228477 zoroark190 TO_HAND
+    human: [5]CARD
+    ours : [0]CARD
+  84228477 zoroark190 MAIN
+    human: [22]ABILITY/Teal Mask Ogerpon ex
+    ours : [24]RETREAT
+  84228477 zoroark190 MAIN
+    human: [12]PLAY/Meowth ex
+    ours : [20]RETREAT
+  84228477 zoroark190 TO_HAND
+    human: [4]CARD/Cyrano
+    ours : [0]CARD/Crispin
+  84228477 zoroark190 MAIN
+    human: [22]PLAY/Cyrano
+    ours : [24]RETREAT
+  84228477 zoroark190 TO_HAND
+    human: [4]CARD/Fezandipiti ex [2]CARD/Teal Mask Ogerpon ex [5]CARD/Raging Bolt ex
+    ours : [2]CARD/Teal Mask Ogerpon ex [0]CARD/Mega Kangaskhan ex [4]CARD/Fezandipiti ex
+  84228477 zoroark190 MAIN
+    human: [23]PLAY/Teal Mask Ogerpon ex
+    ours : [26]RETREAT
+  84228477 zoroark190 MAIN
+    human: [24]ABILITY/Teal Mask Ogerpon ex
+    ours : [26]RETREAT
+  84228477 zoroark190 MAIN
+    human: [9]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [25]RETREAT
+  84228477 zoroark190 MAIN
+    human: [0]ATTACK/Full Moon Rondo
+    ours : [1]RETREAT
+  84228477 zoroark190 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84228477 zoroark190 MAIN
+    human: [25]ABILITY/Teal Mask Ogerpon ex
+    ours : [27]RETREAT
+  84228477 zoroark190 MAIN
+    human: [19]ABILITY/Teal Mask Ogerpon ex
+    ours : [21]RETREAT
+  84228477 zoroark190 MAIN
+    human: [15]PLAY/Boss’s Orders
+    ours : [14]PLAY/Energy Switch
+  84228477 zoroark190 SWITCH
+    human: [3]CARD/Barbaracle
+    ours : [0]CARD/Solrock
+  84228477 zoroark190 MAIN
+    human: [6]ATTACH/Basic {L} Energy/->Mega Kangaskhan ex
+    ours : [14]PLAY/Energy Switch
+  84228477 zoroark190 SWITCH_ENERGY_CARD
+    human: [0]ENERGY_CARD/Lillie’s Clefairy ex
+    ours : [2]ENERGY_CARD/Teal Mask Ogerpon ex
+  84228477 zoroark190 MAIN
+    human: [2]ATTACK/Rapid-Fire Combo
+    ours : [0]PLAY/Ultra Ball
+  84228477 zoroark190 TO_HAND
+    human: [2]CARD
+    ours : [0]CARD
+  84228477 zoroark190 MAIN
+    human: [10]PLAY/Raging Bolt ex
+    ours : [16]ABILITY/Mega Kangaskhan ex
+  84228477 zoroark190 MAIN
+    human: [6]ATTACH/Basic {F} Energy/->Raging Bolt ex
+    ours : [7]PLAY/Ultra Ball
+  84228477 zoroark190 MAIN
+    human: [4]ATTACK/Rapid-Fire Combo
+    ours : [1]PLAY/Ultra Ball
+  84228477 zoroark190 ATTACH_TO
+    human: [2]CARD/Basic {L} Energy
+    ours : [0]CARD/Basic {W} Energy
+  84228477 zoroark190 MAIN
+    human: [15]RETREAT
+    ours : [12]ABILITY/Teal Mask Ogerpon ex
+  84228477 zoroark190 SWITCH
+    human: [4]CARD/Raging Bolt ex
+    ours : [0]CARD/Teal Mask Ogerpon ex
+  84228477 zoroark190 MAIN
+    human: [7]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [12]ABILITY/Teal Mask Ogerpon ex
+  84228477 zoroark190 MAIN
+    human: [7]ATTACK/Bellowing Thunder
+    ours : [1]PLAY/Ultra Ball
+  84228477 zoroark190 DISCARD_ENERGY_CARD
+    human: [7]ENERGY_CARD/Meowth ex [0]ENERGY_CARD/Mega Kangaskhan ex [3]ENERGY_CARD/Mega Kangaskhan ex
+    ours : [1]ENERGY_CARD/Teal Mask Ogerpon ex [2]ENERGY_CARD/Teal Mask Ogerpon ex [4]ENERGY_CARD/Teal Mask Ogerpon ex
+  84228477 zoroark190 TO_HAND
+    human: [2]CARD [1]CARD
+    ours : [0]CARD [1]CARD
+  84228477 zoroark190 TO_ACTIVE
+    human: [1]CARD/Latias ex
+    ours : [4]CARD/Raging Bolt ex
+  84228477 zoroark190 MAIN
+    human: [1]PLAY/Meowth ex
+    ours : [20]RETREAT

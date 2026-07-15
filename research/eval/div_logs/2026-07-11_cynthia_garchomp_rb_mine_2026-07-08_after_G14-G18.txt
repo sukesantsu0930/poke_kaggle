@@ -1,0 +1,166 @@
+games=25 pilots={'nasuo445(1096)': 24, 'kuromoka(1027)': 1}
+
+TOTAL agree 1147/1801 = 63.7%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 658/1185 = 56%
+                   TO_HAND: 308/396 = 78%
+                 TO_ACTIVE: 32/45 = 71%
+                   DISCARD: 0/12 = 0%
+                  TO_BENCH: 22/29 = 76%
+                    SWITCH: 42/49 = 86%
+      SETUP_ACTIVE_POKEMON: 25/25 = 100%
+       SETUP_BENCH_POKEMON: 12/12 = 100%
+                  IS_FIRST: 12/12 = 100%
+                  ACTIVATE: 23/23 = 100%
+            DISCARD_ENERGY: 9/9 = 100%
+                   TO_DECK: 1/1 = 100%
+                DRAW_COUNT: 2/2 = 100%
+               SKILL_ORDER: 1/1 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 12}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   15x            TO_HAND: human=[0]CARD/Cynthia's  ours=[1]CARD/Cynthia's
+    8x            TO_HAND: human=[1]CARD/Cynthia's  ours=[0]CARD/Cynthia's
+    8x               MAIN: human=[4]ATTACK/Corkscrew  ours=[0]EVOLVE/Cynthia's
+    8x               MAIN: human=[1]ATTACH/Basic  ours=[0]ATTACH/Basic
+    6x            TO_HAND: human=[2]CARD/Cynthia's  ours=[0]CARD/Cynthia's
+    5x            TO_HAND: human=[2]CARD/Cynthia's  ours=[1]CARD/Cynthia's
+    5x               MAIN: human=[1]ATTACH/Rock  ours=[0]ATTACH/Rock
+    5x            TO_HAND: human=[1]CARD/Cynthia's  ours=[3]CARD/Cynthia's
+    5x               MAIN: human=[2]ATTACH/Rock  ours=[0]ATTACH/Rock
+    4x            TO_HAND: human=[1]CARD/Cynthia's  ours=[2]CARD/Cynthia's
+    4x               MAIN: human=[2]ATTACK/Corkscrew  ours=[1]EVOLVE/Cynthia's
+    4x               MAIN: human=[1]END  ours=[0]EVOLVE/Cynthia's
+    4x               MAIN: human=[1]EVOLVE/Cynthia's  ours=[0]EVOLVE/Cynthia's
+    4x               MAIN: human=[2]ATTACK/Corkscrew  ours=[0]EVOLVE/Cynthia's
+    4x               MAIN: human=[1]RETREAT  ours=[0]ATTACK/Corkscrew
+    4x               MAIN: human=[2]END  ours=[0]EVOLVE/Cynthia's
+    4x            TO_HAND: human=[0]CARD/Cynthia's  ours=[2]CARD/Cynthia's
+    3x            TO_HAND: human=[3]CARD/Cynthia's  ours=[0]CARD/Cynthia's
+    3x            TO_HAND: human=[0]CARD/Basic  ours=[1]CARD/Rock
+    3x          TO_ACTIVE: human=[3]CARD/Cynthia's  ours=[0]CARD/Cynthia's
+
+-- 不一致サンプル --
+  84743078 nasuo445 MAIN
+    human: [3]PLAY/Buddy-Buddy Poffin
+    ours : [2]PLAY/Cynthia's Spiritomb
+  84743078 nasuo445 MAIN
+    human: [2]PLAY/Fighting Gong
+    ours : [3]PLAY/Poké Pad
+  84743078 nasuo445 MAIN
+    human: [0]PLAY/Forest of Vitality
+    ours : [1]PLAY/Lillie's Determination
+  84743078 nasuo445 MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [2]PLAY/Hilda
+  84743078 nasuo445 TO_HAND
+    human: [3]CARD/Cynthia's Garchomp ex
+    ours : [0]CARD/Cynthia's Roserade
+  84743078 nasuo445 TO_HAND
+    human: [0]CARD/Cynthia's Garchomp ex
+    ours : [4]CARD/Cynthia's Roserade
+  84743078 nasuo445 TO_HAND
+    human: [1]CARD/Cynthia's Roselia
+    ours : [2]CARD/Cynthia's Roserade
+  84743078 nasuo445 MAIN
+    human: [16]ATTACH/Cynthia's Power Weight/->Cynthia's Gabite
+    ours : [32]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 MAIN
+    human: [2]ATTACH/Rock Fighting Energy/->Cynthia's Garchomp ex
+    ours : [28]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 MAIN
+    human: [3]PLAY/Lillie's Determination
+    ours : [4]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 MAIN
+    human: [3]END
+    ours : [1]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 MAIN
+    human: [18]PLAY/Poké Pad
+    ours : [32]ABILITY/Cynthia's Gabite
+  84743078 nasuo445 TO_HAND
+    human: [1]CARD/Cynthia's Roselia
+    ours : [2]CARD/Cynthia's Roserade
+  84743078 nasuo445 TO_HAND
+    human: [2]CARD/Cynthia's Garchomp ex
+    ours : [1]CARD/Cynthia's Roserade
+  84743078 nasuo445 MAIN
+    human: [10]PLAY/Hilda
+    ours : [8]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 TO_HAND
+    human: [0]CARD/Basic {F} Energy
+    ours : [1]CARD/Rock Fighting Energy
+  84743078 nasuo445 MAIN
+    human: [9]ATTACH/Basic {F} Energy/->Cynthia's Roselia
+    ours : [7]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 MAIN
+    human: [6]ATTACK/Spike Sting
+    ours : [1]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 DISCARD
+    human: [4]CARD/Forest of Vitality [6]CARD/Boss’s Orders [2]CARD/Boss’s Orders [7]CARD/Hilda [5]CARD/Cynthia's Roselia [10]CARD/Cynthia's Roselia [9]CARD/Basic {F} Energy [13]CARD/Basic {F} Energy [1]CARD/Rock Fighting Energy [8]CARD/Rock Fighting Energy [0]CARD/Cynthia's Roserade
+    ours : [2]CARD/Boss’s Orders [6]CARD/Boss’s Orders [7]CARD/Hilda [0]CARD/Cynthia's Roserade [3]CARD/Cynthia's Garchomp ex [5]CARD/Cynthia's Roselia [10]CARD/Cynthia's Roselia [11]CARD/Cynthia's Garchomp ex [12]CARD/Cynthia's Roserade [1]CARD/Rock Fighting Energy [8]CARD/Rock Fighting Energy
+  84743078 nasuo445 MAIN
+    human: [14]ABILITY/Cynthia's Gabite
+    ours : [0]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 MAIN
+    human: [14]ABILITY/Cynthia's Gabite
+    ours : [0]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 MAIN
+    human: [5]PLAY/Night Stretcher
+    ours : [0]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 MAIN
+    human: [5]PLAY/Xerosic’s Machinations
+    ours : [0]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 MAIN
+    human: [8]ATTACH/Rock Fighting Energy/->Cynthia's Gabite
+    ours : [0]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743078 nasuo445 MAIN
+    human: [7]ATTACK/Spike Sting
+    ours : [0]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743574 nasuo445 MAIN
+    human: [0]PLAY/Buddy-Buddy Poffin
+    ours : [2]PLAY/Cynthia's Gible
+  84743574 nasuo445 MAIN
+    human: [1]ATTACH/Rock Fighting Energy/->Cynthia's Gible
+    ours : [0]ATTACH/Rock Fighting Energy/->Cynthia's Gible
+  84743574 nasuo445 TO_ACTIVE
+    human: [3]CARD/Cynthia's Roselia
+    ours : [0]CARD/Cynthia's Gible
+  84743574 nasuo445 MAIN
+    human: [7]PLAY/Buddy-Buddy Poffin
+    ours : [1]EVOLVE/Cynthia's Gabite/->Cynthia's Gible
+  84743574 nasuo445 TO_HAND
+    human: [4]CARD/Cynthia's Spiritomb
+    ours : [0]CARD/Cynthia's Garchomp ex
+  84743574 nasuo445 TO_HAND
+    human: [4]CARD/Cynthia's Roselia
+    ours : [0]CARD/Cynthia's Garchomp ex
+  84743574 nasuo445 MAIN
+    human: [18]PLAY/Cynthia's Roselia
+    ours : [17]PLAY/Cynthia's Spiritomb
+  84743574 nasuo445 MAIN
+    human: [13]EVOLVE/Cynthia's Roserade/->Cynthia's Roselia
+    ours : [21]ABILITY/Cynthia's Gabite
+  84743574 nasuo445 TO_HAND
+    human: [1]CARD/Cynthia's Garchomp ex
+    ours : [0]CARD/Cynthia's Roserade
+  84743574 nasuo445 TO_HAND
+    human: [0]CARD/Cynthia's Garchomp ex
+    ours : [1]CARD/Cynthia's Roserade
+  84743574 nasuo445 TO_HAND
+    human: [0]CARD/Cynthia's Garchomp ex
+    ours : [1]CARD/Cynthia's Roserade
+  84743574 nasuo445 MAIN
+    human: [12]PLAY/Hilda
+    ours : [20]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743574 nasuo445 TO_HAND
+    human: [0]CARD/Cynthia's Gabite
+    ours : [1]CARD/Cynthia's Roserade
+  84743574 nasuo445 MAIN
+    human: [8]ATTACH/Rock Fighting Energy/->Cynthia's Gabite
+    ours : [18]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  84743574 nasuo445 MAIN
+    human: [4]ATTACK/Corkscrew Dive
+    ours : [0]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite

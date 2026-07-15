@@ -8,7 +8,7 @@
   5. R-10 警告    : 既に技コストを払えるポケモンへの追加エネ付与（自己スケール技は除外）
 
 使い方:
-  uv run python scripts\\check_agent.py --agent agents\\archaludon_rb --deck decks\\candidates\\archaludon_cityleague.csv [--games 20]
+  uv run python scripts\\check_agent.py --agent agents\\archaludon_rb --deck decks\\fleet\\archaludon_cityleague.csv [--games 20]
 
 exit 0 = 合格 / 1 = 違反あり
 """
@@ -30,7 +30,7 @@ from cg import api  # noqa: E402
 from build_submission import build_submission  # noqa: E402
 
 BASE_FILES = ("policy_base.py", "meta_tables.py")
-_PURGE = ("policy_base", "meta_tables", "main")
+_PURGE = ("policy_base", "meta_tables", "main", "policy_net")
 
 
 def sha256(p: Path) -> str:

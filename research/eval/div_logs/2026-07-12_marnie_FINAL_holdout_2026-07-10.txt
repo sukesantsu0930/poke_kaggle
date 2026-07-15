@@ -1,0 +1,70 @@
+games=68 pilots={'Shota Hirao(968)': 1, 'jiatu.l(1016)': 3, 'Yushin Ito(1122)': 18, 'Sota Uchiyama(1068)': 19, 'kazuki0123(1067)': 10, 'Pixegami(994)': 3, 'junlee789(1042)': 5, 'iwashi(997)': 4, 'Eduardo Rocha de Andrade(1017)': 2, 'tonakaiiii(1082)': 3}
+
+TOTAL agree 3546/5457 = 65.0%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 1275/2584 = 49%
+                   TO_HAND: 557/784 = 71%
+                 ATTACH_TO: 52/133 = 39%
+            DAMAGE_COUNTER: 154/213 = 72%
+                  TO_BENCH: 46/97 = 47%
+                 TO_ACTIVE: 118/162 = 73%
+                    DAMAGE: 189/221 = 86%
+                   DISCARD: 8/39 = 21%
+     REMOVE_DAMAGE_COUNTER: 191/213 = 90%
+                    SWITCH: 43/64 = 67%
+               ATTACH_FROM: 285/305 = 93%
+      SETUP_ACTIVE_POKEMON: 61/68 = 90%
+       SETUP_BENCH_POKEMON: 35/40 = 88%
+                   TO_DECK: 0/1 = 0%
+             SWITCH_ENERGY: 6/7 = 86%
+                  IS_FIRST: 33/33 = 100%
+                DRAW_COUNT: 20/20 = 100%
+                    EVOLVE: 72/72 = 100%
+                  ACTIVATE: 142/142 = 100%
+  REMOVE_DAMAGE_COUNTER_COUNT: 199/199 = 100%
+            DISCARD_ENERGY: 48/48 = 100%
+         DISCARD_TOOL_CARD: 3/3 = 100%
+               SKILL_ORDER: 9/9 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 33}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   74x          ATTACH_TO: human=[0]CARD/Basic  ours=[0]CARD/Basic
+   19x            TO_HAND: human=[1]CARD/Marnie's  ours=[0]CARD/Marnie's
+   15x            TO_HAND: human=[0]CARD/Marnie's  ours=[1]CARD/Marnie's
+   12x REMOVE_DAMAGE_COUNTER: human=[1]CARD/Munkidori  ours=[0]CARD/Marnie's
+   11x               MAIN: human=[1]ATTACK/Shadow  ours=[0]PLAY/Marnie's
+    9x        ATTACH_FROM: human=[2]CARD/Marnie's  ours=[1]CARD/Marnie's
+    8x           TO_BENCH: human=[0]CARD/Marnie's  ours=[0]CARD/Marnie's
+    8x            TO_HAND: human=(none)  ours=[0]CARD/Marnie's
+    8x            TO_HAND: human=[0]CARD/Marnie's  ours=[2]CARD/Marnie's
+    7x               MAIN: human=[1]ABILITY/Munkidori  ours=[0]PLAY/Marnie's
+    6x               MAIN: human=[2]END  ours=[0]PLAY/Spikemuth
+    6x               MAIN: human=[1]EVOLVE/Marnie's  ours=[0]PLAY/Marnie's
+    6x          TO_ACTIVE: human=[0]CARD/Munkidori  ours=[2]CARD/Marnie's
+    6x            TO_HAND: human=[3]CARD/Marnie's  ours=[0]CARD/Marnie's
+    6x               MAIN: human=[0]RETREAT  ours=[1]END
+    6x               MAIN: human=[2]ABILITY/Spikemuth  ours=[0]PLAY/Marnie's
+    6x               MAIN: human=[2]ATTACK/Shadow  ours=[1]PLAY/Marnie's
+    5x               MAIN: human=[0]ATTACH/Basic  ours=[1]ATTACH/Basic
+    5x            TO_HAND: human=(none)  ours=[0]CARD
+    5x     DAMAGE_COUNTER: human=[0]CARD/Archaludon  ours=[1]CARD/Duraludon
+
+-- 不一致サンプル --
+  85109575 Shota Hirao MAIN
+    human: [1]ATTACH/Basic {D} Energy/->Munkidori
+    ours : [4]PLAY/Marnie's Impidimp
+  85109575 Shota Hirao ATTACH_TO
+    human: [0]CARD/Basic {D} Energy [1]CARD/Basic {D} Energy [2]CARD/Basic {D} Energy
+    ours : [0]CARD/Basic {D} Energy [1]CARD/Basic {D} Energy [2]CARD/Basic {D} Energy [3]CARD/Basic {D} Energy [4]CARD/Basic {D} Energy
+  85109575 Shota Hirao MAIN
+    human: [4]ATTACH/Basic {D} Energy/->Munkidori
+    ours : [7]PLAY/Munkidori
+  85109575 Shota Hirao MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [2]PLAY/Munkidori
+  85109575 Shota Hirao MAIN
+    human: [2]PLAY/Buddy-Buddy Poffin
+    ours : [1]PLAY/Marnie's Impidimp

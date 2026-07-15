@@ -1,6 +1,6 @@
 """メタ加重ガントレット — 対象エージェントをシェア加重の相手プールと対戦させる。
 
-フィールド定義CSV（既定: research/meta/2026-07-08_field.csv、正本は同名 .md）を読み、
+フィールド定義CSV（既定: research/meta/2026-07-14_field.csv、正本は同名 .md）を読み、
 各アーキタイプの相手役（既存エージェント資産 or GenericPolicy+デッキ）と席入替で対戦。
 マッチアップ別勝率 + シェア加重勝率（= 制圧度）+ 最弱マッチアップ一覧を出力する。
 
@@ -9,8 +9,8 @@
 
 使い方:
   PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe scripts/gauntlet.py ^
-      --agent agents/dragapult_rb --deck decks/candidates/2026-06-30_top5/popular_4_dragapult.csv ^
-      [--games 40] [--field research/meta/2026-07-08_field.csv] [--only marnie,okidogi] [--out results.csv] ^
+      --agent agents/dragapult_rb --deck decks/fleet/popular_4_dragapult.csv ^
+      [--games 40] [--field research/meta/2026-07-14_field.csv] [--only marnie,okidogi] [--out results.csv] ^
       [--styles tuned,generic,frozen]
 
 --styles（P-11 ピロットスタイル多様性）: 同一相手デッキのピロットを
@@ -48,6 +48,7 @@ def _freeze_opponent_theta(mod):
     policy = get_policy(mod)
     if policy is not None:
         policy.theta = {}
+        policy.net_enabled = False   # 方策ネットも同じ理由で凍結（プールは θ=0・ネット無し）
 
 
 def read_field(path: Path):
@@ -120,6 +121,8 @@ def run_styles(args, field, target_deck):
             # マッチアップ毎に対象エージェントをロードし直す（モジュール隔離）
             target_mod = load_agent(ROOT / args.agent)
             inject_target_theta(target_mod, args.theta)
+            inject_target_search(target_mod, args.search, target_deck)
+            inject_target_net(target_mod, args.net)
             try:
                 built = build_opponent_style(row, style)
             except SystemExit:
@@ -211,6 +214,44 @@ def inject_target_theta(mod, theta_arg):
     policy.theta = {str(k): float(v) for k, v in raw.items() if v}
 
 
+def inject_target_search(mod, search_arg, deck):
+    """対象機のターン内探索を上書きする（A/B 用）。
+    ローカル対戦ではデッキ選択手番が来ない（run_battles がデッキを直接渡す）ため、
+    探索の決定化に必要な自デッキリストもここで注入する。"""
+    if search_arg is None:
+        return
+    policy = get_policy(mod)
+    if policy is None:
+        raise SystemExit("--search: BasePolicy エージェントではない（注入不可）")
+    policy.my_deck_list = list(deck)
+    if search_arg == "off":
+        policy.search_enabled = False
+    else:
+        policy.search_enabled = True
+        policy.SEARCH_MODE = search_arg
+
+
+def inject_target_net(mod, net_arg):
+    """対象機の方策ネットを上書きする（PPO 候補の L2 A/B 用）。
+    net_arg: None = そのまま（agent dir の policy_net.npz。現状どの機にも無い = ネット無し）/
+    'off' = ネット無効（ベースライン計測）/ パス = その npz を注入。"""
+    if net_arg is None:
+        return
+    policy = get_policy(mod)
+    if policy is None:
+        raise SystemExit("--net: BasePolicy エージェントではない（ネット注入不可）")
+    if net_arg == "off":
+        policy.net_enabled = False
+        return
+    import importlib
+    pn = importlib.import_module("policy_net")
+    net = pn.PolicyNet.load(str(ROOT / net_arg))
+    if net is None:
+        raise SystemExit(f"--net: ロード失敗（版不一致か破損）: {net_arg}")
+    policy._net = net
+    policy._net_load_tried = True
+
+
 def run_matchup(target_mod, target_deck, opp_mod, opp_deck, games, max_steps, label):
     """席入替つき対戦。target 視点の (wins, losses, draws, unfinished) を返す。"""
     half = games // 2
@@ -229,7 +270,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--agent", required=True, help="対象エージェントdir（agents/xxx_rb）")
     parser.add_argument("--deck", required=True, help="対象デッキCSV")
-    parser.add_argument("--field", default="research/meta/2026-07-08_field.csv")
+    parser.add_argument("--field", default="research/meta/2026-07-14_field.csv")
     parser.add_argument("--games", type=int, default=40, help="1マッチアップあたりのゲーム数")
     parser.add_argument("--max-steps", type=int, default=600)
     parser.add_argument("--only", help="アーキタイプ名のカンマ区切り（部分再計測用）")
@@ -239,6 +280,13 @@ def main():
     parser.add_argument("--theta",
                         help="対象機に注入する θ: theta.json のパス、または 'zero'（θ空 = 手書き基準）。"
                              "省略時は agent dir の theta.json（採用済みθ）。候補θの L1 計測用")
+    parser.add_argument("--search", choices=["off", "rollout", "value"],
+                        help="対象機のターン内探索を注入（A/B 用。省略時はクラス既定 = 現状全機 OFF）。"
+                             "相手プールは常に探索なし。探索ONは1試合が数十秒になる点に注意")
+    parser.add_argument("--net",
+                        help="対象機に注入する方策ネット: policy_net.npz のパス、または 'off'"
+                             "（ネット無効 = ルール基準）。省略時は agent dir の policy_net.npz"
+                             "（現状どの機にも無い = ネット無し）。PPO 候補の L2 A/B 用")
     parser.add_argument("--out", help="結果を CSV 追記するパス（省略時は表示のみ）")
     parser.add_argument("--styles",
                         help="P-11 感度チェック: 相手スタイルのカンマ区切り（tuned,generic,frozen）。"
@@ -269,6 +317,8 @@ def main():
         # マッチアップ毎に対象エージェントをロードし直す（モジュール隔離・状態持越し防止）
         target_mod = load_agent(ROOT / args.agent)
         inject_target_theta(target_mod, args.theta)
+        inject_target_search(target_mod, args.search, target_deck)
+        inject_target_net(target_mod, args.net)
         try:
             opp_mod, opp_deck = build_opponent(row)
         except Exception as e:

@@ -1,5 +1,5 @@
 name: mega_kangaskhan
-deck: decks/candidates/mega_kangaskhan_top.csv
+deck: decks/fleet/mega_kangaskhan_top.csv
 agent: agents/mega_kangaskhan_rb
 concept: "メガガルーラexのRapid-Fire Comboを打つ（サブゴール: 場のガルーラにエネ3枚）"
 protocol: protocol.py

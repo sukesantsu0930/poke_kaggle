@@ -24,6 +24,8 @@ Kaggle提出zipの中では、各ディレクトリの `main.py` がルートの
 - `chandelure_rb/`: シャンデラ・コントロール=ミル（7/6メタ レート1000+ 実測77.3%の移植。BasePolicy）
 - `dragapult_rb/`: ドラパルトex（公式サンプルの枝刈りDFS配分プランを移植。BasePolicy。旧 dragapult_ex_rb を代替）
 - `mega_kangaskhan_rb/`: メガガルーラex（7/6メタ10%の新興。zoroark190リスト。BasePolicy）
+- `crustle_rb/`: イワパレス壁ガルーラ（7/14メタ シェア2位ファミリー。懒惰的金枪鱼=系統Bリスト。
+  BasePolicy。07-14フィールド制圧度 63.2%+CR1/CR2。設計: デッキ設計_イワパレス.md）
 - `cubchoo_ogerpon_rb/`: クマシュン+オーガポンex（旧・自己完結型。2026-07-02提出、Elo 152）
 - `dragapult_ex_rb/`: ドラパルトex（旧・自己完結型）
 - `rb_001_baseline.py`: 汎用ベースライン（単一ファイル形式、`submission/main.py` と同一内容）
@@ -54,7 +56,7 @@ Kaggle提出zipの中では、各ディレクトリの `main.py` がルートの
 エージェントとデッキを組み合わせて提出zipを作る例:
 
 ```powershell
-uv run python scripts\build_submission.py --agent agents\cubchoo_ogerpon_rb --deck decks\candidates\2026-06-30_top5\winrate_1_cubchoo_ogerpon.csv
+uv run python scripts\build_submission.py --agent agents\cubchoo_ogerpon_rb --deck decks\archive\winrate_1_cubchoo_ogerpon.csv
 ```
 
 ## デッキ対応Agent
@@ -63,8 +65,8 @@ uv run python scripts\build_submission.py --agent agents\cubchoo_ogerpon_rb --de
 
 候補例:
 
-- `agents/cubchoo_ogerpon_rb` + `decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv`
-- `agents/dragapult_ex_rb` + `decks/candidates/2026-06-30_top5/popular_4_dragapult.csv`
+- `agents/cubchoo_ogerpon_rb` + `decks/archive/winrate_1_cubchoo_ogerpon.csv`
+- `agents/dragapult_ex_rb` + `decks/fleet/popular_4_dragapult.csv`
 
 新しいデッキを追加するときは、対応するAgentか、既存Agentをそのデッキ向けに調整した派生Agentも一緒に用意してください。
 

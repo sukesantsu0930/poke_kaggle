@@ -169,6 +169,30 @@ class GarchompPolicy(BasePolicy):
             self.attack_damage(obs, active, ATK_CORKSCREW_DIVE), active, opp_act)
         return dmg >= opp_act.hp
 
+    def _gabite_call_pending(self, obs):
+        """div-G14 の条件: このターンまだ使える Gabite の Champion's Call が
+        選択肢に残っているか（＝先にガブへ進化させるとサーチ口が1つ消える状態）。"""
+        yi = obs.current.yourIndex
+        for o in (obs.select.option or []):
+            if o.type == OptionType.ABILITY:
+                c = get_card(obs, o.area, o.index, yi)
+                if c is not None and c.id == GABITE:
+                    return True
+        return False
+
+    def _buster_setup(self, obs, chomp):
+        """div-G11 の条件: Draconic Buster なら相手バトル場を KO できるが
+        Corkscrew Dive では KO できない（= 2エネ目を張る価値がある）。"""
+        opp = opp_state(obs)
+        opp_act = opp.active[0] if opp.active else None
+        if opp_act is None:
+            return False
+        cork = self.guard_damage(
+            self.attack_damage(obs, chomp, ATK_CORKSCREW_DIVE), chomp, opp_act)
+        bust = self.guard_damage(
+            self.attack_damage(obs, chomp, ATK_DRACONIC_BUSTER), chomp, opp_act)
+        return bust >= opp_act.hp > cork
+
     # ═══════════════ セットアップコンテキスト（S-1/S-2） ═══════════════
 
     def score_setup_context(self, obs, opt):
@@ -225,17 +249,21 @@ class GarchompPolicy(BasePolicy):
             card = option_card(obs, opt)
             cid = card.id if card else None
             if cid == GARCHOMP_EX:
-                # div-G3（2026-07-07 divergence 実測）: 2体目のガブリアスexは遅延する
-                # （ベンチの2進化exはボスの2枚取り的。上位ピロットは1体目が傷むまで進化を我慢）
+                # div-G14【ソフト・暫定 2026-07-11。07-08/09 実測】: 未使用の Champion's Call が
+                # 残っている間はガブ進化を「同ターン内で」後回しにする（先に Gabite を進化させると
+                # そのターンのサーチ口が消える。human=ABILITY/ours=EVOLVE が 07-08 24件・07-09 8件+）。
+                # 13400 = Champion's Call 13500 の直下。ATTACK(≤2200)/RETREAT(2600)/END(0) より
+                # 上なので進化自体は必ず同ターンに実行される = div-G12 の艦隊構築は弱めない
+                if self._safe_draws() >= 1 and self._gabite_call_pending(obs):
+                    return 13400, "div-G14: evolve Garchomp after Champion's Call"
                 chomps = [pk for pk in all_my_pokemon(obs) if pk.id == GARCHOMP_EX]
                 if not chomps:
                     return 25000, "S-3: evolve Garchomp ex (subgoal)"
-                if any(damage_on(pk) >= 130 for pk in chomps):
-                    return 10000, "div-G3: 2nd Garchomp (1st is worn)"
-                tgt = option_target(obs, opt)
-                if tgt is not None and self.is_threatened(tgt):
-                    return 10000, "div-G3: evolve out of KO range (R-08)"
-                return 800, "div-G3: delay 2nd Garchomp"
+                # div-G12【ユーザー指示 2026-07-11・LB上位ガブ実装の移植・暫定】:
+                # 2体目以降も積極的に立てる（ローテーション艦隊）。div-G3(a) の遅延を上書き —
+                # 被弾ガブはベンチで Raging Curse の弾になるため、ベンチ2進化exの
+                # ボス2枚取りリスクより回転継続を優先する
+                return 23000, "div-G12: build Garchomp fleet"
             if cid == GABITE:
                 return 24500, "S-3: evolve Gabite (Champion's Call online)"
             if cid == ROSERADE:
@@ -252,6 +280,17 @@ class GarchompPolicy(BasePolicy):
             active = active_pokemon(obs)
             aid = active.id if active else None
             if aid == GARCHOMP_EX:
+                # div-G10【ユーザー指示 2026-07-11・LB上位ガブ実装の移植・暫定】:
+                # 次ターン被KO圏（相手最大打点 ≥ 残りHP = 部分リーサル判定）のガブリアスは
+                # タダにげ（にげる0）でベンチへ下げ、より無傷のガブに交代して攻撃を続ける。
+                # 被弾ガブはベンチに蓄積して Raging Curse の火力になる
+                hp_left = getattr(active, "hp", 0) or 0
+                if self.opp_max_damage(obs) >= hp_left > 0:
+                    fresh = any(pk.id == GARCHOMP_EX and energy_count(pk) >= 1
+                                and (getattr(pk, "hp", 0) or 0) > hp_left
+                                for pk in my_state(obs).bench if pk)
+                    if fresh:
+                        return 2600, "div-G10: rotate threatened Garchomp"
                 # div-G3（2026-07-07 divergence 実測）: 傷んだガブリアスはタダにげ（にげる0）で
                 # ベンチへ下げ、ミカルゲの Raging Curse の弾に変える（上位ピロットの定跡）
                 tomb_ready = any(pk.id == SPIRITOMB and energy_count(pk) >= 1
@@ -455,13 +494,24 @@ class GarchompPolicy(BasePolicy):
         e = energy_count(target)
         rock_bonus = 50 if (cid == ROCK_F_ENERGY and tid == GARCHOMP_EX) else 0
         if tid == GARCHOMP_EX:
-            score = 8300 + rock_bonus if e < 1 else (8250 + rock_bonus if e < 2 else -1)  # R-10: 最大2
-            reason = "S-5: fuel Garchomp"
+            # div-G11【ユーザー指示 2026-07-11・LB上位ガブ実装の移植・暫定】:
+            # ガブは基本1エネ運用（Corkscrew Dive 100）。2枚目は「Buster なら今の相手
+            # バトル場を KO できる（Corkscrew では不可）」時だけ優先し、それ以外は
+            # 次のガブ/ガバイト/ミカルゲへの分散を先にする
+            if e < 1:
+                score, reason = 8300 + rock_bonus, "S-5: fuel Garchomp"
+            elif e < 2:
+                if self._buster_setup(obs, target):
+                    score, reason = 8280 + rock_bonus, "div-G11: 2nd energy for Buster KO"
+                else:
+                    score, reason = 6500, "div-G11: spread energy first"
+            else:
+                return -1, "R-10: Garchomp full (Buster=2)"
         elif tid == GABITE:
-            score = 8200 if e < 1 else (7000 if e < 2 else -1)
+            score = 8200 if e < 1 else (5500 if e < 2 else -1)   # div-G11: 2枚目は分散の後
             reason = "S-5: pre-load Gabite"
         elif tid == GIBLE:
-            score = 8000 if e < 1 else (6900 if e < 2 else -1)
+            score = 8000 if e < 1 else (5400 if e < 2 else -1)   # div-G11: 2枚目は分散の後
             reason = "S-5: pre-load Gible"
         elif tid == SPIRITOMB:
             score = 7500 if e < 1 else -1          # Raging Curse コスト1
@@ -497,12 +547,22 @@ class GarchompPolicy(BasePolicy):
                 # div-G3（2026-07-07 divergence 実測）: 自発的な入替（SWITCH＝にげた後）は
                 # ミカルゲの壁/Raging Curse を優先。KO後の建て直し（TO_ACTIVE）は
                 # ガブリアス > ガバイト（次のアタッカー）> ミカルゲ
-                tomb_curse = (energy_count(card) >= 1 and cid == SPIRITOMB
-                              and self.attack_damage(obs, None, ATK_RAGING_CURSE) >= 60)
+                curse_dmg = self.attack_damage(obs, None, ATK_RAGING_CURSE)
+                opp_ps = opp_state(obs)
+                opp_act = opp_ps.active[0] if opp_ps.active else None
                 if cid == GARCHOMP_EX:
-                    score, reason = 15000 + energy_count(card) * 100, "promote Garchomp"
+                    # div-G10: エネ付き・より無傷のガブを優先して前へ（ローテーション）
+                    score = (15000 + (300 if energy_count(card) >= 1 else 0)
+                             - damage_on(card) // 10)
+                    reason = "div-G10: promote fresh Garchomp"
                 elif cid == SPIRITOMB:
-                    if ctx == SelectContext.SWITCH and tomb_curse:
+                    if (energy_count(card) >= 1 and opp_act is not None
+                            and curse_dmg >= (getattr(opp_act, "hp", 0) or 999)):
+                        # div-G13【ユーザー指示 2026-07-11・暫定】: 溜まった Raging Curse が
+                        # 相手バトル場を KO できるならミカルゲを前へ（フィニッシャー起動）
+                        score, reason = 16000, "div-G13: Spiritomb nuke (Curse KO)"
+                    elif (ctx == SelectContext.SWITCH and energy_count(card) >= 1
+                          and curse_dmg >= 60):
                         score, reason = 16000, "div-G3: Spiritomb wall (Raging Curse)"
                     else:
                         score, reason = 8000, "promote Spiritomb (1-prize)"
@@ -531,6 +591,25 @@ class GarchompPolicy(BasePolicy):
             # div-G4（2026-07-07 divergence 実測）: サーチ先は「いま進化がつながる駒」優先。
             # ガブリアスは場のガバイトに乗せられる時だけ最優先（先取りしない）。
             # エネはがんせきとう > 基本{F}（効果無効の保険）
+            # div-G15【棄却 2026-07-11】ガブ囲い込み（fc[GABITE]>=1 で総数3まで 190 先取り）と
+            # div-G16【棄却 2026-07-11】rose 系時条件（1体目ロズレイド限定 180 / ロゼリア補充 186）
+            # を試したが、TO_HAND 77%→70%（07-08）/ 76%→68%（07-09）に悪化して差し戻し。
+            # human=Garchomp 囲い込み盤面と human=ロゼリア/2枚目ロズレイド盤面が同じ φ 特徴
+            # （fc/hc カウント）空間で重なる両方向クラスタで、一律の優先変更では分離できない
+            # （プロトコル注意3・フーディン div-4 と同型）。詳細は設計md 第3弾の節を参照。
+            # div-G17【棄却 2026-07-11】純グング択（基本F/フカマルのみ）のエネ固定優先も試したが、
+            # 全決定分布（一致行込み）では human は Gible 32 / BasicF 25 の割れ（シグナル無し）。
+            # 不一致行だけで適合させた過学習だった。既存の chomp_line 条件（div-G4）に戻す。
+            if cid in (F_ENERGY, ROCK_F_ENERGY):
+                menu = {c.id for c in (option_card(obs, o) for o in obs.select.option or [])
+                        if c is not None}
+                # div-G18【ソフト・暫定 2026-07-11。07-08/09 全決定分布 68件】: エネのみの択
+                # （ヒルダ等）は常にがんせきとう（human の 79% = 54/68 が Rock。手札のエネ
+                # 構成によらず一貫）。div-G4(b)「がんせきとう > 基本F」の趣旨を、base の
+                # 重複ペナルティ（-40/枚）が壊していたのを、この択に限り固定スコアで守る
+                if menu and menu <= ENERGY_CARDS and len(menu) == 2:
+                    return ((140, "div-G18: take Rock (always)") if cid == ROCK_F_ENERGY
+                            else (120, "div-G18: energy menu (Basic)"))
             base = 100 - hc.get(cid, 0) * 40
             if cid == GARCHOMP_EX:
                 # div-G9（2026-07-08 divergence 実測・7/7）: ガブリアスの先取りを弱める。

@@ -56,7 +56,9 @@ def main():
     if args.dir:
         ok = validate(ROOT / args.dir)
     else:
-        with tempfile.TemporaryDirectory() as td:
+        # ignore_cleanup_errors: Windows では cg.dll がプロセス終了までロックされ
+        # 削除に失敗する（検証結果とは無関係なので exit code を汚さない）
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as td:
             work = Path(td) / "sub"
             with zipfile.ZipFile(ROOT / args.zip) as zf:
                 zf.extractall(work)

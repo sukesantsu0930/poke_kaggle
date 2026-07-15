@@ -1,0 +1,115 @@
+games=68 pilots={'Shota Hirao(968)': 1, 'jiatu.l(1016)': 3, 'Yushin Ito(1122)': 18, 'Sota Uchiyama(1068)': 19, 'kazuki0123(1067)': 10, 'Pixegami(994)': 3, 'junlee789(1042)': 5, 'iwashi(997)': 4, 'Eduardo Rocha de Andrade(1017)': 2, 'tonakaiiii(1082)': 3}
+
+TOTAL agree 3481/5457 = 63.8%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 1275/2584 = 49%
+                   TO_HAND: 545/784 = 70%
+               ATTACH_FROM: 226/305 = 74%
+                 ATTACH_TO: 63/133 = 47%
+            DAMAGE_COUNTER: 153/213 = 72%
+                  TO_BENCH: 46/97 = 47%
+                 TO_ACTIVE: 118/162 = 73%
+                    DAMAGE: 189/221 = 86%
+                   DISCARD: 8/39 = 21%
+     REMOVE_DAMAGE_COUNTER: 187/213 = 88%
+                    SWITCH: 43/64 = 67%
+      SETUP_ACTIVE_POKEMON: 61/68 = 90%
+       SETUP_BENCH_POKEMON: 35/40 = 88%
+                   TO_DECK: 0/1 = 0%
+             SWITCH_ENERGY: 6/7 = 86%
+                  IS_FIRST: 33/33 = 100%
+                DRAW_COUNT: 20/20 = 100%
+                    EVOLVE: 72/72 = 100%
+                  ACTIVATE: 142/142 = 100%
+  REMOVE_DAMAGE_COUNTER_COUNT: 199/199 = 100%
+            DISCARD_ENERGY: 48/48 = 100%
+         DISCARD_TOOL_CARD: 3/3 = 100%
+               SKILL_ORDER: 9/9 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 33}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   63x          ATTACH_TO: human=[0]CARD/Basic  ours=[0]CARD/Basic
+   43x        ATTACH_FROM: human=[1]CARD/Marnie's  ours=[0]CARD/Marnie's
+   17x        ATTACH_FROM: human=[2]CARD/Marnie's  ours=[0]CARD/Marnie's
+   15x REMOVE_DAMAGE_COUNTER: human=[1]CARD/Munkidori  ours=[0]CARD/Marnie's
+   15x            TO_HAND: human=[0]CARD/Marnie's  ours=[1]CARD/Marnie's
+   13x            TO_HAND: human=[1]CARD/Marnie's  ours=[0]CARD/Marnie's
+   11x               MAIN: human=[1]ATTACK/Shadow  ours=[0]PLAY/Marnie's
+   10x        ATTACH_FROM: human=[0]CARD/Marnie's  ours=[1]CARD/Marnie's
+    8x           TO_BENCH: human=[0]CARD/Marnie's  ours=[0]CARD/Marnie's
+    8x            TO_HAND: human=[0]CARD/Dudunsparce  ours=[1]CARD/Marnie's
+    7x            TO_HAND: human=[2]CARD/Marnie's  ours=[0]CARD/Marnie's
+    7x            TO_HAND: human=(none)  ours=[0]CARD/Marnie's
+    7x            TO_HAND: human=[0]CARD/Marnie's  ours=[2]CARD/Marnie's
+    6x               MAIN: human=[2]END  ours=[0]PLAY/Spikemuth
+    6x          TO_ACTIVE: human=[0]CARD/Munkidori  ours=[2]CARD/Marnie's
+    6x               MAIN: human=[2]ABILITY/Spikemuth  ours=[1]ABILITY/Munkidori
+    6x            TO_HAND: human=[3]CARD/Marnie's  ours=[0]CARD/Marnie's
+    6x               MAIN: human=[0]RETREAT  ours=[1]END
+    6x               MAIN: human=[4]ABILITY/Spikemuth  ours=[2]ABILITY/Munkidori
+    6x               MAIN: human=[2]ATTACK/Shadow  ours=[1]PLAY/Marnie's
+
+-- 不一致サンプル --
+  85109575 Shota Hirao MAIN
+    human: [1]ATTACH/Basic {D} Energy/->Munkidori
+    ours : [4]PLAY/Marnie's Impidimp
+  85109575 Shota Hirao ATTACH_TO
+    human: [0]CARD/Basic {D} Energy [1]CARD/Basic {D} Energy [2]CARD/Basic {D} Energy
+    ours : [0]CARD/Basic {D} Energy [1]CARD/Basic {D} Energy [2]CARD/Basic {D} Energy [3]CARD/Basic {D} Energy
+  85109575 Shota Hirao ATTACH_FROM
+    human: [1]CARD/Marnie's Impidimp
+    ours : [0]CARD/Marnie's Grimmsnarl ex
+  85109575 Shota Hirao MAIN
+    human: [4]ATTACH/Basic {D} Energy/->Munkidori
+    ours : [7]PLAY/Munkidori
+  85109575 Shota Hirao MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [2]PLAY/Munkidori
+  85109575 Shota Hirao MAIN
+    human: [2]PLAY/Buddy-Buddy Poffin
+    ours : [1]PLAY/Marnie's Impidimp
+  85109580 jiatu.l MAIN
+    human: [3]PLAY/Buddy-Buddy Poffin
+    ours : [1]PLAY/Spikemuth Gym
+  85109580 jiatu.l TO_BENCH
+    human: [2]CARD/Snorunt [0]CARD/Snorunt
+    ours : [1]CARD/Marnie's Impidimp [3]CARD/Marnie's Impidimp
+  85109580 jiatu.l MAIN
+    human: [0]PLAY/Pokégear 3.0
+    ours : [1]PLAY/Spikemuth Gym
+  85109580 jiatu.l MAIN
+    human: [2]END
+    ours : [0]PLAY/Spikemuth Gym
+  85109580 jiatu.l MAIN
+    human: [2]PLAY/Poké Pad
+    ours : [0]PLAY/Spikemuth Gym
+  85109580 jiatu.l TO_HAND
+    human: [6]CARD/Munkidori
+    ours : [1]CARD/Marnie's Impidimp
+  85109580 jiatu.l MAIN
+    human: [2]END
+    ours : [0]PLAY/Spikemuth Gym
+  85109580 jiatu.l TO_ACTIVE
+    human: [0]CARD/Snorunt
+    ours : [2]CARD/Munkidori
+  85109580 jiatu.l MAIN
+    human: [0]PLAY/Night Stretcher
+    ours : [1]PLAY/Spikemuth Gym
+  85109580 jiatu.l MAIN
+    human: [2]END
+    ours : [0]PLAY/Spikemuth Gym
+  85109580 jiatu.l TO_ACTIVE
+    human: [0]CARD/Snorunt
+    ours : [1]CARD/Munkidori
+  85109580 jiatu.l MAIN
+    human: [2]PLAY/Team Rocket's Petrel
+    ours : [0]PLAY/Spikemuth Gym
+  85109580 jiatu.l TO_HAND
+    human: [17]CARD/Dawn
+    ours : [0]CARD/Boss’s Orders
+  85109580 jiatu.l MAIN
+    human: [2]END
+    ours : [0]PLAY/Spikemuth Gym

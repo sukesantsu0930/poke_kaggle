@@ -1,0 +1,164 @@
+games=5 pilots={'ShumpeiNomura(1098)': 4, 'CardPilotLab(959)': 1}
+
+TOTAL agree 235/333 = 70.6%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 109/191 = 57%
+                   TO_HAND: 45/52 = 87%
+                  IS_FIRST: 0/4 = 0%
+                   DISCARD: 7/9 = 78%
+                 TO_ACTIVE: 12/14 = 86%
+                    SWITCH: 6/7 = 86%
+      SETUP_ACTIVE_POKEMON: 5/5 = 100%
+                  ACTIVATE: 13/13 = 100%
+                 ATTACH_TO: 13/13 = 100%
+               ATTACH_FROM: 23/23 = 100%
+            DISCARD_ENERGY: 1/1 = 100%
+       SETUP_BENCH_POKEMON: 1/1 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 4}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    4x           IS_FIRST: human=[0]YES  ours=[1]NO
+    3x               MAIN: human=[1]ATTACK/Metal  ours=[0]PLAY/Team
+    2x            TO_HAND: human=[2]CARD/Duraludon  ours=[0]CARD/Team
+    2x               MAIN: human=[2]PLAY/Duraludon  ours=[1]PLAY/Pokégear
+    2x            TO_HAND: human=[0]CARD  ours=[1]CARD
+    2x               MAIN: human=[4]ATTACK/Metal  ours=[6]ATTACK/Raging
+    2x               MAIN: human=[8]END  ours=[4]ATTACK/Metal
+    1x               MAIN: human=[5]PLAY/Duraludon  ours=[2]PLAY/Pokégear
+    1x               MAIN: human=[4]PLAY/Full  ours=[2]PLAY/Pokégear
+    1x               MAIN: human=[0]PLAY/Carmine  ours=[2]PLAY/Pokégear
+    1x               MAIN: human=[5]ATTACH/Hero’s  ours=[0]PLAY/Poké
+    1x               MAIN: human=[1]ATTACH/Basic  ours=[0]PLAY/Poké
+    1x               MAIN: human=[2]PLAY/Duraludon  ours=[0]PLAY/Poké
+    1x               MAIN: human=[3]PLAY/Duraludon  ours=[0]PLAY/Full
+    1x               MAIN: human=[1]PLAY/Ultra  ours=[0]PLAY/Full
+    1x            DISCARD: human=[0]CARD/Basic  ours=[0]CARD/Basic
+    1x               MAIN: human=[0]PLAY/Xerosic’s  ours=[1]PLAY/Lillie's
+    1x               MAIN: human=[3]PLAY/Poké  ours=[1]PLAY/Full
+    1x               MAIN: human=[3]PLAY/Relicanth  ours=[1]PLAY/Full
+    1x               MAIN: human=[0]EVOLVE/Archaludon  ours=[2]ATTACK/Metal
+
+-- 不一致サンプル --
+  84487128 ShumpeiNomura IS_FIRST
+    human: [0]YES
+    ours : [1]NO
+  84487128 ShumpeiNomura MAIN
+    human: [5]PLAY/Duraludon
+    ours : [2]PLAY/Pokégear 3.0
+  84487128 ShumpeiNomura MAIN
+    human: [4]PLAY/Full Metal Lab
+    ours : [2]PLAY/Pokégear 3.0
+  84487128 ShumpeiNomura MAIN
+    human: [0]PLAY/Carmine
+    ours : [2]PLAY/Pokégear 3.0
+  84487128 ShumpeiNomura MAIN
+    human: [5]ATTACH/Hero’s Cape/->Duraludon
+    ours : [0]PLAY/Poké Pad
+  84487128 ShumpeiNomura MAIN
+    human: [1]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [0]PLAY/Poké Pad
+  84487128 ShumpeiNomura MAIN
+    human: [2]PLAY/Duraludon
+    ours : [0]PLAY/Poké Pad
+  84487128 ShumpeiNomura TO_HAND
+    human: [2]CARD/Duraludon
+    ours : [0]CARD/Team Rocket's Articuno
+  84487128 ShumpeiNomura MAIN
+    human: [3]PLAY/Duraludon
+    ours : [0]PLAY/Full Metal Lab
+  84487128 ShumpeiNomura MAIN
+    human: [1]PLAY/Ultra Ball
+    ours : [0]PLAY/Full Metal Lab
+  84487128 ShumpeiNomura DISCARD
+    human: [0]CARD/Basic {M} Energy [1]CARD/Basic {M} Energy
+    ours : [0]CARD/Basic {M} Energy [2]CARD/Full Metal Lab
+  84487128 ShumpeiNomura MAIN
+    human: [0]PLAY/Xerosic’s Machinations
+    ours : [1]PLAY/Lillie's Determination
+  84487128 ShumpeiNomura MAIN
+    human: [3]PLAY/Poké Pad
+    ours : [1]PLAY/Full Metal Lab
+  84487128 ShumpeiNomura MAIN
+    human: [3]PLAY/Relicanth
+    ours : [1]PLAY/Full Metal Lab
+  84487128 ShumpeiNomura MAIN
+    human: [0]EVOLVE/Archaludon ex/->Duraludon
+    ours : [2]ATTACK/Metal Defender
+  84487128 ShumpeiNomura MAIN
+    human: [0]PLAY/Night Stretcher
+    ours : [1]ATTACK/Metal Defender
+  84487128 ShumpeiNomura MAIN
+    human: [5]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [7]PLAY/Night Stretcher
+  84487128 ShumpeiNomura TO_HAND
+    human: [0]CARD/Archaludon ex
+    ours : [2]CARD/Basic {M} Energy
+  84487128 ShumpeiNomura MAIN
+    human: [1]PLAY/Carmine
+    ours : [0]PLAY/Team Rocket's Articuno
+  84487163 ShumpeiNomura IS_FIRST
+    human: [0]YES
+    ours : [1]NO
+  84487163 ShumpeiNomura MAIN
+    human: [2]PLAY/Duraludon
+    ours : [3]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [1]ATTACH/Hero’s Cape/->Duraludon
+    ours : [4]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [1]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [2]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [3]END
+    ours : [0]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [4]PLAY/Poké Pad
+    ours : [2]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [4]PLAY/Duraludon
+    ours : [2]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [2]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [2]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [4]PLAY/Poké Pad
+  84487163 ShumpeiNomura TO_HAND
+    human: [2]CARD/Duraludon
+    ours : [0]CARD/Team Rocket's Articuno
+  84487163 ShumpeiNomura MAIN
+    human: [2]PLAY/Duraludon
+    ours : [1]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [0]PLAY/Full Metal Lab
+    ours : [1]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [2]END
+    ours : [0]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [1]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [4]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [1]PLAY/Lillie's Determination
+    ours : [0]PLAY/Pokégear 3.0
+  84487163 ShumpeiNomura MAIN
+    human: [4]PLAY/Relicanth
+    ours : [0]PLAY/Poké Pad
+  84487163 ShumpeiNomura MAIN
+    human: [2]PLAY/Full Metal Lab
+    ours : [0]PLAY/Poké Pad
+  84487163 ShumpeiNomura MAIN
+    human: [4]END
+    ours : [0]PLAY/Poké Pad
+  84487163 ShumpeiNomura MAIN
+    human: [6]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [0]PLAY/Poké Pad
+  84487163 ShumpeiNomura MAIN
+    human: [4]PLAY/Carmine
+    ours : [0]PLAY/Poké Pad
+  84487163 ShumpeiNomura MAIN
+    human: [0]EVOLVE/Archaludon ex/->Duraludon
+    ours : [3]PLAY/Ultra Ball

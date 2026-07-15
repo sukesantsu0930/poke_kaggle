@@ -10,7 +10,7 @@
 使い方:
   PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe scripts/eval_battery.py ^
       --agent agents/marnie_munkidori_rb ^
-      --deck decks/candidates/2026-06-30_top5/winrate_2_marnie_grimmsnarl.csv ^
+      --deck decks/fleet/winrate_2_marnie_grimmsnarl.csv ^
       --archetype-cards 648,112 --holdout downloads/episodes/2026-07-05 ^
       [--games 30] [--check-games 10] [--div-max-games 60] [--min-score 900] [--only l1,l3]
 
@@ -62,7 +62,7 @@ def main():
     parser.add_argument("--check-games", type=int, default=10, help="L1: check_agent の戦数")
     parser.add_argument("--div-max-games", type=int, default=60, help="L3: divergence の最大試合数")
     parser.add_argument("--min-score", type=float, default=900, help="L3: 対象ピロットの最低レート")
-    parser.add_argument("--field", default="research/meta/2026-07-08_field.csv")
+    parser.add_argument("--field", default="research/meta/2026-07-14_field.csv")
     parser.add_argument("--leaderboard", default="downloads/leaderboard")
     parser.add_argument("--only", help="実行層の絞り込み（例: l1,l3。省略時は全部）")
     parser.add_argument("--out-dir", default="research/eval")

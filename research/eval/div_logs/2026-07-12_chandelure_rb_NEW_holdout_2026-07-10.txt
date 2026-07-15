@@ -1,0 +1,104 @@
+games=18 pilots={'Raihan Ramadistra(1029)': 15, 'kidekikish(1069)': 2, 'Star-mine(1039)': 1}
+
+TOTAL agree 577/932 = 61.9%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 372/654 = 57%
+                   TO_HAND: 50/72 = 69%
+                   DISCARD: 5/19 = 26%
+                    SWITCH: 18/31 = 58%
+                  TO_BENCH: 26/33 = 79%
+                  IS_FIRST: 1/8 = 12%
+                 TO_ACTIVE: 45/49 = 92%
+            DISCARD_ENERGY: 26/28 = 93%
+                DRAW_COUNT: 5/7 = 71%
+      SETUP_ACTIVE_POKEMON: 17/18 = 94%
+       SETUP_BENCH_POKEMON: 5/6 = 83%
+                    EVOLVE: 7/7 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'NO': 7, 'YES': 1}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    7x           IS_FIRST: human=[1]NO  ours=[0]YES
+    5x           TO_BENCH: human=[0]CARD/Comfey  ours=[0]CARD/Comfey
+    4x               MAIN: human=[0]PLAY/Poké  ours=[1]ATTACK/Flower
+    3x            TO_HAND: human=[0]CARD/Basic  ours=[1]CARD/Telepath
+    3x               MAIN: human=[0]PLAY/Night  ours=[1]ATTACK/Flower
+    3x               MAIN: human=[1]ATTACK/Flower  ours=[0]PLAY/Poké
+    2x               MAIN: human=[1]PLAY/Poké  ours=[2]ATTACK/Flower
+    2x               MAIN: human=[0]PLAY/Xerosic’s  ours=[2]PLAY/Energy
+    2x               MAIN: human=[4]PLAY/Crushing  ours=[3]PLAY/Buddy-Buddy
+    2x               MAIN: human=[1]ATTACH/Gravity  ours=[3]PLAY/Buddy-Buddy
+    2x               MAIN: human=[1]EVOLVE/Lampent/->Litwick  ours=[0]EVOLVE/Lampent/->Litwick
+    2x             SWITCH: human=[1]CARD/Abra  ours=[0]CARD/Kadabra
+    2x               MAIN: human=[1]ATTACK/Flower  ours=[0]PLAY/Shaymin
+    2x          TO_ACTIVE: human=[1]CARD/Shaymin  ours=[0]CARD/Chandelure
+    2x               MAIN: human=[0]PLAY/Lillie's  ours=[1]PLAY/Hilda
+    2x               MAIN: human=[2]ATTACK/Flower  ours=[1]PLAY/Neutralization
+    2x            TO_HAND: human=[0]CARD/Chandelure  ours=[2]CARD/Litwick
+    2x           TO_BENCH: human=[0]CARD/Litwick  ours=[1]CARD/Comfey
+    2x               MAIN: human=[1]PLAY/Boss’s  ours=[0]PLAY/Xerosic’s
+    2x            TO_HAND: human=[0]CARD/Litwick  ours=[1]CARD/Comfey
+
+-- 不一致サンプル --
+  85109575 Raihan Ramadistra MAIN
+    human: [1]PLAY/Energy Search
+    ours : [2]ATTACK/Flower Shower
+  85109575 Raihan Ramadistra MAIN
+    human: [0]PLAY/Boss’s Orders
+    ours : [1]ATTACK/Flower Shower
+  85109575 Raihan Ramadistra SWITCH
+    human: [3]CARD/Marnie's Impidimp
+    ours : [1]CARD/Munkidori
+  85109608 kidekikish MAIN
+    human: [1]PLAY/Buddy-Buddy Poffin
+    ours : [5]PLAY/Comfey
+  85109608 kidekikish MAIN
+    human: [0]PLAY/Eri
+    ours : [8]ATTACK/Flower Shower
+  85109608 kidekikish MAIN
+    human: [7]PLAY/Boss’s Orders
+    ours : [9]PLAY/Crushing Hammer
+  85109608 kidekikish SWITCH
+    human: [0]CARD/Team Rocket's Mewtwo ex
+    ours : [3]CARD/Team Rocket's Spidops
+  85109608 kidekikish MAIN
+    human: [1]ATTACH/Gravity Gemstone/->Comfey
+    ours : [8]PLAY/Crushing Hammer
+  85109608 kidekikish MAIN
+    human: [1]PLAY/Poké Pad
+    ours : [2]PLAY/Crushing Hammer
+  85109608 kidekikish TO_HAND
+    human: [1]CARD/Litwick
+    ours : [2]CARD/Chandelure
+  85109608 kidekikish MAIN
+    human: [4]PLAY/Xerosic’s Machinations
+    ours : [5]ABILITY/Chandelure
+  85109608 kidekikish MAIN
+    human: [4]PLAY/Boss’s Orders
+    ours : [2]PLAY/Litwick
+  85109608 kidekikish MAIN
+    human: [4]ATTACH/Gravity Gemstone/->Comfey
+    ours : [1]PLAY/Litwick
+  85109608 kidekikish MAIN
+    human: [8]PLAY/Xerosic’s Machinations
+    ours : [6]EVOLVE/Lampent/->Litwick
+  85109608 kidekikish MAIN
+    human: [1]PLAY/Poké Pad
+    ours : [4]ATTACH/Basic {P} Energy/->Comfey
+  85109608 kidekikish MAIN
+    human: [1]PLAY/Poké Pad
+    ours : [3]ATTACH/Basic {P} Energy/->Comfey
+  85109608 kidekikish MAIN
+    human: [10]PLAY/Xerosic’s Machinations
+    ours : [13]ABILITY/Chandelure
+  85109608 kidekikish MAIN
+    human: [2]EVOLVE/Chandelure/->Lampent
+    ours : [5]ABILITY/Chandelure
+  85109608 kidekikish MAIN
+    human: [10]ATTACK/Flower Shower
+    ours : [8]ATTACH/Basic {P} Energy/->Comfey
+  85110237 Raihan Ramadistra MAIN
+    human: [4]PLAY/Lillie's Determination
+    ours : [1]PLAY/Poké Pad

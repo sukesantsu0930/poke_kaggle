@@ -196,22 +196,29 @@ class MarniePolicy(BasePolicy):
         yi = obs.current.yourIndex
         ctx = obs.select.context
 
-        # ── ABILITY 帯（R-04 最上位） ──
+        # ── ABILITY 帯 ──
+        # div-14（2026-07-11 実測・07-08/07-09 両日）: 上位勢のターン内順序は
+        # プレイ/進化/サポーター/手張り → リトリート → ノココッチ → ジムサーチ →
+        # アドレナ → 攻撃（H=Spikemuth/O=Adrena 196x、H=play/O=Spikemuth 152x、
+        # H=play/O=Adrena 106x ほか全て一方向・逆方向 0x）。
+        # 特性を R-04 最上位帯（26000-29000）から攻撃直前の帯（2500-3300）へ移す
         if opt.type == OptionType.ABILITY:
             card = get_card(obs, opt.area, opt.index, yi)
             cid = card.id if card else None
             if cid == SPIKEMUTH_GYM:
                 # S-4: ジムサーチは毎ターン起動（対象選択は TO_HAND 側）
-                return 27000, "S-4: Spikemuth Gym search"
+                return 3000, "S-4: Spikemuth Gym search"
             if cid == MUNKIDORI:
-                # E-2: 自分の場にダメカンがある時だけ（回復+削り）
+                # E-2: 自分の場にダメカンがある時だけ（回復+削り）。順序は最後（div-14）
                 if p["own_damage"]:
-                    return 29000, "E-2: Adrena-Brain (move counters)"
+                    return 2500, "E-2: Adrena-Brain (move counters)"
                 return -1, "E-2: save Adrena-Brain (no damage)"
             if cid == DUDUNSPARCE:
-                # 使うと盤面から消える → 手札が細い時だけ
-                if p["hand_size"] <= 5 and self._safe_draws() >= 3:
-                    return 28000, "Run Away Draw (thin hand)"
+                # div-15（2026-07-11 実測・両日）: 手札枚数の条件を撤廃（上位勢は手札が
+                # 太くても進化後すぐ使う: H=save Run Away Draw が両日計 83x・逆方向 0x）。
+                # R-11 の山札切れガード（safe_draws>=3）は維持
+                if self._safe_draws() >= 3:
+                    return 3300, "div-15: Run Away Draw"
                 return -1, "save Run Away Draw"
             return 26000, "generic ability"
 
@@ -241,7 +248,8 @@ class MarniePolicy(BasePolicy):
             ready = any(pk.id == GRIMMSNARL_EX and energy_count(pk) >= 2
                         for pk in my_state(obs).bench if pk)
             if ready and active is not None and energy_count(active) >= (CARD_DB[aid].retreatCost if aid in CARD_DB else 0):
-                return 2000, "retreat to promote tank"
+                # div-14: 上位勢はジムサーチより先にリトリート（H=retreat/O=gym 15x・逆 0x）
+                return 3500, "retreat to promote tank"
             return -100, "avoid retreat"
 
         if opt.type == OptionType.ATTACK:
@@ -389,6 +397,8 @@ class MarniePolicy(BasePolicy):
             score = 8200 if e < 2 else -1          # R-10: Shadow Bullet コスト2
             reason = "S-5: fuel Shadow Bullet"
         elif tid == MORGREM:
+            # div-10 は棄却（2026-07-12 二分探索: 対旧版200戦 43.3%、div-9/10 除去で 52.5% に
+            # 回復 = L3 は +3pt でも L2 の直接対決 −7pt の主因。L2改善∧L3非悪化を満たさず差し戻し）
             score = 8100 if e < 2 else -1
             reason = "S-5: pre-load line"
         elif tid == IMPIDIMP:
@@ -453,12 +463,37 @@ class MarniePolicy(BasePolicy):
                 if is_opp_active and self._active_ko_by_attack_alone(obs):
                     return -1, "E-2a: active dies to attack alone -> send to bench"
                 hp = getattr(card, "hp", 999)
-                if hp <= 30:
+                remaining = hp - damage_on(card)
+                if remaining <= 30:
                     return 15000 + (500 - hp), "E-2/R-15: counter-move KO"
+                # div-12【棄却】（2026-07-11）: 「ダメカンは大物（最大HP）に積む」を試したが
+                # DAMAGE_COUNTER 69%→49%（07-08）/ 75%→57%（07-09）に悪化して差し戻し。
+                # H=Okidogi/O=Solrock 等の不一致は残るが、条件（どの大物に積むか）が
+                # 特定できず一律の反転はR-15より悪い（両方向クラスタ）
                 return self.default_score_damage_target(obs, opt)   # R-15: 最低HP優先
             return 0, "damage none"
 
+        if ctx == SelectContext.REMOVE_DAMAGE_COUNTER:
+            # div-11 v2（2026-07-11 実測・07-08/07-09 両日）: Adrena-Brain の移動元は
+            # 未実装で全て同点 500（インデックス順=バトル場が先頭）だった。
+            # v1「傷ついたマシマシラを常に最優先」（H=Munkidori/O=Grimmsnarl 30x/32x に
+            # 基づく）は逆流 H=Grimmsnarl/O=Munkidori 52x/47x を生み RDC 82→72/84→78 に
+            # 悪化（両方向クラスタ）。v2: 重傷（60+）のマシマシラだけ救出し、
+            # それ以外は従来の実効挙動（バトル場先頭）を明示化
+            if card is None:
+                return 0, "rdc none"
+            dmg = damage_on(card)
+            if cid == MUNKIDORI and dmg >= 60:
+                return 3000 + dmg, "div-11: rescue heavily-hit Munkidori"
+            if card is active_pokemon(obs):
+                return 2000, "div-11: heal active first"
+            return 1000 + dmg, "div-11: heal most damaged bench"
+
         if ctx == SelectContext.TO_HAND:
+            # div-13（2026-07-11 実測・07-08/07-09 両日）: サーチ先テーブルの補正。
+            # ギモーの取りすぎ（H=Dudunsparce/Impidimp/Munkidori 等 vs O=Morgrem が
+            # 両日計 191x。アメ本線でギモーの価値は低い）、ノココッチ未実装（人間は 77x
+            # 取る）、ベロバーのライン2本目（33x）、ノコッチ2本目線の取りすぎ（32x）
             base = 100 - hc.get(cid, 0) * 40
             if cid == GRIMMSNARL_EX:
                 path = fc[MORGREM] >= 1 or (fc[IMPIDIMP] >= 1 and hc[RARE_CANDY] >= 1)
@@ -466,13 +501,15 @@ class MarniePolicy(BasePolicy):
             if cid == RARE_CANDY:
                 return base + (85 if fc[IMPIDIMP] >= 1 else 0), "take Rare Candy"
             if cid == MORGREM:
-                return base + (70 if fc[IMPIDIMP] >= 1 else 10), "take Morgrem"
+                return base + 20, "take Morgrem"
             if cid == IMPIDIMP:
-                return base + (60 if p["marnie_line"] < 2 else -20), "take Impidimp"
+                return base + (60 if p["marnie_line"] < 2 else 25), "take Impidimp"
             if cid == MUNKIDORI:
                 return base + (55 if fc[MUNKIDORI] < 2 else -20), "take Munkidori"
+            if cid == DUDUNSPARCE:
+                return base + (50 if fc[DUNSPARCE] >= 1 else -10), "div-13: take Dudunsparce"
             if cid == DUNSPARCE:
-                return base + (40 if fc[DUNSPARCE] + fc[DUDUNSPARCE] < 2 else -30), "take Dunsparce"
+                return base + (40 if fc[DUNSPARCE] + fc[DUDUNSPARCE] < 1 else -30), "take Dunsparce"
             if cid == DARK_ENERGY:
                 return base + (30 if hc[DARK_ENERGY] == 0 else -10), "take energy"
             if cid == HERO_CAPE:
@@ -487,7 +524,12 @@ class MarniePolicy(BasePolicy):
                 e = energy_count(card)
                 dark_on = sum(1 for ec in (card.energyCards or []) if ec.id == DARK_ENERGY)
                 if cid == GRIMMSNARL_EX:
-                    return (150 if e < 2 else 100), "div-4: attach to Grimmsnarl first"
+                    # div-7（2026-07-11 実測・07-08/07-09 両日）: 満タン(e>=2)のオーロンゲには
+                    # 足さず、次のライン駒へ回す。両日最大の不一致クラスタ
+                    # （H: pre-load Impidimp(80) / O: Grimmsnarl first(100) が 91x/106x）
+                    if e < 2:
+                        return 150, "div-4: attach to Grimmsnarl first"
+                    return 30, "div-7: Grimmsnarl charged -> spill to line"
                 if cid == IMPIDIMP:
                     return (80 if e < 2 else 10), "div-4: pre-load Impidimp"
                 if cid == MORGREM:
@@ -516,6 +558,7 @@ class MarniePolicy(BasePolicy):
             if cid == DARK_ENERGY:
                 if "energy_quota" not in p:
                     need = 0
+                    preload = 0
                     for pk in all_my_pokemon(obs):
                         if pk.id == GRIMMSNARL_EX:
                             need += max(0, 2 - energy_count(pk))
@@ -524,7 +567,12 @@ class MarniePolicy(BasePolicy):
                                           if ec.id == DARK_ENERGY)
                             if dark_on == 0:
                                 need += 1
-                    p["energy_quota"] = max(1, min(5, need))
+                        elif pk.id in (IMPIDIMP, MORGREM):
+                            # div-8（2026-07-11 実測・07-08/07-09 両日）: 上位勢は必要枚数より
+                            # 1〜2枚多く取り、次のライン駒に先置きする（human 4-5枚 vs ours 2枚が
+                            # 両日で 31x/28x。div-3 の「山に残す」は保守的すぎた）
+                            preload += max(0, 2 - energy_count(pk))
+                    p["energy_quota"] = max(1, min(5, need + min(2, preload)))
                 if p["energy_quota"] > 0:
                     p["energy_quota"] -= 1
                     return 1000, "div-3: take needed energy"

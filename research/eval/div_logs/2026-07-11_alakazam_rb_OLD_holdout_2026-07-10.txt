@@ -1,0 +1,109 @@
+games=80 pilots={'Majkel1337(1157)': 7, 'LiamK(1087)': 10, 'Yushin Ito(1122)': 7, '5.5(920)': 4, 'bono(1088)': 14, 'capbloo(1008)': 13, 'Michael Long(1030)': 6, 'wally0593(1033)': 5, 'Rmy(1076)': 4, 'matsurih(1068)': 4, 'Bozo Boys(1100)': 1, 'Hiro Nomo(988)': 1, 'kawachi(1021)': 3, 'NoOne(1003)': 1}
+
+TOTAL agree 3341/6109 = 54.7%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 1348/3474 = 39%
+                   TO_HAND: 699/1016 = 69%
+                   DISCARD: 5/98 = 5%
+                 TO_ACTIVE: 195/254 = 77%
+                    SWITCH: 89/147 = 61%
+                  TO_BENCH: 170/201 = 85%
+                   TO_DECK: 12/40 = 30%
+                  ACTIVATE: 439/462 = 95%
+      SETUP_ACTIVE_POKEMON: 69/80 = 86%
+            DISCARD_ENERGY: 125/136 = 92%
+       SETUP_BENCH_POKEMON: 22/31 = 71%
+                    EVOLVE: 99/101 = 98%
+                  IS_FIRST: 43/43 = 100%
+                DRAW_COUNT: 22/22 = 100%
+               SKILL_ORDER: 2/2 = 100%
+                 ATTACH_TO: 1/1 = 100%
+               ATTACH_FROM: 1/1 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 43}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   18x            TO_HAND: human=[4]CARD  ours=[0]CARD
+   12x           ACTIVATE: human=[1]NO  ours=[0]YES
+   11x           ACTIVATE: human=[0]YES  ours=[1]NO
+    9x            TO_HAND: human=[0]CARD/Kadabra  ours=[1]CARD/Dudunsparce
+    8x               MAIN: human=[0]ABILITY/Dudunsparce  ours=[1]END
+    8x            TO_HAND: human=[1]CARD/Kadabra  ours=[0]CARD/Dudunsparce
+    8x     DISCARD_ENERGY: human=[1]ENERGY/Mega  ours=[0]ENERGY/Mega
+    8x            TO_HAND: human=[1]CARD/Telepath  ours=[0]CARD/Basic
+    8x SETUP_ACTIVE_POKEMON: human=[1]CARD/Dunsparce  ours=[0]CARD/Abra
+    8x           TO_BENCH: human=[0]CARD/Dunsparce  ours=[1]CARD/Abra
+    8x            TO_HAND: human=[2]CARD  ours=[0]CARD
+    7x            TO_HAND: human=[5]CARD  ours=[0]CARD
+    6x               MAIN: human=[1]EVOLVE/Kadabra/->Abra  ours=[0]EVOLVE/Kadabra/->Abra
+    6x            TO_HAND: human=[0]CARD/Kadabra  ours=[3]CARD/Dudunsparce
+    6x             SWITCH: human=[0]CARD/Dunsparce  ours=[1]CARD/Abra
+    6x               MAIN: human=[1]ATTACK/Powerful  ours=[0]ABILITY/Dudunsparce
+    5x            DISCARD: human=[0]CARD/Night  ours=[0]CARD/Night
+    5x           TO_BENCH: human=[0]CARD/Abra  ours=[0]CARD/Abra
+    5x               MAIN: human=[2]ATTACK/Powerful  ours=[0]PLAY/Poké
+    5x               MAIN: human=[1]ATTACK/Powerful  ours=[0]PLAY/Poké
+
+-- 不一致サンプル --
+  85109456 Majkel1337 MAIN
+    human: [2]PLAY/Enhanced Hammer
+    ours : [0]PLAY/Dawn
+  85109456 Majkel1337 MAIN
+    human: [0]ABILITY/Dudunsparce
+    ours : [1]END
+  85109456 Majkel1337 MAIN
+    human: [4]PLAY/Rare Candy
+    ours : [1]EVOLVE/Kadabra/->Abra
+  85109456 Majkel1337 MAIN
+    human: [1]PLAY/Enhanced Hammer
+    ours : [3]PLAY/Poké Pad
+  85109456 Majkel1337 MAIN
+    human: [0]PLAY/Hilda
+    ours : [2]PLAY/Boss’s Orders
+  85109456 Majkel1337 DISCARD
+    human: [0]CARD/Night Stretcher [1]CARD/Sacred Ash [3]CARD/Alakazam [4]CARD/Dawn [5]CARD/Boss’s Orders [6]CARD/Hilda [9]CARD/Hilda
+    ours : [0]CARD/Night Stretcher [1]CARD/Sacred Ash [2]CARD/Kadabra [3]CARD/Alakazam [4]CARD/Dawn [5]CARD/Boss’s Orders [6]CARD/Hilda
+  85109456 Majkel1337 MAIN
+    human: [1]EVOLVE/Kadabra/->Abra
+    ours : [0]EVOLVE/Kadabra/->Abra
+  85109456 Majkel1337 MAIN
+    human: [3]PLAY/Buddy-Buddy Poffin
+    ours : [1]EVOLVE/Kadabra/->Abra
+  85109456 Majkel1337 MAIN
+    human: [2]PLAY/Hilda
+    ours : [1]EVOLVE/Kadabra/->Abra
+  85109456 Majkel1337 TO_HAND
+    human: [0]CARD/Kadabra
+    ours : [3]CARD/Dudunsparce
+  85109456 Majkel1337 TO_HAND
+    human: [1]CARD/Basic {P} Energy
+    ours : [0]CARD/Telepath Psychic Energy
+  85109456 Majkel1337 MAIN
+    human: [1]ATTACH/Basic {P} Energy/->Kadabra
+    ours : [0]ATTACH/Basic {P} Energy/->Kadabra
+  85109456 Majkel1337 DISCARD
+    human: [2]CARD/Kadabra [3]CARD/Nighttime Mine
+    ours : [0]CARD/Lana’s Aid [1]CARD/Alakazam
+  85109456 Majkel1337 MAIN
+    human: [3]PLAY/Fezandipiti ex
+    ours : [2]PLAY/Buddy-Buddy Poffin
+  85109456 Majkel1337 MAIN
+    human: [4]ABILITY/Fezandipiti ex
+    ours : [2]PLAY/Buddy-Buddy Poffin
+  85109456 Majkel1337 MAIN
+    human: [8]PLAY/Xerosic’s Machinations
+    ours : [4]PLAY/Dunsparce
+  85109456 Majkel1337 MAIN
+    human: [0]PLAY/Buddy-Buddy Poffin
+    ours : [1]PLAY/Dunsparce
+  85109456 Majkel1337 TO_ACTIVE
+    human: [0]CARD/Fezandipiti ex
+    ours : [1]CARD/Dunsparce
+  85109456 Majkel1337 MAIN
+    human: [10]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [3]PLAY/Dunsparce
+  85109456 Majkel1337 MAIN
+    human: [13]ABILITY/Dudunsparce
+    ours : [3]PLAY/Dunsparce

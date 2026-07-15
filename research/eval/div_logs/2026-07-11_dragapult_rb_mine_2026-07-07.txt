@@ -1,0 +1,170 @@
+games=5 pilots={'youtube.com/@BigBugginnings(1080)': 5}
+
+TOTAL agree 345/533 = 64.7%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 116/242 = 48%
+                   TO_HAND: 83/113 = 73%
+        DAMAGE_COUNTER_ANY: 93/102 = 91%
+                   DISCARD: 1/9 = 11%
+               ATTACH_FROM: 0/7 = 0%
+                 ATTACH_TO: 3/7 = 43%
+                  TO_BENCH: 7/9 = 78%
+                    SWITCH: 13/14 = 93%
+            DAMAGE_COUNTER: 1/2 = 50%
+                  IS_FIRST: 2/2 = 100%
+      SETUP_ACTIVE_POKEMON: 5/5 = 100%
+                DRAW_COUNT: 3/3 = 100%
+       SETUP_BENCH_POKEMON: 1/1 = 100%
+            DISCARD_ENERGY: 6/6 = 100%
+                 TO_ACTIVE: 6/6 = 100%
+     REMOVE_DAMAGE_COUNTER: 2/2 = 100%
+  REMOVE_DAMAGE_COUNTER_COUNT: 2/2 = 100%
+                  ACTIVATE: 1/1 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 2}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   12x            TO_HAND: human=[0]CARD  ours=[1]CARD
+    5x DAMAGE_COUNTER_ANY: human=[2]CARD/Abra  ours=[1]CARD/Dunsparce
+    4x          ATTACH_TO: human=[1]CARD/Basic  ours=[0]CARD/Basic
+    3x               MAIN: human=[2]ATTACH/Basic  ours=[4]ATTACH/Basic
+    3x            TO_HAND: human=[1]CARD  ours=[0]CARD
+    3x            TO_HAND: human=[1]CARD/Basic  ours=[0]CARD/Basic
+    2x            DISCARD: human=[1]CARD/Buddy-Buddy  ours=[1]CARD/Buddy-Buddy
+    2x        ATTACH_FROM: human=[1]CARD/Munkidori  ours=[0]CARD/Dragapult
+    2x               MAIN: human=[0]EVOLVE/Drakloak/->Dreepy  ours=[3]ABILITY/Drakloak
+    2x            TO_HAND: human=[2]CARD/Basic  ours=[0]CARD/Basic
+    2x               MAIN: human=[9]ABILITY/Drakloak  ours=[0]PLAY/Buddy-Buddy
+    2x               MAIN: human=[0]PLAY/Lillie's  ours=[1]ABILITY/Drakloak
+    2x               MAIN: human=[3]ABILITY/Drakloak  ours=[2]PLAY/Crushing
+    2x        ATTACH_FROM: human=[2]CARD/Drakloak  ours=[0]CARD/Budew
+    2x               MAIN: human=[4]ABILITY/Drakloak  ours=[1]PLAY/Buddy-Buddy
+    2x DAMAGE_COUNTER_ANY: human=[3]CARD/Abra  ours=[0]CARD/Dunsparce
+    1x               MAIN: human=[4]PLAY/Poké  ours=[1]PLAY/Latias
+    1x               MAIN: human=[1]ATTACH/Basic  ours=[2]PLAY/Latias
+    1x               MAIN: human=[4]END  ours=[0]PLAY/Latias
+    1x               MAIN: human=[9]PLAY/Buddy-Buddy  ours=[1]PLAY/Latias
+
+-- 不一致サンプル --
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [4]PLAY/Poké Pad
+    ours : [1]PLAY/Latias ex
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [1]ATTACH/Basic {R} Energy/->Dreepy
+    ours : [2]PLAY/Latias ex
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [4]END
+    ours : [0]PLAY/Latias ex
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [9]PLAY/Buddy-Buddy Poffin
+    ours : [1]PLAY/Latias ex
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [4]PLAY/Crushing Hammer
+    ours : [1]PLAY/Latias ex
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [2]PLAY/Lillie's Determination
+    ours : [1]PLAY/Latias ex
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [8]EVOLVE/Drakloak/->Dreepy
+    ours : [6]PLAY/Crushing Hammer
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [8]ABILITY/Drakloak
+    ours : [6]PLAY/Crushing Hammer
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [2]ATTACH/Basic {P} Energy/->Drakloak
+    ours : [6]PLAY/Crushing Hammer
+  84489405 youtube.com/@BigBugginnings TO_HAND
+    human: [0]CARD
+    ours : [1]CARD
+  84489405 youtube.com/@BigBugginnings DISCARD
+    human: [1]CARD/Buddy-Buddy Poffin [0]CARD/Boss’s Orders
+    ours : [1]CARD/Buddy-Buddy Poffin [4]CARD/Lillie's Determination
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [2]PLAY/Jamming Tower
+    ours : [3]PLAY/Ultra Ball
+  84489405 youtube.com/@BigBugginnings DISCARD
+    human: [1]CARD/Buddy-Buddy Poffin [0]CARD/Fezandipiti ex
+    ours : [1]CARD/Buddy-Buddy Poffin [4]CARD/Lillie's Determination
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [2]ATTACH/Basic {P} Energy/->Drakloak
+    ours : [3]ATTACH/Basic {P} Energy/->Dreepy
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [4]EVOLVE/Drakloak/->Dreepy
+    ours : [6]ABILITY/Drakloak
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [5]PLAY/Poké Pad
+    ours : [2]PLAY/Lillie's Determination
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [5]PLAY/Munkidori
+    ours : [2]PLAY/Lillie's Determination
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [1]PLAY/Judge
+    ours : [2]PLAY/Lillie's Determination
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [1]PLAY/Poké Pad
+    ours : [2]EVOLVE/Dragapult ex/->Drakloak
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [3]ATTACK/Phantom Dive
+    ours : [1]EVOLVE/Dragapult ex/->Drakloak
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [4]ABILITY/Drakloak
+    ours : [1]EVOLVE/Dragapult ex/->Drakloak
+  84489405 youtube.com/@BigBugginnings TO_HAND
+    human: [0]CARD
+    ours : [1]CARD
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [8]ABILITY/Drakloak
+    ours : [1]EVOLVE/Dragapult ex/->Drakloak
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [0]PLAY/Night Stretcher
+    ours : [1]EVOLVE/Dragapult ex/->Drakloak
+  84489405 youtube.com/@BigBugginnings TO_HAND
+    human: [1]CARD/Dragapult ex
+    ours : [3]CARD/Dreepy
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [2]ATTACH/Basic {R} Energy/->Dragapult ex
+    ours : [6]EVOLVE/Dragapult ex/->Drakloak
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [0]PLAY/Boss’s Orders
+    ours : [2]EVOLVE/Dragapult ex/->Drakloak
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [2]RETREAT
+    ours : [0]EVOLVE/Dragapult ex/->Drakloak
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [2]ATTACK/Phantom Dive
+    ours : [0]EVOLVE/Dragapult ex/->Drakloak
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [9]ABILITY/Drakloak
+    ours : [2]EVOLVE/Dragapult ex/->Drakloak
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [7]PLAY/Dreepy
+    ours : [2]EVOLVE/Dragapult ex/->Drakloak
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [0]PLAY/Jamming Tower
+    ours : [1]PLAY/Lillie's Determination
+  84489405 youtube.com/@BigBugginnings TO_HAND
+    human: [1]CARD/Drakloak
+    ours : [2]CARD/Dreepy
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [9]EVOLVE/Drakloak/->Dreepy
+    ours : [2]ATTACH/Basic {P} Energy/->Dragapult ex
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [10]ABILITY/Drakloak
+    ours : [2]ATTACH/Basic {P} Energy/->Dragapult ex
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [1]PLAY/Crispin
+    ours : [3]PLAY/Ultra Ball
+  84489405 youtube.com/@BigBugginnings TO_HAND
+    human: [2]CARD/Basic {R} Energy
+    ours : [1]CARD/Basic {P} Energy
+  84489405 youtube.com/@BigBugginnings ATTACH_FROM
+    human: [1]CARD/Munkidori
+    ours : [0]CARD/Dragapult ex
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [4]ATTACK/Phantom Dive
+    ours : [1]PLAY/Ultra Ball
+  84489405 youtube.com/@BigBugginnings MAIN
+    human: [13]ABILITY/Drakloak
+    ours : [15]ATTACK/Phantom Dive

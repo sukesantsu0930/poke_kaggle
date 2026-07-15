@@ -1,0 +1,166 @@
+games=17 pilots={'ShumpeiNomura(1098)': 13, 'AdrianWang2003(994)': 3, 'Xander(937)': 1}
+
+TOTAL agree 604/1089 = 55.5%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 280/701 = 40%
+                   TO_HAND: 114/146 = 78%
+                   DISCARD: 13/26 = 50%
+                 TO_ACTIVE: 28/36 = 78%
+                    SWITCH: 11/16 = 69%
+                  IS_FIRST: 8/11 = 73%
+                  MULLIGAN: 0/2 = 0%
+               ATTACH_FROM: 54/55 = 98%
+      SETUP_ACTIVE_POKEMON: 17/17 = 100%
+       SETUP_BENCH_POKEMON: 6/6 = 100%
+                  ACTIVATE: 25/25 = 100%
+                 ATTACH_TO: 29/29 = 100%
+            DISCARD_ENERGY: 14/14 = 100%
+                DRAW_COUNT: 5/5 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 8, 'NO': 3}
+-- R-22 MULLIGAN 上位ピロットの実選択: {'NO': 2}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    9x            TO_HAND: human=(none)  ours=[0]CARD/Relicanth
+    5x            TO_HAND: human=[0]CARD  ours=[1]CARD
+    5x               MAIN: human=[1]ATTACH/Basic  ours=[2]ATTACH/Basic
+    4x               MAIN: human=[4]END  ours=[2]PLAY/Relicanth
+    4x               MAIN: human=[4]ATTACH/Basic  ours=[5]ATTACH/Basic
+    3x          TO_ACTIVE: human=[1]CARD/Team  ours=[0]CARD/Duraludon
+    3x               MAIN: human=[4]END  ours=[0]PLAY/Carmine
+    3x               MAIN: human=[14]END  ours=[6]ATTACH/Basic
+    3x               MAIN: human=[3]ATTACH/Basic  ours=[2]ATTACH/Basic
+    3x               MAIN: human=[5]END  ours=[2]PLAY/Relicanth
+    3x               MAIN: human=[4]ATTACK/Metal  ours=[0]PLAY/Relicanth
+    3x           IS_FIRST: human=[1]NO  ours=[0]YES
+    3x               MAIN: human=[9]ATTACH/Basic  ours=[10]ATTACH/Basic
+    3x            DISCARD: human=[0]CARD/Basic  ours=[0]CARD/Basic
+    2x               MAIN: human=[3]PLAY/Duraludon  ours=[1]ATTACH/Basic
+    2x               MAIN: human=[2]END  ours=[0]PLAY/Pokégear
+    2x               MAIN: human=[2]ATTACK/Hammer  ours=[0]PLAY/Carmine
+    2x               MAIN: human=[6]END  ours=[2]EVOLVE/Archaludon
+    2x               MAIN: human=[8]END  ours=[6]ATTACH/Basic
+    2x               MAIN: human=[10]END  ours=[6]ATTACH/Basic
+
+-- 不一致サンプル --
+  84926064 ShumpeiNomura MAIN
+    human: [0]PLAY/Full Metal Lab
+    ours : [4]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [0]PLAY/Carmine
+    ours : [2]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [3]PLAY/Poké Pad
+    ours : [1]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [3]PLAY/Duraludon
+    ours : [1]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [2]END
+    ours : [0]PLAY/Pokégear 3.0
+  84926064 ShumpeiNomura MAIN
+    human: [2]PLAY/Ultra Ball
+    ours : [0]PLAY/Pokégear 3.0
+  84926064 ShumpeiNomura TO_HAND
+    human: [4]CARD/Team Rocket's Articuno
+    ours : [0]CARD/Archaludon ex
+  84926064 ShumpeiNomura MAIN
+    human: [1]PLAY/Team Rocket's Articuno
+    ours : [0]PLAY/Pokégear 3.0
+  84926064 ShumpeiNomura MAIN
+    human: [1]ATTACK/Hammer In
+    ours : [0]PLAY/Carmine
+  84926064 ShumpeiNomura MAIN
+    human: [2]ATTACK/Hammer In
+    ours : [0]PLAY/Carmine
+  84926064 ShumpeiNomura TO_ACTIVE
+    human: [1]CARD/Team Rocket's Articuno
+    ours : [0]CARD/Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [3]END
+    ours : [2]PLAY/Poké Pad
+  84926064 ShumpeiNomura MAIN
+    human: [2]END
+    ours : [0]PLAY/Carmine
+  84926064 ShumpeiNomura MAIN
+    human: [3]END
+    ours : [2]EVOLVE/Archaludon ex/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [4]END
+    ours : [2]EVOLVE/Archaludon ex/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [4]END
+    ours : [0]PLAY/Carmine
+  84926064 ShumpeiNomura MAIN
+    human: [4]END
+    ours : [0]PLAY/Carmine
+  84926064 ShumpeiNomura MAIN
+    human: [4]ATTACH/Hero’s Cape/->Duraludon
+    ours : [0]PLAY/Carmine
+  84926064 ShumpeiNomura MAIN
+    human: [4]END
+    ours : [0]PLAY/Carmine
+  84926064 ShumpeiNomura MAIN
+    human: [5]END
+    ours : [2]EVOLVE/Archaludon ex/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [6]END
+    ours : [2]EVOLVE/Archaludon ex/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [5]ATTACH/Basic {M} Energy/->Team Rocket's Articuno
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [6]END
+    ours : [2]EVOLVE/Archaludon ex/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [8]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [9]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [10]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [11]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [13]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [14]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [16]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [18]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [20]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [21]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [22]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [23]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [24]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [25]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [26]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [27]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon
+  84926064 ShumpeiNomura MAIN
+    human: [28]END
+    ours : [6]ATTACH/Basic {M} Energy/->Duraludon

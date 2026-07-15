@@ -1,0 +1,155 @@
+games=2 pilots={'ojicat(1022)': 1, 'Xenon Soh(961)': 1}
+
+TOTAL agree 114/150 = 76.0%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 47/71 = 66%
+                  TO_BENCH: 2/4 = 50%
+                 TO_ACTIVE: 2/4 = 50%
+                   DISCARD: 2/4 = 50%
+               ATTACH_FROM: 0/2 = 0%
+                  IS_FIRST: 1/2 = 50%
+      SETUP_ACTIVE_POKEMON: 1/2 = 50%
+       SETUP_BENCH_POKEMON: 0/1 = 0%
+                    SWITCH: 3/4 = 75%
+                  ACTIVATE: 1/1 = 100%
+                   TO_HAND: 25/25 = 100%
+            DISCARD_ENERGY: 3/3 = 100%
+                    EVOLVE: 1/1 = 100%
+                 ATTACH_TO: 2/2 = 100%
+        DAMAGE_COUNTER_ANY: 24/24 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 1, 'NO': 1}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    1x SETUP_ACTIVE_POKEMON: human=[1]CARD/Dunsparce  ours=[0]CARD/Dreepy
+    1x SETUP_BENCH_POKEMON: human=[0]CARD/Dreepy  ours=(none)
+    1x               MAIN: human=[6]PLAY/Buddy-Buddy  ours=[0]ATTACH/Hero’s
+    1x           TO_BENCH: human=[4]CARD/Budew  ours=[0]CARD/Dreepy
+    1x               MAIN: human=[5]PLAY/Meowth  ours=[0]ATTACH/Hero’s
+    1x               MAIN: human=[6]ATTACH/Basic  ours=[0]ATTACH/Hero’s
+    1x               MAIN: human=[7]END  ours=[0]ATTACH/Hero’s
+    1x               MAIN: human=[6]PLAY/Lillie's  ours=[0]ATTACH/Hero’s
+    1x               MAIN: human=[4]PLAY/Ultra  ours=[5]ATTACK/Itchy
+    1x            DISCARD: human=[0]CARD/Fezandipiti  ours=[2]CARD/Risky
+    1x               MAIN: human=[1]PLAY/Munkidori  ours=[5]ATTACH/Basic
+    1x               MAIN: human=[3]ATTACH/Basic  ours=[4]ATTACH/Basic
+    1x           TO_BENCH: human=[0]CARD/Dreepy  ours=[0]CARD/Dreepy
+    1x               MAIN: human=[0]PLAY/Xerosic’s  ours=[3]ATTACK/Jet
+    1x          TO_ACTIVE: human=[4]CARD/Dunsparce  ours=[0]CARD/Dreepy
+    1x               MAIN: human=[3]PLAY/Boss’s  ours=[0]PLAY/Budew
+    1x             SWITCH: human=[2]CARD/Dudunsparce  ours=[0]CARD/Mega
+    1x               MAIN: human=[5]END  ours=[0]PLAY/Budew
+    1x          TO_ACTIVE: human=[2]CARD/Munkidori  ours=[0]CARD/Dreepy
+    1x               MAIN: human=[1]PLAY/Buddy-Buddy  ours=[0]PLAY/Budew
+
+-- 不一致サンプル --
+  84230663 ojicat SETUP_ACTIVE_POKEMON
+    human: [1]CARD/Dunsparce
+    ours : [0]CARD/Dreepy
+  84230663 ojicat SETUP_BENCH_POKEMON
+    human: [0]CARD/Dreepy
+    ours : (none)
+  84230663 ojicat MAIN
+    human: [6]PLAY/Buddy-Buddy Poffin
+    ours : [0]ATTACH/Hero’s Cape/->Dunsparce
+  84230663 ojicat TO_BENCH
+    human: [4]CARD/Budew [0]CARD/Dreepy
+    ours : [0]CARD/Dreepy [1]CARD/Dreepy
+  84230663 ojicat MAIN
+    human: [5]PLAY/Meowth ex
+    ours : [0]ATTACH/Hero’s Cape/->Dunsparce
+  84230663 ojicat MAIN
+    human: [6]ATTACH/Basic {R} Energy/->Dunsparce
+    ours : [0]ATTACH/Hero’s Cape/->Dunsparce
+  84230663 ojicat MAIN
+    human: [7]END
+    ours : [0]ATTACH/Hero’s Cape/->Dunsparce
+  84230663 ojicat MAIN
+    human: [6]PLAY/Lillie's Determination
+    ours : [0]ATTACH/Hero’s Cape/->Dudunsparce
+  84230663 ojicat MAIN
+    human: [4]PLAY/Ultra Ball
+    ours : [5]ATTACK/Itchy Pollen
+  84230663 ojicat DISCARD
+    human: [0]CARD/Fezandipiti ex [4]CARD/Crispin
+    ours : [2]CARD/Risky Ruins [0]CARD/Fezandipiti ex
+  84230663 ojicat MAIN
+    human: [1]PLAY/Munkidori
+    ours : [5]ATTACH/Basic {R} Energy/->Dreepy
+  84230663 ojicat MAIN
+    human: [3]ATTACH/Basic {R} Energy/->Drakloak
+    ours : [4]ATTACH/Basic {R} Energy/->Dreepy
+  84230663 ojicat TO_BENCH
+    human: [0]CARD/Dreepy [1]CARD/Dunsparce
+    ours : [0]CARD/Dreepy [2]CARD/Dreepy
+  84230663 ojicat MAIN
+    human: [0]PLAY/Xerosic’s Machinations
+    ours : [3]ATTACK/Jet Headbutt
+  84230663 ojicat TO_ACTIVE
+    human: [4]CARD/Dunsparce
+    ours : [0]CARD/Dreepy
+  84230663 ojicat MAIN
+    human: [3]PLAY/Boss’s Orders
+    ours : [0]PLAY/Budew
+  84230663 ojicat SWITCH
+    human: [2]CARD/Dudunsparce
+    ours : [0]CARD/Mega Lopunny ex
+  84230663 ojicat MAIN
+    human: [5]END
+    ours : [0]PLAY/Budew
+  84230663 ojicat TO_ACTIVE
+    human: [2]CARD/Munkidori
+    ours : [0]CARD/Dreepy
+  84230663 ojicat MAIN
+    human: [1]PLAY/Buddy-Buddy Poffin
+    ours : [0]PLAY/Budew
+  84230663 ojicat MAIN
+    human: [1]PLAY/Dunsparce
+    ours : [0]PLAY/Budew
+  84230663 ojicat MAIN
+    human: [2]PLAY/Ultra Ball
+    ours : [0]PLAY/Tool Scrapper
+  84230663 ojicat DISCARD
+    human: [0]CARD/Budew [3]CARD/Risky Ruins
+    ours : [1]CARD/Rosa's Encouragement [2]CARD/Tool Scrapper
+  84230663 ojicat MAIN
+    human: [1]ATTACH/Basic {R} Energy/->Munkidori
+    ours : [5]ATTACH/Basic {R} Energy/->Dreepy
+  84230663 ojicat MAIN
+    human: [5]END
+    ours : [0]PLAY/Tool Scrapper
+  84231939 Xenon Soh IS_FIRST
+    human: [1]NO
+    ours : [0]YES
+  84231939 Xenon Soh MAIN
+    human: [4]PLAY/Ultra Ball
+    ours : [3]PLAY/Crushing Hammer
+  84231939 Xenon Soh MAIN
+    human: [2]PLAY/Crispin
+    ours : [1]ATTACH/Basic {P} Energy/->Dragapult ex
+  84231939 Xenon Soh ATTACH_FROM
+    human: [1]CARD/Dragapult ex
+    ours : [0]CARD/Budew
+  84231939 Xenon Soh ATTACH_FROM
+    human: [3]CARD/Dreepy
+    ours : [0]CARD/Dragapult ex
+  84231939 Xenon Soh MAIN
+    human: [7]ABILITY/Drakloak
+    ours : [0]PLAY/Boss’s Orders
+  84231939 Xenon Soh MAIN
+    human: [7]PLAY/Poké Pad
+    ours : [0]PLAY/Boss’s Orders
+  84231939 Xenon Soh MAIN
+    human: [8]ABILITY/Drakloak
+    ours : [0]PLAY/Boss’s Orders
+  84231939 Xenon Soh MAIN
+    human: [0]EVOLVE/Drakloak/->Dreepy
+    ours : [8]ATTACK/Phantom Dive
+  84231939 Xenon Soh MAIN
+    human: [5]ABILITY/Drakloak
+    ours : [7]ATTACK/Phantom Dive
+  84231939 Xenon Soh MAIN
+    human: [2]ATTACH/Basic {R} Energy/->Drakloak
+    ours : [6]ATTACK/Phantom Dive

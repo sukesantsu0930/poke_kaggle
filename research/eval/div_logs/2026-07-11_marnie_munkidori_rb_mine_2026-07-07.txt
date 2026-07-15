@@ -1,0 +1,175 @@
+games=80 pilots={'iwashi(997)': 6, 'Yushin Ito(1122)': 12, 'ごんさくよねきち(1038)': 9, 'Shardul Gharat(993)': 6, 'tonakaiiii(1082)': 4, 'tw_shin(1039)': 3, 'THIRD PTCG Club(1073)': 7, 'jiatu.l(1016)': 7, '渡邊征央(1054)': 16, 'takaygiiiiiiii(982)': 1, 'Eduardo Rocha de Andrade(1017)': 1, 'Sota Uchiyama(1068)': 4, 'Praxel(964)': 2, 'teem(941)': 1, 'The Debauchery Tea Party(1004)': 1}
+
+TOTAL agree 4763/7177 = 66.4%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 1724/3147 = 55%
+                   TO_HAND: 684/994 = 69%
+               ATTACH_FROM: 321/485 = 66%
+            DAMAGE_COUNTER: 240/376 = 64%
+                 ATTACH_TO: 75/184 = 41%
+                    DAMAGE: 228/314 = 73%
+     REMOVE_DAMAGE_COUNTER: 324/376 = 86%
+                  TO_BENCH: 62/109 = 57%
+                 TO_ACTIVE: 139/163 = 85%
+                   DISCARD: 2/26 = 8%
+                    SWITCH: 55/69 = 80%
+  REMOVE_DAMAGE_COUNTER_COUNT: 347/359 = 97%
+      SETUP_ACTIVE_POKEMON: 74/80 = 92%
+       SETUP_BENCH_POKEMON: 30/35 = 86%
+                   TO_DECK: 4/6 = 67%
+                    EVOLVE: 98/98 = 100%
+                  ACTIVATE: 191/191 = 100%
+         DISCARD_TOOL_CARD: 2/2 = 100%
+                  IS_FIRST: 36/36 = 100%
+                DRAW_COUNT: 18/18 = 100%
+            DISCARD_ENERGY: 55/55 = 100%
+             SWITCH_ENERGY: 35/35 = 100%
+               SKILL_ORDER: 19/19 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 36}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   90x          ATTACH_TO: human=[0]CARD/Basic  ours=[0]CARD/Basic
+   75x        ATTACH_FROM: human=[1]CARD/Marnie's  ours=[0]CARD/Marnie's
+   37x        ATTACH_FROM: human=[2]CARD/Marnie's  ours=[0]CARD/Marnie's
+   24x            TO_HAND: human=[1]CARD/Marnie's  ours=[0]CARD/Marnie's
+   18x REMOVE_DAMAGE_COUNTER: human=[1]CARD/Munkidori  ours=[0]CARD/Marnie's
+   13x            TO_HAND: human=[0]CARD/Marnie's  ours=[2]CARD/Marnie's
+   12x           TO_BENCH: human=(none)  ours=[0]CARD/Snorunt
+   12x             DAMAGE: human=[0]CARD/Crustle  ours=[1]CARD/Crustle
+   12x     DAMAGE_COUNTER: human=[0]CARD/Okidogi  ours=[1]CARD/Barbaracle
+   11x            TO_HAND: human=[0]CARD/Marnie's  ours=[1]CARD/Marnie's
+   10x            TO_HAND: human=[2]CARD/Marnie's  ours=[0]CARD/Marnie's
+    9x        ATTACH_FROM: human=[0]CARD/Marnie's  ours=[1]CARD/Marnie's
+    9x     DAMAGE_COUNTER: human=[0]CARD/Marnie's  ours=[1]CARD/Munkidori
+    8x               MAIN: human=[3]ABILITY/Spikemuth  ours=[2]ABILITY/Munkidori
+    8x REMOVE_DAMAGE_COUNTER: human=[2]CARD/Munkidori  ours=[0]CARD/Marnie's
+    8x               MAIN: human=[5]ABILITY/Spikemuth  ours=[4]ABILITY/Munkidori
+    8x               MAIN: human=[0]PLAY/Lillie's  ours=[1]ABILITY/Munkidori
+    7x REMOVE_DAMAGE_COUNTER_COUNT: human=[0]NUMBER  ours=[2]NUMBER
+    7x        ATTACH_FROM: human=[3]CARD/Marnie's  ours=[0]CARD/Marnie's
+    7x               MAIN: human=[0]EVOLVE/Marnie's  ours=[1]ABILITY/Munkidori
+
+-- 不一致サンプル --
+  84487116 iwashi MAIN
+    human: [1]PLAY/Spikemuth Gym
+    ours : [3]PLAY/Munkidori
+  84487116 iwashi MAIN
+    human: [2]PLAY/Munkidori
+    ours : [3]ABILITY/Spikemuth Gym
+  84487116 iwashi TO_HAND
+    human: [1]CARD/Marnie's Grimmsnarl ex
+    ours : [0]CARD/Marnie's Impidimp
+  84487116 iwashi MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [1]PLAY/Boss’s Orders
+  84487116 iwashi MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [1]PLAY/Team Rocket's Petrel
+  84487116 iwashi MAIN
+    human: [6]PLAY/Lillie's Determination
+    ours : [0]PLAY/Team Rocket's Petrel
+  84487116 iwashi TO_HAND
+    human: [0]CARD/Marnie's Impidimp
+    ours : [2]CARD/Marnie's Morgrem
+  84487116 iwashi MAIN
+    human: [1]PLAY/Munkidori
+    ours : [2]PLAY/Marnie's Impidimp
+  84487116 iwashi TO_ACTIVE
+    human: [0]CARD/Snorunt
+    ours : [1]CARD/Munkidori
+  84487116 iwashi TO_HAND
+    human: [2]CARD/Unfair Stamp
+    ours : [15]CARD/Rare Candy
+  84487116 iwashi TO_HAND
+    human: [4]CARD/Marnie's Impidimp
+    ours : [0]CARD/Marnie's Grimmsnarl ex
+  84487116 iwashi ATTACH_TO
+    human: [0]CARD/Basic {D} Energy [1]CARD/Basic {D} Energy [2]CARD/Basic {D} Energy [3]CARD/Basic {D} Energy
+    ours : [0]CARD/Basic {D} Energy [1]CARD/Basic {D} Energy
+  84487116 iwashi MAIN
+    human: [0]PLAY/Team Rocket's Petrel
+    ours : [6]ATTACH/Basic {D} Energy/->Marnie's Impidimp
+  84487116 iwashi TO_HAND
+    human: [3]CARD/Lillie's Determination
+    ours : [6]CARD/Rare Candy
+  84487116 iwashi MAIN
+    human: [6]ATTACK/Shadow Bullet
+    ours : [5]ATTACH/Basic {D} Energy/->Marnie's Impidimp
+  84487116 iwashi MAIN
+    human: [6]PLAY/Lillie's Determination
+    ours : [0]ATTACH/Basic {D} Energy/->Marnie's Morgrem
+  84487116 iwashi MAIN
+    human: [1]EVOLVE/Froslass/->Snorunt
+    ours : [2]PLAY/Poké Pad
+  84487116 iwashi MAIN
+    human: [0]PLAY/Night Stretcher
+    ours : [1]PLAY/Poké Pad
+  84487116 iwashi TO_HAND
+    human: [1]CARD/Marnie's Morgrem
+    ours : [3]CARD/Marnie's Grimmsnarl ex
+  84487123 Yushin Ito SETUP_ACTIVE_POKEMON
+    human: [0]CARD/Yveltal
+    ours : [1]CARD/Marnie's Impidimp
+  84487123 Yushin Ito SETUP_BENCH_POKEMON
+    human: [0]CARD/Marnie's Impidimp
+    ours : [0]CARD/Marnie's Impidimp [1]CARD/Fezandipiti ex
+  84487123 Yushin Ito MAIN
+    human: [4]PLAY/Tool Scrapper
+    ours : [3]PLAY/Fezandipiti ex
+  84487123 Yushin Ito MAIN
+    human: [0]PLAY/Buddy-Buddy Poffin
+    ours : [3]PLAY/Fezandipiti ex
+  84487123 Yushin Ito TO_BENCH
+    human: [0]CARD/Marnie's Impidimp [2]CARD/Dunsparce
+    ours : [0]CARD/Marnie's Impidimp [1]CARD/Marnie's Impidimp
+  84487123 Yushin Ito MAIN
+    human: [0]ATTACH/Hero’s Cape/->Yveltal
+    ours : [6]END
+  84487123 Yushin Ito MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [1]ABILITY/Dudunsparce
+  84487123 Yushin Ito MAIN
+    human: [13]ABILITY/Dudunsparce
+    ours : [11]PLAY/Poké Pad
+  84487123 Yushin Ito MAIN
+    human: [12]PLAY/Rare Candy
+    ours : [0]PLAY/Dunsparce
+  84487123 Yushin Ito ATTACH_TO
+    human: [0]CARD/Basic {D} Energy [1]CARD/Basic {D} Energy [2]CARD/Basic {D} Energy [3]CARD/Basic {D} Energy
+    ours : [0]CARD/Basic {D} Energy [1]CARD/Basic {D} Energy
+  84487123 Yushin Ito ATTACH_FROM
+    human: [0]CARD/Marnie's Morgrem
+    ours : [1]CARD/Marnie's Grimmsnarl ex
+  84487123 Yushin Ito ATTACH_FROM
+    human: [0]CARD/Marnie's Morgrem
+    ours : [1]CARD/Marnie's Grimmsnarl ex
+  84487123 Yushin Ito MAIN
+    human: [13]RETREAT
+    ours : [0]PLAY/Dunsparce
+  84487123 Yushin Ito MAIN
+    human: [10]PLAY/Poké Pad
+    ours : [12]PLAY/Spikemuth Gym
+  84487123 Yushin Ito MAIN
+    human: [13]PLAY/Munkidori
+    ours : [11]PLAY/Spikemuth Gym
+  84487123 Yushin Ito MAIN
+    human: [5]ATTACH/Basic {D} Energy/->Munkidori
+    ours : [12]PLAY/Spikemuth Gym
+  84487123 Yushin Ito TO_HAND
+    human: [1]CARD/Marnie's Impidimp
+    ours : [0]CARD/Marnie's Grimmsnarl ex
+  84487123 Yushin Ito MAIN
+    human: [12]ABILITY/Fezandipiti ex
+    ours : [13]ABILITY/Spikemuth Gym
+  84487123 Yushin Ito MAIN
+    human: [7]EVOLVE/Marnie's Grimmsnarl ex/->Marnie's Morgrem
+    ours : [19]ABILITY/Spikemuth Gym
+  84487123 Yushin Ito ATTACH_TO
+    human: (none)
+    ours : [0]CARD/Basic {D} Energy
+  84487123 Yushin Ito MAIN
+    human: [11]PLAY/Boss’s Orders
+    ours : [18]ABILITY/Spikemuth Gym

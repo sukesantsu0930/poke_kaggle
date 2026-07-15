@@ -25,7 +25,8 @@ sys.path.insert(0, str(ROOT / "submission"))
 from cg import game  # noqa: E402
 from cg import api  # noqa: E402
 
-_PURGE = ("policy_base", "meta_tables", "main")
+_PURGE = ("policy_base", "meta_tables", "main",
+          "turn_search", "value_model", "opp_decks", "generic_policy", "policy_net")
 _load_counter = 0
 
 

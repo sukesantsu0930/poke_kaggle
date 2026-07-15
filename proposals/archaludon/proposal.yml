@@ -1,5 +1,5 @@
 name: archaludon
-deck: decks/candidates/archaludon_cityleague.csv
+deck: decks/fleet/archaludon_cityleague.csv
 agent: agents/archaludon_rb
 concept: "ブリジュラスでMetal Defenderを打つ（サブゴール: ブリジュラスが技をうてる状態）"
 protocol: protocol.py

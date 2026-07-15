@@ -1,0 +1,113 @@
+games=80 pilots={'MPGaming(1041)': 38, 'Alberto Bonsanto(958)': 16, 'Raihan Ramadistra(1029)': 17, 'zoroark190(1086)': 9}
+
+TOTAL agree 1768/3882 = 45.5%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 928/2614 = 36%
+                   TO_HAND: 338/511 = 66%
+                   DISCARD: 20/99 = 20%
+                 TO_ACTIVE: 75/116 = 65%
+                    SWITCH: 75/114 = 66%
+       SETUP_BENCH_POKEMON: 6/31 = 19%
+               ATTACH_FROM: 19/42 = 45%
+                 ATTACH_TO: 38/50 = 76%
+                  TO_BENCH: 57/67 = 85%
+      SETUP_ACTIVE_POKEMON: 73/80 = 91%
+                  IS_FIRST: 37/41 = 90%
+                EVOLVES_TO: 17/21 = 81%
+        SWITCH_ENERGY_CARD: 6/10 = 60%
+                    DAMAGE: 1/4 = 25%
+               SKILL_ORDER: 15/17 = 88%
+       DISCARD_ENERGY_CARD: 1/3 = 33%
+                DRAW_COUNT: 18/18 = 100%
+             SWITCH_ENERGY: 13/13 = 100%
+                  ACTIVATE: 18/18 = 100%
+            TO_DECK_ENERGY: 12/12 = 100%
+            DISCARD_ENERGY: 1/1 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 37, 'NO': 4}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   42x               MAIN: human=[1]END  ours=[0]PLAY/Switch
+   24x               MAIN: human=[2]END  ours=[0]PLAY/Switch
+   19x            TO_HAND: human=[1]CARD  ours=[0]CARD
+   13x            TO_HAND: human=[3]CARD  ours=[0]CARD
+   10x            TO_HAND: human=[0]CARD  ours=[1]CARD
+    9x SETUP_BENCH_POKEMON: human=[0]CARD/Dwebble  ours=(none)
+    9x            TO_HAND: human=[2]CARD  ours=[0]CARD
+    8x SETUP_BENCH_POKEMON: human=[0]CARD/Mega  ours=(none)
+    8x               MAIN: human=[2]PLAY/Lillie's  ours=[0]PLAY/Hilda
+    8x               MAIN: human=[0]PLAY/Boss’s  ours=[1]END
+    8x               MAIN: human=[3]END  ours=[0]PLAY/Switch
+    8x               MAIN: human=[1]END  ours=[0]PLAY/Mega
+    7x               MAIN: human=[1]END  ours=[0]PLAY/Ultra
+    7x               MAIN: human=[2]END  ours=[0]PLAY/Mega
+    6x               MAIN: human=[1]EVOLVE/Crustle/->Dwebble  ours=[0]PLAY/Switch
+    6x               MAIN: human=[0]PLAY/Lillie's  ours=[2]ABILITY/Mega
+    6x               MAIN: human=[2]END  ours=[0]PLAY/Hilda
+    6x            TO_HAND: human=[1]CARD/Crustle  ours=[0]CARD/Crustle
+    6x SETUP_BENCH_POKEMON: human=[0]CARD/Shaymin  ours=(none)
+    6x          ATTACH_TO: human=[1]CARD/Basic  ours=[0]CARD/Basic
+
+-- 不一致サンプル --
+  85109552 MPGaming MAIN
+    human: [0]ATTACH/Mist Energy/->Mega Kangaskhan ex
+    ours : [12]PLAY/Switch
+  85109552 MPGaming MAIN
+    human: [1]END
+    ours : [0]PLAY/Switch
+  85109552 MPGaming DISCARD
+    human: [1]CARD/Spiky Energy [3]CARD/Spiky Energy [4]CARD/Switch [5]CARD/Jumbo Ice Cream
+    ours : [1]CARD/Spiky Energy [5]CARD/Jumbo Ice Cream [3]CARD/Spiky Energy [6]CARD/Jumbo Ice Cream
+  85109552 MPGaming MAIN
+    human: [1]ATTACH/Mist Energy/->Mega Kangaskhan ex
+    ours : [5]ABILITY/Mega Kangaskhan ex
+  85109552 MPGaming MAIN
+    human: [1]PLAY/Lillie's Determination
+    ours : [2]ABILITY/Mega Kangaskhan ex
+  85109552 MPGaming MAIN
+    human: [4]PLAY/Pokégear 3.0
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  85109552 MPGaming MAIN
+    human: [0]ATTACH/Hero’s Cape/->Mega Kangaskhan ex
+    ours : [3]PLAY/Battle Cage
+  85109552 MPGaming MAIN
+    human: [1]PLAY/Xerosic’s Machinations
+    ours : [9]ABILITY/Mega Kangaskhan ex
+  85109552 MPGaming MAIN
+    human: [0]ATTACH/Mist Energy/->Mega Kangaskhan ex
+    ours : [4]PLAY/Switch
+  85109552 MPGaming MAIN
+    human: [1]END
+    ours : [0]PLAY/Switch
+  85109552 MPGaming MAIN
+    human: [6]PLAY/Shaymin
+    ours : [7]ABILITY/Mega Kangaskhan ex
+  85109552 MPGaming MAIN
+    human: [1]PLAY/Lillie's Determination
+    ours : [6]ABILITY/Mega Kangaskhan ex
+  85109552 MPGaming MAIN
+    human: [1]EVOLVE/Crustle/->Dwebble
+    ours : [0]PLAY/Switch
+  85109552 MPGaming MAIN
+    human: [1]EVOLVE/Crustle/->Dwebble
+    ours : [0]PLAY/Switch
+  85109552 MPGaming MAIN
+    human: [2]PLAY/Pokégear 3.0
+    ours : [0]PLAY/Switch
+  85109552 MPGaming TO_HAND
+    human: [0]CARD
+    ours : [1]CARD
+  85109552 MPGaming MAIN
+    human: [2]ATTACH/Grow Grass Energy/->Mega Kangaskhan ex
+    ours : [0]PLAY/Switch
+  85109552 MPGaming MAIN
+    human: [1]PLAY/Battle Cage
+    ours : [0]PLAY/Switch
+  85109552 MPGaming MAIN
+    human: [2]END
+    ours : [0]PLAY/Switch
+  85109552 MPGaming MAIN
+    human: [0]PLAY/Switch
+    ours : [9]ABILITY/Mega Kangaskhan ex

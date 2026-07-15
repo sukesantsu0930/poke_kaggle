@@ -1,0 +1,165 @@
+games=22 pilots={'kidekikish(1069)': 22}
+
+TOTAL agree 878/1174 = 74.8%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 575/828 = 69%
+                   DISCARD: 6/22 = 27%
+                   TO_HAND: 105/116 = 91%
+                    SWITCH: 21/30 = 70%
+                  TO_BENCH: 43/46 = 93%
+            DISCARD_ENERGY: 28/30 = 93%
+                DRAW_COUNT: 3/4 = 75%
+                 TO_ACTIVE: 48/49 = 98%
+      SETUP_ACTIVE_POKEMON: 22/22 = 100%
+       SETUP_BENCH_POKEMON: 7/7 = 100%
+                    EVOLVE: 9/9 = 100%
+                  IS_FIRST: 9/9 = 100%
+               SKILL_ORDER: 2/2 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 9}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    3x               MAIN: human=[2]ATTACK/Flower  ours=[0]PLAY/Poké
+    2x               MAIN: human=[0]ATTACH/Gravity  ours=[3]ATTACH/Gravity
+    2x               MAIN: human=[0]PLAY/Lillie's  ours=[5]ATTACH/Basic
+    2x               MAIN: human=[3]PLAY/Buddy-Buddy  ours=[5]PLAY/Comfey
+    2x               MAIN: human=[0]PLAY/Poké  ours=[4]ATTACH/Basic
+    2x            TO_HAND: human=[0]CARD/Litwick  ours=[1]CARD/Chandelure
+    2x               MAIN: human=[1]ATTACK/Flower  ours=[0]PLAY/Poké
+    2x            TO_HAND: human=[1]CARD/Litwick  ours=[0]CARD/Comfey
+    2x               MAIN: human=[0]PLAY/Lillie's  ours=[2]PLAY/Comfey
+    1x               MAIN: human=[0]PLAY/Poké  ours=[1]PLAY/Crushing
+    1x            TO_HAND: human=[7]CARD/Lampent  ours=[2]CARD/Comfey
+    1x               MAIN: human=[2]ATTACH/Telepath  ours=[4]PLAY/Buddy-Buddy
+    1x               MAIN: human=[0]ATTACH/Gravity  ours=[4]PLAY/Buddy-Buddy
+    1x               MAIN: human=[5]PLAY/Xerosic’s  ours=[0]PLAY/Enhanced
+    1x               MAIN: human=[1]PLAY/Lillie's  ours=[4]PLAY/Neutralization
+    1x               MAIN: human=[5]PLAY/Rare  ours=[14]PLAY/Neutralization
+    1x               MAIN: human=[5]PLAY/Hilda  ours=[8]PLAY/Crushing
+    1x               MAIN: human=[7]PLAY/Eri  ours=[6]PLAY/Boss’s
+    1x               MAIN: human=[7]PLAY/Dawn  ours=[6]PLAY/Boss’s
+    1x               MAIN: human=[11]PLAY/Xerosic’s  ours=[15]ABILITY/Chandelure
+
+-- 不一致サンプル --
+  84228473 kidekikish MAIN
+    human: [0]PLAY/Poké Pad
+    ours : [1]PLAY/Crushing Hammer
+  84228473 kidekikish TO_HAND
+    human: [7]CARD/Lampent
+    ours : [2]CARD/Comfey
+  84228473 kidekikish MAIN
+    human: [2]ATTACH/Telepath Psychic Energy/->Comfey
+    ours : [4]PLAY/Buddy-Buddy Poffin
+  84228473 kidekikish MAIN
+    human: [0]ATTACH/Gravity Gemstone/->Comfey
+    ours : [4]PLAY/Buddy-Buddy Poffin
+  84228473 kidekikish MAIN
+    human: [5]PLAY/Xerosic’s Machinations
+    ours : [0]PLAY/Enhanced Hammer
+  84228473 kidekikish MAIN
+    human: [1]PLAY/Lillie's Determination
+    ours : [4]PLAY/Neutralization Zone
+  84228473 kidekikish MAIN
+    human: [5]PLAY/Rare Candy
+    ours : [14]PLAY/Neutralization Zone
+  84228473 kidekikish MAIN
+    human: [5]PLAY/Hilda
+    ours : [8]PLAY/Crushing Hammer
+  84228473 kidekikish MAIN
+    human: [7]PLAY/Eri
+    ours : [6]PLAY/Boss’s Orders
+  84228473 kidekikish MAIN
+    human: [7]PLAY/Dawn
+    ours : [6]PLAY/Boss’s Orders
+  84228473 kidekikish MAIN
+    human: [11]PLAY/Xerosic’s Machinations
+    ours : [15]ABILITY/Chandelure
+  84228473 kidekikish MAIN
+    human: [9]ATTACK/Flower Shower
+    ours : [7]PLAY/Crushing Hammer
+  84229987 kidekikish MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [2]PLAY/Litwick
+  84229987 kidekikish MAIN
+    human: [3]ATTACH/Telepath Psychic Energy/->Comfey
+    ours : [1]PLAY/Buddy-Buddy Poffin
+  84229987 kidekikish MAIN
+    human: [6]PLAY/Rare Candy
+    ours : [2]EVOLVE/Lampent/->Litwick
+  84229987 kidekikish MAIN
+    human: [0]PLAY/Dawn
+    ours : [4]ATTACH/Basic {P} Energy/->Comfey
+  84229987 kidekikish MAIN
+    human: [8]ATTACH/Basic {P} Energy/->Comfey
+    ours : [5]PLAY/Battle Cage
+  84229987 kidekikish MAIN
+    human: [2]PLAY/Boss’s Orders
+    ours : [5]PLAY/Battle Cage
+  84229987 kidekikish SWITCH
+    human: [3]CARD/Froslass
+    ours : [4]CARD/Munkidori
+  84229987 kidekikish MAIN
+    human: [1]PLAY/Poké Pad
+    ours : [2]PLAY/Crushing Hammer
+  84229987 kidekikish MAIN
+    human: [0]PLAY/Comfey
+    ours : [1]PLAY/Crushing Hammer
+  84229987 kidekikish DISCARD_ENERGY
+    human: [0]ENERGY/Marnie's Grimmsnarl ex
+    ours : [5]ENERGY/Munkidori
+  84229987 kidekikish MAIN
+    human: [7]PLAY/Night Stretcher
+    ours : [13]ATTACH/Telepath Psychic Energy/->Comfey
+  84229987 kidekikish MAIN
+    human: [4]PLAY/Poké Pad
+    ours : [8]PLAY/Comfey
+  84229987 kidekikish MAIN
+    human: [6]ABILITY/Spikemuth Gym
+    ours : [1]PLAY/Boss’s Orders
+  84229987 kidekikish MAIN
+    human: [6]ATTACK/Flower Shower
+    ours : [1]PLAY/Boss’s Orders
+  84229987 kidekikish MAIN
+    human: [0]PLAY/Lillie's Determination
+    ours : [14]PLAY/Neutralization Zone
+  84229987 kidekikish MAIN
+    human: [0]PLAY/Poké Pad
+    ours : [7]ATTACH/Basic {P} Energy/->Comfey
+  84229987 kidekikish MAIN
+    human: [3]PLAY/Xerosic’s Machinations
+    ours : [14]ABILITY/Chandelure
+  84229987 kidekikish MAIN
+    human: [12]ATTACK/Flower Shower
+    ours : [9]ABILITY/Chandelure
+  84230001 kidekikish MAIN
+    human: [3]ATTACH/Basic {P} Energy/->Comfey
+    ours : [4]PLAY/Buddy-Buddy Poffin
+  84230001 kidekikish MAIN
+    human: [0]ATTACH/Gravity Gemstone/->Comfey
+    ours : [6]ABILITY/Spikemuth Gym
+  84230001 kidekikish MAIN
+    human: [2]PLAY/Xerosic’s Machinations
+    ours : [3]ABILITY/Spikemuth Gym
+  84230001 kidekikish MAIN
+    human: [1]PLAY/Boss’s Orders
+    ours : [3]PLAY/Shaymin
+  84230001 kidekikish MAIN
+    human: [3]ATTACH/Telepath Psychic Energy/->Comfey
+    ours : [0]PLAY/Shaymin
+  84230001 kidekikish MAIN
+    human: [1]PLAY/Crushing Hammer
+    ours : [0]PLAY/Shaymin
+  84230001 kidekikish MAIN
+    human: [1]PLAY/Hilda
+    ours : [3]PLAY/Litwick
+  84230001 kidekikish MAIN
+    human: [1]PLAY/Litwick
+    ours : [4]ATTACH/Telepath Psychic Energy/->Comfey
+  84230001 kidekikish MAIN
+    human: [14]PLAY/Lillie's Determination
+    ours : [4]ATTACH/Basic {P} Energy/->Comfey
+  84230001 kidekikish MAIN
+    human: [0]PLAY/Poké Pad
+    ours : [2]PLAY/Crushing Hammer

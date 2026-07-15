@@ -1,0 +1,165 @@
+games=21 pilots={'ShumpeiNomura(1098)': 12, 'jp_nerdery(985)': 1, 'niyo(947)': 5, 'Yufeng(1024)': 3}
+
+TOTAL agree 891/1254 = 71.1%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 431/733 = 59%
+                   TO_HAND: 191/217 = 88%
+                   DISCARD: 17/37 = 46%
+                  IS_FIRST: 3/10 = 30%
+                 TO_ACTIVE: 39/44 = 89%
+       SETUP_BENCH_POKEMON: 8/11 = 73%
+      SETUP_ACTIVE_POKEMON: 21/21 = 100%
+                    SWITCH: 21/21 = 100%
+                  ACTIVATE: 35/35 = 100%
+                 ATTACH_TO: 39/39 = 100%
+               ATTACH_FROM: 76/76 = 100%
+                DRAW_COUNT: 5/5 = 100%
+            DISCARD_ENERGY: 5/5 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 7, 'NO': 3}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    7x           IS_FIRST: human=[0]YES  ours=[1]NO
+    6x               MAIN: human=[1]ATTACK/Metal  ours=[0]PLAY/Team
+    4x            DISCARD: human=[1]CARD/Basic  ours=[1]CARD/Basic
+    4x               MAIN: human=[2]PLAY/Duraludon  ours=[0]PLAY/Pokégear
+    4x            DISCARD: human=[0]CARD/Basic  ours=[0]CARD/Basic
+    4x            TO_HAND: human=[0]CARD  ours=[1]CARD
+    4x               MAIN: human=[9]END  ours=[7]PLAY/Xerosic’s
+    3x               MAIN: human=[4]ATTACK/Hammer  ours=[3]PLAY/Team
+    3x               MAIN: human=[1]PLAY/Duraludon  ours=[0]PLAY/Pokégear
+    3x               MAIN: human=[2]ATTACK/Metal  ours=[0]PLAY/Pokégear
+    3x               MAIN: human=[9]END  ours=[2]PLAY/Poké
+    3x               MAIN: human=[17]END  ours=[14]PLAY/Duraludon
+    3x               MAIN: human=[1]ATTACH/Basic  ours=[2]ATTACH/Basic
+    2x            TO_HAND: human=[1]CARD/Duraludon  ours=[0]CARD/Team
+    2x               MAIN: human=[3]PLAY/Duraludon  ours=[0]PLAY/Full
+    2x               MAIN: human=[4]ATTACK/Metal  ours=[3]PLAY/Team
+    2x            DISCARD: human=[2]CARD/Basic  ours=[2]CARD/Basic
+    2x               MAIN: human=[5]END  ours=[1]ATTACK/Metal
+    2x               MAIN: human=[1]PLAY/Ultra  ours=[0]PLAY/Pokégear
+    2x               MAIN: human=[2]END  ours=[0]PLAY/Carmine
+
+-- 不一致サンプル --
+  84743052 ShumpeiNomura SETUP_BENCH_POKEMON
+    human: [0]CARD/Duraludon
+    ours : (none)
+  84743052 ShumpeiNomura MAIN
+    human: [4]ATTACH/Hero’s Cape/->Duraludon
+    ours : [0]PLAY/Full Metal Lab
+  84743052 ShumpeiNomura MAIN
+    human: [2]PLAY/Poké Pad
+    ours : [0]PLAY/Full Metal Lab
+  84743052 ShumpeiNomura MAIN
+    human: [4]PLAY/Relicanth
+    ours : [0]PLAY/Full Metal Lab
+  84743052 ShumpeiNomura MAIN
+    human: [3]PLAY/Poké Pad
+    ours : [0]PLAY/Full Metal Lab
+  84743052 ShumpeiNomura TO_HAND
+    human: [1]CARD/Duraludon
+    ours : [0]CARD/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [3]PLAY/Duraludon
+    ours : [0]PLAY/Full Metal Lab
+  84743052 ShumpeiNomura MAIN
+    human: [2]EVOLVE/Archaludon ex/->Duraludon
+    ours : [1]PLAY/Lillie's Determination
+  84743052 ShumpeiNomura MAIN
+    human: [1]END
+    ours : [0]PLAY/Pokégear 3.0
+  84743052 ShumpeiNomura MAIN
+    human: [0]PLAY/Judge
+    ours : [4]PLAY/Pokégear 3.0
+  84743052 ShumpeiNomura MAIN
+    human: [5]PLAY/Duraludon
+    ours : [4]PLAY/Pokégear 3.0
+  84743052 ShumpeiNomura MAIN
+    human: [0]ATTACH/Basic {M} Energy/->Archaludon ex
+    ours : [5]PLAY/Pokégear 3.0
+  84743052 ShumpeiNomura MAIN
+    human: [1]ATTACK/Hammer In
+    ours : [0]PLAY/Pokégear 3.0
+  84743052 ShumpeiNomura MAIN
+    human: [4]ATTACK/Hammer In
+    ours : [3]PLAY/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [4]ATTACK/Hammer In
+    ours : [3]PLAY/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [4]ATTACK/Hammer In
+    ours : [3]PLAY/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [4]ATTACK/Metal Defender
+    ours : [3]PLAY/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [4]PLAY/Boss’s Orders
+    ours : [3]PLAY/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [4]ATTACK/Metal Defender
+    ours : [3]PLAY/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [0]EVOLVE/Archaludon ex/->Duraludon
+    ours : [3]PLAY/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [6]END
+    ours : [0]PLAY/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [2]PLAY/Boss’s Orders
+    ours : [0]PLAY/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [1]ATTACK/Metal Defender
+    ours : [0]PLAY/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [5]ATTACH/Basic {M} Energy/->Archaludon ex
+    ours : [0]PLAY/Night Stretcher
+  84743052 ShumpeiNomura MAIN
+    human: [3]PLAY/Judge
+    ours : [0]PLAY/Team Rocket's Articuno
+  84743052 ShumpeiNomura MAIN
+    human: [4]ATTACK/Metal Defender
+    ours : [2]PLAY/Poké Pad
+  84743052 ShumpeiNomura MAIN
+    human: [7]ATTACH/Basic {M} Energy/->Archaludon ex
+    ours : [1]PLAY/Poké Pad
+  84743052 ShumpeiNomura MAIN
+    human: [3]PLAY/Lillie's Determination
+    ours : [1]PLAY/Poké Pad
+  84743052 ShumpeiNomura MAIN
+    human: [7]END
+    ours : [3]ATTACK/Metal Defender
+  84743052 ShumpeiNomura MAIN
+    human: [0]PLAY/Night Stretcher
+    ours : [2]PLAY/Carmine
+  84743052 ShumpeiNomura MAIN
+    human: [2]PLAY/Boss’s Orders
+    ours : [1]PLAY/Carmine
+  84743052 ShumpeiNomura MAIN
+    human: [1]PLAY/Carmine
+    ours : [7]ATTACK/Metal Defender
+  84743052 ShumpeiNomura MAIN
+    human: [5]PLAY/Ultra Ball
+    ours : [10]ATTACK/Metal Defender
+  84743052 ShumpeiNomura DISCARD
+    human: [2]CARD/Basic {M} Energy [3]CARD/Basic {M} Energy
+    ours : [2]CARD/Basic {M} Energy [0]CARD/Full Metal Lab
+  84743052 ShumpeiNomura MAIN
+    human: [1]EVOLVE/Archaludon ex/->Duraludon
+    ours : [2]ATTACK/Metal Defender
+  84743052 ShumpeiNomura MAIN
+    human: [5]END
+    ours : [1]ATTACK/Metal Defender
+  84743052 ShumpeiNomura MAIN
+    human: [2]ATTACH/Basic {M} Energy/->Archaludon ex
+    ours : [4]ATTACK/Metal Defender
+  84743052 ShumpeiNomura MAIN
+    human: [0]PLAY/Pokégear 3.0
+    ours : [1]ATTACK/Metal Defender
+  84743052 ShumpeiNomura MAIN
+    human: [5]END
+    ours : [1]ATTACK/Metal Defender
+  84743563 ShumpeiNomura MAIN
+    human: [1]PLAY/Ultra Ball
+    ours : [0]PLAY/Pokégear 3.0

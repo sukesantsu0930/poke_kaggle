@@ -1,0 +1,1173 @@
+games=12 pilots={'zoroark190(1086)': 12}
+
+TOTAL agree 374/750 = 49.9%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 172/414 = 42%
+                   TO_HAND: 30/90 = 33%
+                   DISCARD: 2/20 = 10%
+                    SWITCH: 18/34 = 53%
+                 ATTACH_TO: 54/68 = 79%
+               ATTACH_FROM: 31/45 = 69%
+                 TO_ACTIVE: 13/19 = 68%
+        SWITCH_ENERGY_CARD: 7/10 = 70%
+       DISCARD_ENERGY_CARD: 4/7 = 57%
+                  IS_FIRST: 6/6 = 100%
+      SETUP_ACTIVE_POKEMON: 12/12 = 100%
+       SETUP_BENCH_POKEMON: 8/8 = 100%
+                  ACTIVATE: 17/17 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 6}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    7x          ATTACH_TO: human=[1]CARD/Basic  ours=[0]CARD/Basic
+    7x            TO_HAND: human=[1]CARD  ours=[0]CARD
+    6x               MAIN: human=[2]ATTACK/Sob  ours=[0]PLAY/Night
+    5x            TO_HAND: human=[1]CARD/Basic  ours=[0]CARD/Basic
+    5x            TO_HAND: human=[3]CARD  ours=[0]CARD
+    4x          ATTACH_TO: human=[2]CARD/Basic  ours=[0]CARD/Basic
+    4x            TO_HAND: human=[2]CARD  ours=[0]CARD
+    3x            TO_HAND: human=[4]CARD  ours=[0]CARD
+    3x            TO_HAND: human=[3]CARD/Basic  ours=[1]CARD/Basic
+    3x               MAIN: human=[2]END  ours=[0]PLAY/Night
+    3x               MAIN: human=[1]ATTACK/Sob  ours=[0]PLAY/Night
+    2x               MAIN: human=[5]END  ours=[1]PLAY/Ultra
+    2x        ATTACH_FROM: human=[2]CARD/Teal  ours=[0]CARD/Mega
+    2x          TO_ACTIVE: human=[3]CARD/Latias  ours=[0]CARD/Teal
+    2x               MAIN: human=[13]END  ours=[4]PLAY/Mega
+    2x            TO_HAND: human=[1]CARD/Basic  ours=[2]CARD/Basic
+    2x        ATTACH_FROM: human=[5]CARD/Raging  ours=[1]CARD/Mega
+    2x             SWITCH: human=[4]CARD/Raging  ours=[0]CARD/Mega
+    2x               MAIN: human=[1]PLAY/Energy  ours=[0]PLAY/Area
+    2x             SWITCH: human=[0]CARD/Fezandipiti  ours=[2]CARD/Abra
+
+-- 不一致サンプル --
+  84926607 zoroark190 MAIN
+    human: [1]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [2]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [3]END
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [9]PLAY/Meowth ex
+    ours : [2]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [14]PLAY/Cyrano
+    ours : [5]PLAY/Ultra Ball
+  84926607 zoroark190 TO_HAND
+    human: [1]CARD/Latias ex [7]CARD/Teal Mask Ogerpon ex [4]CARD/Meowth ex
+    ours : [7]CARD/Teal Mask Ogerpon ex [4]CARD/Meowth ex [1]CARD/Latias ex
+  84926607 zoroark190 MAIN
+    human: [16]PLAY/Latias ex
+    ours : [18]ABILITY/Teal Mask Ogerpon ex
+  84926607 zoroark190 MAIN
+    human: [12]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [5]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [5]END
+    ours : [1]PLAY/Ultra Ball
+  84926607 zoroark190 TO_HAND
+    human: [2]CARD/Basic {W} Energy
+    ours : [5]CARD/Basic {G} Energy
+  84926607 zoroark190 ATTACH_TO
+    human: [3]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {L} Energy
+  84926607 zoroark190 ATTACH_FROM
+    human: [2]CARD/Teal Mask Ogerpon ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84926607 zoroark190 MAIN
+    human: [14]ATTACH/Basic {W} Energy/->Mega Kangaskhan ex
+    ours : [6]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [5]END
+    ours : [1]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [12]PLAY/Boss’s Orders
+    ours : [6]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [25]RETREAT
+    ours : [6]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [2]ATTACH/Basic {F} Energy/->Mega Kangaskhan ex
+    ours : [6]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [5]ATTACK/Myriad Leaf Shower
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 TO_HAND
+    human: [4]CARD
+    ours : [0]CARD
+  84926607 zoroark190 MAIN
+    human: [7]PLAY/Meowth ex
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [23]PLAY/Crispin
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 TO_HAND
+    human: [1]CARD/Basic {L} Energy
+    ours : [0]CARD/Basic {G} Energy
+  84926607 zoroark190 MAIN
+    human: [29]RETREAT
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [29]ATTACK/Rapid-Fire Combo
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [31]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [6]PLAY/Mega Kangaskhan ex
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [6]PLAY/Ultra Ball
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 DISCARD
+    human: [3]CARD/Area Zero Underdepths [4]CARD/Area Zero Underdepths
+    ours : [3]CARD/Area Zero Underdepths [8]CARD/Energy Switch
+  84926607 zoroark190 TO_HAND
+    human: [3]CARD/Fezandipiti ex
+    ours : [0]CARD/Meowth ex
+  84926607 zoroark190 MAIN
+    human: [6]PLAY/Fezandipiti ex
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [6]PLAY/Lillie’s Clefairy ex
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [7]ATTACK/Rapid-Fire Combo
+    ours : [0]PLAY/Raging Bolt ex
+  84926607 zoroark190 MAIN
+    human: [17]ATTACH/Basic {P} Energy/->Lillie’s Clefairy ex
+    ours : [46]PLAY/Ultra Ball
+  84926607 zoroark190 MAIN
+    human: [7]ATTACK/Rapid-Fire Combo
+    ours : [6]PLAY/Ultra Ball
+  84926607 zoroark190 TO_ACTIVE
+    human: [4]CARD/Mega Kangaskhan ex
+    ours : [2]CARD/Teal Mask Ogerpon ex
+  84926607 zoroark190 MAIN
+    human: [36]ABILITY/Mega Kangaskhan ex
+    ours : [37]ABILITY/Fezandipiti ex
+  84926607 zoroark190 MAIN
+    human: [38]ABILITY/Fezandipiti ex
+    ours : [25]PLAY/Mega Kangaskhan ex
+  84926607 zoroark190 MAIN
+    human: [47]ABILITY/Teal Mask Ogerpon ex
+    ours : [46]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [38]PLAY/Teal Mask Ogerpon ex
+    ours : [39]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [26]ATTACH/Basic {L} Energy/->Lillie’s Clefairy ex
+    ours : [42]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [13]END
+    ours : [10]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [21]ATTACH/Basic {W} Energy/->Mega Kangaskhan ex
+    ours : [34]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [14]END
+    ours : [10]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [28]ATTACH/Basic {L} Energy/->Mega Kangaskhan ex
+    ours : [26]PLAY/Energy Switch
+  84926607 zoroark190 MAIN
+    human: [13]ATTACK/Rapid-Fire Combo
+    ours : [6]PLAY/Ultra Ball
+  84926613 zoroark190 MAIN
+    human: [3]PLAY/Teal Mask Ogerpon ex
+    ours : [0]PLAY/Area Zero Underdepths
+  84926613 zoroark190 MAIN
+    human: [3]END
+    ours : [0]PLAY/Area Zero Underdepths
+  84926613 zoroark190 MAIN
+    human: [2]PLAY/Ultra Ball
+    ours : [1]PLAY/Area Zero Underdepths
+  84926613 zoroark190 DISCARD
+    human: [3]CARD/Area Zero Underdepths [2]CARD/Area Zero Underdepths
+    ours : [2]CARD/Area Zero Underdepths [3]CARD/Area Zero Underdepths
+  84926613 zoroark190 MAIN
+    human: [4]PLAY/Meowth ex
+    ours : [0]PLAY/Crispin
+  84926613 zoroark190 MAIN
+    human: [5]PLAY/Cyrano
+    ours : [0]PLAY/Crispin
+  84926613 zoroark190 TO_HAND
+    human: [4]CARD/Latias ex [3]CARD/Meowth ex [8]CARD/Lillie’s Clefairy ex
+    ours : [3]CARD/Meowth ex [9]CARD/Teal Mask Ogerpon ex [4]CARD/Latias ex
+  84926613 zoroark190 MAIN
+    human: [6]PLAY/Lillie’s Clefairy ex
+    ours : [0]ATTACH/Basic {F} Energy/->Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [5]ATTACH/Basic {F} Energy/->Lillie’s Clefairy ex
+    ours : [0]ATTACH/Basic {F} Energy/->Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [2]END
+    ours : [0]PLAY/Energy Switch
+  84926613 zoroark190 MAIN
+    human: [9]PLAY/Area Zero Underdepths
+    ours : [11]ABILITY/Teal Mask Ogerpon ex
+  84926613 zoroark190 MAIN
+    human: [0]PLAY/Crispin
+    ours : [12]ABILITY/Teal Mask Ogerpon ex
+  84926613 zoroark190 TO_HAND
+    human: [3]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {L} Energy
+  84926613 zoroark190 ATTACH_TO
+    human: [1]CARD/Basic {P} Energy
+    ours : [0]CARD/Basic {L} Energy
+  84926613 zoroark190 MAIN
+    human: [5]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [12]ABILITY/Teal Mask Ogerpon ex
+  84926613 zoroark190 MAIN
+    human: [2]PLAY/Prime Catcher
+    ours : [0]PLAY/Energy Switch
+  84926613 zoroark190 SWITCH
+    human: [3]CARD/Latias ex
+    ours : [0]CARD/Teal Mask Ogerpon ex
+  84926613 zoroark190 MAIN
+    human: [4]ATTACK/Rapid-Fire Combo
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 TO_HAND
+    human: [3]CARD
+    ours : [0]CARD
+  84926613 zoroark190 TO_HAND
+    human: [0]CARD/Crispin
+    ours : [3]CARD/Cyrano
+  84926613 zoroark190 MAIN
+    human: [12]PLAY/Crispin
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 ATTACH_TO
+    human: [2]CARD/Basic {P} Energy
+    ours : [0]CARD/Basic {L} Energy
+  84926613 zoroark190 ATTACH_FROM
+    human: [5]CARD/Lillie’s Clefairy ex
+    ours : [1]CARD/Teal Mask Ogerpon ex
+  84926613 zoroark190 MAIN
+    human: [13]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [5]ATTACK/Rapid-Fire Combo
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [12]PLAY/Lillie’s Clefairy ex
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [11]ATTACH/Basic {W} Energy/->Lillie’s Clefairy ex
+    ours : [1]PLAY/Ultra Ball
+  84926613 zoroark190 MAIN
+    human: [5]ATTACK/Rapid-Fire Combo
+    ours : [1]PLAY/Ultra Ball
+  84926613 zoroark190 TO_ACTIVE
+    human: [3]CARD/Latias ex
+    ours : [0]CARD/Teal Mask Ogerpon ex
+  84926613 zoroark190 MAIN
+    human: [2]PLAY/Fezandipiti ex
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [15]PLAY/Crispin
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 TO_HAND
+    human: [2]CARD/Basic {L} Energy
+    ours : [0]CARD/Basic {G} Energy
+  84926613 zoroark190 MAIN
+    human: [4]PLAY/Glass Trumpet
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 ATTACH_TO
+    human: [2]CARD/Basic {P} Energy
+    ours : [0]CARD/Basic {G} Energy
+  84926613 zoroark190 MAIN
+    human: [12]PLAY/Glass Trumpet
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [24]END
+    ours : [0]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 DISCARD
+    human: [0]CARD/Mega Kangaskhan ex [3]CARD/Fezandipiti ex [8]CARD/Basic {L} Energy [1]CARD/Ultra Ball [2]CARD/Energy Switch [5]CARD/Energy Switch
+    ours : [2]CARD/Energy Switch [5]CARD/Energy Switch [3]CARD/Fezandipiti ex [4]CARD/Basic {F} Energy [8]CARD/Basic {L} Energy [1]CARD/Ultra Ball
+  84926613 zoroark190 MAIN
+    human: [12]END
+    ours : [10]PLAY/Ultra Ball
+  84926613 zoroark190 DISCARD
+    human: [4]CARD/Meowth ex [2]CARD/Meowth ex
+    ours : [0]CARD/Teal Mask Ogerpon ex [2]CARD/Meowth ex
+  84926613 zoroark190 MAIN
+    human: [11]ATTACK/Myriad Leaf Shower
+    ours : [10]PLAY/Mega Kangaskhan ex
+  84926613 zoroark190 MAIN
+    human: [10]ATTACK/Myriad Leaf Shower
+    ours : [8]PLAY/Mega Kangaskhan ex
+  84926740 zoroark190 MAIN
+    human: [0]PLAY/Cyrano
+    ours : [2]PLAY/Fezandipiti ex
+  84926740 zoroark190 TO_HAND
+    human: [1]CARD/Mega Kangaskhan ex [7]CARD/Teal Mask Ogerpon ex [2]CARD/Wellspring Mask Ogerpon ex
+    ours : [7]CARD/Teal Mask Ogerpon ex [1]CARD/Mega Kangaskhan ex [5]CARD/Meowth ex
+  84926740 zoroark190 MAIN
+    human: [7]PLAY/Mega Kangaskhan ex
+    ours : [9]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [10]ABILITY/Teal Mask Ogerpon ex
+    ours : [11]RETREAT
+  84926740 zoroark190 MAIN
+    human: [4]PLAY/Lillie’s Clefairy ex
+    ours : [9]RETREAT
+  84926740 zoroark190 MAIN
+    human: [3]ATTACH/Basic {P} Energy/->Lillie’s Clefairy ex
+    ours : [9]RETREAT
+  84926740 zoroark190 MAIN
+    human: [4]PLAY/Teal Mask Ogerpon ex
+    ours : [5]RETREAT
+  84926740 zoroark190 SWITCH
+    human: [2]CARD/Lillie’s Clefairy ex
+    ours : [1]CARD/Mega Kangaskhan ex
+  84926740 zoroark190 ATTACH_FROM
+    human: [0]CARD/Lillie’s Clefairy ex
+    ours : [1]CARD/Mega Kangaskhan ex
+  84926740 zoroark190 TO_HAND
+    human: [4]CARD
+    ours : [0]CARD
+  84926740 zoroark190 MAIN
+    human: [2]PLAY/Wellspring Mask Ogerpon ex
+    ours : [12]RETREAT
+  84926740 zoroark190 MAIN
+    human: [6]ATTACH/Basic {G} Energy/->Wellspring Mask Ogerpon ex
+    ours : [10]RETREAT
+  84926740 zoroark190 MAIN
+    human: [1]ATTACK/Full Moon Rondo
+    ours : [2]RETREAT
+  84926740 zoroark190 MAIN
+    human: [4]ATTACH/Basic {F} Energy/->Mega Kangaskhan ex
+    ours : [2]PLAY/Energy Switch
+  84926740 zoroark190 MAIN
+    human: [3]ATTACK/Rapid-Fire Combo
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84926740 zoroark190 TO_HAND
+    human: [3]CARD
+    ours : [0]CARD
+  84926740 zoroark190 TO_ACTIVE
+    human: [1]CARD/Latias ex
+    ours : [2]CARD/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [4]PLAY/Lillie’s Clefairy ex
+    ours : [9]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [1]PLAY/Meowth ex
+    ours : [9]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 TO_HAND
+    human: [0]CARD/Crispin
+    ours : [1]CARD/Boss’s Orders
+  84926740 zoroark190 MAIN
+    human: [8]PLAY/Crispin
+    ours : [9]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 TO_HAND
+    human: [1]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {W} Energy
+  84926740 zoroark190 ATTACH_TO
+    human: [2]CARD/Basic {P} Energy
+    ours : [0]CARD/Basic {W} Energy
+  84926740 zoroark190 ATTACH_FROM
+    human: [4]CARD/Lillie’s Clefairy ex
+    ours : [1]CARD/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [14]ABILITY/Teal Mask Ogerpon ex
+    ours : [13]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [5]ATTACH/Basic {G} Energy/->Lillie’s Clefairy ex
+    ours : [7]ABILITY/Teal Mask Ogerpon ex
+  84926740 zoroark190 MAIN
+    human: [0]RETREAT
+    ours : [1]END
+  84926740 zoroark190 SWITCH
+    human: [3]CARD/Lillie’s Clefairy ex
+    ours : [1]CARD/Teal Mask Ogerpon ex
+  84926740 zoroark190 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84927675 zoroark190 MAIN
+    human: [4]PLAY/Lillie’s Clefairy ex
+    ours : [1]PLAY/Meowth ex
+  84927675 zoroark190 MAIN
+    human: [3]ATTACH/Basic {L} Energy/->Lillie’s Clefairy ex
+    ours : [0]PLAY/Ultra Ball
+  84927675 zoroark190 MAIN
+    human: [4]END
+    ours : [0]PLAY/Ultra Ball
+  84927675 zoroark190 MAIN
+    human: [2]PLAY/Cyrano
+    ours : [3]PLAY/Area Zero Underdepths
+  84927675 zoroark190 TO_HAND
+    human: [2]CARD/Mega Kangaskhan ex [1]CARD/Fezandipiti ex [0]CARD/Teal Mask Ogerpon ex
+    ours : [2]CARD/Mega Kangaskhan ex [0]CARD/Teal Mask Ogerpon ex [1]CARD/Fezandipiti ex
+  84927675 zoroark190 MAIN
+    human: [2]PLAY/Area Zero Underdepths
+    ours : [5]RETREAT
+  84927675 zoroark190 MAIN
+    human: [3]PLAY/Teal Mask Ogerpon ex
+    ours : [4]RETREAT
+  84927675 zoroark190 MAIN
+    human: [5]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [8]ABILITY/Teal Mask Ogerpon ex
+  84927675 zoroark190 MAIN
+    human: [3]END
+    ours : [0]PLAY/Ultra Ball
+  84927675 zoroark190 ATTACH_TO
+    human: [2]CARD/Basic {P} Energy
+    ours : [0]CARD/Basic {F} Energy
+  84927675 zoroark190 ATTACH_FROM
+    human: [1]CARD/Lillie’s Clefairy ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84927675 zoroark190 MAIN
+    human: [7]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [10]ABILITY/Teal Mask Ogerpon ex
+  84927675 zoroark190 MAIN
+    human: [6]END
+    ours : [0]PLAY/Ultra Ball
+  84927675 zoroark190 TO_HAND
+    human: [1]CARD/Basic {F} Energy
+    ours : [0]CARD/Basic {G} Energy
+  84927675 zoroark190 ATTACH_FROM
+    human: [2]CARD/Teal Mask Ogerpon ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84927675 zoroark190 MAIN
+    human: [7]ATTACH/Basic {F} Energy/->Mega Kangaskhan ex
+    ours : [5]PLAY/Mega Kangaskhan ex
+  84927675 zoroark190 MAIN
+    human: [8]END
+    ours : [5]PLAY/Mega Kangaskhan ex
+  84927675 zoroark190 MAIN
+    human: [1]PLAY/Meowth ex
+    ours : [14]ABILITY/Teal Mask Ogerpon ex
+  84927675 zoroark190 MAIN
+    human: [14]PLAY/Crispin
+    ours : [15]ABILITY/Teal Mask Ogerpon ex
+  84927675 zoroark190 ATTACH_TO
+    human: [1]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {F} Energy
+  84927675 zoroark190 ATTACH_FROM
+    human: [4]CARD/Teal Mask Ogerpon ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84927675 zoroark190 MAIN
+    human: [8]ATTACH/Basic {L} Energy/->Mega Kangaskhan ex
+    ours : [6]PLAY/Energy Switch
+  84927675 zoroark190 MAIN
+    human: [10]END
+    ours : [6]PLAY/Energy Switch
+  84927675 zoroark190 TO_ACTIVE
+    human: [2]CARD/Latias ex
+    ours : [1]CARD/Teal Mask Ogerpon ex
+  84927675 zoroark190 MAIN
+    human: [1]PLAY/Fezandipiti ex
+    ours : [5]PLAY/Mega Kangaskhan ex
+  84927675 zoroark190 MAIN
+    human: [15]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [18]ABILITY/Teal Mask Ogerpon ex
+  84927675 zoroark190 MAIN
+    human: [13]END
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84927675 zoroark190 MAIN
+    human: [13]END
+    ours : [4]PLAY/Mega Kangaskhan ex
+  84927675 zoroark190 MAIN
+    human: [1]PLAY/Latias ex
+    ours : [12]ABILITY/Fezandipiti ex
+  84927675 zoroark190 MAIN
+    human: [14]ATTACK/Myriad Leaf Shower
+    ours : [12]PLAY/Meowth ex
+  84927675 zoroark190 MAIN
+    human: [15]ATTACK/Myriad Leaf Shower
+    ours : [12]PLAY/Meowth ex
+  84930367 zoroark190 MAIN
+    human: [0]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [1]PLAY/Ultra Ball
+  84930367 zoroark190 MAIN
+    human: [2]END
+    ours : [0]PLAY/Ultra Ball
+  84930367 zoroark190 DISCARD
+    human: [6]CARD/Crispin [1]CARD/Ultra Ball [3]CARD/Cyrano [7]CARD/Area Zero Underdepths [2]CARD/Energy Switch
+    ours : [0]CARD/Crispin [6]CARD/Crispin [1]CARD/Ultra Ball [2]CARD/Energy Switch [3]CARD/Cyrano
+  84930367 zoroark190 MAIN
+    human: [0]PLAY/Crispin
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84930367 zoroark190 MAIN
+    human: [3]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84930367 zoroark190 MAIN
+    human: [0]PLAY/Prime Catcher
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84930367 zoroark190 TO_HAND
+    human: [2]CARD
+    ours : [0]CARD
+  84930367 zoroark190 MAIN
+    human: [5]PLAY/Boss’s Orders
+    ours : [4]PLAY/Ultra Ball
+  84930367 zoroark190 MAIN
+    human: [1]ATTACH/Basic {L} Energy/->Mega Kangaskhan ex
+    ours : [3]PLAY/Ultra Ball
+  84930367 zoroark190 MAIN
+    human: [2]ATTACK/Rapid-Fire Combo
+    ours : [1]PLAY/Ultra Ball
+  84930367 zoroark190 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84930367 zoroark190 MAIN
+    human: [3]PLAY/Meowth ex
+    ours : [2]PLAY/Ultra Ball
+  84930367 zoroark190 TO_HAND
+    human: [3]CARD/Boss’s Orders
+    ours : [1]CARD/Cyrano
+  84930367 zoroark190 MAIN
+    human: [8]PLAY/Boss’s Orders
+    ours : [2]PLAY/Ultra Ball
+  84930367 zoroark190 MAIN
+    human: [5]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [1]PLAY/Ultra Ball
+  84930367 zoroark190 MAIN
+    human: [4]ATTACK/Rapid-Fire Combo
+    ours : [1]PLAY/Ultra Ball
+  84930367 zoroark190 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84930367 zoroark190 MAIN
+    human: [1]PLAY/Ultra Ball
+    ours : [0]PLAY/Crispin
+  84930367 zoroark190 DISCARD
+    human: [6]CARD/Area Zero Underdepths [3]CARD/Mega Kangaskhan ex
+    ours : [6]CARD/Area Zero Underdepths [4]CARD/Energy Switch
+  84930367 zoroark190 TO_HAND
+    human: [1]CARD/Raging Bolt ex
+    ours : [3]CARD/Meowth ex
+  84930367 zoroark190 MAIN
+    human: [4]PLAY/Raging Bolt ex
+    ours : [0]PLAY/Crispin
+  84930367 zoroark190 TO_HAND
+    human: [1]CARD/Basic {F} Energy
+    ours : [2]CARD/Basic {G} Energy
+  84930367 zoroark190 ATTACH_TO
+    human: [6]CARD/Basic {L} Energy
+    ours : [0]CARD/Basic {W} Energy
+  84930367 zoroark190 ATTACH_FROM
+    human: [5]CARD/Raging Bolt ex
+    ours : [1]CARD/Mega Kangaskhan ex
+  84930367 zoroark190 MAIN
+    human: [8]ATTACH/Basic {F} Energy/->Raging Bolt ex
+    ours : [4]ATTACH/Basic {F} Energy/->Mega Kangaskhan ex
+  84930367 zoroark190 MAIN
+    human: [4]RETREAT
+    ours : [3]ATTACK/Rapid-Fire Combo
+  84930367 zoroark190 SWITCH
+    human: [4]CARD/Raging Bolt ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84930367 zoroark190 DISCARD_ENERGY_CARD
+    human: [5]ENERGY_CARD/Raging Bolt ex [6]ENERGY_CARD/Raging Bolt ex [0]ENERGY_CARD/Mega Kangaskhan ex
+    ours : (none)
+  84930367 zoroark190 TO_HAND
+    human: [2]CARD
+    ours : [0]CARD
+  84930367 zoroark190 MAIN
+    human: [1]PLAY/Night Stretcher
+    ours : [5]RETREAT
+  84930367 zoroark190 TO_HAND
+    human: [1]CARD/Basic {L} Energy
+    ours : [3]CARD/Basic {G} Energy
+  84930367 zoroark190 MAIN
+    human: [4]ATTACH/Basic {L} Energy/->Raging Bolt ex
+    ours : [10]RETREAT
+  84930367 zoroark190 MAIN
+    human: [0]PLAY/Glass Trumpet
+    ours : [3]PLAY/Crispin
+  84930367 zoroark190 MAIN
+    human: [0]PLAY/Energy Switch
+    ours : [1]PLAY/Crispin
+  84930367 zoroark190 SWITCH_ENERGY_CARD
+    human: [5]ENERGY_CARD/Mega Kangaskhan ex
+    ours : [4]ENERGY_CARD/Raging Bolt ex
+  84931441 zoroark190 MAIN
+    human: [6]END
+    ours : [5]PLAY/Fezandipiti ex
+  84931441 zoroark190 MAIN
+    human: [13]END
+    ours : [10]ATTACH/Basic {P} Energy/->Latias ex
+  84931441 zoroark190 MAIN
+    human: [8]PLAY/Teal Mask Ogerpon ex
+    ours : [10]PLAY/Meowth ex
+  84931441 zoroark190 TO_HAND
+    human: [1]CARD/Crispin
+    ours : [2]CARD/Cyrano
+  84931441 zoroark190 MAIN
+    human: [19]PLAY/Crispin
+    ours : [10]PLAY/Area Zero Underdepths
+  84931441 zoroark190 TO_HAND
+    human: [6]CARD/Basic {L} Energy
+    ours : [0]CARD/Basic {W} Energy
+  84931441 zoroark190 ATTACH_TO
+    human: [1]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {W} Energy
+  84931441 zoroark190 MAIN
+    human: [1]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [10]PLAY/Area Zero Underdepths
+  84931441 zoroark190 MAIN
+    human: [0]PLAY/Prime Catcher
+    ours : [1]PLAY/Area Zero Underdepths
+  84931441 zoroark190 MAIN
+    human: [1]PLAY/Raging Bolt ex
+    ours : [0]PLAY/Area Zero Underdepths
+  84931441 zoroark190 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84931441 zoroark190 MAIN
+    human: [18]PLAY/Meowth ex
+    ours : [17]PLAY/Ultra Ball
+  84931441 zoroark190 MAIN
+    human: [23]PLAY/Cyrano
+    ours : [21]PLAY/Ultra Ball
+  84931441 zoroark190 TO_HAND
+    human: [0]CARD/Latias ex [2]CARD/Mega Kangaskhan ex [8]CARD/Meowth ex
+    ours : [8]CARD/Meowth ex [2]CARD/Mega Kangaskhan ex [4]CARD/Teal Mask Ogerpon ex
+  84931441 zoroark190 MAIN
+    human: [22]PLAY/Latias ex
+    ours : [23]PLAY/Mega Kangaskhan ex
+  84931441 zoroark190 MAIN
+    human: [20]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [29]PLAY/Ultra Ball
+  84931441 zoroark190 MAIN
+    human: [3]ATTACK/Myriad Leaf Shower
+    ours : [1]PLAY/Ultra Ball
+  84931441 zoroark190 TO_HAND
+    human: [3]CARD [2]CARD
+    ours : [0]CARD [1]CARD
+  84931441 zoroark190 DISCARD
+    human: [1]CARD/Meowth ex
+    ours : [4]CARD/Latias ex
+  84931441 zoroark190 MAIN
+    human: [20]PLAY/Cyrano
+    ours : [19]PLAY/Crispin
+  84931441 zoroark190 TO_HAND
+    human: [3]CARD/Teal Mask Ogerpon ex [5]CARD/Lillie’s Clefairy ex [0]CARD/Mega Kangaskhan ex
+    ours : [3]CARD/Teal Mask Ogerpon ex [0]CARD/Mega Kangaskhan ex [4]CARD/Teal Mask Ogerpon ex
+  84931441 zoroark190 MAIN
+    human: [24]ATTACH/Basic {W} Energy/->Mega Kangaskhan ex
+    ours : [18]PLAY/Ultra Ball
+  84931441 zoroark190 MAIN
+    human: [2]ATTACK/Myriad Leaf Shower
+    ours : [0]PLAY/Ultra Ball
+  84931441 zoroark190 MAIN
+    human: [20]PLAY/Teal Mask Ogerpon ex
+    ours : [25]ABILITY/Fezandipiti ex
+  84931441 zoroark190 MAIN
+    human: [23]ABILITY/Mega Kangaskhan ex
+    ours : [24]ABILITY/Fezandipiti ex
+  84931441 zoroark190 MAIN
+    human: [26]ABILITY/Spikemuth Gym
+    ours : [21]PLAY/Area Zero Underdepths
+  84931441 zoroark190 ATTACH_FROM
+    human: [2]CARD/Raging Bolt ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84931441 zoroark190 MAIN
+    human: [2]ATTACH/Basic {F} Energy/->Raging Bolt ex
+    ours : [23]PLAY/Glass Trumpet
+  84931441 zoroark190 MAIN
+    human: [6]PLAY/Teal Mask Ogerpon ex
+    ours : [10]RETREAT
+  84931441 zoroark190 SWITCH
+    human: [1]CARD/Raging Bolt ex
+    ours : [4]CARD/Teal Mask Ogerpon ex
+  84931441 zoroark190 MAIN
+    human: [5]PLAY/Glass Trumpet
+    ours : [10]ATTACK/Bellowing Thunder
+  84931441 zoroark190 DISCARD_ENERGY_CARD
+    human: [6]ENERGY_CARD/Meowth ex [3]ENERGY_CARD/Teal Mask Ogerpon ex [0]ENERGY_CARD/Mega Kangaskhan ex [1]ENERGY_CARD/Mega Kangaskhan ex [5]ENERGY_CARD/Mega Kangaskhan ex
+    ours : [3]ENERGY_CARD/Teal Mask Ogerpon ex [6]ENERGY_CARD/Meowth ex [2]ENERGY_CARD/Raging Bolt ex [4]ENERGY_CARD/Raging Bolt ex [0]ENERGY_CARD/Mega Kangaskhan ex
+  84931958 zoroark190 TO_HAND
+    human: [3]CARD/Latias ex [7]CARD/Mega Kangaskhan ex [2]CARD/Teal Mask Ogerpon ex
+    ours : [2]CARD/Teal Mask Ogerpon ex [0]CARD/Meowth ex [7]CARD/Mega Kangaskhan ex
+  84931958 zoroark190 MAIN
+    human: [5]PLAY/Latias ex
+    ours : [7]ABILITY/Teal Mask Ogerpon ex
+  84931958 zoroark190 MAIN
+    human: [6]PLAY/Mega Kangaskhan ex
+    ours : [7]ABILITY/Teal Mask Ogerpon ex
+  84931958 zoroark190 MAIN
+    human: [14]PLAY/Ultra Ball
+    ours : [0]PLAY/Area Zero Underdepths
+  84931958 zoroark190 DISCARD
+    human: [2]CARD/Area Zero Underdepths [4]CARD/Xerosic’s Machinations
+    ours : [0]CARD/Area Zero Underdepths [1]CARD/Energy Switch
+  84931958 zoroark190 TO_HAND
+    human: [4]CARD/Teal Mask Ogerpon ex
+    ours : [5]CARD/Meowth ex
+  84931958 zoroark190 MAIN
+    human: [13]PLAY/Teal Mask Ogerpon ex
+    ours : [0]PLAY/Area Zero Underdepths
+  84931958 zoroark190 MAIN
+    human: [3]ATTACH/Basic {L} Energy/->Mega Kangaskhan ex
+    ours : [0]PLAY/Area Zero Underdepths
+  84931958 zoroark190 MAIN
+    human: [1]PLAY/Energy Switch
+    ours : [0]PLAY/Area Zero Underdepths
+  84931958 zoroark190 MAIN
+    human: [1]PLAY/Energy Switch
+    ours : [0]PLAY/Area Zero Underdepths
+  84931958 zoroark190 MAIN
+    human: [1]ATTACK/Rapid-Fire Combo
+    ours : [0]PLAY/Area Zero Underdepths
+  84931958 zoroark190 TO_HAND
+    human: [2]CARD
+    ours : [0]CARD
+  84932456 zoroark190 MAIN
+    human: [6]END
+    ours : [2]PLAY/Crispin
+  84932456 zoroark190 MAIN
+    human: [9]END
+    ours : [3]PLAY/Crispin
+  84932456 zoroark190 TO_HAND
+    human: [1]CARD/Basic {F} Energy
+    ours : [0]CARD/Basic {L} Energy
+  84932456 zoroark190 MAIN
+    human: [10]ATTACK/Burst Roar
+    ours : [0]PLAY/Area Zero Underdepths
+  84932456 zoroark190 DISCARD
+    human: [0]CARD/Raging Bolt ex [1]CARD/Energy Switch
+    ours : [1]CARD/Energy Switch [3]CARD/Energy Switch
+  84932456 zoroark190 TO_HAND
+    human: [1]CARD/Meowth ex
+    ours : [4]CARD/Teal Mask Ogerpon ex
+  84932456 zoroark190 MAIN
+    human: [5]PLAY/Meowth ex
+    ours : [2]PLAY/Crispin
+  84932456 zoroark190 TO_HAND
+    human: [0]CARD/Boss’s Orders
+    ours : [4]CARD/Cyrano
+  84932456 zoroark190 MAIN
+    human: [6]PLAY/Boss’s Orders
+    ours : [2]PLAY/Crispin
+  84932456 zoroark190 SWITCH
+    human: [0]CARD/Marnie's Morgrem
+    ours : [1]CARD/Marnie's Impidimp
+  84932470 zoroark190 DISCARD
+    human: [4]CARD/Basic {L} Energy [5]CARD/Basic {G} Energy
+    ours : [2]CARD/Basic {G} Energy [5]CARD/Basic {G} Energy
+  84932470 zoroark190 TO_HAND
+    human: [2]CARD/Meowth ex
+    ours : [1]CARD/Teal Mask Ogerpon ex
+  84932470 zoroark190 TO_HAND
+    human: [3]CARD/Latias ex [2]CARD/Mega Kangaskhan ex [1]CARD/Teal Mask Ogerpon ex
+    ours : [1]CARD/Teal Mask Ogerpon ex [0]CARD/Meowth ex [2]CARD/Mega Kangaskhan ex
+  84932470 zoroark190 MAIN
+    human: [7]PLAY/Latias ex
+    ours : [9]ABILITY/Teal Mask Ogerpon ex
+  84932470 zoroark190 MAIN
+    human: [9]PLAY/Mega Kangaskhan ex
+    ours : [10]ABILITY/Teal Mask Ogerpon ex
+  84932470 zoroark190 MAIN
+    human: [11]ABILITY/Teal Mask Ogerpon ex
+    ours : [12]RETREAT
+  84932470 zoroark190 MAIN
+    human: [7]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [5]PLAY/Area Zero Underdepths
+  84932470 zoroark190 MAIN
+    human: [2]END
+    ours : [0]PLAY/Area Zero Underdepths
+  84932470 zoroark190 TO_HAND
+    human: [0]CARD/Basic {G} Energy
+    ours : [2]CARD/Basic {L} Energy
+  84932470 zoroark190 ATTACH_FROM
+    human: [4]CARD/Raging Bolt ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84932470 zoroark190 MAIN
+    human: [4]ATTACH/Basic {F} Energy/->Raging Bolt ex
+    ours : [0]ATTACH/Basic {F} Energy/->Mega Kangaskhan ex
+  84932470 zoroark190 MAIN
+    human: [1]RETREAT
+    ours : [2]END
+  84932470 zoroark190 SWITCH
+    human: [3]CARD/Raging Bolt ex
+    ours : [1]CARD/Teal Mask Ogerpon ex
+  84932470 zoroark190 DISCARD_ENERGY_CARD
+    human: [1]ENERGY_CARD/Mega Kangaskhan ex [3]ENERGY_CARD/Raging Bolt ex [4]ENERGY_CARD/Raging Bolt ex [0]ENERGY_CARD/Teal Mask Ogerpon ex [2]ENERGY_CARD/Teal Mask Ogerpon ex
+    ours : (none)
+  84932470 zoroark190 TO_HAND
+    human: [3]CARD [5]CARD [1]CARD
+    ours : [0]CARD [1]CARD [2]CARD
+  84932470 zoroark190 MAIN
+    human: [2]PLAY/Teal Mask Ogerpon ex
+    ours : [3]RETREAT
+  84932470 zoroark190 MAIN
+    human: [2]ATTACH/Basic {W} Energy/->Mega Kangaskhan ex
+    ours : [8]PLAY/Mega Kangaskhan ex
+  84932470 zoroark190 MAIN
+    human: [4]END
+    ours : [3]PLAY/Mega Kangaskhan ex
+  84932470 zoroark190 MAIN
+    human: [3]PLAY/Glass Trumpet
+    ours : [2]PLAY/Mega Kangaskhan ex
+  84932470 zoroark190 SWITCH
+    human: [4]CARD/Mega Kangaskhan ex
+    ours : [1]CARD/Teal Mask Ogerpon ex
+  84932470 zoroark190 MAIN
+    human: [9]PLAY/Ultra Ball
+    ours : [2]PLAY/Energy Switch
+  84932470 zoroark190 DISCARD
+    human: [1]CARD/Xerosic’s Machinations [0]CARD/Night Stretcher
+    ours : [4]CARD/Basic {P} Energy [0]CARD/Night Stretcher
+  84932470 zoroark190 MAIN
+    human: [2]ATTACH/Basic {P} Energy/->Mega Kangaskhan ex
+    ours : [1]PLAY/Energy Switch
+  84932470 zoroark190 SWITCH_ENERGY_CARD
+    human: [0]ENERGY_CARD/Meowth ex
+    ours : [2]ENERGY_CARD/Teal Mask Ogerpon ex
+  84932470 zoroark190 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84932989 zoroark190 MAIN
+    human: [5]PLAY/Crispin
+    ours : [4]PLAY/Area Zero Underdepths
+  84932989 zoroark190 TO_HAND
+    human: [3]CARD/Basic {W} Energy
+    ours : [1]CARD/Basic {G} Energy
+  84932989 zoroark190 ATTACH_TO
+    human: [1]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {L} Energy
+  84932989 zoroark190 MAIN
+    human: [8]END
+    ours : [3]PLAY/Area Zero Underdepths
+  84932989 zoroark190 MAIN
+    human: [8]PLAY/Ultra Ball
+    ours : [4]PLAY/Area Zero Underdepths
+  84932989 zoroark190 DISCARD
+    human: [5]CARD/Basic {W} Energy [3]CARD/Area Zero Underdepths
+    ours : [0]CARD/Energy Switch [1]CARD/Basic {W} Energy
+  84932989 zoroark190 MAIN
+    human: [5]PLAY/Meowth ex
+    ours : [2]ATTACH/Basic {W} Energy/->Teal Mask Ogerpon ex
+  84932989 zoroark190 TO_HAND
+    human: [3]CARD/Mega Kangaskhan ex [9]CARD/Meowth ex [1]CARD/Wellspring Mask Ogerpon ex
+    ours : [9]CARD/Meowth ex [3]CARD/Mega Kangaskhan ex [0]CARD/Teal Mask Ogerpon ex
+  84932989 zoroark190 MAIN
+    human: [4]ATTACH/Basic {W} Energy/->Mega Kangaskhan ex
+    ours : [8]RETREAT
+  84932989 zoroark190 MAIN
+    human: [5]PLAY/Teal Mask Ogerpon ex
+    ours : [0]PLAY/Energy Switch
+  84932989 zoroark190 TO_HAND
+    human: [5]CARD
+    ours : [0]CARD
+  84932989 zoroark190 MAIN
+    human: [5]PLAY/Fezandipiti ex
+    ours : [4]PLAY/Area Zero Underdepths
+  84932989 zoroark190 MAIN
+    human: [3]PLAY/Raging Bolt ex
+    ours : [4]PLAY/Area Zero Underdepths
+  84932989 zoroark190 MAIN
+    human: [1]PLAY/Meowth ex
+    ours : [3]PLAY/Night Stretcher
+  84932989 zoroark190 TO_HAND
+    human: [1]CARD/Basic {F} Energy
+    ours : [0]CARD/Basic {G} Energy
+  84932989 zoroark190 ATTACH_TO
+    human: [5]CARD/Basic {L} Energy
+    ours : [0]CARD/Basic {G} Energy
+  84932989 zoroark190 MAIN
+    human: [8]ATTACH/Basic {F} Energy/->Raging Bolt ex
+    ours : [1]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [3]RETREAT
+    ours : [1]PLAY/Night Stretcher
+  84932989 zoroark190 SWITCH
+    human: [4]CARD/Raging Bolt ex
+    ours : [0]CARD/Teal Mask Ogerpon ex
+  84932989 zoroark190 MAIN
+    human: [4]ATTACK/Bellowing Thunder
+    ours : [1]PLAY/Night Stretcher
+  84932989 zoroark190 TO_HAND
+    human: [2]CARD
+    ours : [0]CARD
+  84932989 zoroark190 DISCARD
+    human: [4]CARD/Area Zero Underdepths [3]CARD/Latias ex [5]CARD/Ultra Ball
+    ours : [4]CARD/Area Zero Underdepths [3]CARD/Latias ex [1]CARD/Wellspring Mask Ogerpon ex
+  84932989 zoroark190 MAIN
+    human: [1]PLAY/Wellspring Mask Ogerpon ex
+    ours : [12]ABILITY/Teal Mask Ogerpon ex
+  84932989 zoroark190 MAIN
+    human: [0]PLAY/Boss’s Orders
+    ours : [12]ABILITY/Teal Mask Ogerpon ex
+  84932989 zoroark190 SWITCH
+    human: [0]CARD/Fezandipiti ex
+    ours : [2]CARD/Abra
+  84932989 zoroark190 MAIN
+    human: [9]ATTACH/Basic {G} Energy/->Wellspring Mask Ogerpon ex
+    ours : [10]ABILITY/Teal Mask Ogerpon ex
+  84932989 zoroark190 MAIN
+    human: [3]RETREAT
+    ours : [1]PLAY/Mega Kangaskhan ex
+  84932989 zoroark190 SWITCH
+    human: [5]CARD/Wellspring Mask Ogerpon ex
+    ours : [0]CARD/Teal Mask Ogerpon ex
+  84932989 zoroark190 MAIN
+    human: [2]ATTACK/Sob
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 DISCARD
+    human: [1]CARD/Meowth ex [4]CARD/Meowth ex
+    ours : [5]CARD/Latias ex [0]CARD/Teal Mask Ogerpon ex
+  84932989 zoroark190 MAIN
+    human: [1]PLAY/Xerosic’s Machinations
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [2]END
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [1]PLAY/Boss’s Orders
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 SWITCH
+    human: [0]CARD/Fezandipiti ex
+    ours : [2]CARD/Abra
+  84932989 zoroark190 MAIN
+    human: [2]END
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 SWITCH
+    human: [2]CARD/Wellspring Mask Ogerpon ex
+    ours : [3]CARD/Latias ex
+  84932989 zoroark190 MAIN
+    human: [2]END
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [5]ATTACH/Basic {P} Energy/->Wellspring Mask Ogerpon ex
+    ours : [8]RETREAT
+  84932989 zoroark190 SWITCH
+    human: [2]CARD/Wellspring Mask Ogerpon ex
+    ours : [3]CARD/Latias ex
+  84932989 zoroark190 MAIN
+    human: [2]ATTACK/Sob
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [7]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [8]ABILITY/Teal Mask Ogerpon ex
+  84932989 zoroark190 MAIN
+    human: [2]ATTACK/Sob
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [3]ATTACK/Sob
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [3]ATTACK/Sob
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [1]ATTACK/Sob
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [6]ATTACH/Basic {G} Energy/->Mega Kangaskhan ex
+    ours : [7]ABILITY/Teal Mask Ogerpon ex
+  84932989 zoroark190 MAIN
+    human: [1]ATTACK/Sob
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [1]ATTACK/Sob
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [2]ATTACK/Sob
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [3]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [8]ABILITY/Teal Mask Ogerpon ex
+  84932989 zoroark190 MAIN
+    human: [2]ATTACK/Sob
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 MAIN
+    human: [3]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [8]ABILITY/Teal Mask Ogerpon ex
+  84932989 zoroark190 MAIN
+    human: [2]ATTACK/Sob
+    ours : [0]PLAY/Night Stretcher
+  84932989 zoroark190 TO_HAND
+    human: [3]CARD [1]CARD
+    ours : [0]CARD [1]CARD
+  84933507 zoroark190 MAIN
+    human: [7]END
+    ours : [3]PLAY/Ultra Ball
+  84933507 zoroark190 DISCARD
+    human: [1]CARD/Basic {W} Energy [0]CARD/Glass Trumpet
+    ours : [0]CARD/Glass Trumpet [2]CARD/Glass Trumpet
+  84933507 zoroark190 TO_HAND
+    human: [7]CARD/Cyrano
+    ours : [2]CARD/Crispin
+  84933507 zoroark190 MAIN
+    human: [5]PLAY/Cyrano
+    ours : [0]PLAY/Glass Trumpet
+  84933507 zoroark190 TO_HAND
+    human: [1]CARD/Lillie’s Clefairy ex [5]CARD/Latias ex [2]CARD/Meowth ex
+    ours : [2]CARD/Meowth ex [9]CARD/Teal Mask Ogerpon ex [5]CARD/Latias ex
+  84933507 zoroark190 MAIN
+    human: [6]PLAY/Lillie’s Clefairy ex
+    ours : [8]RETREAT
+  84933507 zoroark190 MAIN
+    human: [6]ATTACH/Basic {P} Energy/->Lillie’s Clefairy ex
+    ours : [7]RETREAT
+  84933507 zoroark190 MAIN
+    human: [0]PLAY/Glass Trumpet
+    ours : [2]RETREAT
+  84933507 zoroark190 SWITCH
+    human: [4]CARD/Lillie’s Clefairy ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84933507 zoroark190 SWITCH_ENERGY_CARD
+    human: [1]ENERGY_CARD/Mega Kangaskhan ex
+    ours : [0]ENERGY_CARD/Lillie’s Clefairy ex
+  84933507 zoroark190 ATTACH_FROM
+    human: [0]CARD/Lillie’s Clefairy ex
+    ours : [1]CARD/Teal Mask Ogerpon ex
+  84933507 zoroark190 TO_HAND
+    human: [4]CARD
+    ours : [0]CARD
+  84933507 zoroark190 MAIN
+    human: [7]ATTACK/Full Moon Rondo
+    ours : [8]RETREAT
+  84933507 zoroark190 TO_HAND
+    human: [1]CARD
+    ours : [0]CARD
+  84933507 zoroark190 TO_HAND
+    human: [1]CARD/Basic {L} Energy
+    ours : [2]CARD/Basic {G} Energy
+  84933507 zoroark190 ATTACH_TO
+    human: [1]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {F} Energy
+  84933507 zoroark190 ATTACH_FROM
+    human: [1]CARD/Teal Mask Ogerpon ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84933507 zoroark190 MAIN
+    human: [19]END
+    ours : [1]PLAY/Ultra Ball
+  84933507 zoroark190 TO_HAND
+    human: [3]CARD/Basic {W} Energy
+    ours : [1]CARD/Basic {G} Energy
+  84933507 zoroark190 ATTACH_TO
+    human: [1]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {F} Energy
+  84933507 zoroark190 ATTACH_FROM
+    human: [1]CARD/Teal Mask Ogerpon ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84933507 zoroark190 MAIN
+    human: [24]RETREAT
+    ours : [1]PLAY/Ultra Ball
+  84933507 zoroark190 MAIN
+    human: [24]ATTACK/Myriad Leaf Shower
+    ours : [1]PLAY/Ultra Ball
+  84933507 zoroark190 MAIN
+    human: [1]PLAY/Ultra Ball
+    ours : [25]PLAY/Crispin
+  84933507 zoroark190 DISCARD
+    human: [2]CARD/Latias ex [5]CARD/Basic {L} Energy
+    ours : [3]CARD/Basic {L} Energy [2]CARD/Latias ex
+  84933507 zoroark190 TO_HAND
+    human: [6]CARD/Raging Bolt ex
+    ours : [1]CARD/Teal Mask Ogerpon ex
+  84933507 zoroark190 MAIN
+    human: [19]PLAY/Raging Bolt ex
+    ours : [18]PLAY/Crispin
+  84933507 zoroark190 ATTACH_FROM
+    human: [5]CARD/Raging Bolt ex
+    ours : [1]CARD/Mega Kangaskhan ex
+  84933507 zoroark190 MAIN
+    human: [12]ATTACH/Basic {L} Energy/->Raging Bolt ex
+    ours : [2]ATTACH/Basic {P} Energy/->Mega Kangaskhan ex
+  84933507 zoroark190 MAIN
+    human: [3]RETREAT
+    ours : [2]ATTACK/Myriad Leaf Shower
+  84933507 zoroark190 SWITCH
+    human: [4]CARD/Raging Bolt ex
+    ours : [0]CARD/Mega Kangaskhan ex
+  84933507 zoroark190 TO_HAND
+    human: [1]CARD [3]CARD
+    ours : [0]CARD [1]CARD
+  84933507 zoroark190 TO_ACTIVE
+    human: [0]CARD/Mega Kangaskhan ex
+    ours : [2]CARD/Latias ex
+  84933507 zoroark190 MAIN
+    human: [31]ABILITY/Teal Mask Ogerpon ex
+    ours : [30]ABILITY/Teal Mask Ogerpon ex
+  84933507 zoroark190 MAIN
+    human: [23]END
+    ours : [13]PLAY/Crispin
+  84933522 zoroark190 MAIN
+    human: [6]PLAY/Teal Mask Ogerpon ex
+    ours : [0]PLAY/Area Zero Underdepths
+  84933522 zoroark190 MAIN
+    human: [8]END
+    ours : [0]PLAY/Area Zero Underdepths
+  84933522 zoroark190 MAIN
+    human: [1]PLAY/Ultra Ball
+    ours : [0]PLAY/Area Zero Underdepths
+  84933522 zoroark190 DISCARD
+    human: [2]CARD/Latias ex [4]CARD/Basic {L} Energy
+    ours : [2]CARD/Latias ex [3]CARD/Basic {F} Energy
+  84933522 zoroark190 MAIN
+    human: [5]PLAY/Cyrano
+    ours : [2]ATTACH/Basic {F} Energy/->Teal Mask Ogerpon ex
+  84933522 zoroark190 TO_HAND
+    human: [0]CARD/Mega Kangaskhan ex [8]CARD/Lillie’s Clefairy ex [7]CARD/Fezandipiti ex
+    ours : [0]CARD/Mega Kangaskhan ex [5]CARD/Teal Mask Ogerpon ex [7]CARD/Fezandipiti ex
+  84933522 zoroark190 MAIN
+    human: [6]PLAY/Lillie’s Clefairy ex
+    ours : [8]PLAY/Energy Switch
+  84933522 zoroark190 MAIN
+    human: [6]ATTACH/Basic {F} Energy/->Lillie’s Clefairy ex
+    ours : [8]PLAY/Energy Switch
+  84933522 zoroark190 MAIN
+    human: [3]END
+    ours : [2]PLAY/Energy Switch
+  84933522 zoroark190 MAIN
+    human: [6]END
+    ours : [2]PLAY/Energy Switch
+  84933522 zoroark190 MAIN
+    human: [7]ATTACH/Basic {G} Energy/->Teal Mask Ogerpon ex
+    ours : [13]ABILITY/Teal Mask Ogerpon ex
+  84933522 zoroark190 MAIN
+    human: [8]END
+    ours : [2]PLAY/Energy Switch
+  84933522 zoroark190 MAIN
+    human: [13]ATTACH/Basic {P} Energy/->Lillie’s Clefairy ex
+    ours : [2]PLAY/Energy Switch
+  84933522 zoroark190 MAIN
+    human: [9]END
+    ours : [2]PLAY/Energy Switch
+  84933522 zoroark190 TO_ACTIVE
+    human: [3]CARD/Latias ex
+    ours : [0]CARD/Teal Mask Ogerpon ex
+  84933522 zoroark190 MAIN
+    human: [1]PLAY/Fezandipiti ex
+    ours : [13]PLAY/Mega Kangaskhan ex
+  84933522 zoroark190 MAIN
+    human: [15]PLAY/Crispin
+    ours : [13]PLAY/Mega Kangaskhan ex
+  84933522 zoroark190 TO_HAND
+    human: [3]CARD/Basic {L} Energy
+    ours : [1]CARD/Basic {G} Energy
+  84933522 zoroark190 ATTACH_TO
+    human: [1]CARD/Basic {G} Energy
+    ours : [0]CARD/Basic {F} Energy
+  84933522 zoroark190 MAIN
+    human: [21]END
+    ours : [12]PLAY/Mega Kangaskhan ex
+  84933522 zoroark190 MAIN
+    human: [21]PLAY/Crispin
+    ours : [13]PLAY/Mega Kangaskhan ex
+  84933522 zoroark190 TO_HAND
+    human: [0]CARD/Basic {F} Energy
+    ours : [1]CARD/Basic {G} Energy
+  84933522 zoroark190 MAIN
+    human: [27]END
+    ours : [12]PLAY/Mega Kangaskhan ex
+  84933522 zoroark190 MAIN
+    human: [4]PLAY/Cyrano
+    ours : [12]PLAY/Mega Kangaskhan ex
+  84933522 zoroark190 MAIN
+    human: [23]PLAY/Ultra Ball
+    ours : [11]PLAY/Mega Kangaskhan ex
+  84933522 zoroark190 DISCARD
+    human: [10]CARD/Area Zero Underdepths [6]CARD/Teal Mask Ogerpon ex
+    ours : [10]CARD/Area Zero Underdepths [1]CARD/Energy Switch
+  84933522 zoroark190 MAIN
+    human: [24]ATTACK/Myriad Leaf Shower
+    ours : [10]PLAY/Mega Kangaskhan ex
+  84933522 zoroark190 MAIN
+    human: [26]ATTACK/Myriad Leaf Shower
+    ours : [10]PLAY/Mega Kangaskhan ex

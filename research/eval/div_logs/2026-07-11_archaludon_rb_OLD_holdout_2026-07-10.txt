@@ -1,0 +1,107 @@
+games=22 pilots={'ShumpeiNomura(1098)': 16, 'Xander(937)': 6}
+
+TOTAL agree 680/1140 = 59.6%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 292/679 = 43%
+                   DISCARD: 10/41 = 24%
+                   TO_HAND: 123/145 = 85%
+                  IS_FIRST: 5/13 = 38%
+                 TO_ACTIVE: 36/43 = 84%
+                    SWITCH: 11/14 = 79%
+                  MULLIGAN: 0/2 = 0%
+      SETUP_ACTIVE_POKEMON: 22/22 = 100%
+                  ACTIVATE: 39/39 = 100%
+                 ATTACH_TO: 43/43 = 100%
+               ATTACH_FROM: 77/77 = 100%
+       SETUP_BENCH_POKEMON: 6/6 = 100%
+               SKILL_ORDER: 1/1 = 100%
+                DRAW_COUNT: 3/3 = 100%
+            DISCARD_ENERGY: 12/12 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 8, 'NO': 5}
+-- R-22 MULLIGAN 上位ピロットの実選択: {'NO': 2}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    8x           IS_FIRST: human=[0]YES  ours=[1]NO
+    6x            DISCARD: human=[3]CARD/Basic  ours=[3]CARD/Basic
+    5x               MAIN: human=[0]ATTACK/Metal  ours=[2]ATTACK/Raging
+    5x               MAIN: human=[8]END  ours=[3]PLAY/Poké
+    4x            DISCARD: human=[5]CARD/Basic  ours=[5]CARD/Basic
+    4x               MAIN: human=[7]END  ours=[2]PLAY/Carmine
+    4x               MAIN: human=[2]ATTACH/Basic  ours=[3]ATTACH/Basic
+    3x               MAIN: human=[2]EVOLVE/Archaludon  ours=[0]PLAY/Pokégear
+    3x               MAIN: human=[3]ATTACH/Basic  ours=[7]ATTACH/Basic
+    3x               MAIN: human=[5]END  ours=[3]ATTACK/Raging
+    3x               MAIN: human=[1]ATTACH/Basic  ours=[2]ATTACH/Basic
+    3x               MAIN: human=[3]END  ours=[0]PLAY/Ultra
+    3x               MAIN: human=[2]ATTACH/Basic  ours=[0]PLAY/Pokégear
+    2x               MAIN: human=[5]ATTACH/Basic  ours=[2]PLAY/Pokégear
+    2x               MAIN: human=[2]ATTACK/Hammer  ours=[0]PLAY/Poké
+    2x               MAIN: human=[2]ATTACH/Basic  ours=[1]PLAY/Poké
+    2x               MAIN: human=[6]END  ours=[2]PLAY/Night
+    2x           MULLIGAN: human=[1]NO  ours=[0]YES
+    2x               MAIN: human=[2]ATTACH/Basic  ours=[0]PLAY/Full
+    2x            TO_HAND: human=[1]CARD/Archaludon  ours=[0]CARD/Team
+
+-- 不一致サンプル --
+  85109586 ShumpeiNomura IS_FIRST
+    human: [0]YES
+    ours : [1]NO
+  85109586 ShumpeiNomura MAIN
+    human: [0]PLAY/Ultra Ball
+    ours : [2]PLAY/Full Metal Lab
+  85109586 ShumpeiNomura DISCARD
+    human: [2]CARD/Basic {M} Energy [3]CARD/Full Metal Lab
+    ours : [2]CARD/Basic {M} Energy [1]CARD/Boss’s Orders
+  85109586 ShumpeiNomura MAIN
+    human: [5]ABILITY/Spikemuth Gym
+    ours : [4]PLAY/Duraludon
+  85109586 ShumpeiNomura MAIN
+    human: [3]PLAY/Duraludon
+    ours : [4]PLAY/Pokégear 3.0
+  85109586 ShumpeiNomura MAIN
+    human: [0]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [4]PLAY/Pokégear 3.0
+  85109586 ShumpeiNomura MAIN
+    human: [2]ATTACK/Hammer In
+    ours : [0]PLAY/Pokégear 3.0
+  85109586 ShumpeiNomura MAIN
+    human: [9]ABILITY/Spikemuth Gym
+    ours : [2]PLAY/Pokégear 3.0
+  85109586 ShumpeiNomura MAIN
+    human: [5]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [2]PLAY/Pokégear 3.0
+  85109586 ShumpeiNomura MAIN
+    human: [5]PLAY/Lillie's Determination
+    ours : [2]PLAY/Relicanth
+  85109586 ShumpeiNomura MAIN
+    human: [2]ATTACK/Hammer In
+    ours : [0]PLAY/Poké Pad
+  85109586 ShumpeiNomura MAIN
+    human: [11]ABILITY/Spikemuth Gym
+    ours : [3]PLAY/Poké Pad
+  85109586 ShumpeiNomura MAIN
+    human: [0]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [3]PLAY/Poké Pad
+  85109586 ShumpeiNomura MAIN
+    human: [3]PLAY/Lillie's Determination
+    ours : [1]PLAY/Poké Pad
+  85109586 ShumpeiNomura MAIN
+    human: [1]PLAY/Ultra Ball
+    ours : [2]ATTACK/Hammer In
+  85109586 ShumpeiNomura DISCARD
+    human: [0]CARD/Basic {M} Energy [1]CARD/Basic {M} Energy
+    ours : [5]CARD/Boss’s Orders [0]CARD/Basic {M} Energy
+  85109586 ShumpeiNomura MAIN
+    human: [5]ABILITY/Spikemuth Gym
+    ours : [0]PLAY/Night Stretcher
+  85109586 ShumpeiNomura TO_HAND
+    human: [5]CARD/Archaludon ex
+    ours : [0]CARD/Duraludon
+  85109586 ShumpeiNomura MAIN
+    human: [1]PLAY/Xerosic’s Machinations
+    ours : [3]PLAY/Poké Pad
+  85109586 ShumpeiNomura MAIN
+    human: [1]END
+    ours : [0]PLAY/Poké Pad

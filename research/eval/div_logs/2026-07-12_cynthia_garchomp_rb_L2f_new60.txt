@@ -1,0 +1,62 @@
+cynthia_garchomp_rb vs marnie [target=p0]: p0=18 p1=12 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs marnie [target=p1]: p0=21 p1=9 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs marnie: 27-33 (45.0%) share=34.0%
+
+cynthia_garchomp_rb vs alakazam [target=p0]: p0=17 p1=13 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs alakazam [target=p1]: p0=18 p1=12 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs alakazam: 29-31 (48.3%) share=20.0%
+
+cynthia_garchomp_rb vs kangaskhan [target=p0]: p0=22 p1=8 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs kangaskhan [target=p1]: p0=10 p1=20 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs kangaskhan: 42-18 (70.0%) share=9.5%
+
+cynthia_garchomp_rb vs garchomp [target=p0]: p0=24 p1=6 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs garchomp [target=p1]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs garchomp: 40-20 (66.7%) share=8.5%
+
+cynthia_garchomp_rb vs okidogi [target=p0]: p0=28 p1=2 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs okidogi [target=p1]: p0=1 p1=29 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs okidogi: 57-3 (95.0%) share=4.8%
+
+cynthia_garchomp_rb vs comfey_yveltal [target=p0]: p0=28 p1=2 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs comfey_yveltal [target=p1]: p0=3 p1=27 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs comfey_yveltal: 55-5 (91.7%) share=4.8%
+
+cynthia_garchomp_rb vs chandelure [target=p0]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs chandelure [target=p1]: p0=19 p1=11 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs chandelure: 25-35 (41.7%) share=4.5%
+
+cynthia_garchomp_rb vs lopunny [target=p0]: p0=28 p1=2 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs lopunny [target=p1]: p0=3 p1=27 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs lopunny: 55-5 (91.7%) share=3.8%
+
+cynthia_garchomp_rb vs megastarmie [target=p0]: p0=19 p1=11 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs megastarmie [target=p1]: p0=7 p1=23 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs megastarmie: 42-18 (70.0%) share=3.5%
+
+cynthia_garchomp_rb vs rocket [target=p0]: p0=28 p1=2 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs rocket [target=p1]: p0=1 p1=29 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs rocket: 57-3 (95.0%) share=2.0%
+
+cynthia_garchomp_rb vs archaludon [target=p0]: p0=17 p1=13 draw=0 unfinished=0 start_failed=0
+cynthia_garchomp_rb vs archaludon [target=p1]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+==> cynthia_garchomp_rb vs archaludon: 32-28 (53.3%) share=2.0%
+
+
+=== gauntlet: agents/cynthia_garchomp_rb (60 games/matchup) ===
+       archetype  share%     W-L    WR%
+          marnie    34.0  27-33   45.0
+        alakazam    20.0  29-31   48.3
+      kangaskhan     9.5  42-18   70.0
+        garchomp     8.5  40-20   66.7
+         okidogi     4.8  57-3    95.0
+  comfey_yveltal     4.8  55-5    91.7
+      chandelure     4.5  25-35   41.7
+         lopunny     3.8  55-5    91.7
+     megastarmie     3.5  42-18   70.0
+          rocket     2.0  57-3    95.0
+      archaludon     2.0  32-28   53.3
+----------------------------------------
+制圧度（シェア加重勝率）: 58.5%  (covered share 97.4%)
+最弱マッチアップ: chandelure 42%, marnie 45%, alakazam 48%
+throughput: 660 games / 59s = 675.3 games/min (0.09 s/game)

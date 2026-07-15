@@ -1,0 +1,108 @@
+games=3 pilots={'ZETADIVISION(1053)': 3}
+
+TOTAL agree 147/253 = 58.1%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 62/135 = 46%
+                   TO_HAND: 32/51 = 63%
+                  TO_BENCH: 0/4 = 0%
+                   DISCARD: 3/7 = 43%
+               ATTACH_FROM: 1/3 = 33%
+                 TO_ACTIVE: 10/11 = 91%
+                    SWITCH: 5/6 = 83%
+        DAMAGE_COUNTER_ANY: 17/18 = 94%
+                 ATTACH_TO: 2/3 = 67%
+                  IS_FIRST: 2/2 = 100%
+      SETUP_ACTIVE_POKEMON: 3/3 = 100%
+            DISCARD_ENERGY: 5/5 = 100%
+                DRAW_COUNT: 2/2 = 100%
+       SETUP_BENCH_POKEMON: 1/1 = 100%
+                  ACTIVATE: 1/1 = 100%
+                    EVOLVE: 1/1 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 2}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    6x            TO_HAND: human=[1]CARD  ours=[0]CARD
+    2x            TO_HAND: human=[0]CARD  ours=[1]CARD
+    2x               MAIN: human=[1]ABILITY/Drakloak  ours=[0]EVOLVE/Dudunsparce/->Dunsparce
+    1x            TO_HAND: human=[0]CARD/Drakloak  ours=[1]CARD/Dreepy
+    1x               MAIN: human=[1]ATTACH/Basic  ours=[0]ATTACH/Basic
+    1x               MAIN: human=[1]PLAY/Munkidori  ours=[2]ABILITY/Drakloak
+    1x           TO_BENCH: human=[4]CARD/Dreepy  ours=[0]CARD/Dreepy
+    1x               MAIN: human=[4]EVOLVE/Drakloak/->Dreepy  ours=[0]PLAY/Night
+    1x               MAIN: human=[3]EVOLVE/Drakloak/->Dreepy  ours=[0]PLAY/Night
+    1x               MAIN: human=[3]ABILITY/Drakloak  ours=[0]PLAY/Night
+    1x               MAIN: human=[1]PLAY/Night  ours=[2]END
+    1x               MAIN: human=[3]ATTACH/Basic  ours=[4]ATTACH/Basic
+    1x               MAIN: human=[1]EVOLVE/Drakloak/->Dreepy  ours=[3]ABILITY/Drakloak
+    1x               MAIN: human=[2]ATTACH/Basic  ours=[5]PLAY/Poké
+    1x          TO_ACTIVE: human=[1]CARD/Drakloak  ours=[2]CARD/Dreepy
+    1x               MAIN: human=[4]END  ours=[2]ATTACH/Basic
+    1x               MAIN: human=[1]PLAY/Dunsparce  ours=[4]PLAY/Budew
+    1x               MAIN: human=[5]RETREAT  ours=[1]ATTACH/Basic
+    1x               MAIN: human=[5]ATTACK/Itchy  ours=[1]ATTACH/Basic
+    1x               MAIN: human=[4]PLAY/Poké  ours=[2]PLAY/Dreepy
+
+-- 不一致サンプル --
+  85110911 ZETADIVISION TO_HAND
+    human: [0]CARD/Drakloak
+    ours : [1]CARD/Dreepy
+  85110911 ZETADIVISION MAIN
+    human: [1]ATTACH/Basic {P} Energy/->Dreepy
+    ours : [0]ATTACH/Basic {D} Energy/->Dreepy
+  85110911 ZETADIVISION MAIN
+    human: [1]PLAY/Munkidori
+    ours : [2]ABILITY/Drakloak
+  85110911 ZETADIVISION TO_BENCH
+    human: [4]CARD/Dreepy [2]CARD/Dreepy
+    ours : [0]CARD/Dreepy [2]CARD/Dreepy
+  85110911 ZETADIVISION MAIN
+    human: [4]EVOLVE/Drakloak/->Dreepy
+    ours : [0]PLAY/Night Stretcher
+  85110911 ZETADIVISION MAIN
+    human: [3]EVOLVE/Drakloak/->Dreepy
+    ours : [0]PLAY/Night Stretcher
+  85110911 ZETADIVISION MAIN
+    human: [3]ABILITY/Drakloak
+    ours : [0]PLAY/Night Stretcher
+  85110911 ZETADIVISION TO_HAND
+    human: [0]CARD
+    ours : [1]CARD
+  85110911 ZETADIVISION MAIN
+    human: [1]PLAY/Night Stretcher
+    ours : [2]END
+  85110911 ZETADIVISION MAIN
+    human: [3]ATTACH/Basic {P} Energy/->Drakloak
+    ours : [4]ATTACH/Basic {P} Energy/->Dreepy
+  85110911 ZETADIVISION MAIN
+    human: [1]EVOLVE/Drakloak/->Dreepy
+    ours : [3]ABILITY/Drakloak
+  85110911 ZETADIVISION MAIN
+    human: [2]ATTACH/Basic {R} Energy/->Drakloak
+    ours : [5]PLAY/Poké Pad
+  85110911 ZETADIVISION TO_ACTIVE
+    human: [1]CARD/Drakloak
+    ours : [2]CARD/Dreepy
+  85110911 ZETADIVISION MAIN
+    human: [4]END
+    ours : [2]ATTACH/Basic {D} Energy/->Dreepy
+  85110911 ZETADIVISION MAIN
+    human: [1]PLAY/Dunsparce
+    ours : [4]PLAY/Budew
+  85110911 ZETADIVISION MAIN
+    human: [5]RETREAT
+    ours : [1]ATTACH/Basic {P} Energy/->Dunsparce
+  85110911 ZETADIVISION MAIN
+    human: [5]ATTACK/Itchy Pollen
+    ours : [1]ATTACH/Basic {P} Energy/->Dunsparce
+  85111599 ZETADIVISION MAIN
+    human: [4]PLAY/Poké Pad
+    ours : [2]PLAY/Dreepy
+  85111599 ZETADIVISION TO_HAND
+    human: [2]CARD/Drakloak
+    ours : [0]CARD/Dreepy
+  85111599 ZETADIVISION MAIN
+    human: [2]PLAY/Ultra Ball
+    ours : [3]PLAY/Budew

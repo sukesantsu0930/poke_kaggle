@@ -1,0 +1,169 @@
+games=80 pilots={'Majkel1337(1157)': 12, 'LagrangianLocomotive(902)': 13, 'kawachi(1021)': 2, 'aaa(1076)': 10, 'Pokemon Siuuuu(998)': 7, '変化の書ゾロアーク(982)': 1, 'Rmy(1076)': 14, 'Ajishio(1005)': 3, 'SamuelSanolume(939)': 8, '5.5(920)': 4, 'カドラバ Kadoraba(1035)': 1, 'NoOne(1003)': 4, 'みがわり(969)': 1}
+
+TOTAL agree 3376/5684 = 59.4%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 1351/3154 = 43%
+                   TO_HAND: 720/1011 = 71%
+                 TO_ACTIVE: 227/284 = 80%
+                    SWITCH: 62/108 = 57%
+                   DISCARD: 14/43 = 33%
+                  TO_BENCH: 173/194 = 89%
+                  ACTIVATE: 450/466 = 97%
+                   TO_DECK: 24/40 = 60%
+      SETUP_ACTIVE_POKEMON: 68/80 = 85%
+                    EVOLVE: 118/124 = 95%
+       SETUP_BENCH_POKEMON: 30/36 = 83%
+            DISCARD_ENERGY: 78/82 = 95%
+                DRAW_COUNT: 11/12 = 92%
+                  IS_FIRST: 42/42 = 100%
+                 ATTACH_TO: 2/2 = 100%
+               ATTACH_FROM: 2/2 = 100%
+               SKILL_ORDER: 4/4 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 42}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   12x            TO_HAND: human=[0]CARD/Kadabra  ours=[1]CARD/Dudunsparce
+   11x            TO_HAND: human=[2]CARD  ours=[0]CARD
+   10x            TO_HAND: human=[3]CARD  ours=[0]CARD
+   10x           ACTIVATE: human=[1]NO  ours=[0]YES
+   10x            TO_HAND: human=[0]CARD/Alakazam  ours=[1]CARD/Kadabra
+    8x               MAIN: human=[0]ABILITY/Dudunsparce  ours=[1]END
+    7x            TO_HAND: human=[0]CARD  ours=[0]CARD
+    7x SETUP_ACTIVE_POKEMON: human=[1]CARD/Dunsparce  ours=[0]CARD/Abra
+    6x           ACTIVATE: human=[0]YES  ours=[1]NO
+    6x            TO_DECK: human=[0]CARD/Alakazam  ours=[0]CARD/Alakazam
+    6x               MAIN: human=[3]ATTACK/Powerful  ours=[1]ABILITY/Dudunsparce
+    5x               MAIN: human=[0]RETREAT  ours=[1]END
+    5x            DISCARD: human=[0]CARD/Boss’s  ours=[0]CARD/Boss’s
+    5x               MAIN: human=[2]ATTACK/Powerful  ours=[0]ABILITY/Dudunsparce
+    5x            TO_HAND: human=[1]CARD/Dudunsparce  ours=[0]CARD/Dudunsparce
+    5x               MAIN: human=[3]ATTACK/Powerful  ours=[0]PLAY/Poké
+    5x            TO_HAND: human=[1]CARD/Kadabra  ours=[0]CARD/Dudunsparce
+    4x            TO_HAND: human=[1]CARD/Alakazam  ours=[0]CARD/Kadabra
+    4x            TO_HAND: human=[2]CARD/Kadabra  ours=[0]CARD/Dudunsparce
+    4x               MAIN: human=[2]ATTACK/Powerful  ours=[1]ABILITY/Dudunsparce
+
+-- 不一致サンプル --
+  84228462 Majkel1337 DRAW_COUNT
+    human: [1]NUMBER
+    ours : [2]NUMBER
+  84228462 Majkel1337 TO_HAND
+    human: [11]CARD/Abra
+    ours : [3]CARD/Dudunsparce
+  84228462 Majkel1337 TO_HAND
+    human: [3]CARD/Abra
+    ours : [1]CARD/Abra
+  84228462 Majkel1337 TO_HAND
+    human: [0]CARD/Kadabra
+    ours : [3]CARD/Dudunsparce
+  84228462 Majkel1337 MAIN
+    human: [0]PLAY/Rare Candy
+    ours : [3]PLAY/Abra
+  84228462 Majkel1337 TO_HAND
+    human: [4]CARD/Abra
+    ours : [6]CARD/Dudunsparce
+  84228462 Majkel1337 MAIN
+    human: [10]PLAY/Enhanced Hammer
+    ours : [6]PLAY/Buddy-Buddy Poffin
+  84228462 Majkel1337 MAIN
+    human: [2]PLAY/Hilda
+    ours : [6]PLAY/Buddy-Buddy Poffin
+  84228462 Majkel1337 TO_HAND
+    human: [1]CARD/Alakazam
+    ours : [0]CARD/Kadabra
+  84228462 Majkel1337 TO_HAND
+    human: [6]CARD/Telepath Psychic Energy
+    ours : [0]CARD/Telepath Psychic Energy
+  84228462 Majkel1337 MAIN
+    human: [8]ATTACH/Telepath Psychic Energy/->Alakazam
+    ours : [1]PLAY/Rare Candy
+  84228462 Majkel1337 MAIN
+    human: [2]PLAY/Buddy-Buddy Poffin
+    ours : [3]PLAY/Dunsparce
+  84228462 Majkel1337 MAIN
+    human: [8]ATTACH/Enriching Energy/->Dunsparce
+    ours : [13]EVOLVE/Alakazam/->Kadabra
+  84228462 Majkel1337 MAIN
+    human: [11]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [10]EVOLVE/Dudunsparce/->Dunsparce
+  84228462 Majkel1337 MAIN
+    human: [8]PLAY/Poké Pad
+    ours : [5]PLAY/Dunsparce
+  84228462 Majkel1337 MAIN
+    human: [11]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [5]PLAY/Dunsparce
+  84228462 Majkel1337 MAIN
+    human: [11]ABILITY/Dudunsparce
+    ours : [5]PLAY/Dunsparce
+  84228462 Majkel1337 MAIN
+    human: [14]ATTACK/Powerful Hand
+    ours : [5]PLAY/Dunsparce
+  84228462 Majkel1337 TO_ACTIVE
+    human: [1]CARD/Alakazam
+    ours : [0]CARD/Alakazam
+  84228462 Majkel1337 MAIN
+    human: [8]ATTACH/Basic {P} Energy/->Alakazam
+    ours : [20]PLAY/Abra
+  84228462 Majkel1337 MAIN
+    human: [13]ATTACK/Powerful Hand
+    ours : [10]PLAY/Dunsparce
+  84228462 Majkel1337 TO_HAND
+    human: [0]CARD [2]CARD
+    ours : [0]CARD [1]CARD
+  84228462 Majkel1337 MAIN
+    human: [9]ATTACH/Telepath Psychic Energy/->Alakazam
+    ours : [20]PLAY/Dunsparce
+  84228462 Majkel1337 MAIN
+    human: [3]PLAY/Rare Candy
+    ours : [16]PLAY/Dunsparce
+  84228462 Majkel1337 MAIN
+    human: [9]ATTACH/Telepath Psychic Energy/->Alakazam
+    ours : [13]PLAY/Dunsparce
+  84228462 Majkel1337 MAIN
+    human: [1]PLAY/Boss’s Orders
+    ours : [20]ATTACK/Powerful Hand
+  84228476 Majkel1337 SWITCH
+    human: [3]CARD/Fezandipiti ex
+    ours : [0]CARD/Marnie's Impidimp
+  84228480 LagrangianLocomotive MAIN
+    human: [5]PLAY/Buddy-Buddy Poffin
+    ours : [3]EVOLVE/Dudunsparce/->Dunsparce
+  84228480 LagrangianLocomotive MAIN
+    human: [1]PLAY/Dawn
+    ours : [2]PLAY/Boss’s Orders
+  84228480 LagrangianLocomotive MAIN
+    human: [6]PLAY/Buddy-Buddy Poffin
+    ours : [4]EVOLVE/Dudunsparce/->Dunsparce
+  84228480 LagrangianLocomotive MAIN
+    human: [7]ATTACH/Enriching Energy/->Dunsparce
+    ours : [9]PLAY/Xerosic’s Machinations
+  84228480 LagrangianLocomotive TO_HAND
+    human: [2]CARD/Kadabra
+    ours : [0]CARD/Dudunsparce
+  84228480 LagrangianLocomotive MAIN
+    human: [9]PLAY/Nighttime Mine
+    ours : [8]PLAY/Shaymin
+  84228480 LagrangianLocomotive MAIN
+    human: [2]PLAY/Dawn
+    ours : [5]PLAY/Xerosic’s Machinations
+  84228480 LagrangianLocomotive MAIN
+    human: [7]ATTACH/Telepath Psychic Energy/->Alakazam
+    ours : [17]EVOLVE/Dudunsparce/->Dunsparce
+  84228480 LagrangianLocomotive MAIN
+    human: [1]PLAY/Boss’s Orders
+    ours : [4]PLAY/Xerosic’s Machinations
+  84228480 LagrangianLocomotive MAIN
+    human: [2]ATTACK/Powerful Hand
+    ours : [1]ABILITY/Dudunsparce
+  84228480 LagrangianLocomotive TO_HAND
+    human: [0]CARD/Kadabra
+    ours : [1]CARD/Abra
+  84228480 LagrangianLocomotive TO_HAND
+    human: [0]CARD/Abra [1]CARD/Basic {P} Energy [2]CARD/Kadabra
+    ours : [0]CARD/Abra [3]CARD/Abra [5]CARD/Abra
+  84228480 LagrangianLocomotive MAIN
+    human: [0]ABILITY/Dudunsparce
+    ours : [1]END

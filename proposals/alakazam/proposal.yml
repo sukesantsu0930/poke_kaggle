@@ -1,5 +1,5 @@
 name: alakazam
-deck: decks/candidates/alakazam_5th.csv
+deck: decks/fleet/alakazam_5th.csv
 agent: agents/alakazam_rb
 concept: "フーディンのPowerful Handを打つ（サブゴール: 場のフーディンに超エネが付いている）"
 protocol: protocol.py

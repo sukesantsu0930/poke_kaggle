@@ -4,7 +4,7 @@
 
 ## 部品
 
-- Deck: `decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv`
+- Deck: `decks/archive/winrate_1_cubchoo_ogerpon.csv`
 - Agent: `agents/cubchoo_ogerpon_rb`
 - Protocol: `protocol.py`
 

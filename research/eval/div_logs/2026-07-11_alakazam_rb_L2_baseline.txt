@@ -1,0 +1,62 @@
+alakazam_rb vs marnie [target=p0]: p0=4 p1=11 draw=0 unfinished=0 start_failed=0
+alakazam_rb vs marnie [target=p1]: p0=13 p1=2 draw=0 unfinished=0 start_failed=0
+==> alakazam_rb vs marnie: 6-24 (20.0%) share=34.0%
+
+alakazam_rb vs alakazam [target=p0]: p0=8 p1=7 draw=0 unfinished=0 start_failed=0
+alakazam_rb vs alakazam [target=p1]: p0=8 p1=7 draw=0 unfinished=0 start_failed=0
+==> alakazam_rb vs alakazam: 15-15 (50.0%) share=20.0%
+
+alakazam_rb vs kangaskhan [target=p0]: p0=9 p1=6 draw=0 unfinished=0 start_failed=0
+alakazam_rb vs kangaskhan [target=p1]: p0=9 p1=6 draw=0 unfinished=0 start_failed=0
+==> alakazam_rb vs kangaskhan: 15-15 (50.0%) share=9.5%
+
+alakazam_rb vs garchomp [target=p0]: p0=6 p1=9 draw=0 unfinished=0 start_failed=0
+alakazam_rb vs garchomp [target=p1]: p0=10 p1=5 draw=0 unfinished=0 start_failed=0
+==> alakazam_rb vs garchomp: 11-19 (36.7%) share=8.5%
+
+alakazam_rb vs okidogi [target=p0]: p0=9 p1=6 draw=0 unfinished=0 start_failed=0
+alakazam_rb vs okidogi [target=p1]: p0=4 p1=11 draw=0 unfinished=0 start_failed=0
+==> alakazam_rb vs okidogi: 20-10 (66.7%) share=4.8%
+
+alakazam_rb vs comfey_yveltal [target=p0]: p0=6 p1=9 draw=0 unfinished=0 start_failed=0
+alakazam_rb vs comfey_yveltal [target=p1]: p0=11 p1=4 draw=0 unfinished=0 start_failed=0
+==> alakazam_rb vs comfey_yveltal: 10-20 (33.3%) share=4.8%
+
+alakazam_rb vs chandelure [target=p0]: p0=2 p1=13 draw=0 unfinished=0 start_failed=0
+alakazam_rb vs chandelure [target=p1]: p0=13 p1=2 draw=0 unfinished=0 start_failed=0
+==> alakazam_rb vs chandelure: 4-26 (13.3%) share=4.5%
+
+alakazam_rb vs lopunny [target=p0]: p0=13 p1=2 draw=0 unfinished=0 start_failed=0
+alakazam_rb vs lopunny [target=p1]: p0=8 p1=7 draw=0 unfinished=0 start_failed=0
+==> alakazam_rb vs lopunny: 20-10 (66.7%) share=3.8%
+
+alakazam_rb vs megastarmie [target=p0]: p0=7 p1=8 draw=0 unfinished=0 start_failed=0
+alakazam_rb vs megastarmie [target=p1]: p0=7 p1=8 draw=0 unfinished=0 start_failed=0
+==> alakazam_rb vs megastarmie: 15-15 (50.0%) share=3.5%
+
+alakazam_rb vs rocket [target=p0]: p0=0 p1=15 draw=0 unfinished=0 start_failed=0
+alakazam_rb vs rocket [target=p1]: p0=12 p1=3 draw=0 unfinished=0 start_failed=0
+==> alakazam_rb vs rocket: 3-27 (10.0%) share=2.0%
+
+alakazam_rb vs archaludon [target=p0]: p0=9 p1=6 draw=0 unfinished=0 start_failed=0
+alakazam_rb vs archaludon [target=p1]: p0=8 p1=7 draw=0 unfinished=0 start_failed=0
+==> alakazam_rb vs archaludon: 16-14 (53.3%) share=2.0%
+
+
+=== gauntlet: agents/alakazam_rb (30 games/matchup) ===
+       archetype  share%     W-L    WR%
+          marnie    34.0   6-24   20.0
+        alakazam    20.0  15-15   50.0
+      kangaskhan     9.5  15-15   50.0
+        garchomp     8.5  11-19   36.7
+         okidogi     4.8  20-10   66.7
+  comfey_yveltal     4.8  10-20   33.3
+      chandelure     4.5   4-26   13.3
+         lopunny     3.8  20-10   66.7
+     megastarmie     3.5  15-15   50.0
+          rocket     2.0   3-27   10.0
+      archaludon     2.0  16-14   53.3
+----------------------------------------
+制圧度（シェア加重勝率）: 36.6%  (covered share 97.4%)
+最弱マッチアップ: rocket 10%, chandelure 13%, marnie 20%
+throughput: 330 games / 81s = 243.8 games/min (0.25 s/game)

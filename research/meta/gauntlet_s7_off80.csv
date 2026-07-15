@@ -1,0 +1,12 @@
+agent,deck,archetype,share,games,wins,losses,draws,unfinished,winrate
+agents/dragapult_rb,decks/candidates/2026-06-30_top5/popular_4_dragapult.csv,marnie,34.0,80,13,67,0,0,0.1625
+agents/dragapult_rb,decks/candidates/2026-06-30_top5/popular_4_dragapult.csv,alakazam,20.0,80,54,26,0,0,0.6750
+agents/dragapult_rb,decks/candidates/2026-06-30_top5/popular_4_dragapult.csv,kangaskhan,9.5,80,65,15,0,0,0.8125
+agents/dragapult_rb,decks/candidates/2026-06-30_top5/popular_4_dragapult.csv,garchomp,8.5,80,44,36,0,0,0.5500
+agents/dragapult_rb,decks/candidates/2026-06-30_top5/popular_4_dragapult.csv,okidogi,4.8,80,73,7,0,0,0.9125
+agents/dragapult_rb,decks/candidates/2026-06-30_top5/popular_4_dragapult.csv,comfey_yveltal,4.8,80,76,4,0,0,0.9500
+agents/dragapult_rb,decks/candidates/2026-06-30_top5/popular_4_dragapult.csv,chandelure,4.5,80,53,27,0,0,0.6625
+agents/dragapult_rb,decks/candidates/2026-06-30_top5/popular_4_dragapult.csv,lopunny,3.8,80,74,6,0,0,0.9250
+agents/dragapult_rb,decks/candidates/2026-06-30_top5/popular_4_dragapult.csv,megastarmie,3.5,80,42,38,0,0,0.5250
+agents/dragapult_rb,decks/candidates/2026-06-30_top5/popular_4_dragapult.csv,rocket,2.0,80,78,2,0,0,0.9750
+agents/dragapult_rb,decks/candidates/2026-06-30_top5/popular_4_dragapult.csv,archaludon,2.0,80,36,44,0,0,0.4500

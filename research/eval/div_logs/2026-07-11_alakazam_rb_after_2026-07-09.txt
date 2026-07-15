@@ -1,0 +1,25 @@
+games=81 pilots={'THIRD PTCG Club(1073)': 17, 'capbloo(1008)': 14, 'aaa(1076)': 9, 'Michael Long(1030)': 1, 'Majkel1337(1157)': 12, 'Bozo Boys(1100)': 2, 'matsurih(1068)': 2, 'Rmy(1076)': 7, 'wkonishi(922)': 5, 'NoOne(1003)': 5, '豆本豆豆包(1042)': 2, 'bono(1088)': 2, 'Klein Houmani(1066)': 2, 'kawachi(1021)': 1}
+
+TOTAL agree 3751/6485 = 57.8%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 1810/3985 = 45%
+                   TO_HAND: 641/943 = 68%
+                   DISCARD: 3/60 = 5%
+                 TO_ACTIVE: 229/279 = 82%
+                    SWITCH: 85/124 = 69%
+                  ACTIVATE: 433/467 = 93%
+                  TO_BENCH: 163/193 = 84%
+                   TO_DECK: 19/42 = 45%
+      SETUP_ACTIVE_POKEMON: 71/81 = 88%
+            DISCARD_ENERGY: 97/105 = 92%
+                    EVOLVE: 106/111 = 95%
+       SETUP_BENCH_POKEMON: 29/30 = 97%
+                  IS_FIRST: 39/39 = 100%
+                DRAW_COUNT: 21/21 = 100%
+         DISCARD_TOOL_CARD: 5/5 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 39}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --

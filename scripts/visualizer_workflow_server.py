@@ -15,10 +15,21 @@ if str(ROOT) not in sys.path:
 from export_visualizer_json import load_agent, read_deck, run_game  # noqa: E402
 
 
-DEFAULT_AGENT = "agents/cubchoo_ogerpon_rb"
-DEFAULT_DECK = "decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv"
+DEFAULT_AGENT0 = "agents/dragapult_dusknoir_rb"
+DEFAULT_DECK0 = "decks/fleet/dragapult_dusknoir_paper.csv"
+DEFAULT_AGENT1 = "agents/dragapult_rb"
+DEFAULT_DECK1 = "decks/fleet/popular_4_dragapult.csv"
 DEFAULT_OUTPUT = "experiments/visualizer/latest_replay.json"
 DEFAULT_AGENT_LOG = "experiments/visualizer/latest_agent_log.json"
+
+# decks/ 再編（2026-07-14）: 役割フォルダごとに optgroup 表示する
+DECK_GROUPS = [
+    ("fleet", "fleet｜自艦隊（エージェント対応）"),
+    ("opponents", "opponents｜ガントレット相手"),
+    ("candidates", "candidates｜候補（未分類）"),
+    ("local", "local｜ローカル取込"),
+    ("archive", "archive｜アーカイブ"),
+]
 
 
 def rel(path: Path) -> str:
@@ -51,15 +62,40 @@ def discover_agents() -> list[str]:
     return agents
 
 
-def discover_decks() -> list[str]:
-    return [rel(path) for path in sorted((ROOT / "decks").rglob("*.csv"))]
+def discover_deck_groups() -> list[dict]:
+    """役割フォルダ順にデッキをグループ化（fleet → opponents → candidates → local → archive）。"""
+    deck_root = ROOT / "decks"
+    known = {name for name, _ in DECK_GROUPS}
+    groups = []
+    for name, label in DECK_GROUPS:
+        sub = deck_root / name
+        decks = [rel(p) for p in sorted(sub.rglob("*.csv"))] if sub.exists() else []
+        if decks:
+            groups.append({"label": label, "decks": decks})
+    # 直下や未知のサブフォルダも漏らさず「その他」に出す
+    others = [rel(p) for p in sorted(deck_root.glob("*.csv"))]
+    for p in sorted(deck_root.iterdir()):
+        if p.is_dir() and p.name not in known:
+            others.extend(rel(q) for q in sorted(p.rglob("*.csv")))
+    if others:
+        groups.append({"label": "その他", "decks": others})
+    return groups
+
+
+def load_manifest() -> dict:
+    """decks/manifest.json（デッキ→担当エージェント）。不在・破損は空 = 絞り込みなし。"""
+    try:
+        raw = json.loads((ROOT / "decks" / "manifest.json").read_text(encoding="utf-8"))
+        return {k: v for k, v in raw.items() if isinstance(v, list)}
+    except Exception:
+        return {}
 
 
 def generate_replay(config: dict) -> dict:
-    agent0 = config.get("agent0") or DEFAULT_AGENT
-    deck0_path = config.get("deck0") or DEFAULT_DECK
-    agent1 = config.get("agent1") or DEFAULT_AGENT
-    deck1_path = config.get("deck1") or DEFAULT_DECK
+    agent0 = config.get("agent0") or DEFAULT_AGENT0
+    deck0_path = config.get("deck0") or DEFAULT_DECK0
+    agent1 = config.get("agent1") or DEFAULT_AGENT1
+    deck1_path = config.get("deck1") or DEFAULT_DECK1
     seed = int(config.get("seed") or 0)
     max_steps = int(config.get("maxSteps") or 1000)
 
@@ -156,17 +192,17 @@ HTML = r"""<!doctype html>
   <h1>Replay JSON / Official Visualizer</h1>
 
   <div class="grid">
-    <label for="agent0">Agent 0</label>
-    <select id="agent0"></select>
-
     <label for="deck0">Deck 0</label>
     <select id="deck0"></select>
 
-    <label for="agent1">Agent 1</label>
-    <select id="agent1"></select>
+    <label for="agent0">Agent 0</label>
+    <select id="agent0"></select>
 
     <label for="deck1">Deck 1</label>
     <select id="deck1"></select>
+
+    <label for="agent1">Agent 1</label>
+    <select id="agent1"></select>
 
     <label for="seed">Seed</label>
     <input id="seed" type="number" value="0" min="0" step="1">
@@ -184,7 +220,8 @@ HTML = r"""<!doctype html>
 
   <script>
     let visualizerJson = "";
-    const ids = ["agent0", "deck0", "agent1", "deck1"];
+    let allAgents = [];
+    let manifest = {};
     const status = document.getElementById("status");
     const generateButton = document.getElementById("generateButton");
     const openButton = document.getElementById("openButton");
@@ -194,28 +231,70 @@ HTML = r"""<!doctype html>
       status.className = className || "";
     }
 
-    function fillSelect(id, values, preferred) {
+    function fillDeckSelect(id, groups, preferred) {
       const select = document.getElementById(id);
       select.innerHTML = "";
-      values.forEach(value => {
+      groups.forEach(group => {
+        const og = document.createElement("optgroup");
+        og.label = group.label;
+        group.decks.forEach(value => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value.replace(/^decks\//, "");
+          if (value === preferred) {
+            option.selected = true;
+          }
+          og.appendChild(option);
+        });
+        select.appendChild(og);
+      });
+    }
+
+    // デッキ選択に応じてエージェントを担当のものに絞り込む（manifest.json 由来）。
+    // 「全エージェントを表示」を選ぶと絞り込み解除。
+    function rebuildAgents(agentId, deckId, showAll, preferred) {
+      const select = document.getElementById(agentId);
+      const deck = document.getElementById(deckId).value;
+      const mapped = (manifest[deck] || []).filter(a => allAgents.includes(a));
+      const filtered = !showAll && mapped.length > 0;
+      const list = filtered ? mapped : allAgents;
+      const prev = preferred || select.value;
+      select.innerHTML = "";
+      list.forEach(value => {
         const option = document.createElement("option");
         option.value = value;
         option.textContent = value;
-        if (value === preferred) {
-          option.selected = true;
-        }
         select.appendChild(option);
       });
+      if (filtered && mapped.length < allAgents.length) {
+        const option = document.createElement("option");
+        option.value = "__all__";
+        option.textContent = "――― 全エージェントを表示 ―――";
+        select.appendChild(option);
+      }
+      select.value = list.includes(prev) ? prev : list[0];
     }
 
     async function loadOptions() {
       const res = await fetch("/api/options");
       const data = await res.json();
-      fillSelect("agent0", data.agents, data.defaults.agent);
-      fillSelect("agent1", data.agents, data.defaults.agent);
-      fillSelect("deck0", data.decks, data.defaults.deck);
-      fillSelect("deck1", data.decks, data.defaults.deck);
-      setStatus("Select agents/decks, then generate replay JSON.", "");
+      allAgents = data.agents;
+      manifest = data.manifest || {};
+      fillDeckSelect("deck0", data.deckGroups, data.defaults.deck0);
+      fillDeckSelect("deck1", data.deckGroups, data.defaults.deck1);
+      rebuildAgents("agent0", "deck0", false, data.defaults.agent0);
+      rebuildAgents("agent1", "deck1", false, data.defaults.agent1);
+      document.getElementById("deck0").addEventListener("change",
+        () => rebuildAgents("agent0", "deck0", false));
+      document.getElementById("deck1").addEventListener("change",
+        () => rebuildAgents("agent1", "deck1", false));
+      document.getElementById("agent0").addEventListener("change", e => {
+        if (e.target.value === "__all__") rebuildAgents("agent0", "deck0", true);
+      });
+      document.getElementById("agent1").addEventListener("change", e => {
+        if (e.target.value === "__all__") rebuildAgents("agent1", "deck1", true);
+      });
+      setStatus("デッキを選ぶと担当エージェントに絞り込まれます。Generate で1試合実行。", "");
     }
 
     async function generate() {
@@ -300,8 +379,10 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(
                 {
                     "agents": discover_agents(),
-                    "decks": discover_decks(),
-                    "defaults": {"agent": DEFAULT_AGENT, "deck": DEFAULT_DECK},
+                    "deckGroups": discover_deck_groups(),
+                    "manifest": load_manifest(),
+                    "defaults": {"agent0": DEFAULT_AGENT0, "deck0": DEFAULT_DECK0,
+                                 "agent1": DEFAULT_AGENT1, "deck1": DEFAULT_DECK1},
                 }
             )
         else:

@@ -8,7 +8,8 @@ ptcg-abc の divergence 実測修正（Fez 降格 / EVOLVE 据え置き / Dragap
 
 設計文書: docs/planning/デッキ設計_ドラパルト.md（S-x/E-x/初期値表/移植ノート）
 ルールタグ: R-07(配分プラン込みリーサル)/R-08/R-10(ライン最大コスト)/R-11(no_draw)/
-R-15(ばら撒き先)/R-16(ボス温存)/R-18(サイド落ち推定 serial版)/R-21(先攻 div-D1)/R-22(マリガン引く)
+R-15(ばら撒き先)/R-16(ボス温存)/R-18(サイド落ち推定 serial版)/R-21(先攻 div-D1)/R-22(マリガン引く)/
+R-30(バトル場が今すぐ撃てるならバトル場優先＝資源節約)
 """
 
 import os
@@ -86,6 +87,14 @@ MUNKIDORI = 112
 BONUS_COUNTER_TARGETS = frozenset({133, 351})   # Dusknoir/Rapidash（サンプル準拠の優先スナイプ）
 LUMIOSE_CITY = 1267
 
+# アタッカー運用ポケモン（S-7 配分探索用。research/meta/attacker_pokemon.md、
+# extract_attacker_pokemon.py が 1761 エピソードから抽出。アタッカー度 = active滞在中に
+# ATTACK宣言した試合率、閾値0.5で2値化。HP>120 のみ = 小粒は配分探索でHP判定するため不要）。
+# 履歴だけでは Mega Kangaskhan ex(756) が 0.49 で漏れるため、_is_attacker では megaEx 属性を
+# 無条件アタッカーとして OR する（メガ進化は定義上メインアタッカー）。
+ATTACKER_IDS_LEARNED = frozenset({58, 63, 96, 108, 116, 117, 121, 169, 190, 245, 272,
+                                  381, 401, 431, 648, 666, 674, 678, 743, 849, 861, 1031})
+
 DRAGAPULT_LINE = frozenset({DREEPY, DRAKLOAK, DRAGAPULT_EX})
 
 # R-10: ライン最大コスト（技の実コストから確認済み: Phantom Dive=2 / Cruel Arrow・Eon Blade・Tuck Tail=3）
@@ -117,6 +126,56 @@ def _no_damage_counter(pokemon):
     return False
 
 
+# ── S-7: 進化前提の最終形（evolvesFrom はカード名。generic_policy.py L299 と同じ規約） ──
+
+_CHILDREN_MAP = None
+
+
+def _children_map():
+    """親カード名 → その名から進化する子カードのリスト（全カード固定なので1回だけ構築）。"""
+    global _CHILDREN_MAP
+    if _CHILDREN_MAP is None:
+        _CHILDREN_MAP = defaultdict(list)
+        for c in CARD_DB.values():
+            ef = getattr(c, "evolvesFrom", None)
+            if ef:
+                _CHILDREN_MAP[ef].append(c)
+    return _CHILDREN_MAP
+
+
+def _final_form(card):
+    """進化前提の最終形カードを返す（分岐は最大HPを取る。楽観仮定＝相手は進化する）。"""
+    if card is None:
+        return None
+    cur = card
+    seen = set()
+    while getattr(cur, "cardId", None) not in seen:
+        seen.add(cur.cardId)
+        kids = _children_map().get(getattr(cur, "name", None), [])
+        if not kids:
+            break
+        cur = max(kids, key=lambda k: getattr(k, "hp", 0) or 0)
+    return cur
+
+
+def _is_attacker(card):
+    """アタッカー運用されるか（履歴テーブル OR megaEx 属性）。card は静的カードデータ。"""
+    if card is None:
+        return False
+    return card.cardId in ATTACKER_IDS_LEARNED or getattr(card, "megaEx", False)
+
+
+def _final_prize(card):
+    """最終形のサイド数（進化前提）。megaEx=3 / ex=2 / その他=1。"""
+    if card is None:
+        return 1
+    if getattr(card, "megaEx", False):
+        return 3
+    if getattr(card, "ex", False):
+        return 2
+    return 1
+
+
 class DragapultPolicy(BasePolicy):
     DECK_NAME = "dragapult"
     GO_FIRST = True            # div-D1（2026-07-08 A/B実測・R-21 更新）: 7/8フィールド（マリィ34%のアグロ
@@ -128,29 +187,42 @@ class DragapultPolicy(BasePolicy):
     ENERGY_IDS = {FIRE_ENERGY, PSYCHIC_ENERGY}
     LINE_PROTECT_IDS = DRAGAPULT_LINE | {RARE_CANDY}   # R-13
     ATTACK_ENERGY_TYPE = None  # サンプル準拠: 弱点計算は使わない
+    # S-7【2026-07-13 採用】: Phantom Dive ばら撒き60 の配分を「最小攻撃回数でサイド取り切り」
+    # の探索（_plan_spread）に委ねる。HPは現物・進化前提はアタッカー役割判定のみ（進化前提を
+    # 全HPに適用した版は制圧度非改善で棄却）。gauntlet 80戦で旧配分 52.9% → 56.7%（+3.8pt、
+    # 主因 marnie +11.3pt=120戦で+7.5pt確認）。既定 True。DRAGA_SPREAD=0 で旧配分に戻せる
+    # （garchomp -12.5pt の比較調査用に旧ヒューリスティックを一旦残置）。
+    USE_SPREAD_SEARCH = os.environ.get("DRAGA_SPREAD", "1") != "0"
+    # ターン内探索（TurnSearcher）の時間予算。検証で gauntlet を回すため環境変数で短縮可能。
+    # 探索の有効化自体は gauntlet --search rollout（search_enabled 注入）で行う。
+    SEARCH_TIME_PER_DECISION = float(os.environ.get("DRAGA_SEARCH_TIME", "1.0"))
 
     def __init__(self):
         super().__init__()
         self.p = {}
         self.plan_a = {"attack": -1, "counter": [], "prizes": 0}
         self.plan_b = {"attack": -1, "counter": [], "prizes": 0}
-        self.flags = {"can_switch": False, "can_attack": False, "can_main_attack": False}
+        self.flags = {"can_switch": False, "can_attack": False,
+                      "can_main_attack": False, "active_route": False}
         self.use_support = 0
         self._prize_ids = []
         self._log_buf = []
         self._pre_logs = []
         self._deck_cache = None
+        self.spread_plan = None
 
     def reset_game(self):
         super().reset_game()
         self.p = {}
         self.plan_a = {"attack": -1, "counter": [], "prizes": 0}
         self.plan_b = {"attack": -1, "counter": [], "prizes": 0}
-        self.flags = {"can_switch": False, "can_attack": False, "can_main_attack": False}
+        self.flags = {"can_switch": False, "can_attack": False,
+                      "can_main_attack": False, "active_route": False}
         self.use_support = 0
         self._prize_ids = []
         self._log_buf = []
         self._pre_logs = []
+        self.spread_plan = None
 
     # ═══════════════ ログ追跡（pre_ko / no_item の材料。サンプルの pre_turn_log） ═══════════════
 
@@ -295,6 +367,15 @@ class DragapultPolicy(BasePolicy):
             "support_count": 0, "hand_scores": [], "negative_hand": 0,
         }
 
+        # S-7: ばら撒き配分の探索計画。DAMAGE_COUNTER_ANY の連続選択中は開始時点で1回だけ計算し
+        # キャッシュ（目標残りHPは絶対値なので配置が進んでも不変。ここで毎回引き直すと現hpの
+        # 減少でドリフトする）。他 context に移ったら破棄して次の攻撃で再計算。
+        if self.USE_SPREAD_SEARCH and obs.select.context == SelectContext.DAMAGE_COUNTER_ANY:
+            if self.spread_plan is None:
+                self.spread_plan = self._plan_spread(obs)
+        else:
+            self.spread_plan = None
+
         # MAIN でだけ: 配分プラン（DFS）+ 使うサポートの択一
         if obs.select.context == SelectContext.MAIN:
             self._main_option_proc(obs, p)
@@ -325,10 +406,47 @@ class DragapultPolicy(BasePolicy):
                     p["support_count"] += 1
 
         p["do_switch"] = (not self.flags["can_main_attack"]
+                          and not self.flags["active_route"]   # R-30: バトル場で撃てるなら退却しない
                           and (bench_attacker
                                or (active_id != BUDEW and fc[BUDEW] >= 1
                                    and obs.current.turn >= 2)))
         return p
+
+    # ═══════════════ R-30: バトル場から今すぐ Phantom Dive を撃てるか（手番内ルート検証） ═══════════════
+
+    def _active_dive_route(self, obs):
+        """R-30【ハード・ユーザー決定 2026-07-15】: バトル場のポケモンが退却なしで
+        この番 Phantom Dive を撃てるルートがあるか。考慮する手 = 場の Drakloak の進化
+        （EVOLVE オプションの実在で合法性確認）+ 手張り1回（ATTACH オプションで確認。
+        R-10 の上限があるため e<2 のときだけ）。Dreepy+アメ直行はアメの付け先選択を
+        このフラグから保証できないため対象外（従来挙動に委ねる）。
+        True のとき: EVOLVE はバトル場優先（ベンチ進化→退却=エネ破棄のルートを封じる）、
+        do_switch を抑制。"""
+        ms = my_state(obs)
+        if ms.asleep or ms.paralyzed:
+            return False
+        active = active_pokemon(obs)
+        if active is None:
+            return False
+        if active.id == DRAKLOAK:
+            if not any(o.type == OptionType.EVOLVE and o.inPlayArea == AreaType.ACTIVE
+                       for o in obs.select.option):
+                return False
+        elif active.id != DRAGAPULT_EX:
+            return False
+        ids = [c.id for c in (active.energyCards or [])]
+        need = [color for color in (FIRE_ENERGY, PSYCHIC_ENERGY) if color not in ids]
+        if not need:
+            return True
+        if len(need) > 1 or len(ids) >= 2:
+            return False   # 手張り1回では {R}{P} が揃わない / R-10 上限で張れない
+        for o in obs.select.option:
+            if o.type != OptionType.ATTACH or o.inPlayArea != AreaType.ACTIVE:
+                continue
+            card = option_card(obs, o)
+            if card is not None and card.id == need[0]:
+                return True
+        return False
 
     # ═══════════════ 配分プラン（サンプル main_option_proc の移植 = 枝刈り DFS） ═══════════════
 
@@ -347,6 +465,7 @@ class DragapultPolicy(BasePolicy):
                 f["can_attack"] = True
                 if o.attackId == ATK_PHANTOM_DIVE:
                     f["can_main_attack"] = True
+        f["active_route"] = self._active_dive_route(obs)
 
         self.plan_a = {"attack": -1, "counter": [], "prizes": 0}
         self.plan_b = {"attack": -1, "counter": [], "prizes": 0}
@@ -466,6 +585,94 @@ class DragapultPolicy(BasePolicy):
         score += pokemon.hp
         return score
 
+    # ═══════════════ S-7: ばら撒き60 の配分探索（最小攻撃回数でサイド取り切り） ═══════════════
+
+    def _bench_targets(self, obs):
+        """相手ベンチを (coord, 現物残HP, need, サイド, アタッカー) に抽象化。
+        coord = ベンチindex+1（plan_b['counter'] / _score_counter の座標系に一致）。
+        取り切りは現物HP（今の盤面で削る対象。進化前に潰す＝現在HP版で実証済み・制圧度+3.8pt）。
+        進化前提は「アタッカーか＝将来正面に来るか」の役割判定にのみ使う（HPには使わない）。
+        （進化する/しないを p_evo で重み合成する進化分岐版は gauntlet 80戦 56.0% で現在HP版 56.7%
+        を上回れず棄却。garchomp +10pt だが marnie -5pt で相殺。2026-07-14）"""
+        osn = opp_state(obs)
+        out = []
+        for j, pk in enumerate(osn.bench):
+            if pk is None:
+                continue
+            if _no_damage_counter(pk):
+                continue   # ダメカン配置不可（特性 / Mist・Rock Fighting）
+            static = CARD_DB.get(pk.id) or pk
+            ff = _final_form(static)
+            remain = max(10, pk.hp)                        # 現物の残HP（今削る対象）
+            need = -(-remain // 10)                        # ceil(remain/10) = KOに要る個数
+            out.append({
+                "coord": j + 1, "remain": remain, "need": need,
+                "prize": self._prize_count(pk, False),     # 現物のサイド
+                "attacker": _is_attacker(ff),              # 役割のみ進化前提
+            })
+        return out
+
+    def _plan_spread(self, obs):
+        """ばら撒き6個の配分を {coord: 目標残りHP} で返す（USE_SPREAD_SEARCH 時に _score_counter が参照）。
+        方針: ①ばら撒きで取り切れるベンチ集合をサイド最大で確保（無駄なく分割）→
+        ②余った個を、次サイクルで取り切りに最も近づく1体へ布石（A=置物のベンチKO /
+        B=アタッカーを正面200圏に押し込み）。相手は静止＋進化前提の楽観。"""
+        targets = self._bench_targets(obs)
+        target_hp = {}
+        if not targets:
+            return target_hp
+
+        # ① 6個以内で取り切れるベンチ部分集合をサイド最大で選ぶ（ベンチ数は小さいので全列挙）
+        best_subset, best_key = [], (-1, 0)
+        n = len(targets)
+        for mask in range(1 << n):
+            used, prize, ok = 0, 0, True
+            for i in range(n):
+                if mask & (1 << i):
+                    used += targets[i]["need"]
+                    prize += targets[i]["prize"]
+                    if used > 6:
+                        ok = False
+                        break
+            if ok and used <= 6:
+                key = (prize, -used)   # サイド最大 → 同点は消費個数最小
+                if key > best_key:
+                    best_key, best_subset = key, [i for i in range(n) if mask & (1 << i)]
+        chosen = set(best_subset)
+        used = sum(targets[i]["need"] for i in chosen)
+        for i in chosen:
+            target_hp[targets[i]["coord"]] = 0   # 取り切り
+
+        # ② 余りを1体へ布石（A=置物のベンチKO / B=アタッカーを正面200圏へ押し込み）
+        leftover = 6 - used
+        if leftover > 0:
+            best_i, best_val = None, -10 ** 9
+            for i in range(n):
+                if i in chosen:
+                    continue
+                t = targets[i]
+                after = t["remain"] - leftover * 10
+                if t["attacker"]:
+                    if after <= 200:
+                        val = t["prize"] * 1000 + 500      # 1発で正面200圏（B・優）
+                    elif t["remain"] <= 320:
+                        val = t["prize"] * 1000 + 200      # 2発で正面圏へ chip（B）
+                    else:
+                        val = t["prize"] * 1000 - 100      # 大型・非効率
+                else:
+                    need_after = -(-max(0, after) // 10)
+                    if need_after <= 6:
+                        val = t["prize"] * 1000 + 400      # 次1サイクルでベンチKO（A・2発圏）
+                    else:
+                        val = t["prize"] * 1000 - 200      # 遠い置物
+                val -= t["remain"] * 0.1                   # 近いほど良い（tiebreak）
+                if val > best_val:
+                    best_val, best_i = val, i
+            if best_i is not None:
+                t = targets[best_i]
+                target_hp[t["coord"]] = max(0, t["remain"] - leftover * 10)
+        return target_hp
+
     # ═══════════════ 判定（S-0 / R-07 探索版） ═══════════════
 
     def judge_subgoal(self, obs):
@@ -576,12 +783,32 @@ class DragapultPolicy(BasePolicy):
             target = option_target(obs, opt)
             e = len(getattr(target, "energies", []) or []) if target is not None else 0
             if target is not None and target.id == DREEPY:
-                # ptcg-abc 実測: EVOLVE は 30000 据え置き（上げると divergence 悪化）
-                return 30000 + e, "S-3: evolve Dreepy"
-            if (p["fc"][DRAGAPULT_EX] >= 2
-                    or (p["fc"][DRAGAPULT_EX] == 1 and len(opp_state(obs).prize) <= 2)):
-                return -1, "S-3: enough Dragapult ex"
-            return 70000 + e, "S-3: evolve -> Dragapult ex"
+                # div-D3（2026-07-11 実測 07-07/07-08/07-09。旧: ptcg-abc 6月実測で 30000 据え置き）:
+                # 7月上位ピロット（1080/1053）は Dreepy→Drakloak 進化をターン冒頭に行う
+                # （進化したての Drakloak も同ターン Recon Directive を使えるため）。
+                # precedence 実測（07-08, 32試合）: evo_drak が ability より先 228/84、
+                # ハンマーより先 44/22、ポケパッドより先 55/29、Dreepy 展開より先 24/4。
+                return 58000 + e, "div-D3: evolve Dreepy first"
+            # R-30【ハード・ユーザー決定 2026-07-15】: バトル場の Drakloak を進化させれば
+            # この番 Phantom Dive が撃てる（{R}{P} が場+手張り1回で揃う）なら、ベンチ進化→
+            # 退却（エネ1枚破棄）より優先。div-D4（2体目温存）も「今すぐ撃てる」時は上書き。
+            # 起点の観測: 両ドロンチにエネ1の盤面で 48000+e が同点 → インデックス順でベンチが
+            # 進化し、退却でバトル場のエネを捨てていた（資源損）。
+            if (opt.inPlayArea == AreaType.ACTIVE
+                    and target is not None and target.id == DRAKLOAK
+                    and self.flags.get("active_route")):
+                return 48600 + e, "R-30: evolve active -> Phantom Dive this turn"
+            if p["fc"][DRAGAPULT_EX] >= 1:
+                # div-D4（2026-07-11 実測 07-08）: human の evolve->Dragapult 65回/32試合 ≒
+                # 初回+KO後の補充のみ。「場に1体いる間は2体目に進化しない」（Drakloak を
+                # Recon ドローエンジンとして温存 + ボス2枚取りの的を増やさない）。
+                # 我々の evolve 選択のうち human が同ターン内に一度も行わなかったもの 110件。
+                # 旧条件（fc>=2 or fc==1&&残りサイド<=2 で -1）を fc>=1 に拡大【ソフト・暫定】。
+                return -1, "div-D4: hold 2nd Dragapult ex"
+            # div-D4 順序側: 70000（アメ 75000 の直下）→ 48000。ability(56000) の後・
+            # attach(<=45450) の前に進化する（precedence: ability が先 139/31 / attach より先 39/24。
+            # Drakloak の Recon を使ってから進化しないと特性が無駄になる）。
+            return 48000 + e, "S-3: evolve -> Dragapult ex"
 
         if opt.type == OptionType.ABILITY:
             card = get_card(obs, opt.area, opt.index, yi)
@@ -589,7 +816,11 @@ class DragapultPolicy(BasePolicy):
                 return -1, "R-11: deck thin (ability)"
             if card is not None and card.id == LUMIOSE_CITY:
                 return 1, "Lumiose City (low)"
-            return 40000, "ability (Recon Directive etc.)"
+            # div-D3（2026-07-11 実測 07-08）: Recon Directive はグッズ・エネ付けより先。
+            # precedence: ability が attach より先 266/97、ハンマーより先 110/31、
+            # ポケパッドより先 103/38、ハイパーボールより先 44/13、進化(Dragapult)より先 139/31。
+            # 40000 → 56000（evo_drak 58000 の下・Dreepy 展開 54000 の上）。
+            return 56000, "ability (Recon Directive etc.)"
 
         if opt.type == OptionType.RETREAT:
             if p["do_switch"]:
@@ -642,15 +873,30 @@ class DragapultPolicy(BasePolicy):
         if cid == RARE_CANDY:
             if p["no_more_dex"]:
                 return -1, "Rare Candy: enough dex"
+            if (self.flags["active_route"] and p["active_id"] == DRAKLOAK
+                    and hc[DRAGAPULT_EX] <= 1):
+                # R-30: 手札のドラパルトが最後の1枚 → アメで別の Dreepy に進化させると
+                # バトル場の「この番撃てる」ルートが消える。直接進化で済ませアメも温存。
+                return -1, "R-30: hold candy (evolve active directly)"
             return 75000, "S-3: Rare Candy"
         if cid == UNFAIR_STAMP:
-            return 15000, "E-5: Unfair Stamp"
+            # div-D8（2026-07-11 実測 07-08）: human はスタンプを Recon 特性より先に打つ
+            # （precedence 34/18。相手の手札干渉+自分5ドローを先に済ませてから山を掘る）。
+            # 15000 → 57000（evo_drak 58000 の下・ability 56000 の上）。
+            # ハンマー→スタンプの precedence 8/4 とは非推移だが n=12 と薄く、34/18 を優先。
+            return 57000, "E-5: Unfair Stamp"
         if cid == NIGHT_STRETCHER:
             if card_score >= 18000:
                 return 42000, "Night Stretcher: recover"
             return -1, "Night Stretcher: nothing"
         if cid == CRUSHING_HAMMER:
-            return 40000, "E-4: Crushing Hammer"
+            # div-D5（2026-07-11 実測 07-08。設計md 未決事項1の解消）: 40000 は毎ターン
+            # 最優先グッズ級で過大。human は特性/進化/エネ付け/夜のタンカ/サポートの後に打つ
+            # （precedence: attach が先 53/5、ability が先 110/31、night が先 16/4、
+            # サポートが先 5/0。我々のハンマー選択のうち human 不実行 52件）。
+            # 40000 → 17000（attach 帯 18000-45450 の下・Unfair Stamp 15000 の上。
+            # ハンマー→スタンプの順は precedence 8/4）。
+            return 17000, "E-4: Crushing Hammer"
         if cid == BOSS:
             if cid == self.use_support:
                 return 35000, "R-16: Boss (plan target)"
@@ -681,7 +927,11 @@ class DragapultPolicy(BasePolicy):
             if cid == self.use_support:
                 return 35000, "S-4/S-5: chosen supporter"
             return -1, "supporter: not chosen"
-        return 0, "play other"
+        # div-D6（2026-07-11 実測 07-08）: リスト外カード（上位ピロットの変種デッキを
+        # リプレイするときだけ発生。自デッキ60枚は全て上の分岐で採点済み）が 0 だと
+        # END(0) と同点でインデックス順により先に選ばれていた（human=END / ours=PLAY/
+        # Jamming Tower 等）。END より下げ「知らないカードは切らずにターンを終える」に揃える。
+        return -0.5, "div-D6: unknown card (below END)"
 
     # ── ATTACH（S-5 + R-10 + ptcg-abc 修正④） ──
 
@@ -710,6 +960,8 @@ class DragapultPolicy(BasePolicy):
                 return -1   # 同色2枚目は不要（Phantom Dive は {R}{P} の2色）
             if pokemon.id == DRAGAPULT_EX:
                 score += 250
+            elif pokemon.id == DRAKLOAK:
+                score -= 120   # div-D7: Drakloak > Dreepy（下記）
             elif pokemon.id == DREEPY:
                 score -= 150
             else:
@@ -723,6 +975,12 @@ class DragapultPolicy(BasePolicy):
             else:
                 if pokemon.id == DRAGAPULT_EX:
                     score += 150
+                elif pokemon.id == DRAKLOAK:
+                    # div-D7（2026-07-11 実測 07-06/07-07/07-08/07-09 全日）: human の
+                    # エネ手張り先は Drakloak > Dreepy（次ターン Dragapult ex になる個体へ
+                    # 先行チャージ。human=ATTACH->Drakloak / ours=->Dreepy が4日間同方向）。
+                    # 旧: Drakloak は else 束(+50) で Dreepy(+100) より下だった。
+                    score += 120
                 elif pokemon.id == DREEPY:
                     score += 100
                 else:
@@ -734,6 +992,18 @@ class DragapultPolicy(BasePolicy):
         if p["no_more_dex"] and pokemon.id in (DREEPY, DRAKLOAK):
             score -= 500
         return score
+
+    def _best_attach(self, obs, p, attach_id):
+        """S-6: attach_id を場に付けるときの最良 S-5 価値（付け先だけ最適化した値）。"""
+        ms = my_state(obs)
+        best = -10000
+        for pk in ms.active:
+            if pk is not None:
+                best = max(best, self._attach_score(obs, p, attach_id, pk, True))
+        for pk in ms.bench:
+            if pk is not None:
+                best = max(best, self._attach_score(obs, p, attach_id, pk, False))
+        return best
 
     # ── 手札価値（サンプル hand_score の移植。PLAY/サーチ/DISCARD の共通材料） ──
 
@@ -847,15 +1117,7 @@ class DragapultPolicy(BasePolicy):
                                          or (p["bench_attacker"] and len(osn.prize) <= 4)):
                 score = UNNECESSARY
             else:
-                ms = my_state(obs)
-                best = -10000
-                for pk in ms.active:
-                    if pk is not None:
-                        best = max(best, self._attach_score(obs, p, cid, pk, True))
-                for pk in ms.bench:
-                    if pk is not None:
-                        best = max(best, self._attach_score(obs, p, cid, pk, False))
-                score = best - 5000
+                score = self._best_attach(obs, p, cid) - 5000
                 if f["can_main_attack"] or p["bench_attacker"]:
                     score /= 10
         if not ignore_count and hc[cid] > 0:
@@ -926,8 +1188,20 @@ class DragapultPolicy(BasePolicy):
             score = self._hand_score(obs, p, cid, False)
             p["hc"][cid] += 1
             if p["effect_id"] == CRISPIN:
-                # Crispin: 付けない方（手札に取る方）は逆順で選ぶ
-                score = 100000 - self._hand_score(obs, p, cid, True)
+                if cid in (FIRE_ENERGY, PSYCHIC_ENERGY):
+                    # S-6a（2026-07-13 リプレイ84790412）: 手札に取らなかった色（逆色）が
+                    # 場に付く。逆色の最良付け先価値（S-5）が高い方を選ぶ。
+                    # 逆色が山に残らない色を取ると付与自体が消滅するため降格。
+                    other = PSYCHIC_ENERGY if cid == FIRE_ENERGY else FIRE_ENERGY
+                    other_left = sum(1 for c in (obs.select.deck or [])
+                                     if c is not None and c.id == other)
+                    if other_left > 0:
+                        score = 100000 + self._best_attach(obs, p, other)
+                    else:
+                        score = 50
+                else:
+                    # 変種デッキのリプレイ用フォールバック（旧: 逆順選択）
+                    score = 100000 - self._hand_score(obs, p, cid, True)
             if ctx == SelectContext.TO_HAND:
                 return self._take_band(score), "S-4: take to hand"
             return min(score, 900000), "S-2: take to bench"
@@ -947,6 +1221,32 @@ class DragapultPolicy(BasePolicy):
 
         if ctx == SelectContext.DAMAGE:
             return self.default_score_damage_target(obs, opt)   # R-15（Cruel Arrow 等）
+
+        if ctx == SelectContext.ATTACH_TO:
+            # S-6b（2026-07-13）: アカマツ等「山から付けるエネ」の選択。自デッキの2色構成では
+            # 常に同色のみが候補になるが、S-5 の最良付け先価値で採点しておく（変種リプレイの保険）
+            if cid is None:
+                return 0, "attach none"
+            return self._take_band(self._best_attach(obs, p, cid)), "S-6b: attach energy pick"
+
+        if ctx == SelectContext.ATTACH_FROM:
+            # div-D2（2026-07-11 実測 06-30/07-06/07-07/07-08/07-09 全日）: Crispin 等の
+            # 「付け先ポケモン選択」が未実装で全候補 10 の同点 → インデックス順になり
+            # 一致 0/7(07-07)・7/27(07-08)・0/2(07-09) だった。S-5 の attach 採点に接続。
+            # S-6c（2026-07-13）: contextCard に付けるカードが入る（Crispin ならエネの色が判明）
+            # ため attach_id に実IDを渡す（旧: 0 固定）。同色2枚目回避 = {R}{P} 成立が効く。
+            # （R-10 / Budew 除外は従来どおり。負値は TO_HAND と同じ (0,1) 帯圧縮で
+            # 「必ずどれかを選ぶ」を保つ）。
+            aid = p["context_card_id"]
+            adata = CARD_DB.get(aid)
+            if adata is None or adata.cardType not in (CardType.BASIC_ENERGY,
+                                                       CardType.TOOL):
+                aid = 0
+            if card is not None and isinstance(card, Pokemon):
+                score = self._attach_score(obs, p, aid, card,
+                                           opt.area == AreaType.ACTIVE)
+                return self._take_band(score), "div-D2/S-6c: attach target (S-5)"
+            return 0, "div-D2: attach target none"
 
         return 10, "generic card"
 
@@ -968,7 +1268,16 @@ class DragapultPolicy(BasePolicy):
             if card.id in BONUS_COUNTER_TARGETS:
                 score += 30000
             return score, "E-2: counter (zone heuristic)"
+        if _no_damage_counter(card):
+            return -1, "E-2: no-damage-counter guard"
         # DAMAGE_COUNTER_ANY = Phantom Dive の6個配分（座標系: cards[bench_index + 1]）
+        if self.USE_SPREAD_SEARCH and self.spread_plan is not None:
+            # S-7: 探索計画の「目標残りHP」まで削る。現hp が目標より上なら置く価値
+            #（差が大きいほど優先）。目標に達したベンチは 0 帯へ落として次のベンチへ回す。
+            tgt = self.spread_plan.get(opt.index + 1)
+            if tgt is not None and hp > tgt:
+                return score + 100000 + (hp - tgt), "S-7: spread plan target"
+            return score, "S-7: spread plan (satisfied/other)"
         if opt.index + 1 in self.plan_b["counter"]:
             score += 100000
             reason = "E-2: plan counter target"
@@ -981,8 +1290,6 @@ class DragapultPolicy(BasePolicy):
             elif hp == 10:
                 score -= 100000
             reason = "E-2/R-15: spread heuristic"
-        if _no_damage_counter(card):
-            return -1, "E-2: no-damage-counter guard"
         return score, reason
 
 

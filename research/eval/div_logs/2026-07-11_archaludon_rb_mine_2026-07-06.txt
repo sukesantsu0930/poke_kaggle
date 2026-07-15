@@ -1,0 +1,165 @@
+games=7 pilots={'ShumpeiNomura(1098)': 4, 'Xander(937)': 1, 'YehJames(906)': 1, 'Jett Huang(933)': 1}
+
+TOTAL agree 197/289 = 68.2%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 85/160 = 53%
+                   DISCARD: 2/7 = 29%
+                   TO_HAND: 44/48 = 92%
+                  IS_FIRST: 2/5 = 40%
+                    SWITCH: 0/2 = 0%
+                 TO_ACTIVE: 12/13 = 92%
+                  MULLIGAN: 0/1 = 0%
+       SETUP_BENCH_POKEMON: 1/2 = 50%
+      SETUP_ACTIVE_POKEMON: 7/7 = 100%
+                  ACTIVATE: 10/10 = 100%
+                 ATTACH_TO: 12/12 = 100%
+               ATTACH_FROM: 20/20 = 100%
+                DRAW_COUNT: 2/2 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'NO': 2, 'YES': 3}
+-- R-22 MULLIGAN 上位ピロットの実選択: {'NO': 1}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    3x           IS_FIRST: human=[0]YES  ours=[1]NO
+    2x               MAIN: human=[1]ATTACH/Basic  ours=[0]PLAY/Poké
+    2x               MAIN: human=[2]ATTACK/Metal  ours=[0]PLAY/Judge
+    2x               MAIN: human=[1]PLAY/Poké  ours=[0]PLAY/Pokégear
+    1x               MAIN: human=[2]ATTACH/Hero’s  ours=[0]PLAY/Poké
+    1x               MAIN: human=[1]PLAY/Duraludon  ours=[0]PLAY/Pokégear
+    1x            TO_HAND: human=[0]CARD  ours=[1]CARD
+    1x               MAIN: human=[0]EVOLVE/Archaludon  ours=[4]PLAY/Carmine
+    1x            DISCARD: human=[1]CARD/Basic  ours=[1]CARD/Basic
+    1x               MAIN: human=[4]ABILITY/Spikemuth  ours=[1]PLAY/Boss’s
+    1x               MAIN: human=[0]PLAY/Judge  ours=[1]PLAY/Boss’s
+    1x               MAIN: human=[2]ATTACH/Basic  ours=[0]PLAY/Full
+    1x               MAIN: human=[2]ABILITY/Spikemuth  ours=[0]ATTACH/Basic
+    1x               MAIN: human=[4]ABILITY/Spikemuth  ours=[3]PLAY/Carmine
+    1x               MAIN: human=[0]PLAY/Ultra  ours=[3]PLAY/Carmine
+    1x               MAIN: human=[3]ATTACH/Basic  ours=[0]PLAY/Poké
+    1x            TO_HAND: human=[2]CARD/Duraludon  ours=[0]CARD/Relicanth
+    1x           MULLIGAN: human=[1]NO  ours=[0]YES
+    1x SETUP_BENCH_POKEMON: human=[0]CARD/Relicanth  ours=(none)
+    1x               MAIN: human=[2]ATTACH/Basic  ours=[0]PLAY/Ultra
+
+-- 不一致サンプル --
+  84229170 ShumpeiNomura MAIN
+    human: [2]ATTACH/Hero’s Cape/->Duraludon
+    ours : [0]PLAY/Poké Pad
+  84229170 ShumpeiNomura MAIN
+    human: [1]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [0]PLAY/Poké Pad
+  84229170 ShumpeiNomura MAIN
+    human: [1]PLAY/Duraludon
+    ours : [0]PLAY/Pokégear 3.0
+  84229170 ShumpeiNomura TO_HAND
+    human: [0]CARD
+    ours : [1]CARD
+  84229170 ShumpeiNomura MAIN
+    human: [0]EVOLVE/Archaludon ex/->Duraludon
+    ours : [4]PLAY/Carmine
+  84229170 ShumpeiNomura DISCARD
+    human: [1]CARD/Basic {M} Energy [3]CARD/Basic {M} Energy
+    ours : [1]CARD/Basic {M} Energy [2]CARD/Boss’s Orders
+  84229170 ShumpeiNomura MAIN
+    human: [2]ATTACK/Metal Defender
+    ours : [0]PLAY/Judge
+  84229170 ShumpeiNomura MAIN
+    human: [4]ABILITY/Spikemuth Gym
+    ours : [1]PLAY/Boss’s Orders
+  84229170 ShumpeiNomura MAIN
+    human: [0]PLAY/Judge
+    ours : [1]PLAY/Boss’s Orders
+  84229170 ShumpeiNomura MAIN
+    human: [2]ATTACH/Basic {M} Energy/->Archaludon ex
+    ours : [0]PLAY/Full Metal Lab
+  84229170 ShumpeiNomura MAIN
+    human: [2]ABILITY/Spikemuth Gym
+    ours : [0]ATTACH/Basic {M} Energy/->Archaludon ex
+  84229170 ShumpeiNomura MAIN
+    human: [4]ABILITY/Spikemuth Gym
+    ours : [3]PLAY/Carmine
+  84229170 ShumpeiNomura MAIN
+    human: [0]PLAY/Ultra Ball
+    ours : [3]PLAY/Carmine
+  84229170 ShumpeiNomura MAIN
+    human: [3]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [0]PLAY/Poké Pad
+  84229170 ShumpeiNomura TO_HAND
+    human: [2]CARD/Duraludon
+    ours : [0]CARD/Relicanth
+  84230712 Xander MULLIGAN
+    human: [1]NO
+    ours : [0]YES
+  84231969 ShumpeiNomura IS_FIRST
+    human: [0]YES
+    ours : [1]NO
+  84231969 ShumpeiNomura SETUP_BENCH_POKEMON
+    human: [0]CARD/Relicanth
+    ours : (none)
+  84231969 ShumpeiNomura MAIN
+    human: [2]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [0]PLAY/Ultra Ball
+  84231969 ShumpeiNomura DISCARD
+    human: [6]CARD/Basic {M} Energy [1]CARD/Full Metal Lab
+    ours : [6]CARD/Basic {M} Energy [0]CARD/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [3]PLAY/Duraludon
+    ours : [0]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [3]END
+    ours : [0]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [1]PLAY/Night Stretcher
+    ours : [0]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [6]ATTACH/Basic {M} Energy/->Duraludon
+    ours : [0]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [1]EVOLVE/Archaludon ex/->Duraludon
+    ours : [0]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [1]PLAY/Lillie's Determination
+    ours : [0]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [1]PLAY/Duraludon
+    ours : [0]PLAY/Ultra Ball
+  84231969 ShumpeiNomura MAIN
+    human: [3]ATTACK/Hammer In
+    ours : [0]PLAY/Ultra Ball
+  84231969 ShumpeiNomura MAIN
+    human: [4]ATTACH/Basic {M} Energy/->Archaludon ex
+    ours : [0]PLAY/Ultra Ball
+  84231969 ShumpeiNomura MAIN
+    human: [6]PLAY/Poké Pad
+    ours : [5]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura TO_HAND
+    human: [1]CARD/Duraludon
+    ours : [0]CARD/Relicanth
+  84231969 ShumpeiNomura MAIN
+    human: [6]PLAY/Duraludon
+    ours : [5]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [6]ATTACK/Metal Defender
+    ours : [5]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [6]ATTACH/Basic {M} Energy/->Archaludon ex
+    ours : [0]PLAY/Night Stretcher
+  84231969 ShumpeiNomura MAIN
+    human: [5]EVOLVE/Archaludon ex/->Duraludon
+    ours : [3]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [5]ATTACK/Metal Defender
+    ours : [3]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura TO_ACTIVE
+    human: [1]CARD/Archaludon ex
+    ours : [2]CARD/Duraludon
+  84231969 ShumpeiNomura MAIN
+    human: [6]PLAY/Poké Pad
+    ours : [3]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [6]PLAY/Relicanth
+    ours : [3]PLAY/Pokégear 3.0
+  84231969 ShumpeiNomura MAIN
+    human: [0]PLAY/Ultra Ball
+    ours : [3]PLAY/Pokégear 3.0

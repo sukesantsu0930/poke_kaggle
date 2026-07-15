@@ -200,6 +200,10 @@ class ChandelurePolicy(BasePolicy):
             cid = card.id if card else None
             if cid == CHANDELURE:
                 # E-1: Alluring Light は毎ターン。E-1a: 自山2枚以上でのみ（実測: 山2使用/山1スキップ）
+                # div-C8【棄却 2026-07-11】: 帯 29000→1500（攻撃直前）を試行 — human=Boss/EVOLVE/
+                # Lillie→ours=ABILITY が両日17件（逆0件）だったが、実測は 07-08 68.4→63.0% /
+                # 07-09 59.4→58.5% と大幅悪化。人間の特性使用位置はターン中盤に分散しており
+                # 「最後」固定は「最初」固定より遠い。29000 に差し戻し
                 if p["my_deck"] >= 2:
                     return 29000, "E-1: Alluring Light (mill 1)"
                 return -1, "E-1a: deck too thin for Alluring Light"
@@ -316,9 +320,11 @@ class ChandelurePolicy(BasePolicy):
             need = (hc[CHANDELURE] + fc[CHANDELURE] == 0) or (fc[COMFEY] + hc[COMFEY] == 0)
             if need:
                 return 17000, "S-4: Poke Pad (missing piece)"
-            # div-C6（2026-07-08 divergence 実測・7/7）: セットアップ期は欠け駒が無くても
-            # 山が厚ければ掘る（human=PLAY Pad / ours=END ×4）
-            return (8000 if p["my_deck"] >= 15 else -1), "div-C6: Pad (setup dig)"
+            # div-C6【棄却→差し戻し 2026-07-11】: 「セットアップ期は山≥15なら欠け駒なしでも掘る」
+            # （7/7 kidekikish ×4 由来の暫定）を新データで再計測 — 07-08 67.3→67.0%(+1手)、
+            # 07-09 58.9→59.4%(−1手) と両日で逆方向のノイズ。新ピロット（Star-mine/Taimo）の
+            # 支持なし + ミル型の自山温存原則（山を無駄に薄めない）に反するため差し戻し
+            return -1, "S-4: hold Pad (no missing piece)"
         if cid == CRUSHING_HAMMER:
             # E-6: エネが見える限り毎ターン投げる（実測50回 = 最多プレイ）
             if p["opp_energy_total"] >= 1:
@@ -332,14 +338,23 @@ class ChandelurePolicy(BasePolicy):
         if cid == NIGHT_STRETCHER:
             if (dc[BASIC_P] >= 1 and p["energy_in_hand"] == 0 and p["comfey_need"] >= 1):
                 return 13000, "Night Stretcher: recover energy"
-            if dc[COMFEY] + dc[CHANDELURE] + dc[LAMPENT] + dc[LITWICK] >= 1:
-                return 12000, "Night Stretcher: recover pokemon"
+            # div-C11（2026-07-11 実測・調整日07-08/09）: ポケモン回収は「エンジン駒が実際に
+            # 足りない時」だけ。トラッシュに駒があるだけで拾うのは山掘り（手数）の無駄で、
+            # 上位勢はボス/パッド/攻撃を優先（human=Pad,Boss,Flower / ours=Stretcher が
+            # 07-09 ×5 + 07-08 ×1、逆方向1件）
+            need_comfey = (fc[COMFEY] < 2 and dc[COMFEY] >= 1)
+            need_chand = (fc[CHANDELURE] + hc[CHANDELURE] == 0 and dc[CHANDELURE] >= 1)
+            if need_comfey or need_chand:
+                return 12000, "div-C11: Night Stretcher (rebuild engine)"
             return -1, "Night Stretcher: nothing"
         if cid == ENERGY_SEARCH:
             # div-C4: エネ確保はハンマーより先（上位勢はエネ→グッズの順）。
-            # 手張り済みでも手札エネ0なら次ターン分を確保しておく（実測に合わせ緩和）
-            if p["energy_in_hand"] == 0:
-                return 14800, "Energy Search"
+            # div-C10（2026-07-11 実測・調整日07-08/09）: div-C4 の「手張り済みでも先回り確保」を
+            # 差し戻し、エネ0のコンフィが実在する時だけ使う。上位勢は不要な山掘りをしない
+            # （human=Flower/Comfey/Lillie 等 / ours=Energy Search が 07-08 ×5 + 07-09 ×9、逆方向1件。
+            #  ミル型は自山1枚の温存が勝敗に直結する）
+            if p["energy_in_hand"] == 0 and p["comfey_need"] >= 1:
+                return 14800, "div-C10: Energy Search (fuel needed)"
             return -1, "Energy Search: not needed"
         if cid == SWITCH_ITEM:
             active = active_pokemon(obs)
@@ -385,6 +400,8 @@ class ChandelurePolicy(BasePolicy):
                 return 5200, "E-5: Boss (drag & trap)"
             # div-C5（2026-07-08 divergence 実測・7/7 kidekikish）: 上位ピロットはボスを
             # もっと自由に切る（human=Boss / ours=Crushing,NZ）。交戦期はベンチがいれば拘束に使う
+            # 【確定昇格 2026-07-11】OFF 変異で調整日07-08/09 とも完全同値（フリップ0手・悪化なし）。
+            # Boss 系不一致は依然 human=Boss 方向のみ（両日計8件、逆0）で新ピロット（Star-mine）も支持
             if combat and any(b for b in opp_state(obs).bench if b):
                 return 4700, "div-C5: Boss (loose drag)"
             return -1, "save Boss"
@@ -437,9 +454,13 @@ class ChandelurePolicy(BasePolicy):
                 return -1, "R-10: Comfey already paid (cost 1)"
             active = active_pokemon(obs)
             # div-C4: 手張りはハンマー等のグッズより先（上位勢はエネ→グッズの順）
+            # div-C12（2026-07-11 実測・調整日07-08/09）: 帯を 15500 → 19800 に引き上げ、
+            # ポフィン(18000)/パッド(17000)/NZ(19500) より前に手張りを済ませる
+            # （human=ATTACH ours=Poffin/Pad/NZ が 07-08 ×8 + 07-09 ×4、逆方向計6件。
+            #  1ターン1回の権利を先に確実に消費する順序が上位勢の型）
             bonus = 100 if (active is not None and target is active) else 0
             bonus += 50 if cid == TELEPATH else 0   # テレパスはベンチ連鎖付き
-            score = 15500 + bonus
+            score = 19800 + bonus
             if self.is_threatened(target):
                 score -= 2000   # R-08: 負け筋への追い銭防止
             return score, "S-5: fuel Flower Shower"
@@ -473,11 +494,12 @@ class ChandelurePolicy(BasePolicy):
                     score, reason = 1000, "promote other"
                 return self.default_score_promote(obs, opt, score, reason)   # R-08
             # E-5: ボス吊り出し = 拘束（エネ0・にげる重い・NZ稼働中のex）
+            # div-C7（2026-07-11 実測・調整日07-08）: マシマシラ+400 を除去。上位勢の吊り先は
+            # 5/5 でユキメノコ > マシマシラ（Star-mine ×4 + kidekikish ×1 のクロスピロット）。
+            # Adrena-Brain はベンチからでも機能するため吊っても止まらない = 拘束価値なし
             score = 5000 + retreat_cost(card) * 200 - energy_count(card) * 300
             if p["stadium_id"] == NEUTRAL_ZONE and is_ex(card):
                 score += 800   # NZ 稼働中の ex は完全に無力
-            if cid == OPP_MUNKIDORI:
-                score += 400   # エンジン駒の拘束
             return score, "E-5: drag & trap target"
 
         if ctx == SelectContext.DISCARD_ENERGY:
@@ -495,11 +517,20 @@ class ChandelurePolicy(BasePolicy):
         if ctx == SelectContext.TO_HAND:
             # div-C4（2026-07-07 divergence 実測）: 上位勢の優先表
             # シャンデラ（無条件）> コンフィ > エネ > ヒトモシ > ランプラー
+            # div-C9（2026-07-11 実測・調整日07-08/09）: 表を機能条件化 —
+            #   (1) ラインの中間（ランプラー）が完全に欠けている時はシャンデラより先に取る
+            #       （human=Lampent/ours=Chandelure が 07-08 ×5 + 07-09 ×1。進化はランプラー経由必須）
+            #   (2) シャンデラの path 判定に手札のランプラーを含める（確保後はシャンデラ優先 07-09 実測）
+            #   (3) 2枚目以降のシャンデラは減衰（human=Comfey/ours=Chandelure ×3。特性ボディは1体で十分）
+            #   (4) 場にコンフィ0ならコンフィ最優先（S-0: エンジン無しではミルが始まらない）
             base = 100 - hc.get(cid, 0) * 25
             if cid == CHANDELURE:
-                path = fc[LITWICK] + fc[LAMPENT] >= 1 or hc[LITWICK] >= 1
-                return base + (90 if path else 55), "div-C4: take Chandelure"
+                path = fc[LITWICK] + fc[LAMPENT] + hc[LITWICK] + hc[LAMPENT] >= 1
+                first = fc[CHANDELURE] + hc[CHANDELURE] == 0
+                return base + ((90 if first else 65) if path else 55), "div-C4/C9: take Chandelure"
             if cid == COMFEY:
+                if fc[COMFEY] == 0:
+                    return base + 95, "div-C9: take Comfey (engine down)"
                 return base + (70 if fc[COMFEY] + hc[COMFEY] < 4 else -20), "div-C4: take Comfey"
             if cid in ENERGY_CARDS:
                 bonus = 60 if (p["energy_in_hand"] == 0 and p["comfey_need"] >= 1) else 25
@@ -510,6 +541,8 @@ class ChandelurePolicy(BasePolicy):
                     return base + 75, "div-C4: take Litwick (start the line)"
                 return base + (50 if p["line_in_play"] < 3 else -20), "take Litwick"
             if cid == LAMPENT:
+                if fc[LAMPENT] + hc[LAMPENT] == 0 and fc[LITWICK] + hc[LITWICK] >= 1:
+                    return base + 92, "div-C9: take Lampent (missing middle)"
                 return base + (45 if fc[LITWICK] >= 1 else 10), "take Lampent"
             if cid == SHAYMIN:
                 return base + (20 if fc[SHAYMIN] == 0 else -30), "take Shaymin"

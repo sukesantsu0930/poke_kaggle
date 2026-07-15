@@ -1,0 +1,170 @@
+games=80 pilots={'Majkel1337(1157)': 6, 'Abhyuday(1025)': 5, 'matsurih(1068)': 10, 'aaa(1076)': 12, 'Bozo Boys(1100)': 8, '豆本豆豆包(1042)': 2, 'THIRD PTCG Club(1073)': 6, '5.5(920)': 3, 'Rmy(1076)': 14, 'trickstar(1031)': 1, 'bono(1088)': 6, 'wally0593(1033)': 1, 'Kohenyan(1005)': 2, 'Ajishio(1005)': 2, 'capbloo(1008)': 1, 'ヌメルゴンex(968)': 1}
+
+TOTAL agree 3713/6904 = 53.8%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 1521/4124 = 37%
+                   TO_HAND: 765/1080 = 71%
+                 TO_ACTIVE: 267/331 = 81%
+                   DISCARD: 2/57 = 4%
+                    SWITCH: 69/106 = 65%
+                  ACTIVATE: 500/531 = 94%
+                   TO_DECK: 28/54 = 52%
+                  TO_BENCH: 183/208 = 88%
+      SETUP_ACTIVE_POKEMON: 64/80 = 80%
+            DISCARD_ENERGY: 95/105 = 90%
+                    EVOLVE: 114/118 = 97%
+       SETUP_BENCH_POKEMON: 36/39 = 92%
+                DRAW_COUNT: 22/23 = 96%
+                  IS_FIRST: 39/40 = 98%
+         DISCARD_TOOL_CARD: 3/3 = 100%
+                 ATTACH_TO: 2/2 = 100%
+               ATTACH_FROM: 2/2 = 100%
+               SKILL_ORDER: 1/1 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {'YES': 39, 'NO': 1}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+   23x           ACTIVATE: human=[1]NO  ours=[0]YES
+   16x            TO_HAND: human=[0]CARD/Kadabra  ours=[1]CARD/Dudunsparce
+   16x               MAIN: human=[13]ABILITY/Dudunsparce  ours=[14]END
+   16x               MAIN: human=[12]PLAY/Dunsparce  ours=[13]END
+   15x               MAIN: human=[14]ABILITY/Dudunsparce  ours=[15]END
+   13x               MAIN: human=[12]PLAY/Dunsparce  ours=[14]END
+   11x               MAIN: human=[15]ABILITY/Dudunsparce  ours=[16]END
+   11x               MAIN: human=[13]EVOLVE/Dudunsparce/->Dunsparce  ours=[15]END
+   10x            TO_HAND: human=[0]CARD  ours=[0]CARD
+   10x            TO_HAND: human=[1]CARD/Kadabra  ours=[0]CARD/Dudunsparce
+   10x               MAIN: human=[13]EVOLVE/Dudunsparce/->Dunsparce  ours=[22]END
+    9x            TO_HAND: human=[0]CARD/Alakazam  ours=[1]CARD/Kadabra
+    9x               MAIN: human=[13]EVOLVE/Dudunsparce/->Dunsparce  ours=[18]END
+    8x            TO_HAND: human=[4]CARD  ours=[0]CARD
+    8x            TO_HAND: human=[0]CARD/Dudunsparce  ours=[1]CARD/Kadabra
+    8x           ACTIVATE: human=[0]YES  ours=[1]NO
+    7x          TO_ACTIVE: human=[2]CARD/Dunsparce  ours=[0]CARD/Kadabra
+    7x SETUP_ACTIVE_POKEMON: human=[1]CARD/Dunsparce  ours=[0]CARD/Abra
+    7x            TO_HAND: human=[1]CARD/Telepath  ours=[0]CARD/Basic
+    7x               MAIN: human=[18]EVOLVE/Dudunsparce/->Dunsparce  ours=[20]ATTACK/Powerful
+
+-- 不一致サンプル --
+  84743025 Majkel1337 MAIN
+    human: [3]PLAY/Rare Candy
+    ours : [4]EVOLVE/Kadabra/->Abra
+  84743025 Majkel1337 ACTIVATE
+    human: [1]NO
+    ours : [0]YES
+  84743025 Majkel1337 MAIN
+    human: [0]PLAY/Hilda
+    ours : [1]EVOLVE/Dudunsparce/->Dunsparce
+  84743025 Majkel1337 TO_HAND
+    human: [3]CARD/Basic {P} Energy
+    ours : [0]CARD/Telepath Psychic Energy
+  84743025 Majkel1337 MAIN
+    human: [6]ATTACH/Basic {P} Energy/->Alakazam
+    ours : [0]EVOLVE/Dudunsparce/->Dunsparce
+  84743025 Majkel1337 MAIN
+    human: [1]PLAY/Enhanced Hammer
+    ours : [0]EVOLVE/Dudunsparce/->Dunsparce
+  84743025 Majkel1337 MAIN
+    human: [5]ATTACK/Powerful Hand
+    ours : [0]EVOLVE/Dudunsparce/->Dunsparce
+  84743025 Majkel1337 DISCARD
+    human: [1]CARD/Kadabra [2]CARD/Battle Cage [3]CARD/Rare Candy [5]CARD/Poké Pad [6]CARD/Poké Pad [8]CARD/Rare Candy
+    ours : [0]CARD/Dudunsparce [1]CARD/Kadabra [2]CARD/Battle Cage [3]CARD/Rare Candy [4]CARD/Dudunsparce [5]CARD/Poké Pad
+  84743025 Majkel1337 MAIN
+    human: [4]ABILITY/Dudunsparce
+    ours : [2]PLAY/Night Stretcher
+  84743025 Majkel1337 MAIN
+    human: [3]PLAY/Enhanced Hammer
+    ours : [2]PLAY/Night Stretcher
+  84743025 Majkel1337 MAIN
+    human: [5]ATTACK/Powerful Hand
+    ours : [2]PLAY/Night Stretcher
+  84743025 Majkel1337 TO_HAND
+    human: [4]CARD
+    ours : [0]CARD
+  84743025 Majkel1337 DISCARD
+    human: [1]CARD/Alakazam [2]CARD/Dawn [3]CARD/Dawn [5]CARD/Hilda [6]CARD/Dawn
+    ours : [0]CARD/Dudunsparce [1]CARD/Alakazam [2]CARD/Dawn [3]CARD/Dawn [4]CARD/Night Stretcher
+  84743025 Majkel1337 MAIN
+    human: [1]PLAY/Night Stretcher
+    ours : [0]EVOLVE/Dudunsparce/->Dunsparce
+  84743025 Majkel1337 TO_HAND
+    human: [1]CARD/Alakazam
+    ours : [0]CARD/Kadabra
+  84743025 Majkel1337 MAIN
+    human: [5]ATTACK/Powerful Hand
+    ours : [0]EVOLVE/Dudunsparce/->Dunsparce
+  84743025 Majkel1337 DISCARD
+    human: [1]CARD/Alakazam [3]CARD/Alakazam [4]CARD/Hilda [6]CARD/Alakazam [7]CARD/Buddy-Buddy Poffin
+    ours : [0]CARD/Dudunsparce [1]CARD/Alakazam [2]CARD/Telepath Psychic Energy [3]CARD/Alakazam [4]CARD/Hilda
+  84743025 Majkel1337 MAIN
+    human: [4]PLAY/Night Stretcher
+    ours : [0]EVOLVE/Dudunsparce/->Dunsparce
+  84743025 Majkel1337 TO_HAND
+    human: [1]CARD/Alakazam
+    ours : [0]CARD/Kadabra
+  84743025 Majkel1337 MAIN
+    human: [8]ATTACK/Powerful Hand
+    ours : [0]EVOLVE/Dudunsparce/->Dunsparce
+  84743025 Majkel1337 MAIN
+    human: [0]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [12]PLAY/Dunsparce
+  84743025 Majkel1337 MAIN
+    human: [12]ABILITY/Dudunsparce
+    ours : [11]PLAY/Dunsparce
+  84743025 Majkel1337 MAIN
+    human: [0]ATTACH/Telepath Psychic Energy/->Alakazam
+    ours : [8]PLAY/Dunsparce
+  84743025 Majkel1337 TO_BENCH
+    human: [0]CARD/Abra [2]CARD/Abra
+    ours : [0]CARD/Abra [1]CARD/Abra
+  84743025 Majkel1337 MAIN
+    human: [4]PLAY/Lana’s Aid
+    ours : [5]PLAY/Dunsparce
+  84743025 Majkel1337 TO_HAND
+    human: [3]CARD/Basic {P} Energy
+    ours : [0]CARD/Kadabra [1]CARD/Alakazam [2]CARD/Alakazam
+  84743025 Majkel1337 MAIN
+    human: [6]ATTACK/Powerful Hand
+    ours : [3]PLAY/Dunsparce
+  84743031 Abhyuday SETUP_ACTIVE_POKEMON
+    human: [4]CARD/Dunsparce
+    ours : [0]CARD/Abra
+  84743031 Abhyuday MAIN
+    human: [2]PLAY/Dawn
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84743031 Abhyuday TO_HAND
+    human: [4]CARD/Kadabra
+    ours : [0]CARD/Dudunsparce
+  84743031 Abhyuday MAIN
+    human: [2]PLAY/Abra
+    ours : [0]PLAY/Buddy-Buddy Poffin
+  84743031 Abhyuday TO_HAND
+    human: [9]CARD/Kadabra
+    ours : [0]CARD/Dudunsparce
+  84743031 Abhyuday MAIN
+    human: [4]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [0]EVOLVE/Kadabra/->Abra
+  84743031 Abhyuday TO_ACTIVE
+    human: [1]CARD/Abra
+    ours : [0]CARD/Kadabra
+  84743031 Abhyuday MAIN
+    human: [2]EVOLVE/Kadabra/->Abra
+    ours : [1]EVOLVE/Kadabra/->Abra
+  84743031 Abhyuday MAIN
+    human: [1]PLAY/Hilda
+    ours : [3]EVOLVE/Kadabra/->Abra
+  84743031 Abhyuday MAIN
+    human: [17]EVOLVE/Dudunsparce/->Dunsparce
+    ours : [1]EVOLVE/Kadabra/->Abra
+  84743031 Abhyuday MAIN
+    human: [22]ABILITY/Dudunsparce
+    ours : [1]EVOLVE/Kadabra/->Abra
+  84743031 Abhyuday MAIN
+    human: [14]ATTACH/Enriching Energy/->Abra
+    ours : [18]PLAY/Abra
+  84743031 Abhyuday MAIN
+    human: [4]PLAY/Rare Candy
+    ours : [2]PLAY/Abra

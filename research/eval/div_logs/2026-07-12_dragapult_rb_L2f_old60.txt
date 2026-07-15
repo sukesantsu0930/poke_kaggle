@@ -1,0 +1,62 @@
+old_dragapult_rb vs marnie [target=p0]: p0=12 p1=18 draw=0 unfinished=0 start_failed=0
+old_dragapult_rb vs marnie [target=p1]: p0=23 p1=7 draw=0 unfinished=0 start_failed=0
+==> old_dragapult_rb vs marnie: 19-41 (31.7%) share=34.0%
+
+old_dragapult_rb vs alakazam [target=p0]: p0=17 p1=13 draw=0 unfinished=0 start_failed=0
+old_dragapult_rb vs alakazam [target=p1]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+==> old_dragapult_rb vs alakazam: 32-28 (53.3%) share=20.0%
+
+old_dragapult_rb vs kangaskhan [target=p0]: p0=21 p1=9 draw=0 unfinished=0 start_failed=0
+old_dragapult_rb vs kangaskhan [target=p1]: p0=8 p1=22 draw=0 unfinished=0 start_failed=0
+==> old_dragapult_rb vs kangaskhan: 43-17 (71.7%) share=9.5%
+
+old_dragapult_rb vs garchomp [target=p0]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+old_dragapult_rb vs garchomp [target=p1]: p0=13 p1=17 draw=0 unfinished=0 start_failed=0
+==> old_dragapult_rb vs garchomp: 32-28 (53.3%) share=8.5%
+
+old_dragapult_rb vs okidogi [target=p0]: p0=28 p1=2 draw=0 unfinished=0 start_failed=0
+old_dragapult_rb vs okidogi [target=p1]: p0=4 p1=26 draw=0 unfinished=0 start_failed=0
+==> old_dragapult_rb vs okidogi: 54-6 (90.0%) share=4.8%
+
+old_dragapult_rb vs comfey_yveltal [target=p0]: p0=28 p1=2 draw=0 unfinished=0 start_failed=0
+old_dragapult_rb vs comfey_yveltal [target=p1]: p0=4 p1=26 draw=0 unfinished=0 start_failed=0
+==> old_dragapult_rb vs comfey_yveltal: 54-6 (90.0%) share=4.8%
+
+old_dragapult_rb vs chandelure [target=p0]: p0=18 p1=12 draw=0 unfinished=0 start_failed=0
+old_dragapult_rb vs chandelure [target=p1]: p0=17 p1=13 draw=0 unfinished=0 start_failed=0
+==> old_dragapult_rb vs chandelure: 31-29 (51.7%) share=4.5%
+
+old_dragapult_rb vs lopunny [target=p0]: p0=28 p1=2 draw=0 unfinished=0 start_failed=0
+old_dragapult_rb vs lopunny [target=p1]: p0=1 p1=29 draw=0 unfinished=0 start_failed=0
+==> old_dragapult_rb vs lopunny: 57-3 (95.0%) share=3.8%
+
+old_dragapult_rb vs megastarmie [target=p0]: p0=19 p1=11 draw=0 unfinished=0 start_failed=0
+old_dragapult_rb vs megastarmie [target=p1]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+==> old_dragapult_rb vs megastarmie: 35-25 (58.3%) share=3.5%
+
+old_dragapult_rb vs rocket [target=p0]: p0=29 p1=1 draw=0 unfinished=0 start_failed=0
+old_dragapult_rb vs rocket [target=p1]: p0=0 p1=30 draw=0 unfinished=0 start_failed=0
+==> old_dragapult_rb vs rocket: 59-1 (98.3%) share=2.0%
+
+old_dragapult_rb vs archaludon [target=p0]: p0=11 p1=19 draw=0 unfinished=0 start_failed=0
+old_dragapult_rb vs archaludon [target=p1]: p0=19 p1=11 draw=0 unfinished=0 start_failed=0
+==> old_dragapult_rb vs archaludon: 22-38 (36.7%) share=2.0%
+
+
+=== gauntlet: C:/Users/suket/AppData/Local/Temp/claude/c--Users-suket-Documents-poke-kaggle/60c0ad16-d79f-4f1d-80da-4301650de8dd/scratchpad/old_dragapult_rb (60 games/matchup) ===
+       archetype  share%     W-L    WR%
+          marnie    34.0  19-41   31.7
+        alakazam    20.0  32-28   53.3
+      kangaskhan     9.5  43-17   71.7
+        garchomp     8.5  32-28   53.3
+         okidogi     4.8  54-6    90.0
+  comfey_yveltal     4.8  54-6    90.0
+      chandelure     4.5  31-29   51.7
+         lopunny     3.8  57-3    95.0
+     megastarmie     3.5  35-25   58.3
+          rocket     2.0  59-1    98.3
+      archaludon     2.0  22-38   36.7
+----------------------------------------
+制圧度（シェア加重勝率）: 53.5%  (covered share 97.4%)
+最弱マッチアップ: marnie 32%, archaludon 37%, chandelure 52%
+throughput: 660 games / 123s = 321.6 games/min (0.19 s/game)

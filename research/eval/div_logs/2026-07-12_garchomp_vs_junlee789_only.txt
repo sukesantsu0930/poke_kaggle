@@ -1,0 +1,130 @@
+games=1 pilots={'junlee789 - 이준(2000)': 1}
+
+TOTAL agree 40/77 = 51.9%
+
+-- SelectContext別 一致率（不一致の多い順） --
+                      MAIN: 25/49 = 51%
+                   TO_HAND: 7/17 = 41%
+       SETUP_BENCH_POKEMON: 0/1 = 0%
+                  TO_BENCH: 0/1 = 0%
+                    SWITCH: 2/3 = 67%
+      SETUP_ACTIVE_POKEMON: 1/1 = 100%
+                 TO_ACTIVE: 3/3 = 100%
+                  ACTIVATE: 2/2 = 100%
+
+-- R-21 IS_FIRST 上位ピロットの実選択: {}
+-- R-22 MULLIGAN 上位ピロットの実選択: {}
+
+-- 不一致パターン上位（ctx / 人間の第1選択 / 我々の第1選択） --
+    3x            TO_HAND: human=(none)  ours=[0]CARD/Cynthia's
+    2x               MAIN: human=[10]ABILITY/Cynthia's  ours=[3]PLAY/Fighting
+    1x SETUP_BENCH_POKEMON: human=[0]CARD/Cynthia's  ours=(none)
+    1x            TO_HAND: human=[0]CARD/Cynthia's  ours=[2]CARD/Cynthia's
+    1x            TO_HAND: human=[1]CARD/Basic  ours=[0]CARD/Rock
+    1x               MAIN: human=[4]ATTACH/Basic  ours=[5]ABILITY/Cynthia's
+    1x            TO_HAND: human=[3]CARD/Cynthia's  ours=[2]CARD/Cynthia's
+    1x               MAIN: human=[3]ABILITY/Cynthia's  ours=[2]PLAY/Fighting
+    1x               MAIN: human=[3]EVOLVE/Cynthia's  ours=[0]EVOLVE/Cynthia's
+    1x            TO_HAND: human=[2]CARD/Basic  ours=[0]CARD/Basic
+    1x               MAIN: human=[6]EVOLVE/Cynthia's  ours=[0]EVOLVE/Cynthia's
+    1x            TO_HAND: human=[6]CARD/Cynthia's  ours=[0]CARD/Cynthia's
+    1x               MAIN: human=[6]PLAY/Cynthia's  ours=[0]EVOLVE/Cynthia's
+    1x               MAIN: human=[1]EVOLVE/Cynthia's  ours=[0]EVOLVE/Cynthia's
+    1x               MAIN: human=[2]PLAY/Buddy-Buddy  ours=[5]PLAY/Cynthia's
+    1x           TO_BENCH: human=[1]CARD/Cynthia's  ours=[2]CARD/Cynthia's
+    1x               MAIN: human=[10]EVOLVE/Cynthia's  ours=[3]PLAY/Fighting
+    1x               MAIN: human=[0]PLAY/Hilda  ours=[2]ATTACH/Basic
+    1x            TO_HAND: human=(none)  ours=[0]CARD/Rock
+    1x             SWITCH: human=[2]CARD/Cynthia's  ours=[1]CARD/Cynthia's
+
+-- 不一致サンプル --
+  85347768 junlee789 - 이준 SETUP_BENCH_POKEMON
+    human: [0]CARD/Cynthia's Spiritomb
+    ours : (none)
+  85347768 junlee789 - 이준 TO_HAND
+    human: [0]CARD/Cynthia's Garchomp ex
+    ours : [2]CARD/Cynthia's Roserade
+  85347768 junlee789 - 이준 TO_HAND
+    human: [1]CARD/Basic {F} Energy
+    ours : [0]CARD/Rock Fighting Energy
+  85347768 junlee789 - 이준 MAIN
+    human: [4]ATTACH/Basic {F} Energy/->Cynthia's Gible
+    ours : [5]ABILITY/Cynthia's Gabite
+  85347768 junlee789 - 이준 TO_HAND
+    human: [3]CARD/Cynthia's Gible
+    ours : [2]CARD/Cynthia's Gabite
+  85347768 junlee789 - 이준 MAIN
+    human: [3]ABILITY/Cynthia's Gabite
+    ours : [2]PLAY/Fighting Gong
+  85347768 junlee789 - 이준 MAIN
+    human: [3]EVOLVE/Cynthia's Gabite/->Cynthia's Gible
+    ours : [0]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  85347768 junlee789 - 이준 TO_HAND
+    human: [2]CARD/Basic {F} Energy
+    ours : [0]CARD/Basic {F} Energy
+  85347768 junlee789 - 이준 MAIN
+    human: [6]EVOLVE/Cynthia's Gabite/->Cynthia's Gible
+    ours : [0]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  85347768 junlee789 - 이준 TO_HAND
+    human: [6]CARD/Cynthia's Roselia
+    ours : [0]CARD/Cynthia's Roselia
+  85347768 junlee789 - 이준 MAIN
+    human: [6]PLAY/Cynthia's Roselia
+    ours : [0]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  85347768 junlee789 - 이준 MAIN
+    human: [1]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+    ours : [0]EVOLVE/Cynthia's Garchomp ex/->Cynthia's Gabite
+  85347768 junlee789 - 이준 MAIN
+    human: [2]PLAY/Buddy-Buddy Poffin
+    ours : [5]PLAY/Cynthia's Spiritomb
+  85347768 junlee789 - 이준 TO_BENCH
+    human: [1]CARD/Cynthia's Roselia
+    ours : [2]CARD/Cynthia's Gible
+  85347768 junlee789 - 이준 MAIN
+    human: [10]ABILITY/Cynthia's Gabite
+    ours : [3]PLAY/Fighting Gong
+  85347768 junlee789 - 이준 MAIN
+    human: [10]EVOLVE/Cynthia's Roserade/->Cynthia's Roselia
+    ours : [3]PLAY/Fighting Gong
+  85347768 junlee789 - 이준 MAIN
+    human: [10]ABILITY/Cynthia's Gabite
+    ours : [3]PLAY/Fighting Gong
+  85347768 junlee789 - 이준 TO_HAND
+    human: (none)
+    ours : [0]CARD/Cynthia's Gible
+  85347768 junlee789 - 이준 MAIN
+    human: [0]PLAY/Hilda
+    ours : [2]ATTACH/Basic {F} Energy/->Cynthia's Spiritomb
+  85347768 junlee789 - 이준 TO_HAND
+    human: (none)
+    ours : [0]CARD/Rock Fighting Energy
+  85347768 junlee789 - 이준 SWITCH
+    human: [2]CARD/Cynthia's Garchomp ex
+    ours : [1]CARD/Cynthia's Garchomp ex
+  85347768 junlee789 - 이준 MAIN
+    human: [2]ATTACH/Cynthia's Power Weight/->Cynthia's Garchomp ex
+    ours : [0]ATTACH/Cynthia's Power Weight/->Cynthia's Garchomp ex
+  85347768 junlee789 - 이준 MAIN
+    human: [7]PLAY/Forest of Vitality
+    ours : [1]ATTACH/Rock Fighting Energy/->Cynthia's Garchomp ex
+  85347768 junlee789 - 이준 MAIN
+    human: [8]RETREAT
+    ours : [1]ATTACH/Rock Fighting Energy/->Cynthia's Garchomp ex
+  85347768 junlee789 - 이준 MAIN
+    human: [7]ATTACK/Raging Curse
+    ours : [2]ATTACH/Rock Fighting Energy/->Cynthia's Garchomp ex
+  85347768 junlee789 - 이준 TO_HAND
+    human: [1]CARD [4]CARD
+    ours : [0]CARD [1]CARD
+  85347768 junlee789 - 이준 MAIN
+    human: [8]EVOLVE/Cynthia's Roserade/->Cynthia's Roselia
+    ours : [7]PLAY/Fighting Gong
+  85347768 junlee789 - 이준 MAIN
+    human: [6]ATTACH/Rock Fighting Energy/->Cynthia's Spiritomb
+    ours : [8]PLAY/Unfair Stamp
+  85347768 junlee789 - 이준 MAIN
+    human: [1]PLAY/Fighting Gong
+    ours : [2]PLAY/Unfair Stamp
+  85347768 junlee789 - 이준 TO_HAND
+    human: (none)
+    ours : [0]CARD/Cynthia's Gible

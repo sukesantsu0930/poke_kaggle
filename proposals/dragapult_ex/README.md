@@ -4,7 +4,7 @@
 
 ## 部品
 
-- Deck: `decks/candidates/2026-06-30_top5/popular_4_dragapult.csv`
+- Deck: `decks/fleet/popular_4_dragapult.csv`
 - Agent: `agents/dragapult_ex_rb`
 - Protocol: `protocol.py`
 

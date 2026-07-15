@@ -13,7 +13,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_DIR = ROOT / "agents" / "_base"
-BASE_FILES = ["policy_base.py", "meta_tables.py"]
+BASE_FILES = ["policy_base.py", "meta_tables.py",
+              "turn_search.py", "value_model.py", "opp_decks.py", "generic_policy.py",
+              "policy_net.py"]
 
 
 def sha256(path: Path) -> str:

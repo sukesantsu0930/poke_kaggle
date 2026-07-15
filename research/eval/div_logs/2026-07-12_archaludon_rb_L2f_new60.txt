@@ -1,0 +1,62 @@
+archaludon_rb vs marnie [target=p0]: p0=15 p1=15 draw=0 unfinished=0 start_failed=0
+archaludon_rb vs marnie [target=p1]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+==> archaludon_rb vs marnie: 31-29 (51.7%) share=34.0%
+
+archaludon_rb vs alakazam [target=p0]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+archaludon_rb vs alakazam [target=p1]: p0=16 p1=14 draw=0 unfinished=0 start_failed=0
+==> archaludon_rb vs alakazam: 28-32 (46.7%) share=20.0%
+
+archaludon_rb vs kangaskhan [target=p0]: p0=24 p1=6 draw=0 unfinished=0 start_failed=0
+archaludon_rb vs kangaskhan [target=p1]: p0=7 p1=23 draw=0 unfinished=0 start_failed=0
+==> archaludon_rb vs kangaskhan: 47-13 (78.3%) share=9.5%
+
+archaludon_rb vs garchomp [target=p0]: p0=18 p1=12 draw=0 unfinished=0 start_failed=0
+archaludon_rb vs garchomp [target=p1]: p0=17 p1=13 draw=0 unfinished=0 start_failed=0
+==> archaludon_rb vs garchomp: 31-29 (51.7%) share=8.5%
+
+archaludon_rb vs okidogi [target=p0]: p0=16 p1=14 draw=0 unfinished=0 start_failed=0
+archaludon_rb vs okidogi [target=p1]: p0=10 p1=20 draw=0 unfinished=0 start_failed=0
+==> archaludon_rb vs okidogi: 36-24 (60.0%) share=4.8%
+
+archaludon_rb vs comfey_yveltal [target=p0]: p0=21 p1=9 draw=0 unfinished=0 start_failed=0
+archaludon_rb vs comfey_yveltal [target=p1]: p0=9 p1=21 draw=0 unfinished=0 start_failed=0
+==> archaludon_rb vs comfey_yveltal: 42-18 (70.0%) share=4.8%
+
+archaludon_rb vs chandelure [target=p0]: p0=11 p1=19 draw=0 unfinished=0 start_failed=0
+archaludon_rb vs chandelure [target=p1]: p0=22 p1=8 draw=0 unfinished=0 start_failed=0
+==> archaludon_rb vs chandelure: 19-41 (31.7%) share=4.5%
+
+archaludon_rb vs lopunny [target=p0]: p0=28 p1=2 draw=0 unfinished=0 start_failed=0
+archaludon_rb vs lopunny [target=p1]: p0=1 p1=29 draw=0 unfinished=0 start_failed=0
+==> archaludon_rb vs lopunny: 57-3 (95.0%) share=3.8%
+
+archaludon_rb vs megastarmie [target=p0]: p0=25 p1=5 draw=0 unfinished=0 start_failed=0
+archaludon_rb vs megastarmie [target=p1]: p0=5 p1=25 draw=0 unfinished=0 start_failed=0
+==> archaludon_rb vs megastarmie: 50-10 (83.3%) share=3.5%
+
+archaludon_rb vs rocket [target=p0]: p0=28 p1=2 draw=0 unfinished=0 start_failed=0
+archaludon_rb vs rocket [target=p1]: p0=3 p1=27 draw=0 unfinished=0 start_failed=0
+==> archaludon_rb vs rocket: 55-5 (91.7%) share=2.0%
+
+archaludon_rb vs archaludon [target=p0]: p0=11 p1=19 draw=0 unfinished=0 start_failed=0
+archaludon_rb vs archaludon [target=p1]: p0=14 p1=16 draw=0 unfinished=0 start_failed=0
+==> archaludon_rb vs archaludon: 27-33 (45.0%) share=2.0%
+
+
+=== gauntlet: agents/archaludon_rb (60 games/matchup) ===
+       archetype  share%     W-L    WR%
+          marnie    34.0  31-29   51.7
+        alakazam    20.0  28-32   46.7
+      kangaskhan     9.5  47-13   78.3
+        garchomp     8.5  31-29   51.7
+         okidogi     4.8  36-24   60.0
+  comfey_yveltal     4.8  42-18   70.0
+      chandelure     4.5  19-41   31.7
+         lopunny     3.8  57-3    95.0
+     megastarmie     3.5  50-10   83.3
+          rocket     2.0  55-5    91.7
+      archaludon     2.0  27-33   45.0
+----------------------------------------
+制圧度（シェア加重勝率）: 57.1%  (covered share 97.4%)
+最弱マッチアップ: chandelure 32%, archaludon 45%, alakazam 47%
+throughput: 660 games / 86s = 460.2 games/min (0.13 s/game)

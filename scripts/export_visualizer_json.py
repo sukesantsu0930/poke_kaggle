@@ -204,10 +204,10 @@ def run_game(agent0_module, agent1_module, deck0: list[int], deck1: list[int], m
 
 def main():
     parser = argparse.ArgumentParser(description="公式Visualizer用のローカル対戦JSONを出力します。")
-    parser.add_argument("--agent0", default="agents/cubchoo_ogerpon_rb")
-    parser.add_argument("--deck0", default="decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv")
-    parser.add_argument("--agent1", default="agents/cubchoo_ogerpon_rb")
-    parser.add_argument("--deck1", default="decks/candidates/2026-06-30_top5/winrate_1_cubchoo_ogerpon.csv")
+    parser.add_argument("--agent0", default="agents/dragapult_dusknoir_rb")
+    parser.add_argument("--deck0", default="decks/fleet/dragapult_dusknoir_paper.csv")
+    parser.add_argument("--agent1", default="agents/dragapult_rb")
+    parser.add_argument("--deck1", default="decks/fleet/popular_4_dragapult.csv")
     parser.add_argument("--output", default="experiments/visualizer/latest_replay.json")
     parser.add_argument("--agent-log", default="experiments/visualizer/latest_agent_log.json")
     parser.add_argument("--seed", type=int, default=0)
