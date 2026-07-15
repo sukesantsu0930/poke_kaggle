@@ -297,17 +297,23 @@ def compute_gae(values, outcome, gamma, lam):
 
 # ═══════════════════════════ 学習ループ ═══════════════════════════
 
-def collect(sampler, games, gamma, lam, critic):
-    """games 試合を回し、フラットな遷移バッチと統計を返す。"""
+def _seq_games(sampler, games):
+    """逐次収集: (outcome, archetype, steps) を1試合ずつ yield。"""
     policy = sampler.policy
-    X_list, k_list, logp_list, adv_list, ret_list, S_list = [], [], [], [], [], []
-    outcomes, by_arch = [], Counter()
-    unfinished = 0
     for _ in range(games):
         policy.net_log = []
         outcome, arch = sampler.play_one()
         steps = policy.net_log
         policy.net_log = None
+        yield outcome, arch, steps
+
+
+def build_batch(game_iter, gamma, lam, critic):
+    """(outcome, arch, steps) の列 → フラットな遷移バッチと統計（collect の共通部）。"""
+    X_list, k_list, logp_list, adv_list, ret_list, S_list = [], [], [], [], [], []
+    outcomes, by_arch = [], Counter()
+    unfinished = 0
+    for outcome, arch, steps in game_iter:
         if outcome is None:
             unfinished += 1
             continue
@@ -340,6 +346,64 @@ def collect(sampler, games, gamma, lam, critic):
         "steps": len(X_list),
     }
     return batch, stats
+
+
+def collect(sampler, games, gamma, lam, critic):
+    """games 試合を回し、フラットな遷移バッチと統計を返す（逐次経路）。"""
+    return build_batch(_seq_games(sampler, games), gamma, lam, critic)
+
+
+# ═══════════════ 並列対局収集（--workers > 1。2026-07-15 追加） ═══════════════
+# ボトルネックは cg エンジンの対局生成（CPU・逐次）なので、プロセスプールに撒く。
+# spawn 起動で各ワーカーが自前の GameSampler（エージェント+凍結プール+DLL）を1回だけ
+# 構築し、iter 毎に最新のネット重み（<100KB）を受け取って n 試合ぶんの遷移を返す。
+# fork は使わない（親プロセスの cg DLL 内部状態を子が引き継ぐ事故を避ける）。
+
+_W = {}   # ワーカープロセスの永続状態
+
+
+def _worker_init(agent_dir, deck, field_rows, max_steps, seed):
+    import os as _os
+    wseed = (seed * 1000003 + _os.getpid()) % (2 ** 31 - 1)
+    _W["sampler"] = GameSampler(Path(agent_dir), deck, field_rows, max_steps, wseed)
+    _W["rng"] = np.random.RandomState((wseed * 7919 + 13) % (2 ** 31 - 1))
+
+
+def _worker_play(job):
+    weights, n_games = job
+    sampler = _W["sampler"]
+    policy = sampler.policy
+    net = pn.PolicyNet(weights["W0"], weights["b0"], weights["W1"], weights["b1"],
+                       float(weights["beta"]), list(weights["vocab"]))
+    policy._net = net
+    policy._net_load_tried = True
+    policy.net_sample = True
+    policy.net_rng = _W["rng"]
+    games = []
+    for _ in range(n_games):
+        policy.net_log = []
+        outcome, arch = sampler.play_one()
+        steps = policy.net_log
+        policy.net_log = None
+        # IPC 転送量を半減（float32）。build_batch 側で float64 に戻す
+        slim = [{"X": st["X"].astype(np.float32), "k": st["k"], "logp": st["logp"]}
+                for st in (steps or [])]
+        games.append((outcome, arch, slim))
+    return games
+
+
+def collect_parallel(pool, workers, net, games, gamma, lam, critic):
+    """並列収集。バッチの中身・統計は collect と同一形式。"""
+    weights = {"W0": net.W0, "b0": net.b0, "W1": net.W1, "b1": net.b1,
+               "beta": net.beta, "vocab": net.vocab}
+    per = [games // workers + (1 if i < games % workers else 0) for i in range(workers)]
+    jobs = [(weights, n) for n in per if n > 0]
+
+    def gen():
+        for out in pool.imap_unordered(_worker_play, jobs):
+            yield from out
+
+    return build_batch(gen(), gamma, lam, critic)
 
 
 def evaluate_greedy(sampler, games_per_matchup, max_steps):
@@ -426,6 +490,8 @@ def main():
     ap.add_argument("--ckpt-every", type=int, default=10)
     ap.add_argument("--critic-init", default="models/value_v3.npz")
     ap.add_argument("--resume", help="latest.npz から重み再開（Adam 状態は初期化）")
+    ap.add_argument("--workers", type=int, default=1,
+                    help="対局収集の並列プロセス数（1=従来の逐次。サーバーは物理コア-1 推奨）")
     ap.add_argument("--out", default="build/ppo/marnie")
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--self-test", action="store_true",
@@ -481,6 +547,22 @@ def main():
     adam = AdamState(pol_params)
     ema = [p.copy() for p in pol_params]
 
+    # ── 並列収集プール（--workers > 1。spawn = cg DLL 状態の分離） ──
+    pool = None
+    if args.workers > 1:
+        import multiprocessing as mp
+        ctx = mp.get_context("spawn")
+        t0 = time.perf_counter()
+        pool = ctx.Pool(args.workers, initializer=_worker_init,
+                        initargs=(str(ROOT / args.agent), deck, field,
+                                  args.max_steps, args.seed))
+        # 各ワーカーの初期化（エージェント+凍結プールのロード）を1件ジョブで待つ
+        pool.map(_worker_play, [({"W0": net.W0, "b0": net.b0, "W1": net.W1,
+                                  "b1": net.b1, "beta": net.beta,
+                                  "vocab": net.vocab}, 0)] * args.workers)
+        print(f"parallel pool: {args.workers} workers ready "
+              f"({time.perf_counter() - t0:.0f}s)")
+
     hist_path = out / "history.csv"
     new_hist = not hist_path.exists()
     hist_f = open(hist_path, "a", newline="", encoding="utf-8")
@@ -492,7 +574,13 @@ def main():
 
     for it in range(1, args.iters + 1):
         t0 = time.perf_counter()
-        batch, cstats = collect(sampler, args.games_per_iter, args.gamma, args.lam, critic)
+        if pool is not None:
+            batch, cstats = collect_parallel(
+                pool, args.workers, net, args.games_per_iter,
+                args.gamma, args.lam, critic)
+        else:
+            batch, cstats = collect(sampler, args.games_per_iter,
+                                    args.gamma, args.lam, critic)
         n = len(batch["X"])
         if n == 0:
             print(f"iter {it}: no steps collected, skip")
@@ -554,6 +642,9 @@ def main():
             save_net(out / f"iter_{it:03d}.npz", net, vocab)
 
     hist_f.close()
+    if pool is not None:
+        pool.close()
+        pool.join()
     print(f"done. deploy candidate = {out / 'ema.npz'}  "
           f"(次: gauntlet --net {(out / 'ema.npz').relative_to(ROOT)} で L2 A/B)")
 

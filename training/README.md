@@ -101,11 +101,14 @@ uv run python training/extract_bc_dataset.py \
 # 2) BC 学習（時間ホールドアウト = P-10。最新日を --eval-days に）
 uv run python training/train_bc.py --data "data/imitation/alakazam_bc/*.npz" \
     --eval-days 2026-07-13 --out models/bc_alakazam_v1.npz
-# 3) PPO 仕上げ（サーバー）: BC npz を初期値に
+# 3) PPO 仕上げ（サーバー）: BC npz を初期値に。--workers で対局収集を並列化
+#    （2026-07-15 追加。ローカル4workersで収集≈3倍を実測。gs83 は 7 推奨）
+#    holdout は 07-14 フィールドの名前で指定する（旧 okidogi/lopunny は存在しない）
 docker compose run --rm ptcg uv run python training/train_ppo.py \
     --agent agents/alakazam_rb --deck decks/fleet/alakazam_top_0710.csv \
     --resume models/bc_alakazam_v1.npz \
-    --iters 60 --games-per-iter 256 --out build/ppo/alakazam
+    --exclude rocket,megastarmie,froslass_starmie \
+    --iters 60 --games-per-iter 256 --workers 7 --out build/ppo/alakazam
 ```
 
 - v1 実績（2026-07-15）: 教師 07-10+07-11 = 2,637決定 / holdout 07-13 = 3,617決定。
