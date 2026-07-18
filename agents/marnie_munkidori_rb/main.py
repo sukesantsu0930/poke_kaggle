@@ -6,7 +6,12 @@
 コンセプト:
   ふしぎなアメ → Grimmsnarl ex 着地（Punk Up で闇エネ5枚一括加速）= サブゴール達成。
   以後 Shadow Bullet 180+ベンチ30 を連打しつつ、Munkidori の Adrena-Brain で
-  自分のダメカンを相手に移す（420マント込みタンク + 削りの両立）。
+  自分のダメカンを相手に移す（タンク + 削りの両立）。
+
+2026-07-18 主流形適応（decks/fleet/marnie_mainstream_0718.csv、MAR_* トグル）:
+  ユキメノコ Freezing Shroud（特性持ち全員に毎チェックアップ1個）が Adrena-Brain の
+  弾を自給する。ペトレル×4 のトレーナーズサーチ + ボス×2 + アンフェアスタンプ +
+  ハンディファン×2。マント/ゼロシキ/ドドンパ線/モルペコは不採用（旧ルールは死文で残置）。
 """
 
 import os
@@ -44,26 +49,44 @@ from policy_base import (
     read_deck_csv as _read_deck_csv,
 )
 
+# ── 主流形適応トグル（2026-07-18。艦隊リスト改訂: winrate_2 → marnie_mainstream_0718） ──
+MAR_FROSLASS = os.environ.get("MAR_FROSLASS", "1") != "0"  # ユキワラシ/ユキメノコ線 + ポフィン条件修正
+MAR_PETREL = os.environ.get("MAR_PETREL", "1") != "0"      # ロケット団のペトレル（トレーナーズサーチ）
+MAR_STAMP = os.environ.get("MAR_STAMP", "1") != "0"        # アンフェアスタンプ（ACE SPEC）
+MAR_FAN = os.environ.get("MAR_FAN", "1") != "0"            # ハンディファン（どうぐ）
+MAR_BOSS = os.environ.get("MAR_BOSS", "1") != "0"          # ボスの指令（吊り出し）
+# 学習帯解錠（2026-07-18 監査: 主流形教師の before 監査（outside 150手）の負帯クラスタを
+# 150-800 で解錠。Lillie 44x / タンカ 18x / エネ付け先 22x / リトリート 11x。
+# greedy はほぼ不変・BC の候補回復。検証後の final 監査で coverage 99.1%）
+MAR_UNLOCK = os.environ.get("MAR_UNLOCK", "1") != "0"
+
 # ── カードID（デッキ設計_マリィ.md のリスト） ──
 
 IMPIDIMP = 646        # マリィのベロバー HP70（Filch: 1ドロー）
 MORGREM = 647         # マリィのギモー HP100
 GRIMMSNARL_EX = 648   # マリィのオーロンゲex HP320（Punk Up / Shadow Bullet 180+30）
-MORPEKO = 649         # マリィのモルペコ（Spiky Wheel 自己スケール）
+MORPEKO = 649         # マリィのモルペコ（旧リスト。主流形では不採用 = 死文）
 MUNKIDORI = 112       # マシマシラ（Adrena-Brain: ダメカン3個移動）
-DUNSPARCE = 305
-DUDUNSPARCE = 66
+DUNSPARCE = 305       # 旧リスト（死文）
+DUDUNSPARCE = 66      # 旧リスト（死文）
+SNORUNT = 860         # ユキワラシ HP70（たね・水。Chilly {W}10 = 打点は使わない）
+FROSLASS = 104        # ユキメノコ HP90（特性 Freezing Shroud: チェックアップ毎に
+                      # 特性持ち全員へダメカン1（ユキメノコ以外・両者）→ Adrena-Brain の弾）
 
 POFFIN = 1086
 POKE_PAD = 1152
 RARE_CANDY = 1079
 NIGHT_STRETCHER = 1097
-ENERGY_SEARCH = 1119
-ENERGY_RECYCLER = 1139
-HERO_CAPE = 1159
+ENERGY_SEARCH = 1119    # 旧リスト（死文）
+ENERGY_RECYCLER = 1139  # 旧リスト（死文）
+HERO_CAPE = 1159        # 旧リスト（死文）
+UNFAIR_STAMP = 1080     # ACE SPEC: 前の相手ターンに自分がきぜつ時のみ。両者手札を山へ・自分5枚/相手2枚ドロー
+HANDHELD_FAN = 1161     # どうぐ: 装着者がバトル場で攻撃を受けた時、攻撃側のエネ1個を相手ベンチへ
 LILLIE = 1227
 DAWN = 1231
-XEROSIC = 1197
+XEROSIC = 1197          # 旧リスト（死文）
+PETREL = 1219           # ロケット団のペトレル: 山からトレーナーズ1枚サーチ
+BOSS_ORDERS = 1182      # ボスの指令: 相手ベンチを吊り出し
 SPIKEMUTH_GYM = 1259
 DARK_ENERGY = 7
 
@@ -81,7 +104,9 @@ class MarniePolicy(BasePolicy):
     TAKE_MULLIGAN = True       # R-22【ハード・ユーザー決定 2026-07-07】マリガンは常にマックス引く
     ATTACKER_IDS = {GRIMMSNARL_EX, MORPEKO}
     ENERGY_IDS = {DARK_ENERGY}
-    LINE_PROTECT_IDS = MARNIE_LINE | {MUNKIDORI, RARE_CANDY}   # R-13
+    # R-13。MAR_FROSLASS: ユキメノコ（チップエンジン）も保護（ユキワラシは代替可なので外）
+    LINE_PROTECT_IDS = (MARNIE_LINE | {MUNKIDORI, RARE_CANDY}
+                        | ({FROSLASS} if MAR_FROSLASS else set()))
     SELF_SCALING_ATTACK_IDS = frozenset({ATK_SPIKY_WHEEL})     # R-10 例外
     ATTACK_ENERGY_TYPE = 7     # 悪
 
@@ -146,6 +171,21 @@ class MarniePolicy(BasePolicy):
             return 20 + dark * 40
         return super().attack_damage(obs, attacker, attack_id)
 
+    def _max_active_damage_vs(self, obs, target):
+        """バトル場の攻撃者が（リトリート無しで）target に出せる最大ダメージ。
+        MAR_BOSS の吊り出しキル判定に使う。"""
+        active = active_pokemon(obs)
+        if active is None or target is None:
+            return 0
+        best = 0
+        for plan in self.plan_attacks(obs):
+            if plan.needs_retreat or plan.attacker is not active:
+                continue
+            d = self.guard_damage(plan.damage, plan.attacker, target)
+            if d > best:
+                best = d
+        return best
+
     def _active_ko_by_attack_alone(self, obs):
         """E-2a の条件判定: 自分のバトル場ポケモンの攻撃ダメージだけで
         相手のバトル場を倒せるか（ダメカン移動を足さずに）。"""
@@ -168,7 +208,9 @@ class MarniePolicy(BasePolicy):
         if ctx == SelectContext.SETUP_ACTIVE_POKEMON:
             card = option_card(obs, opt)
             cid = card.id if card else None
-            table = {IMPIDIMP: 10, DUNSPARCE: 5, MUNKIDORI: 3, MORPEKO: 1}
+            # MAR_FROSLASS: ユキワラシは安い前座（マシマシラ=エンジンより前に置く。div-1 準拠）
+            table = {IMPIDIMP: 10, DUNSPARCE: 5, SNORUNT: (4 if MAR_FROSLASS else 0),
+                     MUNKIDORI: 3, MORPEKO: 1}
             return table.get(cid, 0), "S-1: setup active"
         if ctx == SelectContext.SETUP_BENCH_POKEMON:
             card = option_card(obs, opt)
@@ -178,6 +220,8 @@ class MarniePolicy(BasePolicy):
                 return (200 if fc.get(IMPIDIMP, 0) == 0 else 100), "S-2: setup bench Impidimp"
             if cid == DUNSPARCE:
                 return 80, "S-2: setup bench Dunsparce"
+            if cid == SNORUNT and MAR_FROSLASS:
+                return 75, "MAR_FRO: setup bench Snorunt"
             if cid == MUNKIDORI:
                 return 60, "S-2: setup bench Munkidori"
             return 0, "setup bench other"
@@ -238,6 +282,9 @@ class MarniePolicy(BasePolicy):
                 return 9000, "S-3: evolve Morgrem"
             if cid == DUDUNSPARCE:
                 return (8000, "evolve Dudunsparce") if self._safe_draws() >= 3 else (-1, "R-11")
+            if cid == FROSLASS and MAR_FROSLASS:
+                # Freezing Shroud 起動（毎チェックアップ、特性持ち全員に1個 → Adrena の弾）
+                return 7500, "MAR_FRO: evolve Froslass (Freezing Shroud)"
             return 7000, "generic evolve"
 
         if opt.type == OptionType.RETREAT:
@@ -250,6 +297,10 @@ class MarniePolicy(BasePolicy):
             if ready and active is not None and energy_count(active) >= (CARD_DB[aid].retreatCost if aid in CARD_DB else 0):
                 # div-14: 上位勢はジムサーチより先にリトリート（H=retreat/O=gym 15x・逆 0x）
                 return 3500, "retreat to promote tank"
+            # 監査 12x: タンク非準備時のリトリートも教師は指す（H=RETREAT/O=END の既知
+            # 残存クラスタ）→ 学習帯 150 で解錠（END=0 しか無い手番でのみ greedy が変わる）
+            if MAR_UNLOCK:
+                return 150, "MAR_UNLOCK: retreat learn band"
             return -100, "avoid retreat"
 
         if opt.type == OptionType.ATTACK:
@@ -290,6 +341,9 @@ class MarniePolicy(BasePolicy):
                 score += 400 if fc[MUNKIDORI] < 2 else 50
             elif cid == DUNSPARCE:
                 score += 300 if fc[DUNSPARCE] + fc[DUDUNSPARCE] < 2 else -300
+            elif cid == SNORUNT and MAR_FROSLASS:
+                # 2-2線: 1体は必ず立てる。3体目は無い（2枚採用）
+                score += 250 if fc[SNORUNT] + fc[FROSLASS] < 2 else -200
             elif cid == MORPEKO:
                 score += 100 if combat else -100
             # R-03/ベンチ規律
@@ -310,7 +364,12 @@ class MarniePolicy(BasePolicy):
         if cid == POFFIN:
             if self._safe_draws() < 2:
                 return -1, "R-11: deck thin (Poffin)"
-            need = (fc[IMPIDIMP] < 2) or (fc[DUNSPARCE] + fc[DUDUNSPARCE] < 1)
+            # MAR_FROSLASS【条件のバグ修正】: 旧条件はドドンパ線（主流形に不在 → 恒真）を
+            # 参照していた。ポフィンの対象（HP70以下のたね）を新リストに合わせる
+            if MAR_FROSLASS:
+                need = (fc[IMPIDIMP] < 2) or (fc[SNORUNT] + fc[FROSLASS] < 1)
+            else:
+                need = (fc[IMPIDIMP] < 2) or (fc[DUNSPARCE] + fc[DUDUNSPARCE] < 1)
             if not combat:
                 return (18000 if need else 8000), "S-2: Poffin"
             return (12000 if need else -1), "Poffin: rebuild"
@@ -333,6 +392,8 @@ class MarniePolicy(BasePolicy):
                 return 13000, "div-6: recover missing line piece"
             if dcc[DARK_ENERGY] >= 1 and not obs.current.energyAttached and hc[DARK_ENERGY] == 0:
                 return 11000, "Night Stretcher: recover energy"
+            if MAR_UNLOCK:
+                return 250, "MAR_UNLOCK: Stretcher learn band"
             return -1, "Night Stretcher: nothing"
         if cid == ENERGY_SEARCH:
             if hc[DARK_ENERGY] == 0 and not obs.current.energyAttached:
@@ -346,10 +407,39 @@ class MarniePolicy(BasePolicy):
             if any(pk.id == GRIMMSNARL_EX and not has_tool(pk) for pk in all_my_pokemon(obs)):
                 return 13500, "E-4: Hero's Cape (420 tank)"
             return -1, "save Hero's Cape"
+        if cid == HANDHELD_FAN and MAR_FAN:
+            # どうぐ: バトル場で被弾時、攻撃側のエネ1個を相手ベンチへ剥がす。
+            # 本命はタンク（オーロンゲ）に装着。他への装着は学習帯で候補だけ残す
+            if any(pk.id == GRIMMSNARL_EX and not has_tool(pk) for pk in all_my_pokemon(obs)):
+                return 12800, "MAR_FAN: Fan for tank"
+            if any(not has_tool(pk) for pk in all_my_pokemon(obs)):
+                return 3200, "MAR_FAN: wide band (BC sorts)"
+            return -1, "save Fan"
+        if cid == UNFAIR_STAMP and MAR_STAMP:
+            # ACE SPEC。合法時（前の相手ターンに自分がきぜつ）のみエンジンが提示。
+            # 帯は推測（相手手札が肥えている時に潰すのが本命。BC 並べ替え前提）
+            if self._safe_draws() < max(0, 5 - p["hand_size"]) + 1:
+                return -1, "R-11: deck thin (Stamp)"
+            if p["opp_hand"] >= 4:
+                return 12500, "MAR_STAMP: strip opp refresh"
+            if p["hand_size"] <= 4:
+                return 8000, "MAR_STAMP: refresh own hand"
+            return 3000, "MAR_STAMP: wide band (BC sorts)"
 
         # サポート（択一）
         if obs.current.supporterPlayed and data is not None and data.cardType == CardType.SUPPORTER:
             return -1, "Supporter already used"
+        if cid == PETREL and MAR_PETREL:
+            # トレーナーズ万能サーチ ×4 = 主流形の骨格。条件付きの帯は推測
+            # （広い正帯 3000-5000。最適な使いどころは BC が並べ替える前提）
+            if self._safe_draws() < 1:
+                return -1, "R-11: deck thin (Petrel)"
+            if (hc[RARE_CANDY] == 0 and hc[GRIMMSNARL_EX] >= 1
+                    and fc[IMPIDIMP] >= 1 and fc[GRIMMSNARL_EX] == 0):
+                return 5000, "MAR_PET: fetch Candy line"
+            if p["stadium_id"] != SPIKEMUTH_GYM and hc[SPIKEMUTH_GYM] == 0:
+                return 4600, "MAR_PET: fetch gym"
+            return 4200, "MAR_PET: fetch trainer (wide band)"
         if cid == DAWN:
             missing = (hc[GRIMMSNARL_EX] == 0 and fc[GRIMMSNARL_EX] == 0)
             if self._safe_draws() < 3:
@@ -362,10 +452,27 @@ class MarniePolicy(BasePolicy):
             if p["opp_hand"] >= 6:
                 return 4500, "E-3: Xerosic (big hand)"
             return -1, "save Xerosic"
+        if cid == BOSS_ORDERS and MAR_BOSS:
+            # 吊り出しキル: ベンチに「今の攻撃で倒せる」駒がいる時だけ自然帯。
+            # それ以外は学習帯 400（縛り/妨害ボスの条件は φ に無い → BC が拾う）
+            if combat:
+                for pk in (opp_state(obs).bench or []):
+                    if pk is None:
+                        continue
+                    rem = pk.hp - damage_on(pk)
+                    if 0 < rem <= self._max_active_damage_vs(obs, pk):
+                        return 5300, "MAR_BOSS: pull benched kill"
+            return 400, "MAR_BOSS: save Boss (learn band)"
         if cid == LILLIE:
             if self._safe_draws() < 6:
                 return -1, "R-11: deck thin (Lillie)"
-            return (4000 if p["hand_size"] <= 4 else -1), "Lillie (refresh)"
+            if p["hand_size"] <= 4:
+                return 4000, "Lillie (refresh)"
+            # 監査 44x: 主流形教師は手札>4でもリーリエを切る（ダーン−3・ゼロシキ0の
+            # 主流形はドローサポートがリーリエに集中）→ 学習帯で解錠
+            if MAR_UNLOCK:
+                return 300, "MAR_UNLOCK: Lillie learn band"
+            return -1, "Lillie (refresh)"
         return 1000, "generic play"
 
     # ── ATTACH（S-5 + R-10 + R-08） ──
@@ -382,6 +489,15 @@ class MarniePolicy(BasePolicy):
                 return 13000, "E-4: Cape on Grimmsnarl"
             return -1, "save Cape"
 
+        if cid == HANDHELD_FAN and MAR_FAN:
+            if has_tool(target):
+                return -1, "MAR_FAN: target has tool"
+            if tid == GRIMMSNARL_EX:
+                return 12800, "MAR_FAN: Fan on Grimmsnarl"
+            # 他ターゲットは学習帯（バトル場の前座に付ける手を候補に残す）
+            act = active_pokemon(obs)
+            return (600 if target is act else 300), "MAR_FAN: learn band target"
+
         if cid != DARK_ENERGY:
             return -500, "skip non-dark"
         if obs.current.energyAttached:
@@ -390,25 +506,33 @@ class MarniePolicy(BasePolicy):
         e = energy_count(target)
         dark_on = sum(1 for ec in (getattr(target, "energyCards", None) or [])
                       if ec.id == DARK_ENERGY)
+        # MAR_UNLOCK（監査 22x）: 対象外の −1 を学習帯 200 で解錠
+        # （2枚目のマシマシラ / ユキ線への手張り等を候補に残す）。
+        # ただしオーロンゲ線の3枚目は解錠しない【2026-07-18 修正】: ライン最大コストが
+        # 悪2（Shadow Bullet [7,7]）なので check_agent の R-10 外形検査（over-fill）に
+        # 抵触する（10戦で NG 1 を実測 → -1 に差し戻して合格）。マシマシラ（Mind Bend は
+        # 超コストで悪エネでは永遠に払えない = R-10 検査対象外）とユキ線（水コスト・同上）
+        # のみ解錠を維持
+        _neg = 200 if MAR_UNLOCK else -1
         if tid == MUNKIDORI:
-            score = 8300 if dark_on == 0 else -1   # Adrena-Brain 起動には1枚で十分
+            score = 8300 if dark_on == 0 else _neg   # Adrena-Brain 起動には1枚で十分
             reason = "S-5: enable Adrena-Brain"
         elif tid == GRIMMSNARL_EX:
-            score = 8200 if e < 2 else -1          # R-10: Shadow Bullet コスト2
+            score = 8200 if e < 2 else -1            # R-10: Shadow Bullet コスト2（解錠禁止）
             reason = "S-5: fuel Shadow Bullet"
         elif tid == MORGREM:
             # div-10 は棄却（2026-07-12 二分探索: 対旧版200戦 43.3%、div-9/10 除去で 52.5% に
             # 回復 = L3 は +3pt でも L2 の直接対決 −7pt の主因。L2改善∧L3非悪化を満たさず差し戻し）
-            score = 8100 if e < 2 else -1
+            score = 8100 if e < 2 else -1            # R-10（解錠禁止）
             reason = "S-5: pre-load line"
         elif tid == IMPIDIMP:
-            score = 8000 if e < 2 else -1          # ライン先置き（進化後コスト2まで）
+            score = 8000 if e < 2 else -1            # ライン先置き（進化後コスト2まで・R-10）
             reason = "S-5: pre-load line"
         elif tid == MORPEKO:
             score = 7900 + dark_on * 10            # 自己スケール（R-10 例外）
             reason = "S-5: Spiky Wheel scaling"
         else:
-            return -1, "attach: wrong target"
+            return _neg, "attach: wrong target"
         if score > 0 and self.is_threatened(target):
             score -= 2000   # R-08: 負け筋への追い銭防止
         return score, reason
@@ -436,11 +560,29 @@ class MarniePolicy(BasePolicy):
                     score, reason = 4500, "promote Morgrem"
                 elif cid == IMPIDIMP:
                     score, reason = 4000, "promote Impidimp"
+                elif cid == SNORUNT and MAR_FROSLASS:
+                    # 安い犠打（1進化素材だが2枚あり、ライン駒より軽い）
+                    score, reason = 3800, "MAR_FRO: promote Snorunt (cheap sac)"
+                elif cid == FROSLASS and MAR_FROSLASS:
+                    # チップエンジンだが非ex1枚取り = マシマシラよりは前に出す
+                    score, reason = 3100, "MAR_FRO: promote Froslass over Munkidori"
                 elif cid == MUNKIDORI:
                     score, reason = 3000, "div-1: protect Munkidori (engine)"
                 else:
                     score, reason = 1000, "promote other"
                 return self.default_score_promote(obs, opt, score, reason)   # R-08
+            # 相手側の吊り出し先（ボスの指令）
+            if MAR_BOSS and card is not None:
+                hp = getattr(card, "hp", 0) or 0
+                rem = hp - damage_on(card)
+                dmg = self._max_active_damage_vs(obs, card)
+                cdata = CARD_DB.get(cid)
+                if 0 < rem <= dmg:
+                    bonus = 2000 if (cdata is not None and getattr(cdata, "ex", False)) else 0
+                    return 5000 + bonus - rem, "MAR_BOSS: pull kill target"
+                # 非キル時: エネ無しの駒を縛る > 低残HP（相対順序のみの推測帯）
+                stall = 200 if energy_count(card) == 0 else 0
+                return 1000 + stall + max(0, 300 - rem) // 3, "MAR_BOSS: pull stall target"
             return 1000, "opp switch"
 
         if ctx in (SelectContext.DAMAGE, getattr(SelectContext, "DAMAGE_COUNTER", SelectContext.DAMAGE)):
@@ -514,6 +656,25 @@ class MarniePolicy(BasePolicy):
                 return base + (30 if hc[DARK_ENERGY] == 0 else -10), "take energy"
             if cid == HERO_CAPE:
                 return base + 20, "take Cape"
+            if MAR_FROSLASS and cid == SNORUNT:
+                return base + (30 if fc[SNORUNT] + fc[FROSLASS] < 2 else -20), "MAR_FRO: take Snorunt"
+            if MAR_FROSLASS and cid == FROSLASS:
+                return base + (35 if fc[SNORUNT] >= 1 and fc[FROSLASS] == 0 else 0), "MAR_FRO: take Froslass"
+            if MAR_PETREL and cid == SPIKEMUTH_GYM:
+                return base + (75 if p["stadium_id"] != SPIKEMUTH_GYM else -20), "MAR_PET: take gym"
+            if MAR_PETREL and cid == POFFIN:
+                need_basics = fc[IMPIDIMP] < 2 or (fc[SNORUNT] + fc[FROSLASS] < 1)
+                return base + (55 if (not combat and need_basics) else 5), "MAR_PET: take Poffin"
+            if MAR_PETREL and cid == BOSS_ORDERS:
+                return base + (35 if combat else 5), "MAR_PET: take Boss"
+            if MAR_PETREL and cid == HANDHELD_FAN:
+                bare = any(pk.id == GRIMMSNARL_EX and not has_tool(pk)
+                           for pk in all_my_pokemon(obs))
+                return base + (25 if bare else 0), "MAR_PET: take Fan"
+            if MAR_PETREL and cid == UNFAIR_STAMP:
+                return base + 15, "MAR_PET: take Stamp"
+            if MAR_PETREL and cid == NIGHT_STRETCHER:
+                return base + 10, "MAR_PET: take Stretcher"
             return base, "take other"
 
         if ctx == SelectContext.ATTACH_FROM:
@@ -546,6 +707,8 @@ class MarniePolicy(BasePolicy):
                 return 100, "S-2: bench Impidimp"
             if cid == DUNSPARCE:
                 return 80, "S-2: bench Dunsparce"
+            if cid == SNORUNT and MAR_FROSLASS:
+                return 75, "MAR_FRO: bench Snorunt"
             if cid == MUNKIDORI:
                 return 70, "S-2: bench Munkidori"
             # div-5 は棄却（2026-07-08: 「リスト外の駒は出さない」を試したが 7/6 ホールドアウトで

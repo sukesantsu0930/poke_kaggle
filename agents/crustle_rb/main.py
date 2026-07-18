@@ -111,6 +111,15 @@ CR3 = os.environ.get("CRUSTLE_CR3", "0") != "0"
 CR6 = os.environ.get("CRUSTLE_CR6", "1") != "0"    # 死にポフィン焼却（山Dwebble 0 ∧ 非LO）
 CR8 = os.environ.get("CRUSTLE_CR8", "1") != "0"    # {G}色補正: R-10 の手前で主砲 Scissors を修理
 CR10 = os.environ.get("CRUSTLE_CR10", "1") != "0"  # スタジアム特性のホワイトリスト解禁
+# ── ルール成熟 第2弾その2（2026-07-18 監査 CL1/CL4/CL6/CL7/CL9/CL10）。
+#    全て学習帯（150〜800）の解錠 = 現行 greedy を追い越さず候補空間だけ回復
+#    （EXP-027 の方法論。ネットは EXP-028 で再学習予定なので負帯の解錠を恐れない） ──
+CR4 = os.environ.get("CRUSTLE_CR4", "1") != "0"    # hold Switch の条件付き学習帯（CL1 139件）
+CR7 = os.environ.get("CRUSTLE_CR7", "1") != "0"    # hold Hand Trimmer の学習帯（CL4 66件）
+CR9 = os.environ.get("CRUSTLE_CR9", "1") != "0"    # setup 拘束ボスの学習帯（CL6 52件）
+CR11 = os.environ.get("CRUSTLE_CR11", "1") != "0"  # Xerosic 中間ハンド帯の setup 解錠（CL9 27件）
+CR12 = os.environ.get("CRUSTLE_CR12", "1") != "0"  # Jumbo 50-79 帯の学習帯（CL10 23件）
+CR8C = os.environ.get("CRUSTLE_CR8C", "1") != "0"  # Kanga 4枚目 Spiky/Mist の学習帯（CL7 39件）
 
 
 def _energy_types(pokemon):
@@ -452,6 +461,13 @@ class CrustleWallPolicy(BasePolicy):
                 return 16000, "C-6/E-2: Jumbo Ice Cream (heal 80)"
             if dmg >= 50 and self.is_threatened(active):
                 return 15500, "E-2: Jumbo (escape KO range)"
+            # CR12: 学習帯解錠（監査 CL10 23件。C-6 採掘でも80未満の早撃ちが21%）。
+            # 余剰ジャンボ（hc>=2）or 対alakazam の太い手札（Powerful Hand 増嵩見込み
+            # = is_threatened が変動打点を過小評価する穴）のみ — ×4 の枯渇を防ぐ
+            if (CR12 and dmg >= 50
+                    and (p["hc"][JUMBO] >= 2
+                         or (self.t["matchup"] == "alakazam" and p["opp_hand"] >= 8))):
+                return 550, "CR12: Jumbo early (learn band)"
             return -1, "C-6: hold Jumbo (damage < 80)"
         if cid == SWITCH_ITEM:
             return self._score_switch_item(obs)
@@ -459,6 +475,10 @@ class CrustleWallPolicy(BasePolicy):
             # E-3: 自傷なし（自分5枚以下）かつ相手手札が太い時だけ
             if p["opp_hand"] >= 7 and p["hand_size"] <= 5:
                 return 12500, "E-3: Hand Trimmer (opp hand tax)"
+            # CR7: 学習帯解錠（監査 CL4 66件。教師は純カードアド差2枚+なら
+            # 自傷込みでも刈る — 対フーディンの Powerful Hand 恒常キャップ）
+            if CR7 and p["opp_hand"] - p["hand_size"] >= 2:
+                return 600, "CR7: Hand Trimmer (learn band)"
             return -1, "hold Hand Trimmer"
 
         # サポート（択一）
@@ -474,6 +494,10 @@ class CrustleWallPolicy(BasePolicy):
                     return 16800, "C-8: Xerosic (big hand)"
                 if p["opp_hand"] >= 4 and combat:
                     return 5000, "C-8: Xerosic (mid hand)"
+                # CR11: 学習帯解錠（監査 CL9 27件。C-8 カーブは 4-5枚でも使用率48% —
+                # 中間ハンド帯の setup 制限を学習帯で開放。帯順序で本命サポートが優先）
+                if CR11 and p["opp_hand"] >= 4:
+                    return 450, "CR11: Xerosic mid hand (learn band)"
                 return -1, "save Xerosic"
             if cid == HILDA:
                 if (fc[CRUSTLE] < 2 and hc[CRUSTLE] == 0
@@ -533,12 +557,27 @@ class CrustleWallPolicy(BasePolicy):
                 and p["hc"][JUMBO] == 0
                 and any(energy_count(pk) >= 3 for pk in bench_wall)):
             return 10500, "E-1: rotate broken wall"
+        # CR4: 学習帯解錠（監査 CL1 139件 = 最大クラスタ。教師は4ゲート外で Switch を
+        # 大量使用 — セットアップ中のガルーラ前出し/先行ローテ）。CR3 棄却（garchomp −10）
+        # の教訓により自然帯昇格・相手 ex 検知は入れない。対LO は Switch=拘束破りの資源。
+        # 条件: 在庫に余裕（手札2枚+）or ガルーラエンジンを前へ出せる形
+        if (CR4 and not self._is_lo()
+                and (p["hc"][SWITCH_ITEM] >= 2
+                     or (active.id in (DWEBBLE, CRUSTLE) and bench_kanga))):
+            return 500, "CR4: Switch (learn band)"
         return -1, "hold Switch"
 
     def _score_boss(self, obs, combat):
         """C-11: ボスは温存気味（使用率13%）。スナイプ（低HPシステム札の取り切り）か
         拘束（エネ0・にげ重の吊り出し）が成立する時だけ。リーサルは基盤 R-07 が昇格する。"""
         if not combat:
+            # CR9: 学習帯解錠（監査 CL6 52件。教師は setup 中に拘束ボスで相手の
+            # テンポを止めて壁を完成させる）。1枚目（未使用）限定 — ボス×2 の
+            # 2枚目は終盤の詰め（R-07 リーサル吊り）に温存
+            if (CR9 and self.p["dc"][mt.BOSS] == 0
+                    and any(energy_count(t) == 0 and retreat_cost(t) >= 2
+                            for t in opp_bench_pokemon(obs))):
+                return 500, "CR9: Boss stall (learn band)"
             return -1, "save Boss (setup)"
         plans = self.plan_attacks(obs)
         max_dmg = max((pl.damage for pl in plans if not pl.needs_retreat), default=0)
@@ -596,6 +635,12 @@ class CrustleWallPolicy(BasePolicy):
                 score, reason = base, "C-4: load Crustle"
         elif tid == KANGA:
             if e >= 3:
+                # CR8c: 学習帯解錠（監査 CL7 39件・33/39 が対alakazam 後半。前で受ける
+                # 壁への4枚目 Spiky=返しダメカン2スタック / Mist=技効果無効は防御価値）。
+                # アクティブの壁 ∧ 手札エネ余剰（>=2）のみ — ベンチへの過剰投資はしない
+                if (CR8C and cid in (SPIKY, MIST) and is_active
+                        and p["hand_energy"] >= 2):
+                    return 400, "CR8c: stack defense energy (learn band)"
                 return -1, "R-10: Kangaskhan full (3)"
             base = {MIST: 8200, SPIKY: 8100, GROW: 7800, G_ENERGY: 7800}[cid]
             if p["opp_pierce_ex"]:

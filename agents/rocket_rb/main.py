@@ -13,7 +13,7 @@ v1 の割り切り（デッキ設計md「未決事項」）:
   - 上位ドクトリン採掘は未実施 = スコア数値は暫定
   - イレイザーボールの任意トラッシュ（+60×2）は常に選ばない（リーサルは160の保守値）
   - ミミッキュのほうせきごっこは撃たない（コピー打点の評価が要る）
-  - サカキ吊り出しのリーサル統合なし（judge_lethal は mt.BOSS 経路のみ）
+  - サカキ吊り出しは v1.2 で統合済み（div-RK7: 9200 帯 + judge_lethal の route=="sakaki"）
 """
 
 import os
@@ -38,18 +38,22 @@ from policy_base import (
     BasePolicy,
     CARD_DB,
     DIAG,
+    LETHAL_BAND,
     active_pokemon,
     all_my_pokemon,
     energy_count,
     get_card,
+    hand_ids,
     has_tool,
     is_ex,
     make_agent,
     my_state,
     opp_active_pokemon,
+    opp_bench_pokemon,
     opp_state,
     option_card,
     option_target,
+    prize_value,
     read_deck_csv as _read_deck_csv,
     retreat_cost,
     weakness_value,
@@ -96,6 +100,14 @@ ROC_RK1A = os.environ.get("ROC_RK1A", "1") != "0"  # div-RK1a: タマンチュ�
 ROC_RK3 = os.environ.get("ROC_RK3", "1") != "0"    # div-RK3: レシーバー在庫1枚（今番使えば枯れる）でも使用可
 ROC_RK5A = os.environ.get("ROC_RK5A", "1") != "0"  # div-RK5a: チャージアップ満タン時も低帯で常時許可（無料アクション）
 ROC_RK6 = os.environ.get("ROC_RK6", "1") != "0"    # div-RK6: ポケパッド combat 禁止閾値 rockets>=4 → >=6（盤面=打点）
+# ── 第2弾（2026-07-18 rule_audit 第2サイクル。設計md v1.2 節参照） ──
+# RK7 は挙動変更系（新しい行動価値の条件付き定義）= 単独 A/B。他は学習帯（低正帯の解錠）。
+ROC_RK7 = os.environ.get("ROC_RK7", "1") != "0"    # div-RK7: サカキ吊り出しKO 9200 + リーサル統合
+ROC_RK2A = os.environ.get("ROC_RK2A", "1") != "0"  # div-RK2a: 無料にげる（実効コスト0）1500
+ROC_RK2B = os.environ.get("ROC_RK2B", "1") != "0"  # div-RK2b: 被KO圏×ベンチ撃てる時の脱出にげる 1300
+ROC_RK4 = os.environ.get("ROC_RK4", "1") != "0"    # div-RK4: リーリエ死に手札リセット 300（end直上）
+ROC_RK9 = os.environ.get("ROC_RK9", "1") != "0"    # div-RK9: ロケットエネ→タマンチュラ 7200（在庫条件）
+ROC_RK10 = os.environ.get("ROC_RK10", "1") != "0"  # div-RK10: バングル非ルール持ち全般 低帯
 # 自軍アタッカーの攻撃タイプ（弱点計算はアタッカー毎。クラス属性1本だと
 # ミュウツーの超打点まで草弱点で2倍にしてしまう）
 ATTACKER_TYPE = {TAROUNTULA: 1, SPIDOPS: 1, ARTICUNO: 3, MEWTWO: 5, MIMIKYU: 5}
@@ -262,6 +274,83 @@ class RocketPolicy(BasePolicy):
                 best_pk, best_rank = pk, r
         return best_pk, best_rank
 
+    # ═══════════════ div-RK7: サカキ吊り出しKO（挙動変更系・単独A/B） ═══════════════
+    # サカキ(1218)の自分側入替は必須（"If you do" = 吊り出しは入替の条件付きおまけ）。
+    # → 入替後に撃てるのはベンチの撃てるアタッカーのみ。前提条件はベンチ側で判定する。
+
+    def _sakaki_gust_ko(self, obs, min_prize=0):
+        """(target, attacker, attack_id) or None。相手ベンチに
+        「ベンチアタッカーの実効打点 >= 残HP」の個体が居るか（サイド価値→低HP順）。"""
+        plans = [(pk, aid, self.attack_damage(obs, pk, aid))
+                 for pk in my_state(obs).bench if pk is not None
+                 for aid in self._payable(obs, pk)]
+        if not plans:
+            return None
+        best = None
+        for target in opp_bench_pokemon(obs):
+            if prize_value(target) < min_prize:
+                continue
+            for pk, aid, dmg in plans:
+                eff = self.guard_damage(dmg, pk, target)
+                if eff >= target.hp:
+                    key = (prize_value(target), -target.hp, eff)
+                    if best is None or key > best[0]:
+                        best = (key, target, pk, aid)
+        if best is None:
+            return None
+        return best[1], best[2], best[3]
+
+    def _active_ko_prize(self, obs):
+        """サカキ無しで相手バトル場をKOできるならそのサイド価値、できなければ0。
+        div-RK7 の温存ガード入力（同価値のKOが既にあるならサカキ3枚を温存）。"""
+        opp_act = opp_active_pokemon(obs)
+        if opp_act is None:
+            return 0
+        for plan in self.plan_attacks(obs):
+            if self.guard_damage(plan.damage, plan.attacker, opp_act) >= opp_act.hp:
+                return prize_value(opp_act)
+        return 0
+
+    def judge_lethal(self, obs):
+        """R-07 に div-RK7 のサカキ吊りKO経路を追加（mt.BOSS 経路は基盤のまま）。"""
+        lethal = super().judge_lethal(obs)
+        if lethal is not None or not ROC_RK7:
+            return lethal
+        if obs.current.supporterPlayed or SAKAKI not in hand_ids(obs):
+            return None
+        ko = self._sakaki_gust_ko(obs, min_prize=len(my_state(obs).prize))
+        if ko is None:
+            return None
+        target, attacker, aid = ko
+        return {"route": "sakaki", "target": target, "attacker": attacker,
+                "attack_id": aid, "needs_retreat": False}
+
+    def apply_protocol(self, obs, opt, score, reason):
+        """route=="sakaki" の昇格を追加（基盤の boss 経路と同型。ATTACK 昇格と
+        RETREAT ブロックは基盤の共通処理がそのまま効く）。"""
+        lethal = self.t.get("lethal")
+        if lethal is not None and lethal.get("route") == "sakaki":
+            yi = obs.current.yourIndex
+            if opt.type == OptionType.ATTACK:
+                # 基盤 R-07 の ATTACK 昇格（attackId 一致）を抑止。ワナイダーは4枚積みで
+                # attackId を共有するため、サカキ未使用のうちにバトル場ワナイダーの通常攻撃
+                # が LETHAL_BAND へ昇格し PLAY サカキと同点タイ（先頭 index 勝ち）→ 相手
+                # バトル場を殴ってターン終了 = リーサル破棄の誤爆があった。サカキ解決後は
+                # route が再計算で消える（サカキが手札を離れる）ので KO 攻撃は E-1 2400 で成立
+                return score, reason
+            if opt.type == OptionType.PLAY:
+                card = option_card(obs, opt)
+                if card is not None and card.id == SAKAKI:
+                    return LETHAL_BAND, "div-RK7: LETHAL Sakaki"
+            if obs.select.context in (SelectContext.SWITCH, SelectContext.TO_ACTIVE):
+                card = option_card(obs, opt)
+                if getattr(opt, "playerIndex", yi) != yi:
+                    if card is not None and card is lethal["target"]:
+                        return LETHAL_BAND, "div-RK7: LETHAL Sakaki target"
+                elif card is not None and card is lethal["attacker"]:
+                    return LETHAL_BAND - 1, "div-RK7: LETHAL promote attacker"
+        return super().apply_protocol(obs, opt, score, reason)
+
     # ═══════════════ セットアップコンテキスト（S-1） ═══════════════
 
     def score_setup_context(self, obs, opt):
@@ -347,11 +436,19 @@ class RocketPolicy(BasePolicy):
         if desired is not None and desired is not active:
             # サカキ（8900）があればそちらが先に選ばれる（エネ消費なし+吊り出し付き）
             return 1900, "E-2: retreat to promote attacker"
-        if not self._payable(obs, active):
-            ready = any(pk is not None and self._payable(obs, pk)
-                        for pk in my_state(obs).bench)
-            if ready:
-                return 2000, "unstick: retreat dead active"
+        bench_ready = any(pk is not None and self._payable(obs, pk)
+                          for pk in my_state(obs).bench)
+        if not self._payable(obs, active) and bench_ready:
+            return 2000, "unstick: retreat dead active"
+        if ROC_RK2A and retreat_cost(active) == 0:
+            # div-RK2a: 無料にげる（ミミッキュ等）— 設計mdの「無料ピボット枠」の実装。
+            # エネを捨てないので資源損ゼロ。往復振動はエンジンの1ターン1回制限が抑止
+            return 1500, "div-RK2a: free retreat (cost 0)"
+        if (ROC_RK2B and bench_ready
+                and self.opp_max_damage(obs) >= active.hp):
+            # div-RK2b: 被KO圏の前をベンチの撃てるアタッカーへ退避（エネ支払いは許容。
+            # 学習帯 = ピボット1900/詰み解消2000より下、攻撃1200帯より上）
+            return 1300, "div-RK2b: escape KO range"
         return -100, "avoid retreat"
 
     # ── ATTACK（E-1） ──
@@ -446,6 +543,12 @@ class RocketPolicy(BasePolicy):
                 return (15000 if not combat else 5200), "E-5: Athena (main draw)"
             return -1, "Athena: hand big enough"
         if cid == SAKAKI:
+            if ROC_RK7:
+                ko = self._sakaki_gust_ko(obs)
+                if ko is not None and self._active_ko_prize(obs) < prize_value(ko[0]):
+                    # div-RK7: 吊り出しKOがバトル場KOよりサイド価値で上回る（or 唯一のKO）
+                    # ときだけ 9200。同価値ならバトル場KO（E-1）を取りサカキ温存
+                    return 9200, "div-RK7: Sakaki gust KO"
             desired, rank = self._desired_attacker(obs)
             active = active_pokemon(obs)
             if active is not None and desired is not None and desired is not active:
@@ -463,7 +566,14 @@ class RocketPolicy(BasePolicy):
         if cid == LILLIE:
             if self._safe_draws() < 2:
                 return -1, "R-11: deck thin (Lillie)"
-            return (5300 if p["hand_size"] <= 4 else -1), "E-5: Lillie"
+            if p["hand_size"] <= 4:
+                return 5300, "E-5: Lillie"
+            if ROC_RK4:
+                # div-RK4: 死に手札リセット — end(0) の直上 300。他の正帯（攻撃1200+・
+                # にげる1300+・進化/手張り等）が1つでもあればそちらが勝つ = 「end 以外の
+                # 正帯候補が無い番」だけ greedy で浮上する自己条件化。R-11 ガードは上で維持
+                return 300, "div-RK4: Lillie (dead hand reset)"
+            return -1, "E-5: Lillie"
         return 1000, "generic play"
 
     # ── ATTACH（S-5 + R-10） ──
@@ -488,6 +598,11 @@ class RocketPolicy(BasePolicy):
                 return -1, "target has tool"
             if tid == SPIDOPS:
                 return 12400, "Brave Bangle on Spidops (+30 vs ex)"
+            if ROC_RK10 and tid in ROCKET_POKES and tid != MEWTWO:
+                # div-RK10: 非ルール持ち全般へ低帯拡張（ミュウツーex はルール持ち=効果対象外）。
+                # フリーザー（ダークフロスト120→150）を微優先。序列は学習帯 = greedy では
+                # ワナイダー12400が常に先勝ち、居ない盤面でのみ浮上
+                return (600 if tid == ARTICUNO else 300), "div-RK10: Bangle non-rule-box"
             return -1, "save Bangle"
 
         if cid not in self.ENERGY_IDS:
@@ -522,6 +637,13 @@ class RocketPolicy(BasePolicy):
                 return 8200, "S-5: Rocket Energy -> Articuno (+60)"
             if tid == SPIDOPS and GRASS in ids and units < 2:
                 return 7400, "S-5: Rocket Energy fills colorless"
+            if (ROC_RK9 and tid == TAROUNTULA and units == 0
+                    and (self.p["hc"][ROCKET_E] >= 2
+                         or self.p["fc"][MEWTWO] + self.p["hc"][MEWTWO] == 0)):
+                # div-RK9: 1枚で2個ぶん（units は eff_units 勘定）= 進化ターン即ロケット
+                # ラッシュ。在庫条件 = 手札に2枚目あり or ミュウツー不在（温存先が無い）。
+                # 学習帯 7200 = 既存の全 正帯attach（7300〜8600）より下 = greedy 不変
+                return 7200, "div-RK9: Rocket Energy -> Tarountula"
             return -1, "save Rocket Energy"
         if cid == WATER:
             if tid == ARTICUNO and WATER not in ids:
@@ -563,6 +685,16 @@ class RocketPolicy(BasePolicy):
                 return self.default_score_promote(obs, opt, score, "E-2: promote attacker")
             # 相手側（サカキ吊り出し）: 低HPのシステム札を引きずり出す
             hp = getattr(card, "hp", 999) if card else 999
+            if ROC_RK7 and card is not None:
+                # div-RK7: 今番の実効打点でKOできる吊り先を最優先（サイド価値→低HP。
+                # judge_lethal の (prize, -hp) キーと同順 = リーサル経路と整合）
+                best_eff = 0
+                for pk in all_my_pokemon(obs):
+                    for aid in self._payable(obs, pk):
+                        eff = self.guard_damage(self.attack_damage(obs, pk, aid), pk, card)
+                        best_eff = max(best_eff, eff)
+                if best_eff >= hp:
+                    return 20000 + prize_value(card) * 1000 - hp, "div-RK7: drag killable"
             return 10000 - hp, "Sakaki: drag lowest HP"
 
         if ctx in (SelectContext.DAMAGE, SelectContext.DAMAGE_COUNTER):

@@ -121,6 +121,15 @@ ALA_XERO_BOSSFIX = os.environ.get("ALA_XERO_BOSSFIX", "1") != "0"  # ボス枠�
 ALA_SD_EVOLVE = os.environ.get("ALA_SD_EVOLVE", "1") != "0"        # Alakazam/Kadabra 進化の sd ガード撤去（div-12 と同型）
 ALA_ENRICH_TARGETS = os.environ.get("ALA_ENRICH_TARGETS", "1") != "0"  # Enriching の付与先に ABRA_LINE を追加
 
+# ── ルール成熟第2弾（2026-07-18 第6弾。build/rule_audit/2026-07-17/alakazam_after.jsonl 起点、
+#    被覆率 93.3% → ゲート 95%。学習帯パターン: 低正帯 150〜800 で解錠 = greedy 挙動ほぼ不変で
+#    候補空間だけ回復し、並べ替えは学習（BC/PPO）に委ねる）──
+ALA_XERO_MIRROR = os.environ.get("ALA_XERO_MIRROR", "1") != "0"        # ミラーで Xerosic の op_hand ゲート 5→4
+ALA_RETREAT_ESCAPE = os.environ.get("ALA_RETREAT_ESCAPE", "1") != "0"  # RETREAT 全面禁止2種を学習帯 200 で解錠
+ALA_ATTACH_PIVOT = os.environ.get("ALA_ATTACH_PIVOT", "1") != "0"      # 超エネの非 Abra ライン付与を学習帯 600 で解錠
+ALA_SD_ABILITY = os.environ.get("ALA_SD_ABILITY", "1") != "0"          # Run Away Draw の sd ガード掛かりを学習帯 250 へ
+# ALA_2ND_ENERGY は棄却（check_agent の R-10 外形検査と衝突。ATTACH 節のコメント参照）
+
 
 def _prize_count(pokemon):
     """参照実装版のサイド価値（Legacy Energy / Lillie's Pearl 補正付き）。"""
@@ -488,7 +497,7 @@ class AlakazamPolicy(BasePolicy):
         return {
             "matchup": matchup, "is_lo": is_lo, "is_wall": is_wall,
             "is_marnie": is_marnie, "dis_pokemon": dis_pokemon,
-            "ko_recent": self._ko_recent,
+            "ko_recent": self._ko_recent, "gravity": gravity,
             "field_counts": field_counts, "hand_counts": hand_counts,
             "discard_counts": discard_counts, "my_field": my_field,
             "abra_line": abra_line_on_field, "dunsparce_line": dunsparce_line_on_field,
@@ -917,7 +926,13 @@ class AlakazamPolicy(BasePolicy):
                 if ALA_XERO_BOSSFIX:
                     boss_yield = (boss_yield and hc[BOSS] > 0
                                   and not state.supporterPlayed)
-                if p["op_hand_count"] >= 5 and not boss_yield:
+                # ALA_XERO_MIRROR（2026-07-18 第6弾①）: ミラー（Powerful Hand = 手札×20 の
+                # 相手）では手札 4→3 化も打点上限 −20 の恒常抑制になるため op_hand ゲートを
+                # 5→4 へ緩和。帯 2900 は不変（帯昇格は 07-12 に両日悪化で棄却済み）。
+                # ミラーは対称戦でルール A/B 検出不能 → 採否は被覆率 + 非ミラー全体の
+                # 非劣化（gauntlet --exclude alakazam）で判断
+                xero_gate = 4 if (ALA_XERO_MIRROR and p["matchup"] == "alakazam") else 5
+                if p["op_hand_count"] >= xero_gate and not boss_yield:
                     return 2900, "Xerosic: strip big hand"
                 return -1, "save Xerosic"
             if card.id == LANAS_AID:
@@ -959,6 +974,12 @@ class AlakazamPolicy(BasePolicy):
                 if p["need_retreat_energy"] and opt.inPlayArea == AreaType.ACTIVE:
                     return 9500, "attach: retreat energy"
                 if len(pokemon.energyCards) >= 1:
+                    # ALA_2ND_ENERGY【棄却 2026-07-18】: 2枚目エネ（エネ剥がし保険、監査35件・
+                    # rocket 19/ミラー7）をミラー+rocket 限定・学習帯 700 で解錠する案は、
+                    # check_agent の R-10 外形検査（技コスト充足済みポケモンへの追加付与 =
+                    # 不変条件違反）と正面衝突（NG energy over-fill）。抑止には
+                    # SELF_SCALING_ATTACK_IDS 宣言で Abra ライン全体の過剰付与検知を恒久
+                    # 無効化するしかなく、退行防波堤の喪失 > 35行の被覆 → 見送り
                     return -1, "no 2nd energy (規律)"
                 if pokemon.id in ABRA_LINE:
                     score = 8000 + {ALAKAZAM: 30, KADABRA: 20, ABRA: 10}.get(pokemon.id, 0)
@@ -967,6 +988,18 @@ class AlakazamPolicy(BasePolicy):
                     if card.id == TELEPATH_ENERGY and p["safe_draws"] < 2:
                         return -1, "R-11: deck thin (Telepath)"
                     return score, "attach psychic"
+                # ALA_ATTACH_PIVOT v2（2026-07-18 第6弾③・学習帯）: 監査37件（rocket 20・
+                # ミラー11）— 教師は超エネを Dudunsparce/Fez 等の非 Abra ラインへも付ける
+                # （釣り出しを食らった時に自力で下がれるベンチピボットの仕込み）。
+                # 学習帯 600 で解錠し並べ替えは BC/PPO へ。Telepath の sd ガードは維持。
+                # v1（非 marnie 全対面）は単独 A/B 49.4% vs OFF 57.9%（−8.5pt）で棄却 —
+                # END(0) しか無い番に greedy が発火し、手札1枚 = 打点20 を毎回捨てていた。
+                # v2 はギャップの主成分対面（ミラー = A/B 不活性・rocket = v1 でも −1.2 =
+                # ノイズ帯）に限定（ENRICH v2 と同じ流儀。marnie は自動的に除外）
+                if ALA_ATTACH_PIVOT and p["matchup"] in ("alakazam", "rocket"):
+                    if card.id == TELEPATH_ENERGY and p["safe_draws"] < 2:
+                        return -1, "R-11: deck thin (Telepath)"
+                    return 600, "attach psychic (pivot, learn)"
                 return -1, "attach: wrong target"
             if card.id == ENRICHING_ENERGY:
                 if p["need_retreat_energy"] and opt.inPlayArea == AreaType.ACTIVE:
@@ -1073,7 +1106,15 @@ class AlakazamPolicy(BasePolicy):
                     return -1, "ALA-LO: save Run Away Draw (deck is the clock)"
                 if p["safe_draws"] >= 3 or ready:
                     return 16500, "div-11: Run Away Draw broad (pre-items)"
-                return -1, "R-11/R-12: save Dudunsparce (deck thin)"
+                # ALA_SD_ABILITY（2026-07-18 第6弾④・学習帯）: 監査88件 — 教師は sd<3 でも
+                # Run Away Draw を切る（safe_draws = 山−サイド−1 はサイド残ぶん実リスクより
+                # 小さく出る）。v3/v2 と同じ書式: is_lo は負帯維持（ALA_LO の上書き経路を
+                # 壊さない）・絶対フロア（山 < 5 = 3ドロー+次番強制ドロー+1）も負帯維持、
+                # それ以外を学習帯 250 で解錠し切るタイミングは BC/PPO に委ねる
+                deck_cnt = p["safe_draws"] + p["my_prize"] + 1
+                if not ALA_SD_ABILITY or p["is_lo"] or deck_cnt < 5:
+                    return -1, "R-11/R-12: save Dudunsparce (deck thin)"
+                return 250, "Run Away Draw (deck thin, learn)"
             if card.id == FEZANDIPITI_EX:
                 if (p["need_fez_draw"] or p["need_fez_setup"]) and p["safe_draws"] >= 3:
                     return 29000, "R-12: Flip the Script (needed)"
@@ -1100,7 +1141,25 @@ class AlakazamPolicy(BasePolicy):
         if opt.type == OptionType.RETREAT:
             fc = p["field_counts"]
             aid = p["active_id"]
+            # ALA_RETREAT_ESCAPE v2（2026-07-18 第6弾②・学習帯）: 監査89件（avoid retreat 52
+            # + don't retreat ready Alakazam 37）— 教師は傷んだ Kadabra/未準備 Alakazam を
+            # ベンチへ退避してラインを守る。条件は「にげるコストを払える（重力宝石込み）∧
+            # ベンチに代替が居る」で解錠し、並べ替えは学習（BC/PPO）に委ねる（R-27 の
+            # 脅威計算の一般化はしない）。
+            # v1（全対面）は単独 A/B 52.8% vs OFF 57.9%（−5.1pt）で棄却 — 正帯 200 は
+            # END(0) しか無い番に greedy を発火させ、毎ターンの退避ループでエネを燃やす。
+            # v2 はギャップの主成分かつ実害の無い対面（ミラー = A/B 不活性・rocket =
+            # v1 でも +2.5）に限定する（ENRICH v2 の対面除外と同じ流儀）
+            escape = False
+            if ALA_RETREAT_ESCAPE and p["matchup"] in ("alakazam", "rocket"):
+                ms_r = my_state(obs)
+                act_r = ms_r.active[0] if ms_r.active else None
+                if act_r is not None and any(pk is not None for pk in ms_r.bench):
+                    rc = CARD_DB[act_r.id].retreatCost + (1 if p.get("gravity") else 0)
+                    escape = len(act_r.energies) >= rc
             if aid == ALAKAZAM and p["active_has_psychic"]:
+                if escape:
+                    return 200, "ALA-RETREAT: escape ready Alakazam (learn)"
                 return -1, "don't retreat ready Alakazam"
             if p["use_kadabra_finish"] and aid != KADABRA and fc[KADABRA] >= 1:
                 return 2500, "retreat for Kadabra finish"
@@ -1108,6 +1167,8 @@ class AlakazamPolicy(BasePolicy):
                 if fc[ALAKAZAM] >= 1 or fc[KADABRA] >= 1:
                     return 2000, "retreat support pokemon"
                 return -1, "no attacker to promote"
+            if escape:
+                return 200, "ALA-RETREAT: escape (learn)"
             return -1, "avoid retreat"
 
         if opt.type == OptionType.ATTACK:
