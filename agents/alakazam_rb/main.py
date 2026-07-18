@@ -113,6 +113,14 @@ ALA_MARNIE = os.environ.get("ALA_MARNIE", "1") != "0"  # 対マリィ 餌ベン�
 # 44.0→40.2% と悪化（プール相手ではドローエンジンの遅着地が純損）→ 既定 OFF
 ALA_DIV21 = os.environ.get("ALA_DIV21", "0") != "0"
 
+# ── Gate A 監査起点のクイックウィン（2026-07-17。build/rule_audit/2026-07-17/alakazam.jsonl、
+#    分析 research/eval/rule_audit/2026-07-17_gap_analysis.json）──
+# 狙いは負帯の解錠 = 学習（BC/PPO）の行動空間 = 被覆率（before 0.925）の回復。
+# 採用基準: L2 非劣化（−2pt 以内）∧ check_agent 合格（改善は不要）
+ALA_XERO_BOSSFIX = os.environ.get("ALA_XERO_BOSSFIX", "1") != "0"  # ボス枠譲りを手札ボス保有時に限定（バグ修正級）
+ALA_SD_EVOLVE = os.environ.get("ALA_SD_EVOLVE", "1") != "0"        # Alakazam/Kadabra 進化の sd ガード撤去（div-12 と同型）
+ALA_ENRICH_TARGETS = os.environ.get("ALA_ENRICH_TARGETS", "1") != "0"  # Enriching の付与先に ABRA_LINE を追加
+
 
 def _prize_count(pokemon):
     """参照実装版のサイド価値（Legacy Energy / Lillie's Pearl 補正付き）。"""
@@ -900,8 +908,16 @@ class AlakazamPolicy(BasePolicy):
                 # 相手の手札を3枚へ。相手の手札が肥えている時だけ（順位は Hilda/Dawn の下 =
                 # 自分のドローが基本優先）。18500 への大幅昇格・Dawn 直上 3120 とも
                 # 両日悪化で棄却（2026-07-12）。ボス経路の確定KO時はサポート枠をボスに譲る
-                if (p["op_hand_count"] >= 5
-                        and not (p["target_use_boss"] and p["target_can_kill"])):
+                # ALA_XERO_BOSSFIX（2026-07-17 Gate A 監査・バグ修正級）: target_use_boss は
+                # ベンチ対象が killable なだけで立つ（手札のボス有無を見ない）ため、
+                # ボスが手札に無いのにサポート枠を譲って -1 になっていた（save Xerosic
+                # 148件の主成分）。譲るのはボスが実際に手札にあり今打てるときだけに限定
+                # （kill_now の boss_ok と同じ判定）。op_hand>=5 ゲートと帯 2900 は不変
+                boss_yield = p["target_use_boss"] and p["target_can_kill"]
+                if ALA_XERO_BOSSFIX:
+                    boss_yield = (boss_yield and hc[BOSS] > 0
+                                  and not state.supporterPlayed)
+                if p["op_hand_count"] >= 5 and not boss_yield:
                     return 2900, "Xerosic: strip big hand"
                 return -1, "save Xerosic"
             if card.id == LANAS_AID:
@@ -957,10 +973,21 @@ class AlakazamPolicy(BasePolicy):
                     return 9500, "attach: retreat energy"
                 if len(pokemon.energyCards) >= 1:
                     return -1, "no 2nd energy (規律)"
+                # ALA_ENRICH_TARGETS v2（2026-07-17 Gate A 監査 → 同日 A/B 改訂）: ABRA_LINE
+                # への付与を**学習帯 600** で解錠（v1 の自然帯 8500 同格は greedy の挙動変更に
+                # なり対 marnie 51→31 = Munkidori の餌ベンチ化で悪化）。ルール greedy は従来
+                # どおり Dunsparce ライン優先のまま、並べ替えは学習（BC/PPO）に委ねる。
+                # ALA_MARNIE の餌ベンチ禁止と整合させ対 marnie では解錠しない。
+                # 2枚目エネ禁止と sd<4 ガードは維持
                 if pokemon.id in DUNSPARCE_LINE:
                     if p["safe_draws"] < 4:
                         return -1, "R-11: deck thin (Enriching)"
                     return 8500 + (10 if pokemon.id == DUDUNSPARCE else 0), "attach Enriching"
+                if (ALA_ENRICH_TARGETS and pokemon.id in ABRA_LINE
+                        and p["matchup"] != "marnie"):
+                    if p["safe_draws"] < 4:
+                        return -1, "R-11: deck thin (Enriching)"
+                    return 600, "attach Enriching (Abra line, learn)"
                 return -1, "Enriching: wrong target"
             return 0, "attach other"
 
@@ -979,14 +1006,26 @@ class AlakazamPolicy(BasePolicy):
             sd = p["safe_draws"]
             hc = p["hand_counts"]
             if card.id == ALAKAZAM:
+                # ALA_SD_EVOLVE v3（2026-07-17 Gate A 監査 → 同日 A/B 2回改訂）: sd<3 の
+                # 進化を負帯から低正帯 150 へ = 候補空間には入れる（被覆率回復）が、ルール
+                # greedy はほぼ従来どおり = 切るタイミングの並べ替えは学習（BC/PPO）の領分。
+                # v1 全面解錠（自然帯）は chandelure −15 / rocket −15、v2 絶対フロアも
+                # marnie −16 と、greedy の挙動変更はプールで悪化。LO と絶対フロアは負帯維持
+                deck_cnt = sd + p["my_prize"] + 1
                 if sd < 3:
-                    return -1, "R-11: deck thin (Alakazam draw 3)"
+                    if not ALA_SD_EVOLVE or p["is_lo"] or deck_cnt < 5:
+                        return -1, "R-11: deck thin (Alakazam draw 3)"
+                    return 150, "evolve Alakazam (deck thin, learn)"
                 score += 200 if opt.inPlayArea == AreaType.ACTIVE else 50
                 score += len(pokemon.energies) * 10
                 return score, "evolve Alakazam"
             if card.id == KADABRA:
+                # ALA_SD_EVOLVE v3: 同上（Kadabra draw 2。学習帯 150・LO/絶対フロアは負帯）
+                deck_cnt = sd + p["my_prize"] + 1
                 if sd < 2:
-                    return -1, "R-11: deck thin (Kadabra draw 2)"
+                    if not ALA_SD_EVOLVE or p["is_lo"] or deck_cnt < 4:
+                        return -1, "R-11: deck thin (Kadabra draw 2)"
+                    return 150, "evolve Kadabra (deck thin, learn)"
                 # R-27（2026-07-13、リプレイ 85692247 起点）: 進化即死ガード【ハード】。
                 # ユンゲラーは HP80（ダメカンは進化後も持ち越し）。返しの相手番に
                 # 80点以上が飛ぶ盤面では**バトル場**のケーシィへは進化しない

@@ -94,6 +94,10 @@ G_PROVIDERS = {G_ENERGY, GROW}      # Superb Scissors の {G} を払えるエネ
 #    被KO 63回/23敗 = 対メガスターミー 22.5% の主因）。EN_Card_Data 全走査で列挙。 ──
 PIERCE_ATTACK_IDS = {70, 148, 207, 316, 426, 479, 837, 901, 1226, 1305, 1488}
 NEUTRAL_ZONE = 1247   # 相手スタジアム: ex/V → 非ルールボックスへのダメージ無効（CR2 で参照）
+SPIKEMUTH_GYM = 1259  # 相手スタジアム（マリィ）: 各自の番に1回、山からマリィのポケモンをサーチ可
+# CR10: コスト無し・自分に副作用ゼロの相手スタジアム特性ホワイトリスト（判断に迷う id は入れない。
+# Spikemuth Gym は自デッキに対象ゼロでも「山を見る=サイド落ち把握」のノーコスト情報収集で最悪無害）
+FREE_STADIUM_ABILITIES = {SPIKEMUTH_GYM}
 
 # ルールトグル（P-12 の A/B 用）
 CR1 = os.environ.get("CRUSTLE_CR1", "1") != "0"   # 貫通ex対策（壁をガルーラへ切替）採用
@@ -102,6 +106,11 @@ CR2 = os.environ.get("CRUSTLE_CR2", "1") != "0"   # 対LO 山札規律 + NZ ダ�
 # A/B 80戦: dragapult +6.2 / alakazam +1.2 / garchomp −10.0（ガブは非exアタッカーに
 # 回されるとガルーラのドローを失うだけ）→ ネット±0 で不採用（既定 OFF）
 CR3 = os.environ.get("CRUSTLE_CR3", "0") != "0"
+# ── ルール成熟 第2弾（2026-07-17 Gate A 監査 CL3/CL5/CL8 のクイックウィン。
+#    負帯の解錠 = BC/PPO の行動空間（被覆率 0.907）の回復が狙い） ──
+CR6 = os.environ.get("CRUSTLE_CR6", "1") != "0"    # 死にポフィン焼却（山Dwebble 0 ∧ 非LO）
+CR8 = os.environ.get("CRUSTLE_CR8", "1") != "0"    # {G}色補正: R-10 の手前で主砲 Scissors を修理
+CR10 = os.environ.get("CRUSTLE_CR10", "1") != "0"  # スタジアム特性のホワイトリスト解禁
 
 
 def _energy_types(pokemon):
@@ -323,6 +332,11 @@ class CrustleWallPolicy(BasePolicy):
                 return -1, "R-11: deck thin (Run Errand)"
             if cid in POKEMON_IDS:
                 return 26000, "generic own ability"
+            # CR10: コスト無し・自分に副作用ゼロの相手スタジアム特性はホワイトリストで
+            # 解禁（監査 CL8: 教師は Spikemuth Gym を毎ターン起動 = ノーコスト情報収集）。
+            # 正帯下層 800 — 本命行動（進化/エネ/攻撃）を差し置いて選ばれない帯
+            if CR10 and cid in FREE_STADIUM_ABILITIES:
+                return 800, "CR10: free stadium ability"
             return -1, "skip foreign ability"
 
         if opt.type == OptionType.EVOLVE:
@@ -418,6 +432,12 @@ class CrustleWallPolicy(BasePolicy):
                 return -1, "CR2: hold Poffin vs LO (deck = clock)"
             if p["dwebble_in_deck"] >= 1 and p["bench_n"] < my_state(obs).benchMax:
                 return 18000, "C-3: Poffin (fetch Dwebble)"
+            # CR6: 山に対象ゼロの死にポフィンは空撃ちで焼却可（リーリエの山質向上・
+            # トリマー討ち捨て候補。監査 CL3）。対LOは山1枚=時計なので現行 -1 維持。
+            # ベンチ満杯だが山に対象が残る場合も -1 維持（KO後に枠が開き得る）。
+            # 正帯最下層（end=0 の直上）= 切るタイミングの並べ替えは学習の領分
+            if CR6 and p["dwebble_in_deck"] == 0 and not self._is_lo():
+                return 300, "CR6: burn dead Poffin"
             return -1, "Poffin: no target in deck"
         if cid == POKEGEAR:
             if self._is_lo() and my_state(obs).deckCount <= 25:
@@ -560,12 +580,20 @@ class CrustleWallPolicy(BasePolicy):
         is_active = any(target is pk for pk in my_state(obs).active if pk)
         if tid == CRUSTLE:
             if e >= 3:
-                return -1, "R-10: Crustle full (3)"
-            # C-4: Grow は Crustle 最優先（{G}コスト供給 + HP+20）。{G}未確保なら更に優先
-            base = {GROW: 8400, G_ENERGY: 8300, MIST: 8000, SPIKY: 7900}[cid]
-            if cid in G_PROVIDERS and not any(t == 1 for t in attached_types):
-                base += 200
-            score, reason = base, "C-4: load Crustle"
+                # CR8a: 付いた3枚が無色（Mist/Spiky）だけだと主砲 Superb Scissors {G}CC が
+                # 撃てない → {G} 供給エネの4枚目は「技の実行可能性の修理」で R-10 より優先
+                # （監査 CL5: ミラーでは非 ex Crustle が唯一の打点源 = E-5）
+                if (CR8 and cid in G_PROVIDERS
+                        and not _can_pay_colored(target, ATK_SCISSORS)):
+                    score, reason = 8000, "C-4: fix {G} color"
+                else:
+                    return -1, "R-10: Crustle full (3)"
+            else:
+                # C-4: Grow は Crustle 最優先（{G}コスト供給 + HP+20）。{G}未確保なら更に優先
+                base = {GROW: 8400, G_ENERGY: 8300, MIST: 8000, SPIKY: 7900}[cid]
+                if cid in G_PROVIDERS and not any(t == 1 for t in attached_types):
+                    base += 200
+                score, reason = base, "C-4: load Crustle"
         elif tid == KANGA:
             if e >= 3:
                 return -1, "R-10: Kangaskhan full (3)"
