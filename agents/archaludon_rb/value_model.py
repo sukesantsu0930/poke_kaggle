@@ -23,8 +23,13 @@ import meta_tables as mt
 
 FEATURE_VERSION = 3   # v2: 自手札の中身 / v3: 両者のアーキタイプ one-hot（条件付き V）
 
-# アーキタイプ辞書（順序固定。meta_tables が増えたら FEATURE_VERSION を上げること）
-ARCH_LIST = sorted(mt.ARCHETYPES.keys())
+# v3 の one-hot 語彙は **v3 学習時点の 11 アーキタイプで凍結**（2026-07-17）。
+# sorted(mt.ARCHETYPES.keys()) 動的参照だと、meta_tables への追加（EXP-024 rocket）で
+# 次元が黙って伸び、既存 npz（value_v3 / 全 policy_net / BC データ）が全滅する事故が
+# 実際に起きた。凍結リスト外の新アーキタイプは unknown 枠に落ちる（許容誤差）。
+# 次元を変える時は必ず: リスト更新 + FEATURE_VERSION 加算 + N_FEATURES 更新 + 全再学習。
+ARCH_LIST = ["alakazam", "archaludon", "chandelure", "crustle", "dragapult",
+             "garchomp", "hop", "kangaskhan", "lucario", "marnie", "starmie"]
 
 _CARD_DB = {c.cardId: c for c in all_card_data()}
 _ATTACK_DB = {a.attackId: a for a in all_attack()}
@@ -174,7 +179,7 @@ def _arch_onehot(ps):
         ids.add(c.id)
     vec = [0.0] * (len(ARCH_LIST) + 1)
     for i, name in enumerate(ARCH_LIST):
-        if ids & mt.ARCHETYPES[name]:
+        if ids & mt.ARCHETYPES.get(name, set()):
             vec[i] = 1.0
             return vec
     vec[-1] = 1.0   # unknown

@@ -18,6 +18,7 @@ import importlib.util
 import random
 import sys
 import tempfile
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -134,6 +135,32 @@ def make_overfill_checker(work_dir: Path, mod, deck_ids):
         return data is not None and getattr(data, "cardType", None) in (
             CardType.BASIC_ENERGY, CardType.SPECIAL_ENERGY)
 
+    def _attached_types(pokemon):
+        """付いているエネの提供タイプ（特殊エネも CARD_DB.energyType で解決。0=無色）。"""
+        types = []
+        for ec in getattr(pokemon, "energyCards", None) or []:
+            d = pb.CARD_DB.get(getattr(ec, "id", None))
+            types.append(getattr(d, "energyType", 0) if d else 0)
+        if not types:
+            types = list(getattr(pokemon, "energies", []) or [])
+        return types
+
+    def _can_pay_colored(pokemon, attack_id):
+        """色を見るコスト判定（cost の 0 = 無色枠は残り任意エネで充当）。"""
+        cost = pb.attack_cost(attack_id)
+        if cost is None or pokemon is None:
+            return False
+        avail = Counter(_attached_types(pokemon))
+        colorless = 0
+        for req in cost:
+            if req == 0:
+                colorless += 1
+            elif avail[req] > 0:
+                avail[req] -= 1
+            else:
+                return False
+        return sum(avail.values()) >= colorless
+
     def is_overfill(obs, action):
         """MAIN での「エネルギー」ATTACH が「ライン最大コストを既に満たす」ポケモンへの
         付与なら True（どうぐの装着は対象外）。"""
@@ -154,6 +181,14 @@ def make_overfill_checker(work_dir: Path, mod, deck_ids):
                     continue
                 max_cost = line_max_cost(target.id)
                 if max_cost and pb.energy_count(target) >= max_cost:
+                    # 枚数は足りていても「色まで払えない」ライン技が残っているなら、
+                    # 追加付与は色の修理であって過剰ではない（docstring の意図に忠実化。
+                    # 2026-07-17 CR8a: 無色3枚の Crustle は {G}{C}{C} を払えず、旧実装は
+                    # これを偽陽性にしていた）。判定不能時は従来どおり過剰扱い
+                    aids = [aid for aid in line_attack_ids(target.id)
+                            if pb.attack_cost(aid) is not None]
+                    if aids and not all(_can_pay_colored(target, aid) for aid in aids):
+                        return False
                     return True
             return False
         except Exception:
