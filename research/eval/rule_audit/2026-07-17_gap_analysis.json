@@ -1,0 +1,520 @@
+[
+ {
+  "deck": "alakazam",
+  "audit": {
+   "deck": "alakazam",
+   "ok": true,
+   "games": 159,
+   "kept": 9272,
+   "outside": 754,
+   "coverage": 0.925,
+   "base_acc": 0.576,
+   "gated_narrow": 408,
+   "narrow_mismatch": 131,
+   "jsonl_path": "build/rule_audit/2026-07-17/alakazam.jsonl",
+   "notes": "正常完走。教師試合数は159（--max-games 500に対し十分だが上限未満）。決定数の内訳: kept=9272, gated_out=5351 (ctx=4652, lethal=291, narrow=408), human_outside=754, no_record=0, error=0。narrow_mismatch=131はgated_narrow=408の約32%で、狭域ルールと教師手の不一致がやや目立つ。coverage=0.925 (9272/10026)。base_acc(ルールargmax一致率)=57.6%。npzはbuild/rule_audit/2026-07-17/alakazam.npzに保存済み。"
+  },
+  "gaps": {
+   "clusters": [
+    {
+     "label": "R-11: safe_draws（山札−サイド−1）が過保守で任意ドロー系を一括禁止",
+     "count": 195,
+     "band": "negative",
+     "strength": "hard",
+     "context": "setup フェーズ（S-0未達）に偏重（144/195）。中盤 t6-46・中央値 t12-14。ミラー112・crustle 42・rocket 35。内訳: Run Away Draw ブロック88（全てABILITY）/ Alakazam進化30・Kadabra進化25（EVOLVE）/ Telepath付与22（ATTACH）/ Poffin11・Pad9・Hilda6・Dawn4（PLAY）",
+     "teacher_behavior": "教師（Majkel1337/Yushin）は sd<3 でも進化ドロー・Run Away Draw・Telepath付与を切り続ける。例: t18 rocket 戦で我々の正帯が evolve Dudunsparce/Pad のところ教師は sd ガードで負帯化した Alakazam 進化（EVOLVE, draw3）を選択。サイドが多く残る中盤は deckCount−prize−1 が実際の山切れリスクより大幅に小さく出るため、教師の実効ガード（次の番の強制ドローが引ければ良い ≈ deckCount ≥ ドロー数+2）とズレている",
+     "rule_blocker": "agents/alakazam_rb/main.py L468 `safe_draws = ms.deckCount - my_prize - 1`（根本）。発火先: L983 `R-11: deck thin (Alakazam draw 3)` sd<3 / L989 Kadabra sd<2 / L1037 `R-11/R-12: save Dudunsparce` sd<3∧非ready / L951 Telepath sd<2 / L813,826,884,886 Poffin/Pad/Hilda/Dawn",
+     "proposed_rule": "(a) ALA_SD_EVOLVE【hard→撤去】: Alakazam/Kadabra 進化の sd ガードを撤去。div-12 と同型の根拠 — 進化時ドローは任意 ACTIVATE で、山薄時は div-5（L555-559, human=NO 93-97%一致で検証済み）が辞退を担保するため二重ガード。(b) ALA_SD_ABILITY【soft】: Run Away Draw の sd>=3 を「deckCount >= 5（3ドロー+次番の強制ドロー+1）or 打点レースで必要（op の次番リーサルが立っている）」へ緩和。ALA_LO（対chandelure）の上書きは維持し is_lo では発火させない。(c) Poffin/Pad/Hilda/Dawn の閾値は件数が小さいので (a)(b) の再計測後に判断",
+     "risk": "div-5 の方向自体はホールドアウトで検証済み（緩めすぎると div-7 棄却例=過発火の再演）。ALA_LO 診断（手札14枚抱えたまま自山切れ、chandelure 4W-26L）が示す通り LO 対面へ波及させると即悪化 — is_lo 除外は必須。(a) は div-12 の前例と同ロジックで最も安全"
+    },
+    {
+     "label": "save Xerosic: 相手手札5枚ゲート+ボス枠譲りが広すぎる（最大単一クラスタ）",
+     "count": 148,
+     "band": "negative",
+     "strength": "hard",
+     "context": "ミラー92（combat 59/setup 33）・rocket 33・crustle 13。中央値 t10。全て PLAY。148件中69件は同ターンの正帯に div-18: take the KO now / Boss: planned pull が存在（=ボス枠譲り条件でのブロック）、残りは op_hand<5 でのブロックと推定",
+     "teacher_behavior": "教師は相手手札が5枚未満でも・こちらのKOプランが立っているターンでも Xerosic（相手手札を3枚へ）を切る。ミラーでは相手の Powerful Hand 打点=手札×20 なので手札4→3化でも打点上限−20 の恒常的ダメージ抑制になる。ボス枠譲り側は、ボスが手札に無いのに『ボス経路プランがある』だけで譲っているケースを含む",
+     "rule_blocker": "agents/alakazam_rb/main.py L903-906: `op_hand_count >= 5 and not (target_use_boss and target_can_kill)` 以外は -1 `save Xerosic`。target_use_boss は L369/L375 でベンチ対象が killable なだけで立ち、手札のボス有無（L462-463 の kill_now は `hand_counts[BOSS] > 0` を確認する）を見ていない",
+     "proposed_rule": "(a) ALA_XERO_BOSSFIX【hard・バグ修正級】: ボス枠譲り条件を `hand_counts[BOSS] > 0 and not supporterPlayed` を満たす時だけに限定（kill_now L462-463 と同じ判定へ揃える）。(b) ALA_XERO_MIRROR【soft】: matchup==alakazam（手札スケール打点の相手）では op_hand 閾値を 5→4 に下げる。帯は 2900 のまま動かさない",
+     "risk": "帯昇格（18500/Dawn直上3120）は 2026-07-12 に両日悪化で【棄却】済み — 今回の提案は負帯化の解除のみで帯順位は不変だが、同カードの再調整である旨は明記して A/B すること。ミラー対面はルールA/Bで検出不能（対称戦・計測方法論の教訓①）なので、検証は L3 一致率 + ミラー除外プールで行う"
+    },
+    {
+     "label": "R-12: save Fezandipiti — 温存則が Flip the Script の発動そのものを塞ぐ",
+     "count": 91,
+     "band": "negative",
+     "strength": "hard",
+     "context": "ミラー57・crustle 15。setup 51/combat 40、中央値 t8。内訳: ABILITY（発動ブロック）59 / PLAY（素出しブロック）32",
+     "teacher_behavior": "教師は KO 計画と無関係に発動可能ターンに Flip the Script（+3ドロー=打点+60）を広く使い、序盤にベンチへも出す。例: t12 ミラーで我々の正帯が attach retreat energy/end のみのところ、教師はベンチ0番の Fez 特性を発動",
+     "rule_blocker": "agents/alakazam_rb/main.py L786-789（PLAY: need_fez_draw/setup 以外 -1）と L1038-1049（ABILITY: needed / ALA_WALL再建 / ALA_DIV21 以外 -1）。ALA_DIV21 は L114 で既定OFF",
+     "proposed_rule": "ALA_FEZ_ABILITY【soft】: ABILITY 側のみ解禁（素出し PLAY ゲートは維持）— 『Fez が既に場に居る ∧ safe_draws >= 5 ∧ matchup が alakazam/rocket（打点レース対面）』で帯 16600。ALA_WALL の手札6枚以下再建条件（L1043）をミラーにも拡張する案が第二候補。棄却済み div-21b との差分: ベンチ素出しを解禁しない・LO/壁対面を除外する・山札ガードを sd>=3 から sd>=5 へ強化",
+     "risk": "div-21b【棄却】の再提案領域（ミラー除外160戦で −4.9pt ≈ 2.4σ。プールのボス系が2枚サイドの Fez を農場化 + 対LOで山を燃やす）。設計文書の結論は『この層は学習の適地』— ただし負帯化の解除（発動可否）はルールの仕事なので、素出しと発動を分離した narrower 版のみ試す価値がある。悪化したら即差し戻し"
+    },
+    {
+     "label": "RETREAT 全面禁止: 危険なアクティブの退避を許さない",
+     "count": 89,
+     "band": "negative",
+     "strength": "hard",
+     "context": "『avoid retreat』52件（ミラー31・crustle 13、setup 29、アクティブが Kadabra か超エネ無し Alakazam の場合）+『don't retreat ready Alakazam』37件（crustle 17・rocket 16、combat のみ、中央値 t16）。narrow_mismatch 15件（正帯が end のみの一本道で教師はにげる）",
+     "teacher_behavior": "教師は (1) ダメージを受けた/次番KO圏の Kadabra・未準備 Alakazam をベンチへ退避してラインを守る（R-27 は進化だけ守り、既に前に居る個体の退避経路が無い）、(2) 対壁・対rocket では超エネ付き Alakazam ですら下げて壁をローテする",
+     "rule_blocker": "agents/alakazam_rb/main.py L1061-1072: RETREAT は ①ready Alakazam→L1065 -1 ②サポートポケモン（Abra/Dunsparce系等）でベンチにアタッカー有→2000 ③それ以外（Kadabra・未準備 Alakazam）→L1072 -1 `avoid retreat`。危険回避条件が存在しない",
+     "proposed_rule": "ALA_RETREAT_ESCAPE【soft】: 『アクティブの残HP <= 相手の次番投影打点（R-27 の op_threat_vs_kadabra 計算を全ポケモンへ一般化）∧ ベンチに代替（壁 or アタッカー）∧ にげるコストを払える』とき RETREAT を帯 2200 で解禁。ready Alakazam は追加条件『ベンチに2体目の ready アタッカー or 壁が居る』を課す。div-16 の非対称 φ（自発交代=壁 / 強制前出し=アタッカー）と同じ思想を RETREAT に適用",
+     "risk": "退避ループ（毎ターンにげてエネを失う）と、ready Alakazam を下げて攻撃機会を失う副作用。R-27（進化即死ガード【ハード】採用済み）と同じ脅威計算を使うため保守性の注（可変打点技の過小/過大評価）をそのまま継承する"
+    },
+    {
+     "label": "Enriching: wrong target — 付与先を Dunsparce ラインに限定（div-23 と内部矛盾）",
+     "count": 42,
+     "band": "negative",
+     "strength": "hard",
+     "context": "setup 25/combat 17、ミラー22、中央値 t6（序盤）。付与先: ベンチ26/アクティブ16。narrow_mismatch 5件（一本道で教師と不一致）",
+     "teacher_behavior": "教師は Enriching（付与時+3ドローの ACE SPEC）を Abra ライン・アクティブへ付ける。ドロー3のトリガーと超エネとしての打点手（設計文書 L29 の手札純増モデル自体が『Enriching付与+3（超付きAlakazam前提）』と Alakazam 前提で勘定している）が目的で、付与先制限に合理性が薄い。div-23（TO_HAND で Enriching をテレパスより先に指名・採用済み）で手札に取るのに、付ける段で塞ぐ矛盾",
+     "rule_blocker": "agents/alakazam_rb/main.py L960-964: `if pokemon.id in DUNSPARCE_LINE` 以外は -1 `Enriching: wrong target`（sd>=4 ガードは L961-962 で別 reason）",
+     "proposed_rule": "ALA_ENRICH_TARGETS【soft・クイックウィン】: 付与先に ABRA_LINE を追加（帯 8500+Alakazam ボーナス、Dunsparce ラインと同格以上）。2枚目エネ禁止（L958）と sd ガードは維持。SELECT の ATTACH_FROM 側（L685-694）も同時に整合させる",
+     "risk": "低リスク（ACE SPEC ×1 で乱発不能）。Dunsparce ライン優先を落とすと Run Away Draw 系の設計と干渉する可能性のみ — 帯を同格にして学習に委ねる"
+    },
+    {
+     "label": "save Boss: 確定KOターン以外のボスを全面禁止（釣り出し・次ターン仕込みが不可）",
+     "count": 42,
+     "band": "negative",
+     "strength": "hard",
+     "context": "rocket 16・ミラー14・crustle 7、combat 24/setup 18、中央値 t12。同ターン正帯に div-18: take the KO now が立っている例が複数（=教師は我々のKOプランと別行動）",
+     "teacher_behavior": "教師は即時KOが確定していなくてもボスを切る — 次ターンの投影打点でKOできるベンチ対象の先出し、または対壁/高にげるコスト個体の縛り（釣り出しスタック）。t8 rocket 戦では正帯1位が take the KO now のところ教師はボスを選択（取る相手を変えている）",
+     "rule_blocker": "agents/alakazam_rb/main.py L879-882: `target_use_boss and target_can_kill` 以外は -1 `save Boss`",
+     "proposed_rule": "ALA_BOSS_PLAN2【soft】: 解禁条件を2系統追加 — (a) 『ベンチ対象が投影打点（手札純増モデルの max）で次ターンKO圏 ∧ サイド2枚（ex）』の仕込みボス（帯3100）、(b) matchup==crustle 等の壁対面で『にげるコスト>=3 の非アタッカーを釣る』縛りボス（帯3000）。既存の planned pull 3200 より下に置き確定KO経路を追い越さない",
+     "risk": "ボス×3 は有限資源で Dawn/Hilda とサポート枠競合。参照実装のボス温存規律（設計文書・未決事項3）を崩す方向なので、どの対象を釣っているかは obs つき分析で確認してから条件を確定すべき。EXP-021 の教訓どおり『教師がボスを撃った』の直写しではなく (a)(b) の条件で絞る"
+    },
+    {
+     "label": "attach: wrong target — 超エネの付与先を Abra ラインに限定（ベンチピボットへ付けられない）",
+     "count": 37,
+     "band": "negative",
+     "strength": "hard",
+     "context": "rocket 20・ミラー11、combat 24、中央値 t14。付与先: ベンチ24/アクティブ13。narrow_mismatch 12件",
+     "teacher_behavior": "教師は超エネを Dudunsparce/Fez 等の非 Abra ラインへも付ける。rocket 偏重 + ベンチ先行から、釣り出し（ボス系）を食らった時に自力で下がれるようベンチのピボットへ予めにげるエネを仕込む運用とみられる（重力宝石の一般修正 L388-407 と同じ問題系の裏面）",
+     "rule_blocker": "agents/alakazam_rb/main.py L947-954: PSYCHIC_ENERGY_IDS は ABRA_LINE 以外 -1 `attach: wrong target`（need_retreat_energy 9500 はアクティブ限定 L943）",
+     "proposed_rule": "ALA_ATTACH_PIVOT【soft】: 『Abra ラインの空きが無い（全員1枚付き or 不在）∧ 相手が釣り出し系（rocket/boss採用対面）』のとき非 Abra ラインへの付与を帯 6000（Abra ライン 8000+ より下）で解禁。Telepath の sd ガードは維持",
+     "risk": "エネ総数7枚の分散はアタッカー準備を遅らせ得る。低帯なので Abra ライン優先は保たれるが、rocket が実際に何をしてくる対面か（エネ破壊か釣り出しか）を obs で確認してから条件語彙を確定すること"
+    },
+    {
+     "label": "no 2nd energy（規律）: 2枚目エネ付与の一律禁止",
+     "count": 35,
+     "band": "negative",
+     "strength": "hard",
+     "context": "rocket 19・ミラー7、combat 18/setup 17、中央値 t15。付与先: アクティブ21/ベンチ14",
+     "teacher_behavior": "教師は同一ポケモンに2枚目のエネを付ける。rocket 偏重から、エネ剥がし/縛りへの保険（アタッカーが1枚割られても Powerful Hand {P}1 を撃ち続けられる）または重力宝石込みのにげるコスト2の先払いとみられる",
+     "rule_blocker": "agents/alakazam_rb/main.py L945-946（ATTACH）と L685-686（SELECT ATTACH_FROM）: `len(energyCards) >= 1` で -1 `no 2nd energy (規律)`。例外は need_retreat_energy のアクティブ 9500 のみ。設計文書 L52 の明文規律",
+     "proposed_rule": "ALA_2ND_ENERGY【soft】: 『matchup がエネ干渉/釣り出し系（rocket）∧ 対象が ready アタッカー（Alakazam+超）∧ 手札にエネが2枚以上（次の手張りを潰さない）』のとき帯 4000（初回付与 8000+ より下）で解禁。need_retreat_energy の既存経路はそのまま",
+     "risk": "設計文書の明文規律（R-12系）を条件つきで破る提案。エネ7枚デッキで2枚目は本来無駄が大きく、条件を rocket 系に絞らないと全対面で過発火する。rocket の実際の干渉手段は未検証（要 obs 分析）— 検証前は最下位優先度でよい"
+    },
+    {
+     "label": "E: attack が正帯13位以下に沈む（重複候補が上位12枠を食う帯上限アーティファクト）",
+     "count": 50,
+     "band": "positive(rank13+)",
+     "strength": "soft",
+     "context": "rocket 45/50 に極端に偏る。中央値 t27・最大 t63 の長期戦。attackId 1072×33 / 1071×13。n_options 中央値18",
+     "teacher_behavior": "教師は kill_now が立っていない消耗戦の中盤以降、追加のドロー/進化/Poffin を打たずに攻撃してターンを終える。我々の正帯では evolve Alakazam ×2・Poffin ×2・Dawn ×4・attach psychic ×6 のような同スコア同理由の重複が12枠を占有し、攻撃（1100-1600）が枠外へ押し出されている",
+     "rule_blocker": "agents/alakazam_rb/main.py L1083-1091: R-04『ワザは最後』で帯 1000-1600 固定 + 正帯候補が上位12件で切られる仕様（rule_audit/BC 側の候補上限）。ブロックではなく帯上限の構造問題",
+     "proposed_rule": "(a) 候補束ね【クイックウィン・挙動不変】: 正帯を作る際に (score, reason) が同一の互換オプションを1枠に束ねて top-12 を取る — 攻撃が帯内に入れば攻撃タイミングは band 内=学習（BC/PPO）の領分に返せる。(b) 補助案 ALA_ATK_GRIND【soft】: matchup==rocket ∧ turn>=20 ∧ 盤面完成（abra_line>=3 ∧ dunsparce_line>=2）で攻撃帯を 13000（Pad 12000 の直上）へ",
+     "risk": "(b) は攻撃タイミング系で既知の両方向クラスタ（第3弾『残る穴』、div-17/div-19 棄却の隣接領域）— 直写しは危険で (a) を先行すべき。(a) は順位を変えないため理論上無害だが、BC 学習データの候補分布が変わるので再学習系列との整合を確認"
+    },
+    {
+     "label": "gate: no water threat — Shaymin の登場ゲートが厳しすぎる",
+     "count": 31,
+     "band": "negative",
+     "strength": "hard",
+     "context": "ミラー12・starmie 6・rocket 4・garchomp 3 と水脅威の無い対面に分散。setup 21、中央値 t8。全て PLAY（TO_BENCH 側ゲートも同型）",
+     "teacher_behavior": "教師は水系脅威が見えない対面でも Shaymin をベンチへ出す（ベンチ埋め/サイド緩衝/前出し要員）。t4 garchomp 戦で正帯が evolve Dudunsparce/end のみのところ Shaymin を展開",
+     "rule_blocker": "agents/alakazam_rb/main.py L800-804（PLAY）と L709（TO_BENCH）: `op_has_water_threat` 以外は -1 `gate: no water threat`。設計文書 L54 のテックゲート",
+     "proposed_rule": "ALA_SHAYMIN_FILLER【soft】: 『bench_free >= 2（1枠空け規律は維持）∧ not is_marnie（餌ベンチ禁止 ALA_MARNIE を優先）∧ ラインパーツが手札に無い』とき帯 300（Abra/Dunsparce より下・end より上）で解禁",
+     "risk": "div-21b 棄却の主因と同じ『プールのボス系が低HPベンチを農場化する』リスクの縮小版。ALA_MARNIE の除外は必須。件数が小さいので優先度は下位 — 上位クラスタの再計測と抱き合わせで十分"
+    }
+   ],
+   "deck": "alakazam",
+   "total_rows": 885,
+   "quick_wins": [
+    "正帯候補の重複束ね: (score, reason) 同一のオプションを1枠に統合してから top-12 を取る — 挙動不変で被覆率が直接上がる（E: attack 50件の positive(13位+) はほぼこれで解消見込み）",
+    "ALA_XERO_BOSSFIX: Xerosic のボス枠譲り条件に `hand_counts[BOSS] > 0 and not supporterPlayed` を追加（kill_now L462-463 と同じ判定へ揃えるバグ修正級。save Xerosic 148件のうち約半分に効く）",
+    "ALA_SD_EVOLVE: Alakazam/Kadabra 進化の sd ガード撤去 — div-12 と同一ロジック（進化時ドローは任意 ACTIVATE で div-5 が辞退を担保）の前例つき修正で 55件",
+    "ALA_ENRICH_TARGETS: Enriching の付与先に ABRA_LINE を追加 — 採用済み div-23（手札には先に取る）との内部矛盾の解消で 42件",
+    "各トグル適用のたびに P-12 の再計測（gauntlet 80戦/枠・ミラー除外）+ rule_audit 再ダンプで被覆率の増分を確認してから次へ進む"
+   ],
+   "summary": "alakazam のルールギャップ 885行（negative 800 / positive 79、outside 754 / narrow 131、教師は Majkel1337 548 + Yushin Ito 337、07-13/07-15）をクラスタリングし、上位10クラスタで760行=86%をカバーした。構造は3系統に集約される。(1) 資源ガードの過保守 22%: safe_draws = deckCount−prize−1（main.py L468）がサイド残数ぶん実際より小さく出て、進化ドロー・Run Away Draw・Telepath を負帯化 — 進化側は div-12 の前例（任意 ACTIVATE + div-5 の二重ガード）で安全に外せる。(2) サポート/テンポ系の温存則 32%: save Xerosic（最大148件。手札5枚ゲートと『ボスが手札に無くても枠を譲る』条件バグ）、save Fez（div-21b 棄却領域 — 素出しと発動を分離した narrower 版のみ再挑戦）、save Boss（次ターン仕込み/釣り出しが表現不能）。(3) 付与先・退避の一律禁止 ~19%: 超エネ/Enriching のターゲット制限、2枚目エネ禁止、RETREAT のほぼ全面禁止（R-27 が進化だけ守り退避経路が無い）。加えて positive 帯の E: attack 50件は重複候補が top-12 枠を食う帯上限アーティファクトで、候補束ねだけで解消し攻撃タイミングを学習の領分に返せる。注意点: ミラー行が403/885と多く、ミラーは対称戦でルールA/B検出不能のため、検証は L3 一致率 + ミラー除外プール160戦+（計測方法論の教訓）で行うこと。棄却済み提案の再演リスク（Xerosic 帯昇格・div-21b・div-7 過発火・div-17/19 攻撃タイミング直写し）は各クラスタの risk に明記した。"
+  }
+ },
+ {
+  "deck": "crustle",
+  "audit": {
+   "deck": "crustle",
+   "ok": true,
+   "games": 172,
+   "kept": 5192,
+   "outside": 533,
+   "coverage": 0.907,
+   "base_acc": 0.44,
+   "gated_narrow": 648,
+   "narrow_mismatch": 112,
+   "jsonl_path": "build/rule_audit/2026-07-17/crustle.jsonl",
+   "notes": "AUDIT行まで正常完走。教師マッチ試合は172試合（2026-07-13/07-15エピソード、min-overlap 55・min-score 1100・max-games 500）で十分な件数。決定内訳: kept=5192、gated_out=3083（gated_ctx=2313, gated_lethal=122, gated_narrow=648）、human_outside=533、no_record=0、error=0。narrow_mismatch=112（gated_narrowの約17%でルールの絞り込みと教師手が不一致）。ルールargmax一致率（k==0率）は44.0%と低め。npzはbuild/rule_audit/2026-07-17/crustle.npzに保存済み。"
+  },
+  "gaps": {
+   "deck": "crustle",
+   "total_rows": 645,
+   "clusters": [
+    {
+     "label": "CL1: Switch温存則が壁ローテ/エンジン配置を禁止 (hold Switch)",
+     "count": 139,
+     "band": "negative",
+     "context": "setup 95/139・combat 44。alakazam 65 / ミラー 28 / starmie 14。med T10。narrow_mismatch 27件は正帯が end のみの一本道",
+     "teacher_behavior": "教師は Switch を φ の4ゲート外で大量使用（C-7 実測でも Switch 189回）。Run Errand が正帯にある行は 16/139 のみ → 123/139 はガルーラが非アクティブ状態からの Switch = セットアップ中にガルーラを前へ出して Run Errand エンジンを回す／傷んだ壁を120未満で先行ローテ／相手 ex が前へ来る前の先回り壁立て。例: t5 vs alakazam n_options=4 で正帯が bench Kanga と end だけの局面で Switch(-1) を選択",
+     "rule_blocker": "agents/crustle_rb/main.py `_score_switch_item`（L486-516）: ①前が非壁+控え壁 ②貫通ex→Kangaタンク ③前Kanga∧相手『バトル場』がex ④壁ダメ120+∧Jumbo無し∧控え3エネ壁 — の4条件以外は一律 -1 'hold Switch'。③は opp_active_is_ex（CR3 棄却で狭いまま）、④の120閾値と hc[JUMBO]==0 が厳しすぎる",
+     "proposed_rule": "CR4a【soft・トグル CRUSTLE_CR4A】: setup（S-0未完）∧前が Dwebble/Crustle ∧控えに Kanga ∧相手前の期待打点<100（エネ<=1 or OPP_MAX_DAMAGE系）→ Switch 10500 'engine in (Run Errand)'。CR4b【soft・CRUSTLE_CR4B】: 壁ローテ閾値を dmg>=120→>=80∧Jumbo即用不可 に緩和。いずれも正帯下位（10.5k帯）で解禁し並べ替えは学習に委ねる",
+     "risk": "CR3【棄却 2026-07-15, EXP-019】と近縁: 先回り壁立ての拡大は garchomp −10.0 の前科 → CR4b に『相手ベンチ ex 検知』は入れない（matchup ゲートなしの opp_wallable_ex 復活は不可）。Switch×4 は対LO の資源でもあり CR2 対面では現行維持。P-12: 凍結プール80戦/枠・ミラー除外で A/B"
+    },
+    {
+     "label": "CL2: Battle Cage が空きスロットでも温存される (hold Battle Cage)",
+     "count": 75,
+     "band": "negative",
+     "context": "setup 66/75・med T3（min T1）。alakazam 38 / generic 13 / ミラー 10 — 対面を問わず早期",
+     "teacher_behavior": "教師は T1-T3 に自分のスタジアムを先置きする（スロット占有）。相手の有害スタジアム（マリィの Spikemuth Gym×4、NZ 等）を事前にブロックしつつベンチ保護（Dwebble HP70 のダメカン飛ばし対策）を常時化。2枚積みなので1枚目は安く切る",
+     "rule_blocker": "agents/crustle_rb/main.py L406-413: opp_has_munki（Munkidori 着地『後』のみ真）or matchup∈{dragapult,marnie} or 相手スタジアム設置済み、以外は -1 'hold Battle Cage'。ムンキ検知は着地後なので後手に回る",
+     "proposed_rule": "CR5【soft・CRUSTLE_CR5】: スタジアム空き ∧ 1枚目（dc[BATTLE_CAGE]==0）→ 7000帯 'proactive stadium'（evolve 25000/Run Errand 29000 より下、end より上）。2枚目は現行条件（スタジアム戦争/対象対面）のみ維持",
+     "risk": "スタジアム戦争の弾切れ: 対マリィ（Spikemuth×4）で2枚とも早出しすると貼り替え合戦に負ける → 2枚目温存条件が必須。既知の対dragapult/marnie 好成績（78.8/73.8%）を壊さないか A/B で確認"
+    },
+    {
+     "label": "CL3: 死にポフィンの処分が禁止される (Poffin: no target in deck)",
+     "count": 69,
+     "band": "negative",
+     "context": "med T14・combat 29/setup 40。alakazam 32 / ミラー 12。MPGaming 38 が主",
+     "teacher_behavior": "山に Dwebble が残っていない（or ベンチ満杯）局面で教師はポフィンを空撃ちして手札から処分する。死に札の焼却 = リーリエ（手札を山に戻して6ドロー）の山質向上・自分のハンドトリマー討ち捨て候補確保。ポフィンは HP70以下限定で Shaymin(HP80) は対象外 — 空撃ちで正しい（EN_Card_Data 確認済み）",
+     "rule_blocker": "agents/crustle_rb/main.py L416-421: `dwebble_in_deck >= 1 and bench_n < benchMax` 以外は -1 'Poffin: no target in deck'。dwebble_in_deck の勘定（4 − 場/手/トラッシュ消費）自体は過大方向にしかズレない=妥当で、『対象ゼロなら禁止』の設計が教師と乖離",
+     "proposed_rule": "CR6【soft・CRUSTLE_CR6】: dwebble_in_deck==0 ∧ not _is_lo() → 300 'burn dead Poffin'（正帯最下層。切るタイミングは学習の領分）。ベンチ満杯だが山に対象が残る場合は現行 -1 維持（KO後に枠が開き得る）",
+     "risk": "低リスク。CR2 の対LO ポフィン規律（別 reason 文字列）はそのまま。副作用があるとすれば PPO がリーリエ前の焼却順序を学ぶ前に無意味な空撃ちを覚える程度 → スコアを end(0) の僅か上に留める"
+    },
+    {
+     "label": "CL4: ハンドトリマーの自傷禁止条件が厳しすぎる (hold Hand Trimmer)",
+     "count": 66,
+     "band": "negative",
+     "context": "alakazam 36/66・setup 44・med T7（min T1）",
+     "teacher_behavior": "教師は自分の手札が6枚以上でも撃つ（自傷=死に札処分と相殺）。対フーディンでは相手手札を5枚に刈る = Powerful Hand を100点以下（Crustle 実効170未満）へ恒常キャップする防御装置として、ゼロシキと別枠のグッズで毎ゲーム使用。T1 の先制刈りも複数例",
+     "rule_blocker": "agents/crustle_rb/main.py L438-442（E-3 由来）: `opp_hand >= 7 and hand_size <= 5` の AND 条件以外は -1 'hold Hand Trimmer'。『自傷なし』を絶対条件にしたのが実プレイと乖離",
+     "proposed_rule": "CR7【soft・CRUSTLE_CR7】: (opp_hand − hand_size >= 2) or (matchup=='alakazam' ∧ opp_hand >= 6) → 12000帯（Xerosic 16900 より下）。純カードアド差2枚以上という条件化で『教師の直写し』を回避",
+     "risk": "自傷で Switch/Jumbo を捨てるリスク（DISCARD 選択則の質に依存 → _score_discard の優先順位が壊れていないか同時確認）。対alakazam は現在 53.8-56% の主戦場なので A/B の主計測枠にする"
+    },
+    {
+     "label": "CL5: R-10 3エネ上限が {G} 色補正と HP 積みを禁止 (R-10: Crustle full)",
+     "count": 58,
+     "band": "negative",
+     "context": "combat 58/58。ミラー 20 / alakazam 10 / marnie 8。med T14",
+     "teacher_behavior": "教師は Crustle に4枚目以降のエネを貼る。機構は2つ: ① Superb Scissors は {G}CC で、付いた3枚が Mist/Spiky（無色）だけだと技が撃てない → 4枚目の Grow/草で主砲を解禁（ミラーでは非 ex Crustle が唯一の打点源 = E-5）。② Grow は『付いた{G}ポケモンに +20HP』（EN_Card_Data 確認）→ 壁の HP 積み増し。C-6 採掘でも3枚超の追加貼りは10%存在",
+     "rule_blocker": "agents/crustle_rb/main.py L561-563: `if e >= 3: return -1 'R-10: Crustle full (3)'` が色判定（_can_pay_colored）より前に無条件発火。枚数だけ見て色構成を見ていない",
+     "proposed_rule": "CR8a【hard相当・CRUSTLE_CR8】: `not _can_pay_colored(target, ATK_SCISSORS)` ∧ card∈G_PROVIDERS なら e>=3 でも通常帯 8000 'C-4: fix {G} color'（技の実行可能性の修正 = ルールの仕事）。CR8b【soft】: hand_energy>=2 ∧ 全壁が3エネ以上 → Grow の積み増しを 3000 帯で解禁（HP+20）。is_threatened の −2000 減点は維持（R-08）",
+     "risk": "CR8a はほぼ純益（撃てない主砲の修理）。CR8b は1体への過剰投資 → 被KO時の損失増（R-08 と逆行）。ミラー 52.5% と megastarmie 36.2% 枠で A/B"
+    },
+    {
+     "label": "CL6: ボスがセットアップ中に全面禁止 (save Boss (setup)/save Boss)",
+     "count": 52,
+     "band": "negative",
+     "context": "setup 44（med T7）+ combat 8。alakazam 22 / ミラー 12 / starmie 10。44件中26件は正帯がほぼ end のみ",
+     "teacher_behavior": "教師はセットアップ中にボスで『エネ0・にげ重』の駒を吊り出して拘束し、相手のテンポを止めている間に壁を完成させる（壁デッキの定石）。φ が手番をパスする局面（正帯 end のみ）で supporter 枠を拘束に使う",
+     "rule_blocker": "agents/crustle_rb/main.py `_score_boss`（L518-533）: `if not combat: return -1 'save Boss (setup)'` — 拘束レッグ（energy==0 ∧ retreat>=2 → 4700）が combat 限定。C-11 ドクトリン自体は拘束/スナイプ型なのに phase で殺している",
+     "proposed_rule": "CR9【soft・CRUSTLE_CR9】: 拘束レッグ（対象 energy==0 ∧ retreat_cost>=2）を setup でも 4500 で評価。スナイプレッグは combat 限定を維持（打点が要る）。帯順序で Xerosic/Hilda/Lillie が優先されるため、supporter 枠が遊ぶ番だけ浮上する設計",
+     "risk": "ボスは2枚のみ — 序盤に2枚吐くと終盤の詰め（R-07 リーサル吊り）を失う。1枚目限定（dc[BOSS]==0）の絞りを A/B のもう一腕として用意"
+    },
+    {
+     "label": "CL7: R-10 がガルーラへの防御エネ積みを禁止 (R-10: Kangaskhan full)",
+     "count": 39,
+     "band": "negative",
+     "context": "combat 39/39・alakazam 33/39・med T16 と対フーディン後半に集中",
+     "teacher_behavior": "教師は前で受けるガルーラに4枚目以降の Spiky/Mist を貼る: Spiky は『前にいる間、殴ってきた相手にダメカン2』で枚数分スタック（Powerful Hand 連打への返し削り）、Mist は技効果無効、余剰エネはにげ3の後払い燃料。打点(CCC 200)には不要でも防御・機動の価値がある",
+     "rule_blocker": "agents/crustle_rb/main.py L569-571: `if e >= 3: return -1 'R-10: Kangaskhan full (3)'` — 特殊エネのパッシブ価値（Spiky/Mist）と退却燃料を無視した枚数上限",
+     "proposed_rule": "CR8c【soft・CR8 に同梱】: 対象がアクティブの壁 ∧ hand_energy>=2 ∧ 3エネ未満の壁が場にいない → Spiky/Mist の積み増しを 3000 帯で解禁。matchup 直書き（alakazam限定）はせず余剰条件で汎化（EXP-021 の規律）",
+     "risk": "3枚取りの Kanga へのエネ集中は被KO損失が最大 → is_threatened 減点維持が前提。対フーディン枠（現53.8-56%）での A/B が本丸。件数の33/39が alakazam なので効果もそこで判定"
+    },
+    {
+     "label": "CL8: スタジアム特性の一律スキップ (skip foreign ability)",
+     "count": 32,
+     "band": "negative",
+     "context": "marnie 24 / ミラー6+generic 2。懒惰的金枪鱼 29/32。毎ターン反復（連続する奇数ターン）",
+     "teacher_behavior": "教師は場のスタジアム特性（area=7=STADIUM, type=10）を毎ターン起動。対マリィでは相手の Spikemuth Gym（1259）:『各プレイヤーは自分の番に1回、山からマリィのポケモンをサーチしてよい。その後シャッフル』— crustle 側に対象は無いが、山を見る=サイド落ち把握のノーコスト情報収集で最悪でも無害",
+     "rule_blocker": "agents/crustle_rb/main.py L311-326 ABILITY レッグ: `cid in POKEMON_IDS` 以外は一律 -1 'skip foreign ability' — スタジアム特性が自デッキ4種の Pokemon ID リストに掛からず全滅",
+     "proposed_rule": "CR10【soft・CRUSTLE_CR10】: `opt.area == AreaType.STADIUM` → 800 'free stadium ability'（正帯下層）。より安全にはコスト無し既知ID（SPIKEMUTH_GYM=1259）のホワイトリスト + area=STADIUM の汎用 300",
+     "risk": "将来のコスト付きスタジアム特性（手札破棄等）を無差別に踏む可能性 → ホワイトリスト方式が安全。ミラー/generic の8件は別スタジアムの可能性があり id 限定だと取り切れない。効果はほぼ中立なので優先度は件数の割に低め（BC一致率向上が主目的）"
+    },
+    {
+     "label": "CL9: ゼロシキの中間ハンド帯が setup で死んでいる (save Xerosic)",
+     "count": 27,
+     "band": "negative",
+     "context": "setup 27/27・ミラー 15 / starmie 5 / garchomp 3・med T6",
+     "teacher_behavior": "教師はミラー等でセットアップ中に相手手札4-5枚へゼロシキを撃ち、相手の Switch/Jumbo/サポートを3枚に刈って立ち上がりを遅らせる。C-8 の単調カーブ（4-5枚でも使用率48%）どおりの行動",
+     "rule_blocker": "agents/crustle_rb/main.py L448-457: 中間ハンド帯 `opp_hand >= 4 → 5000` に `and combat` が付いており setup では -1 'save Xerosic'。alakazam 特例（>=4）と >=6 全対面だけが setup で生きる",
+     "proposed_rule": "CR11【soft・CRUSTLE_CR11】: 中間ハンド帯の combat 限定を外し setup では 4500（combat 5000 より僅かに下）。帯順序で Hilda(15800)/Lillie(15200) が優先されるため『他にサポートを使う理由が無い番』だけ浮上",
+     "risk": "supporter 枠の機会費用（本命は帯順序が守る）。C-8 カーブ由来なので直写しではないが、ゼロシキ×4 の弾数管理が終盤の対フーディン用温存と競合しないかミラー/alakazam 両枠で A/B"
+    },
+    {
+     "label": "CL10: ジャンボ80閾値が変動打点の脅威を見ない (C-6: hold Jumbo)",
+     "count": 23,
+     "band": "negative",
+     "context": "combat 22/23・med T11。ミラー 6 / starmie 5 / alakazam 4 と分散",
+     "teacher_behavior": "教師はダメージ50-79 でも回復する（C-6 採掘自体が『80未満の早撃ち 21%』を記録済み）。次の被弾で回復圏（実効HP−80）を割る前に先撃ちして壁サイクルを維持",
+     "rule_blocker": "agents/crustle_rb/main.py L426-435: dmg>=80 か『dmg>=50 ∧ is_threatened』のみ。is_threatened（policy_base.py L495, R-08 分類器）は Powerful Hand（相手手札×20）等の変動打点を基礎打点で過小評価し例外がほぼ発火しない",
+     "proposed_rule": "CR12【soft・CRUSTLE_CR12】: dmg 50-79 での使用を『期待被弾（対alakazam は opp_hand×20、他は OPP_MAX_DAMAGE[matchup]）>= 実効HP − dmg』または『hc[JUMBO]>=2（余剰）』で解禁、15300 帯。>=80 の無条件帯は現行維持",
+     "risk": "ジャンボ×4 の枯渇は打点レース設計（E-2）の根幹を壊す — 早撃ち解禁は余剰/被弾予測の条件付きに限定。megastarmie（貫通210）対面では früh 回復が無意味なので CR1 系の対面では発火させない選択肢も"
+    }
+   ],
+   "quick_wins": [
+    "正帯12枠の重複排除: positive(13位以下)の32行すべてで top12 の4枠以上が同一 reason の重複（evolve Crustle ×6 等）。バンド構成時に同一 reason 候補を代表1件に畳めば E-4: attack(13件)・Hilda(stock)(6件) が無変更で帯内に入る — φ の挙動を変えないダンプ/BC 側の即修正",
+    "CR8a {G}色補正（CL5）: R-10 の e>=3 判定の前に _can_pay_colored(target, ATK_SCISSORS) を挟むだけ。撃てない主砲の修理でありミラー20件の最大成分。実装1行級で正当性が自明に近い",
+    "CR10 スタジアム特性の解禁（CL8）: area==STADIUM → 低正帯。最悪でも無害な行動で32件（BC一致率 5%分）を回収",
+    "CR6 死にポフィン焼却（CL3）: dwebble_in_deck==0 ∧ 非LO → 300。1条件の追加で69件を負帯から解放",
+    "計測規律: 各トグルは凍結プール・ミラー除外・80戦/枠で A/B（P-12 + EXP-021 の教訓）。CL1/CL4/CL7 は対alakazam 枠、CL5/CL9 はミラー枠が主判定枠"
+   ],
+   "summary": "crustle.jsonl 645行（negative 600 / positive 45）を human_reason で束ねると上位10クラスタで580行=89.9%をカバー。最大テーマは『温存則の過剰硬直』— Switch(139)・Battle Cage(75)・Hand Trimmer(66)・Boss(52)・Xerosic(27)・Jumbo(23) と、φ がユーティリティ札を\"完璧な条件まで持つ\"設計なのに対し、LB上位教師はテンポ/エンジン/防御キャップのために先行投資で切る。第2テーマは R-10 の一律3エネ上限(97件)で、{G}色不足で主砲 Superb Scissors が撃てない状態の修理（hard相当）と Grow=+20HP/Spiky=返しダメカンの防御積み（soft）の両方を禁止している。ほか、死にポフィン焼却(69)とスタジアム特性の一律スキップ(32・対マリィの Spikemuth Gym)は低リスクの即修正。提案は全てトグル付き（CR4-CR12）で負帯の解除+条件特定に留め、帯内の並べ替えは BC/PPO（EXP-023 で+12.4pt 実証済み）に委ねる。最重要リスク: CL1 の先回り壁立ては棄却済み CR3（garchomp −10）と近縁のため、相手ベンチex検知を含めない形に限定して A/B すること。"
+  }
+ },
+ {
+  "deck": "marnie",
+  "audit": {
+   "deck": "marnie",
+   "ok": false,
+   "games": 0,
+   "kept": 0,
+   "outside": 0,
+   "coverage": null,
+   "base_acc": null,
+   "gated_narrow": null,
+   "narrow_mismatch": null,
+   "jsonl_path": "build/rule_audit/2026-07-17/marnie.jsonl",
+   "notes": "抽出0件で異常終了（SystemExit: 抽出0件（stats={}））。診断の結果、07-13/07-15 の全600エピソード・1200プレイヤー側のうち decks/fleet/winrate_2_marnie_grimmsnarl.csv との最大デッキ重なりは50枚で、--min-overlap 55 を満たす教師試合が0件（min-scoreフィルタ以前の段階で全滅）。最接近は Yushin Ito（overlap=50, score=1184, 多数試合あり）。marnie.jsonl は空ファイル（0バイト）として作成済み、npz は未生成。被覆率監査を行うには min-overlap を50に下げるか、参照デッキCSVをフィールド実物（Yushin Ito系リスト）に合わせる必要がある。リポジトリのコードは変更していない。"
+  },
+  "gaps": null
+ },
+ {
+  "deck": "kangaskhan",
+  "audit": {
+   "deck": "kangaskhan",
+   "ok": true,
+   "games": 1,
+   "kept": 19,
+   "outside": 7,
+   "coverage": 0.731,
+   "base_acc": 0.421,
+   "gated_narrow": 0,
+   "narrow_mismatch": 0,
+   "jsonl_path": "build/rule_audit/2026-07-17/kangaskhan.jsonl",
+   "notes": "警告: 教師マッチ試合が games=1 と極端に少なく、coverage=0.731 (19/26) は統計的に信頼できない。内訳: kept=19, gated_out(ctx)=30, human_outside=7, no_record=0, error=0。gated_lethal=0, gated_narrow=0, narrow_mismatch=0。base_acc(ルールargmax一致率)=42.1%。min-overlap 55 / min-score 1000 の条件で 07-13/07-15 エピソードからマッチしたのが1試合のみのため、閾値緩和かエピソード追加取得を検討すべき。npz は build/rule_audit/2026-07-17/kangaskhan.npz に保存済み。"
+  },
+  "gaps": {
+   "clusters": [
+    {
+     "label": "K15: Energy Switch 温存則が『同ターン3枚完成』の助走を禁止",
+     "count": 2,
+     "band": "negative",
+     "context": "setup限定（turn 2 / turn 4）・対alakazam・教師zoroark190・全て kind=outside",
+     "strength": "soft",
+     "teacher_behavior": "turn 4: ガルーラ e1 の状態で ES を使用（kanga_need==2 で負帯）→ ES で e2、手張りで e3 と同ターンに Rapid-Fire を完成させ攻撃（episode 86016766 step 46→52 で盤面遷移 e1→e3 を確認）。turn 2 はガルーラ未着地（kanga_need=None）で ES を先打ちし、ベンチ展開後に Clefairy の Full Moon Rondo（20+両ベンチ×20）で Abra(HP50) を確殺するライン。ES は『ガルーラ3枚目』専用ではなく『今ターン攻撃者のコストを完成させる道具』として使っている",
+     "rule_blocker": "agents/mega_kangaskhan_rb/main.py:492-497 — `if p[\"kanga_need\"] == 1 and p[\"donor_spare\"] >= 1` 以外は一律 -1 \"div-K15: hold Energy Switch\"。kanga_need は main.py:205-209 で場のガルーラのみから算出（不在なら None → 恒久 False）。手張り1枚と併用して need==2 から完成するケースと、Clefairy(Rondo) への充填を条件が見ていない",
+     "proposed_rule": "div-K19【トグル: K19_ES_COMPLETES_ATTACK】: ES を正帯（14000帯のまま）にする条件を『対象アタッカーの攻撃コストが今ターン完成する』に拡張 — (a) kanga_need - (手張り未消費 かつ hand_energy>=1 なら 1) <= 1 かつ donor_spare>=1、(b) Clefairy 在場かつ Rondo コスト {P}{C} が ES+手張りで今ターン完成する場合。無条件開放はしない",
+     "risk": "div-K15 は第3弾バンドル（K12-K16/K18）として L2 +3.3pt / L3 +1.0pt で採用済み。K15 導入前は ours=ES 33+22件 vs human 2-9件のスパムが最大不一致源だったため、『完成しないターンの空打ち』は引き続き負帯に残すこと。今回の根拠は1エピソード2件のみ — A/B（gauntlet 80戦/枠, P-12）必須"
+    },
+    {
+     "label": "K4/K16: 素出しゲートが2枚目のテラスタル/ニャースの面展開を禁止",
+     "count": 2,
+     "band": "negative",
+     "context": "setup限定（turn 2 / turn 6）・対alakazam。turn 6 はガルーラ1体目が被KO直後の復旧局面",
+     "strength": "soft",
+     "teacher_behavior": "turn 2: Teal 在場なのに いどオーガポン(108) を追加ベンチ（ベンチ計5に）→ 両ベンチ数で Rondo 打点+20/体、後の Torrential Pump プランの布石。turn 6: 手札にサポート（1197/1098）を持ちながら2体目ニャース(1071)を着地させ Last-Ditch Catch でサポートを追加ストック（ガルーラ被KO直後の復旧）。どちらも『ベンチの頭数それ自体が打点になる』Rondo プランと整合",
+     "rule_blocker": "agents/mega_kangaskhan_rb/main.py:407 デフォルト -1 \"div-K4: hold pokemon in hand\"。個別ゲート: いどオーガポンは main.py:449-451 `fc[OGERPON_TEAL]+fc[OGERPON_WELL]==0`（テラスタル1体目のみ許可）、2体目ニャースは main.py:410-416 div-K16 `not has_supporter_in_hand and not supporterPlayed`。Clefairy 自体も main.py:438 で setup では combat=False のため負帯",
+     "proposed_rule": "div-K20【トグル: K20_BENCH_FILLER_SOFT】: (a) いどオーガポン2体目のテラスタルは『Clefairy が場か手札（Rondoプラン）or 相手ベンチに HP<=70 が3体以上（Pump スナイプ価値）』で低正帯（~12000）。(b) div-K16 のニャース2体目は ko_recent（直前被KO）時はサポート所持でも許可。(c) それ以外の余剰素出しも bench_free>=2 なら -1 でなく低正帯（~1200『bench filler (Rondo count)』）にして並べ替えを学習に渡す（負帯解除のみ、順位は BC/PPO の領分）",
+     "risk": "div-K4 の起源は ours=PLAY/Meowth ×230 スパム。棄却済み仮説『素出しを ABILITY 帯より上に置く』（MAIN 34%→21% 悪化）の再来を避けるため、追加分は必ず特性/手張り帯（20000+/8000帯）より下に置く。(a) の相手ベンチHP条件は盤面観測でありモデル依存ではない（EXP-021 の線は越えない）"
+    },
+    {
+     "label": "K21: Torrential Pump のエネ色制約バグ — 無色枠 {C}{C} に G/L を許さない",
+     "count": 2,
+     "band": "negative",
+     "context": "setup（turn 6 / turn 8）・対alakazam。ATTACH 選択",
+     "strength": "soft",
+     "teacher_behavior": "turn 6: G エネ(id 1) → いどオーガポン(e1→e2)、turn 8: 非Wエネ(id 4) → 同(e2→e3)。3枚完成後 turn 8 に前へ出して攻撃（step 98 で active=108・攻撃候補提示を確認）。Torrential Pump {W}{C}{C} の無色2枠を余剰 G（デッキに9枚・Teal Dance で毎ターン再生）で払い、Pump の 100+ベンチ120 で Abra(HP50) 面を狩るプラン",
+     "rule_blocker": "agents/mega_kangaskhan_rb/main.py:569-571 `elif tid == OGERPON_WELL: score = 7600 if etype == 3 and e < 3 else -1`（etype 3={W}）。全3枠に Water を要求しており、コスト {W}{C}{C} の無色枠を色不問で払えることを見ていない。採用済み div-K14（Rondo {P}{C} を G 等で払う、main.py:564-568）と完全に同型の取り漏らし",
+     "proposed_rule": "div-K21【トグル: K21_WELL_COLORLESS】: `score = (7600 if etype==3 else 7550) if e < 3 else -1` — W を微優先しつつ任意色を正帯化（div-K14 の写経）。帯はガルーラ 8300 / Clefairy 7925 より下を維持しエネ配分優先順（S-5/R-10）を崩さない",
+     "risk": "最小。採用済み div-K14 と同パターンで設計文書の未決事項にも抵触しない。懸念は W ゼロで3枚積んで Pump が撃てない盤面への過剰投資 — 『場+手札+山prospect に W が1枚も無いなら2枚目まで』の追加ゲートを検討。エンジン側が無色枠の任意色払いを実際に受理するかは L1 で要確認"
+    },
+    {
+     "label": "K22: avoid retreat -100 がガルーラ不在時の Skyliner フリーピボットを一律禁止",
+     "count": 1,
+     "band": "negative",
+     "context": "setup（turn 8）・対alakazam。ガルーラ被KO後・ベンチにガルーラ無し。human_score=-100（唯一のハード級負帯）",
+     "strength": "soft",
+     "teacher_behavior": "active=Latias e0（攻撃不能）から退却（Skyliner で自軍全員にげる0＝ノーコスト）→ e3 のいどオーガポンを前に出し Torrential Pump で攻撃。ルールは Ultra Ball(17000)/ガルーラ素出し(15400) を推したが、教師は『今撃てるアタッカーを前に』を優先",
+     "rule_blocker": "agents/mega_kangaskhan_rb/main.py:583-603 _score_retreat — 退却先ホワイトリストがガルーラのみ（div-K6 28800 / bench_ready 2500）。bench にガルーラが居ない場合は無条件で main.py:603 `return -100, \"avoid retreat\"`。Skyliner（デッキのアイデンティティ）到達後も非ガルーラへのピボットが全禁止",
+     "proposed_rule": "div-K22【トグル: K22_FREE_PIVOT】: -100 の手前に分岐を追加 — Latias 在場（Skyliner）または実効にげるコスト0、かつ『activeが今ターン攻撃コストを払えない or is_threatened』かつ『ベンチに攻撃コスト充足のアタッカー（Well/Clefairy/ライコ含む）が居る』なら ~2200 の正帯（div-K6 28800 より十分下）。それ以外は従来どおり -100",
+     "risk": "サンプル1件のみ（ただし -100 のハード禁止×デッキ固有特性の組合せで構造性は高い）。退却ループはエンジンの1ターン1回制限＋『前後で攻撃可否が改善する時のみ』条件で抑止。div-K6 のガルーラ優先ピボット（採用済み・RETREAT 96回の主因）より必ず下の帯に置くこと"
+    }
+   ],
+   "deck": "kangaskhan",
+   "total_rows": 7,
+   "quick_wins": [
+    "div-K21（Wellspring 無色枠の任意色払い）: main.py:570 の条件1行変更。採用済み div-K14 と同型で根拠2/7件を即解消。最優先",
+    "監査ダンプの再採掘: kangaskhan.jsonl は 7行・1エピソード・1教師・対alakazamのみ（alakazam.jsonl 458KB / crustle 356KB に対し 3.3KB）。日数・エピソード数を広げて再ダンプしないと被覆率0.731の残りが見えない — 全提案の A/B 前に必須",
+    "div-K19（ES『同ターン完成』条件）: kanga_need==1 を『kanga_need - 手張り残 <= 1』へ。turn 4 の盤面遷移で実証済みの1条件修正",
+    "div-K22（Skyliner フリーピボット）: -100 一律禁止の手前に条件分岐1つ。デッキのアイデンティティ（にげる0）とルールの矛盾解消",
+    "各トグルは個別 A/B（P-12: gauntlet 80戦/枠で再計測）。div-K15/K16 はバンドル採用済みのため、緩和側トグルは1本ずつ入れて L2改善∧L3非悪化 を確認"
+   ],
+   "summary": "kangaskhan の監査ダンプ7行（全て negative 帯・kind=outside、narrow_mismatch 0件）を4クラスタに分解し、全行を raw episode 86016766 と突き合わせてカード単位で検証した。共通構造は一つ: 対alakazam（Abra HP50 横並べ）で教師 zoroark190 は『ベンチ頭数×Full Moon Rondo＋いどオーガポン Torrential Pump のベンチ狙撃』という面プランを回すが、現行φはエネつけかえ（kanga_need==1限定）・素出し（div-K4/K16ゲート）・Wellエネ色（W限定）・退却（ガルーラ先限定）の全てを『ガルーラ一本のプラン』に束ねており、面プランのパーツを片端から負帯化している。修正は教師の直写しではなく条件で書ける: (1) ES は『攻撃コストが今ターン完成する』時に解禁、(2) 面ボディの素出しは Rondo/Pump 価値が観測できる盤面で低正帯化、(3) Pump の無色枠は任意色（div-K14 と同型の1行修正）、(4) Skyliner 到達後のフリーピボットは『今撃てる者を前に』条件で解禁。注意: このダンプは1エピソード・1マッチアップのみで他デッキの1/100以下のサイズ — 提案の方向は盤面検証済みだが、採否判定（L2/L3, P-12 の80戦/枠）の前にダンプ再採掘で件数の裏取りが必要。div-K15 バンドル（L2 +3.3pt）を崩さないよう、緩和は全てトグル付き・1本ずつ A/B すること。"
+  }
+ },
+ {
+  "deck": "rocket",
+  "audit": {
+   "deck": "rocket",
+   "ok": true,
+   "games": 41,
+   "kept": 1651,
+   "outside": 297,
+   "coverage": 0.848,
+   "gated_narrow": 150,
+   "narrow_mismatch": 42,
+   "base_acc": 0.474,
+   "jsonl_path": "build/rule_audit/2026-07-17/rocket.jsonl",
+   "notes": "AUDIT行まで正常完走。教師にマッチした試合は41試合のみ（--max-games 500 に対し大幅に少なく、07-13/07-15エピソードでの教師母数が薄い点に注意）。内訳: kept=1651, gated_out=1017（gated_ctx=830, gated_lethal=37, gated_narrow=150）, human_outside=297, no_record=0, error=0。narrow_mismatch=42/150（28%）とやや高め。ルールargmax一致率（base_acc）は47.4%と低めで、被覆率0.848自体は確保されているがルールの決定精度には改善余地あり。npz出力: build/rule_audit/2026-07-17/rocket.npz。"
+  },
+  "gaps": {
+   "deck": "rocket",
+   "total_rows": 339,
+   "clusters": [
+    {
+     "label": "G1: R-10 grass elsewhere — 草手張り先の過剰制限（タマンチュラ2枚目・無色枠埋め）",
+     "count": 84,
+     "band": "negative",
+     "context": "全体の24.8%で最大。付与先はバトル場(4,0)が51件・ベンチ33件。setup 51/combat 33、turn 1〜93（中央値18）。vs alakazam 64。教師は kashiwashira 38 / lolzpo 46 と両教師で再現",
+     "teacher_behavior": "草エネを『ワナイダー（+タマンチュラ1枚目）以外』へ手張り。最多サブパターンはバトル場タマンチュラへの2枚目 — ロケットラッシュは{G}C=2個ぶんなので、進化ターンに即攻撃するには進化前2枚張りが必要（序盤はトラッシュが空でチャージアップが機能しない）。ベンチ側はフリーザーのCC埋め・ミュウツーのC埋め・2本目タマンチュラへの先行投資",
+     "rule_blocker": "agents/rocket_rb/main.py:481-489 _score_attach GRASS分岐。tid==TAROUNTULA は units<1 のみ許可（487行）、それ以外は489行 return -1 'R-10: grass elsewhere'（ハード負帯）",
+     "proposed_rule": "①div-RK1a【hard解除】: タマンチュラ先行チャージ上限を units<2 に緩和（技コスト2個ぶんに一致 = R-10『技の実コストから導出』の本義通り。スコアは現行8100帯）。②div-RK1b【soft】: フリーザー/ミュウツーの無色枠（units<技コスト）への草を3000程度の低帯で解禁し、並べ替えは学習レイヤに委ねる",
+     "strength": "①hard ②soft",
+     "risk": "②は手張り権（1回/番）の浪費で主砲線への張り遅れの恐れ。①は低リスク（現行が単に過小）。対alakazam 91.2%の勝ち対面を触るため P-12 の gauntlet 再計測必須"
+    },
+    {
+     "label": "G2: avoid retreat の -100 一律ハード禁止（無料ピボット・被KO回避の不在）",
+     "count": 47,
+     "band": "negative",
+     "context": "turn 1〜3 が 20/47 と序盤集中（中央値8）。narrow_mismatch 12件を含み、うち正帯が'end'のみの場面が12件。ただし kashiwashira（勝率51.6%）38 / lolzpo 9 と低勝率教師に偏る",
+     "teacher_behavior": "ルールが -100 で禁じたにげるを実行。①他にやることが無い場面で前をタンク（ミミッキュ=にげ0/フリーザー）に替えてからパス ②攻撃可能でも前を下げて主砲を温存（ロケットラッシュは盤面数依存なので誰が前でも打点は同じ = 前は壁でよい）",
+     "rule_blocker": "agents/rocket_rb/main.py:331-344 _score_retreat。desired!=active のピボット(1900)と詰みバトル場の解消(2000)以外は344行 return -100 'avoid retreat'。設計md 41-42行で『ミミッキュ=無料ピボット枠』と明記しながら実装に無料にげるの評価が無い",
+     "proposed_rule": "div-RK2a【soft】: にげる実効コスト0（ミミッキュ等）なら常時 soft 正帯 1500 — 設計mdのドクトリンを実装に反映。div-RK2b【soft】: バトル場が相手打点圏内かつベンチに撃てるアタッカーが居る場合 1300。エネを実際に捨てるにげる（コスト≥1）は現行 -100 を維持。にげる往復の振動ガードに1ターン1回制限を併設",
+     "strength": "soft",
+     "risk": "教師の8割が勝率51.6%の kashiwashira でシグナル品質が低い。2b は相手打点推定に依存（rocket の meta_tables は OPP_MAX_DAMAGE 未登録 = generic フォールバック）— EXP-021 の教訓どおり広い直写しは避け条件成立時のみ解錠"
+    },
+    {
+     "label": "G3: save Receiver — 在庫1枚でサーチ禁止（ファクトリー毎ターン発動の弾込め阻害）",
+     "count": 37,
+     "band": "negative",
+     "context": "turn 1〜15（中央値5）の序盤集中。lolzpo 25 / kashiwashira 12。matchup は分散（alakazam 12・marnie 10・crustle 6 他）で対面非依存の構造ギャップ",
+     "teacher_behavior": "手札にロケット団サポートが既に1枚あってもレシーバーを即使用。今番そのサポートを使えば在庫0になるため翌番以降の弾込めが必要 + ファクトリー（ロケット団サポートを使った番に2ドロー）を毎ターン発動させ続ける動き + 4積みの薄め札の早回し",
+     "rule_blocker": "agents/rocket_rb/main.py:396-402。have=sum(hc[i] for i in ROCKET_SUPPORTERS)>=1 で402行 'save Receiver' -1。今番プレイ予定のサポートまで『在庫』に数える勘定ミスが本質",
+     "proposed_rule": "div-RK3【soft】: ブロック条件を have>=2 に緩和（在庫1枚 = 今番使えば枯れる、は使用可・12000帯）。さらに手札にアテナ不在なら have==1 でも許可する追加条件も候補",
+     "strength": "soft",
+     "risk": "レシーバー4枚の早期消費で終盤サポート切れ。R-11 ガード（safe_draws>=1）は現行維持で担保。低リスク・高件数で quick win"
+    },
+    {
+     "label": "G4: E-5 Lillie — hand_size<=4 ゲートが死に手札のリセットを禁止",
+     "count": 30,
+     "band": "negative",
+     "context": "narrow_mismatch 5件は正帯候補が'end'のみ（一本道でパス vs 教師はリーリエ）。vs alakazam 23。turn 中央値21。kashiwashira 20 / lolzpo 10",
+     "teacher_behavior": "hand_size>4 でもリーリエ（手札を山に戻して6ドロー）を使用。R-10 で張れない余剰エネ・使えないサポートで詰まった死に手札を新品6枚へ交換する — 特に'end'以外に正帯が無い場面での最後の一手",
+     "rule_blocker": "agents/rocket_rb/main.py:445 return (5300 if p['hand_size'] <= 4 else -1), 'E-5: Lillie'。手札枚数だけで判定し『手札の死に度』を見ていない",
+     "proposed_rule": "div-RK4【soft】: 二段化 — hand_size<=4 は現行5300、それ以外は『end以外の正帯候補が存在しない番』に限り 300（end=0 の直上）で解禁。R-11 ガード（safe_draws>=2）は維持",
+     "strength": "soft",
+     "risk": "温存中の良札（サカキ・ロケットエネ）まで山へ戻す逆噴射。G1/G9 の手張り解禁が入ると死に手札自体が減って件数が縮む依存関係あり — G1 実装・再計測（P-12）後に採否判断すべき"
+    },
+    {
+     "label": "G5: R-10 Spidops fueled — 2個ぶん到達で無料チャージアップまで打ち止め",
+     "count": 25,
+     "band": "negative",
+     "context": "lolzpo 25/25 = 採用教師（勝率77.3%）純度100%の最良シグナル。combat 23/25。内訳: チャージアップ起動20（ベンチ10/バトル場10）+ 草手張り5。vs alakazam 12・crustle 7・marnie 5",
+     "teacher_behavior": "実効2個ぶん到達済みのワナイダーへ更にチャージアップ（無料・番1回）や手張りでエネを積み増す。用途 = ①にげる2の支払い原資（傷んだ主砲を下げて次を出す）②ミュウツーのイレイザーボール+60×2の弾（ベンチのエネをトラッシュ = 設計md 未決事項3と直結）③エネ現物のボード備蓄",
+     "rule_blocker": "agents/rocket_rb/main.py:292-294（チャージアップ: eff_units<2 でなければ 'R-10: Spidops fueled (Charge Up)' -1）と 483-486（草手張り: GRASS in ids かつ units>=2 で 'R-10: Spidops fueled' -1）",
+     "proposed_rule": "div-RK5a【soft】: チャージアップの units 上限を撤廃 — 満タン時も 2000 程度の低帯で常時許可（無料アクション・実質資源プラス）。div-RK5b【soft】: 手張りの積み増しは units<4（技2+にげる2）を上限に低帯許可。イレイザーボールの条件付き会計（未決事項3）とセットで価値最大",
+     "strength": "soft",
+     "risk": "5b は手張り権の浪費リスクあり。5a はトラッシュの草を自陣に回収するだけでほぼ無リスク（このプールにトラッシュ参照の敵対効果なし）。最も安全な解禁候補"
+    },
+    {
+     "label": "G6: S-4 Poke Pad — combat時 rockets>=4 で禁止（打点最大化の6と閾値乖離）",
+     "count": 24,
+     "band": "negative",
+     "context": "combat 24/24（combat専用の負帯分岐）。turn 3〜15 が大半（中央値9）。kashiwashira 12 / lolzpo 12 と両教師で再現。matchup 分散",
+     "teacher_behavior": "ワナイダー在庫あり・ロケット団4匹以上でもポケパッドを使用。ロケットラッシュ=盤面×30 なので5〜6匹目（+30〜+60打点）と控えタマンチュラ線・ミミッキュを取りに行く。閾値4はパワーセーバー（ミュウツー起動）基準であって打点上限の6ではない",
+     "rule_blocker": "agents/rocket_rb/main.py:403-408。need=(ワナイダー線ゼロ or rockets<4) が False のとき combat で -1（407-408行の三項式）",
+     "proposed_rule": "div-RK6【soft】: combat の need 条件を rockets<6（ベンチ満員まで）へ拡張。rockets>=4 のときのスコアは 6500 程度の低帯（進化・手張り・攻撃より下）に置き干渉を避ける",
+     "strength": "soft",
+     "risk": "山の薄めすぎ → R-11 ガード（safe_draws>=1）現行維持で担保。盤面数=打点というデッキ設計（設計md 58行）と自明に整合し低リスク。quick win"
+    },
+    {
+     "label": "G7: save Sakaki — 吊り出し（グスト）価値の評価が存在しない",
+     "count": 21,
+     "band": "negative",
+     "context": "turn 中央値38の中終盤。vs alakazam 17。kashiwashira 13 / lolzpo 8。設計md 未決事項2『サカキのリーサル統合』のまさにその欠落",
+     "teacher_behavior": "desired==active（自分の入替が不要）でもサカキを使用 = 目的は吊り出し側。相手ベンチの育成中・低HP個体を前へ引きずり出してロケットラッシュ150〜180でKO、サイドレースを加速（ボスの指令0枚デッキの代替グスト）",
+     "rule_blocker": "agents/rocket_rb/main.py:427-434。ピボット(8900)/詰み解消(8950)の2用途のみ評価し、吊り出し価値はゼロ評価で434行 'save Sakaki' -1。judge_lethal も mt.BOSS 経路のみ（main.py:16 の v1 割り切りコメント・設計md 111-112行）",
+     "proposed_rule": "div-RK7【hard（条件成立時のみ）】: 相手ベンチに『自分の現アタッカーの実効打点 >= 残HP』の個体が居るとき 9200（攻撃より先に置く）で解禁。自分側の入替おまけがあるため『ベンチに撃てるアタッカーが居る or activeが続投可能』を前提条件に含める。judge_lethal へのサカキ吊りKO経路の追加も同時に実施",
+     "strength": "hard",
+     "risk": "サカキ3枚の配分（中盤のサイド加速 vs 終盤の詰め温存）はスコア帯で要調整。設計md 既定の未決事項であり過去棄却の再提案ではない。実装コストは他クラスタより高い（打点×対象の閉形式）"
+    },
+    {
+     "label": "G8: skip foreign ability — 相手スパイクタウンジムのタップ（低優先・要精査）",
+     "count": 11,
+     "band": "negative",
+     "context": "全11件 vs marnie・lolzpo のみ・turn 4〜12。押しているのは相手のスパイクタウンジム（1259: 番に1回マリィのポケモンをサーチ — ロケット団デッキに対象カードはゼロ）",
+     "teacher_behavior": "相手スタジアムの特性を毎ターン起動。自デッキに取れる対象が無いため、実利は山札確認（人間のサイド落ち把握）またはシャッフルと推定 = ボットに移植できない人間固有の情報行動の可能性が高い",
+     "rule_blocker": "agents/rocket_rb/main.py:299 return -1, 'skip foreign ability'（SPIDOPS/FACTORY 以外の特性を一律 -1）",
+     "proposed_rule": "原則現状維持を推奨。検証するなら div-RK8【soft・既定OFF】: 『自デッキに副作用ゼロと確認済みの相手スタジアム特性のみ 100』の限定トグルで A/B。優先度は最下位。まず該当リプレイ1本を目視して実効果を確認してから",
+     "strength": "soft（既定OFF）",
+     "risk": "既採用ドクトリンと正面衝突: フーディン div-15【採用・押さない方が MAIN+2pt】/ ガブリアス div-G2 / ガルーラ div-K11 が全て『相手スタジアム特性を押さない』で採用済み。教師が高品質(lolzpo)でも情報価値は移植不能 — EXP-021 型の直写し危険の典型例"
+    },
+    {
+     "label": "G9: save Rocket Energy — タマンチュラへの2個ぶん張りを禁止",
+     "count": 11,
+     "band": "negative",
+     "context": "lolzpo 11/11（採用教師純度100%）。turn 1〜4 の初動に集中（中央値3）。setup 7/combat 4",
+     "teacher_behavior": "ロケット団エネ（{P}{D}=2個ぶん）を計画外ターゲットへ手張り: 最多はタマンチュラ — 1枚で進化後即2個ぶん充足=進化ターン即ロケットラッシュ。ほか素フリーザー・ミミッキュへの投資。ミュウツー専用温存より初動の主砲起動を優先している",
+     "rule_blocker": "agents/rocket_rb/main.py:490-501。許可先がミュウツー(492-496)/水付きフリーザー(497)/草付きワナイダーの無色埋め(499)の3パターンのみ。それ以外は501行 'save Rocket Energy' -1",
+     "proposed_rule": "div-RK9【soft】: タマンチュラ units==0 への張りを 7800（草8100・ミュウツー8600より下）で解禁。条件: 場+手札にミュウツー不在 or ロケットエネ在庫 fc+hc>=2（起動原資の温存条件）",
+     "strength": "soft",
+     "risk": "4積みしかないミュウツーの唯一の{P}供給源の枯渇 → 在庫条件で緩和。実装時はメモリ既載の『ロケットエネ2個ぶん勘定の罠』どおり eff_units 経路で勘定すること"
+    },
+    {
+     "label": "G10: save Bangle — ワナイダー限定装着（フリーザー等の非ルール持ちを除外）",
+     "count": 9,
+     "band": "negative",
+     "context": "lolzpo 9/9。付与先はベンチ5/バトル場4。vs alakazam 6",
+     "teacher_behavior": "ブレイブバングル（非ルール持ちの対exバトル場+30）をワナイダー以外へ装着 — フリーザー（ダークフロスト120→150）・タマンチュラ・ミミッキュも全員が非ルール持ちで対象適格",
+     "rule_blocker": "agents/rocket_rb/main.py:465-470。tid==SPIDOPS のみ 12400、他は470行 'save Bangle' -1",
+     "proposed_rule": "div-RK10【soft】: 対象を非ルール持ちアタッカー全般へ拡張 — ワナイダー12400 > フリーザー11000 > その他4000 の序列。より保守的には『ワナイダーが場と手札に不在 or 全員どうぐ装着済み』のときのみ他を許可",
+     "strength": "soft",
+     "risk": "1積みのため装着先ミス（後から出た主砲へ付けられない）が不可逆。低件数につき優先度低"
+    }
+   ],
+   "quick_wins": [
+    "div-RK1a: タマンチュラ先行チャージ上限を units<1 → units<2 に（main.py:487）。最大クラスタG1の主成分で、技コスト{G}C=2との整合という自明な修正。序盤トラッシュが空=チャージアップ不能な局面で進化ターン即攻撃を解禁する",
+    "div-RK6: ポケパッド combat 解禁閾値を rockets<4 → rockets<6 に（main.py:406-408）。盤面数=打点のデッキ設計と自明に整合、R-11 ガード維持で低リスク",
+    "div-RK3: レシーバーのブロック条件を have>=1 → have>=2 に（main.py:399-402）。『今番使う予定のサポートを在庫に数える』勘定ミスの修正",
+    "div-RK5a: チャージアップの units>=2 打ち止めを撤廃し低帯で常時許可（main.py:292-294）。無料アクションでほぼ無リスク、採用教師 lolzpo 純度100%のシグナル",
+    "全変更は1トグルずつ P-12 準拠で gauntlet 80戦/枠再計測（対alakazam 91.2%・ミラー81.2 の勝ち対面を守る）。判定ゲートは pool-fit でなく L0/L4（ミラー除外160戦+）"
+   ],
+   "summary": "rocket.jsonl 339行（被覆率0.848の残り）は negative 337 / positive(13位以下) 2 で、候補数上限ではなくルールの積極禁止がギャップのほぼ全て。上位10クラスタで299行=88%をカバーする。構造は3系統に大別できる: (1)エネルギー規律 R-10 の過小上限（G1 grass elsewhere 84・G5 Spidops fueled 25・G9 Rocket Energy 11 = 全体の35%）— 特に『タマンチュラに2枚目を張れない』は技コスト2個ぶんとの単純な不整合で、序盤はトラッシュが空でチャージアップが効かないため進化ターン即攻撃の唯一の手段を塞いでいる。(2)温存則の在庫勘定ミス（G3 Receiver 37・G4 Lillie 30・G6 Poke Pad 24・G10 Bangle 9）— 『1枚あれば足りる』系の条件が、ファクトリー毎ターン発動・盤面6=打点180・死に手札リセットという本デッキ固有のドクトリンと衝突。(3)未実装の行動価値（G7 サカキ吊り出し21・G2 無料ピボット47）— どちらも設計md/実装コメントに既知の v1 割り切りとして明記済みで、今回のダンプはその優先順位付けを実測で裏付けた。教師品質で重み付けすると、lolzpo（77.3%・採用教師）純度100%の G5/G9/G10 と両教師で再現する G1/G3/G6 が高信頼、kashiwashira（51.6%）偏重の G2 は条件を絞った soft 解禁に留めるべき。G8（相手スタジアムタップ）のみ既採用ドクトリン（フーディン div-15 採用・ガブ div-G2・ガルーラ div-K11）と正面衝突するため現状維持を推奨。G4 は G1 実装後に件数が縮む依存関係があるので実装順は G1→再計測→G4 の順。"
+  }
+ },
+ {
+  "deck": "chandelure",
+  "audit": {
+   "deck": "chandelure",
+   "ok": false,
+   "games": 0,
+   "kept": 0,
+   "outside": 0,
+   "coverage": null,
+   "base_acc": null,
+   "gated_narrow": null,
+   "narrow_mismatch": null,
+   "jsonl_path": "build/rule_audit/2026-07-17/chandelure.jsonl",
+   "notes": "抽出0件（stats={}）で異常終了。AUDIT行なし。診断の結果、教師にマッチした試合は0: 2026-07-13/07-15 の全600試合・1200プレイヤー枠を走査したが、decks/fleet/chandelure_top.csv との最大重なりは39/60枚（team=hikarimaru, スコア920.4で min-score 1150 も未達）。高レート勢の最良は Rmy（1177.2）で重なり29枚のみ。min-overlap 55 を満たす枠は0件のため、この日付範囲には chandelure 系の教師ピロットが存在しない。jsonl は0バイトの空ファイルとして作成済み、npz は未作成。別日付のエピソード取得か、match-deck/min-overlap の見直しが必要。"
+  },
+  "gaps": null
+ }
+]

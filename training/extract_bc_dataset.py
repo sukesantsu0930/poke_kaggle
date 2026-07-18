@@ -18,6 +18,15 @@ replay_divergence と同じ歩行（ACTIVE ステップ・off-by-one）で対象
       --episodes downloads/episodes/2026-07-13 \
       --agent agents/alakazam_rb --match-deck decks/fleet/alakazam_top_0710.csv \
       --min-overlap 55 --min-score 1180 --out data/imitation/alakazam_bc/2026-07-13.npz
+
+監査モード（2026-07-17 追加。ルール成熟ゲート A の計測器）:
+  --audit-jsonl を渡すと、学習で直せない決定 = ルールの構造誤りの疑いを JSONL に落とす。
+    - kind=outside: ネット対象決定なのに教師の選択が候補外（負帯 or 13位以下）
+      → 負帯化ルールの誤り or スコアリングの盲点。学習は候補の並べ替えしかできないので
+        ここは φ（ルール）を直すしかない
+    - kind=narrow_mismatch: 正帯<2 でネット対象外の決定で、教師がルールの選択と不一致
+      → マスクが強すぎて一本道化している疑い
+  末尾に AUDIT 行（被覆率 = kept/(kept+outside)）を機械可読で出力する。
 """
 import argparse
 import glob
@@ -43,20 +52,53 @@ import policy_net as pn  # noqa: E402
 NET_MAX_CANDIDATES = 12   # policy_base.BasePolicy.NET_MAX_CANDIDATES と揃える
 
 
-def gate_candidates(rec):
-    """decision_log レコード → _maybe_net と同じ候補列 [(oi, score, reason)]。
-    対象外（MAIN以外・複数選択・リーサル成立・正帯<2）は None。"""
+def gate_candidates_ex(rec):
+    """decision_log レコード → (_maybe_net と同じ候補列 [(oi, score, reason)], 除外理由)。
+    対象外は (None, why)。why ∈ {"ctx", "lethal", "narrow"}。"""
     if rec["ctx_name"] != "MAIN" or rec["max_count"] != 1:
-        return None
+        return None, "ctx"
     if rec.get("lethal_route") is not None:
-        return None
+        return None, "lethal"
     opts = sorted(rec["options"], key=lambda o: (o["score"], -o["i"]), reverse=True)
     cands = [(o["i"], float(o["score"]), o["reason"])
              for o in opts if 0 <= o["score"] < 100_000]
     cands = cands[:NET_MAX_CANDIDATES]
     if len(cands) < 2:
-        return None
-    return cands
+        return None, "narrow"
+    return cands, None
+
+
+def gate_candidates(rec):
+    """後方互換ラッパー（従来どおり候補列 or None）。"""
+    return gate_candidates_ex(rec)[0]
+
+
+def _audit_row(kind, rec, od, human_i, day, team, fp):
+    """監査 JSONL の1行。ルールの構造誤り疑いを、クラスタリングに足る文脈つきで残す。"""
+    by_i = {o["i"]: o for o in rec["options"]}
+    h = by_i.get(human_i)
+    raw_opts = (od.get("select") or {}).get("option") or []
+    raw = raw_opts[human_i] if 0 <= human_i < len(raw_opts) else None
+    pos = sorted((o for o in rec["options"] if 0 <= o["score"] < 100_000),
+                 key=lambda o: -o["score"])
+    return {
+        "kind": kind,
+        "day": day,
+        "team": team,
+        "episode": Path(fp).stem,
+        "turn": rec.get("turn"),
+        "phase": rec.get("phase"),
+        "matchup": rec.get("matchup"),
+        "n_options": len(rec["options"]),
+        "human_i": human_i,
+        "human_score": (h or {}).get("score"),
+        "human_band": (h or {}).get("band", "missing"),
+        "human_reason": (h or {}).get("reason"),
+        "rule_selected": rec.get("selected"),
+        "pos_candidates": [[o["i"], o["score"], o["reason"]] for o in pos[:12]],
+        "human_option_raw": (json.dumps(raw, ensure_ascii=False)[:600]
+                             if raw is not None else None),
+    }
 
 
 def main():
@@ -71,7 +113,15 @@ def main():
     ap.add_argument("--min-score", type=float, default=1180)
     ap.add_argument("--max-games", type=int, default=500)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--audit-jsonl", default="",
+                    help="ルール構造誤り疑い（候補外決定等）のダンプ先。空 = 監査なし")
     args = ap.parse_args()
+
+    audit_f = None
+    if args.audit_jsonl:
+        ap_path = ROOT / args.audit_jsonl
+        ap_path.parent.mkdir(parents=True, exist_ok=True)
+        audit_f = open(ap_path, "w", encoding="utf-8")
 
     ref_deck = Counter(read_deck(ROOT / args.match_deck))
     scores = load_scores(ROOT / args.leaderboard)
@@ -137,13 +187,26 @@ def main():
                         stats["no_record"] += 1     # R-01 フォールバック等
                         continue
                     rec = policy.decision_log[0]
-                    cands = gate_candidates(rec)
+                    cands, why = gate_candidates_ex(rec)
                     if cands is None:
                         stats["gated_out"] += 1
+                        stats[f"gated_{why}"] += 1
+                        if (why == "narrow" and audit_f is not None
+                                and human[0] not in (rec.get("selected") or [])):
+                            stats["narrow_mismatch"] += 1
+                            audit_f.write(json.dumps(
+                                _audit_row("narrow_mismatch", rec, od, human[0],
+                                           day, team, fp),
+                                ensure_ascii=False) + "\n")
                         continue
                     oi_list = [oi for oi, _s, _r in cands]
                     if human[0] not in oi_list:
                         stats["human_outside_cands"] += 1
+                        if audit_f is not None:
+                            audit_f.write(json.dumps(
+                                _audit_row("outside", rec, od, human[0],
+                                           day, team, fp),
+                                ensure_ascii=False) + "\n")
                         continue
                     obs = to_observation_class(od)
                     if int(obs.select.context) != int(SelectContext.MAIN):
@@ -159,6 +222,9 @@ def main():
                     stats["kept"] += 1
                 except Exception:
                     stats["error"] += 1
+                    if stats["error"] == 1:   # 初回だけ原因を可視化（サイレント失敗対策）
+                        import traceback
+                        traceback.print_exc()
                     continue
 
     if not X_rows:
@@ -186,6 +252,16 @@ def main():
           f"no_record={stats['no_record']}, error={stats['error']})")
     print(f"rule-argmax baseline agreement（k==0 率）= {base_acc:.1%}")
     print(f"saved -> {out}")
+    if audit_f is not None:
+        audit_f.close()
+        scope = stats["kept"] + stats["human_outside_cands"]
+        cov = stats["kept"] / scope if scope else 0.0
+        print(f"AUDIT games={games} kept={stats['kept']} "
+              f"outside={stats['human_outside_cands']} coverage={cov:.3f} "
+              f"gated_ctx={stats['gated_ctx']} gated_lethal={stats['gated_lethal']} "
+              f"gated_narrow={stats['gated_narrow']} "
+              f"narrow_mismatch={stats['narrow_mismatch']} "
+              f"base_acc={base_acc:.3f} -> {args.audit_jsonl}")
 
 
 if __name__ == "__main__":

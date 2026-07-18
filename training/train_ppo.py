@@ -12,6 +12,11 @@
     自己対戦はしない（正典 §7.2）。ミラー行の相手も凍結版なので非定常化しない
   - EXP-006 の教訓（winner's curse）: デプロイ候補は ema.npz（重みの指数移動平均）。
     latest.npz は継続用チェックポイント
+  - 模倣正則化（2026-07-17 追加・任意）: --bc-data で抽出 npz（extract_bc_dataset の出力）を
+    渡すと、PPO の各更新に教師決定の CE 勾配を λ 加重で混ぜる（DAPG / AlphaStar 型）。
+    プール過適合で LB 挙動から漂流するのを模倣項が引き留める。λ は --bc-coef から
+    --bc-coef-final へ線形減衰（勝利項が主、模倣項は錨）。--bc-eval-days の決定は
+    学習に混ぜず、iter 毎の holdout 一致率として history.csv に記録（= L0 の連続計測）
 
 依存は numpy のみ（サーバー Docker でも Windows でも同じに動く。torch 不使用）。
 
@@ -42,6 +47,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "submission"))
 sys.path.insert(0, str(ROOT / "agents" / "_base"))
+sys.path.insert(0, str(ROOT / "training"))
 
 from cg import api, game  # noqa: E402
 
@@ -50,6 +56,8 @@ from gauntlet import build_opponent, read_field  # noqa: E402
 
 import policy_net as pn  # noqa: E402  (agents/_base の正本。特徴量・npz 形式を共有)
 import value_model as vm  # noqa: E402
+
+from train_bc import expand_vocab, load_datasets as load_bc_data  # noqa: E402
 
 
 # ═══════════════════════════ 対戦生成 ═══════════════════════════
@@ -281,6 +289,79 @@ def ppo_loss_grads(net, Xp, mask, kk, logp_old, adv, clip, ent_coef):
     return loss, [dW0, db0, dW1, db1, np.array([dbeta])], stats
 
 
+# ═══════════════════════════ 模倣正則化（BC 混合） ═══════════════════════════
+# プール自己対戦のみの PPO は凍結プールに過適合して LB 挙動から漂流し、
+# BC 単独は不安定（EXP-002）。そこで PPO 勾配に教師決定の CE 勾配を λ 加重で
+# 足し合わせる（DAPG / AlphaStar の教師正則化と同思想。勝利項が主、模倣項は錨）。
+
+
+def pad_decisions(decisions):
+    """[(Xf(K,D), k)] → (Xp, mask, kk)。pad_batch の決定リスト版。"""
+    kmax = max(Xf.shape[0] for Xf, _k in decisions)
+    d = decisions[0][0].shape[1]
+    Xp = np.zeros((len(decisions), kmax, d), dtype=np.float64)
+    mask = np.zeros((len(decisions), kmax), dtype=bool)
+    kk = np.zeros(len(decisions), dtype=np.int64)
+    for r, (Xf, k) in enumerate(decisions):
+        Xp[r, :Xf.shape[0]] = Xf
+        mask[r, :Xf.shape[0]] = True
+        kk[r] = k
+    return Xp, mask, kk
+
+
+def bc_loss_grads(net, Xp, mask, kk):
+    """教師決定の CE 損失と解析勾配（ppo_loss_grads と同じ5パラメタ並び、beta 含む）。"""
+    B = Xp.shape[0]
+    pre, h, _logits, p = policy_forward(net, Xp, mask)
+    rows = np.arange(B)
+    loss = float(-np.mean(np.log(np.maximum(p[rows, kk], 1e-12))))
+    acc = float(np.mean(p.argmax(axis=1) == kk))
+    dlogits = p.copy()
+    dlogits[rows, kk] -= 1.0
+    dlogits /= B
+    dlogits = np.where(mask, dlogits, 0.0)
+    dbeta = float((dlogits * Xp[:, :, vm.N_FEATURES]).sum())
+    dW1 = np.einsum("bkh,bk->h", h, dlogits)[:, None]
+    db1 = np.array([dlogits.sum()])
+    dh = dlogits[:, :, None] * net.W1[:, 0]
+    dpre = dh * (pre > 0)
+    dW0 = np.einsum("bkd,bkh->dh", Xp, dpre)
+    db0 = dpre.sum(axis=(0, 1))
+    return loss, [dW0, db0, dW1, db1, np.array([dbeta])], acc
+
+
+class BCMixer:
+    """抽出 npz（train_bc と同形式）を PPO 側語彙に展開し、minibatch を払い出す。"""
+
+    def __init__(self, patterns, eval_days, vocab, seed):
+        rows = load_bc_data(patterns)
+        vi = {r: i for i, r in enumerate(vocab)}
+        nv = len(vocab)
+        days = {d.strip() for d in eval_days.split(",") if d.strip()}
+        self.train = [(expand_vocab(X, rs, vi, nv), int(k))
+                      for X, k, rs, d in rows if d not in days]
+        self.holdout = [(expand_vocab(X, rs, vi, nv), int(k))
+                        for X, k, rs, d in rows if d in days]
+        if not self.train:
+            raise SystemExit("--bc-data: 学習に混ぜる決定が0件（--bc-eval-days が全日を除外?）")
+        self.rng = np.random.RandomState(seed)
+
+    def sample(self, m):
+        idx = self.rng.randint(len(self.train), size=min(m, len(self.train)))
+        return pad_decisions([self.train[i] for i in idx])
+
+    def holdout_acc(self, net, chunk=512):
+        """holdout 決定の greedy 一致率（= L0 の iter 毎連続計測）。データ無しは None。"""
+        if not self.holdout:
+            return None
+        hit = 0
+        for lo in range(0, len(self.holdout), chunk):
+            Xp, mask, kk = pad_decisions(self.holdout[lo:lo + chunk])
+            _pre, _h, _lg, p = policy_forward(net, Xp, mask)
+            hit += int(np.sum(p.argmax(axis=1) == kk))
+        return hit / len(self.holdout)
+
+
 def compute_gae(values, outcome, gamma, lam):
     """1試合ぶんの GAE。報酬は終端のみ（= 勝敗）。values: (T,)。"""
     T = len(values)
@@ -481,6 +562,15 @@ def main():
     ap.add_argument("--lam", type=float, default=0.95)
     ap.add_argument("--target-kl", type=float, default=0.03,
                     help="epoch 途中で approx_kl がこれを超えたら当該 iter の更新を打ち切り")
+    ap.add_argument("--bc-data", default="",
+                    help="模倣正則化: 抽出 npz の glob（カンマ区切り可）。空 = 従来 PPO のみ")
+    ap.add_argument("--bc-coef", type=float, default=0.3,
+                    help="模倣項の初期係数 λ")
+    ap.add_argument("--bc-coef-final", type=float, default=0.05,
+                    help="最終 iter の λ（線形減衰。定数にするなら --bc-coef と同値）")
+    ap.add_argument("--bc-minibatch", type=int, default=256)
+    ap.add_argument("--bc-eval-days", default="",
+                    help="この日の決定は学習に混ぜず holdout 一致率の計測のみ（P-10）")
     ap.add_argument("--hidden", type=int, default=64)
     ap.add_argument("--vocab-size", type=int, default=64)
     ap.add_argument("--warmup-games", type=int, default=32)
@@ -535,6 +625,12 @@ def main():
               f"{time.perf_counter() - t0:.0f}s) / warmup greedy wr = {base_wr:.1%} (参考値)")
         net = pn.init_net(vocab, hidden=args.hidden, seed=args.seed)
 
+    bc = None
+    if args.bc_data:
+        bc = BCMixer(args.bc_data, args.bc_eval_days, vocab, args.seed + 2)
+        print(f"bc mix: train={len(bc.train)} / holdout={len(bc.holdout)} decisions, "
+              f"lambda {args.bc_coef} -> {args.bc_coef_final}")
+
     # 訓練用にネットを注入（gauntlet の凍結とは逆に、対象機はこのネットで指す）
     policy = sampler.policy
     policy._net = net
@@ -570,7 +666,8 @@ def main():
     if new_hist:
         hist.writerow(["iter", "games", "unfinished", "win_rate", "steps",
                        "pg_loss", "v_loss", "entropy", "approx_kl", "clip_frac",
-                       "beta", "eval_wr", "secs"])
+                       "beta", "eval_wr", "bc_loss", "bc_acc", "bc_holdout",
+                       "bc_coef", "secs"])
 
     for it in range(1, args.iters + 1):
         t0 = time.perf_counter()
@@ -588,6 +685,12 @@ def main():
         adv = batch["adv"]
         adv = (adv - adv.mean()) / (adv.std() + 1e-8)
 
+        # 模倣項の係数（iter に対し線形減衰: 序盤は錨を強く、終盤は勝利項に主導権）
+        bc_coef = 0.0
+        if bc is not None:
+            frac = (it - 1) / max(1, args.iters - 1)
+            bc_coef = args.bc_coef + (args.bc_coef_final - args.bc_coef) * frac
+
         # ── policy update ──
         stats_acc = []
         stop = False
@@ -601,6 +704,11 @@ def main():
                 _loss, grads, st = ppo_loss_grads(
                     net, Xp, mask, kk, batch["logp"][idx], adv[idx],
                     args.clip, args.ent)
+                if bc is not None:
+                    bXp, bmask, bkk = bc.sample(args.bc_minibatch)
+                    bloss, bgrads, st["bc_acc"] = bc_loss_grads(net, bXp, bmask, bkk)
+                    st["bc_loss"] = bloss
+                    grads = [g + bc_coef * bg for g, bg in zip(grads, bgrads)]
                 adam.step(pol_params, grads, args.lr)
                 net.beta = float(pol_params[4][0])
                 net.b1 = pol_params[3]
@@ -618,20 +726,38 @@ def main():
             e *= args.ema
             e += (1 - args.ema) * p
 
-        mean = lambda k: float(np.mean([s[k] for s in stats_acc])) if stats_acc else 0.0
+        def mean(k):
+            vals = [s[k] for s in stats_acc if k in s]
+            return float(np.mean(vals)) if vals else 0.0
+
         eval_wr = ""
         if args.eval_every and it % args.eval_every == 0:
             eval_wr = f"{evaluate_greedy(sampler, args.eval_games, args.max_steps):.4f}"
+        bc_hold = ""
+        if bc is not None:
+            h_acc = bc.holdout_acc(net)
+            if h_acc is not None:
+                bc_hold = f"{h_acc:.4f}"
         secs = time.perf_counter() - t0
+        bc_msg = ""
+        if bc is not None:
+            bc_msg = (f"bc={mean('bc_loss'):.3f}/acc={mean('bc_acc'):.1%}"
+                      + (f"/hold={bc_hold}" if bc_hold else "")
+                      + f"/l={bc_coef:.3f} ")
         print(f"iter {it:3d}: wr={cstats['win_rate']:.1%} steps={cstats['steps']} "
               f"H={mean('entropy'):.3f} kl={mean('approx_kl'):.4f} "
               f"clip={mean('clip_frac'):.2f} vloss={v_loss:.4f} beta={net.beta:.3f} "
+              f"{bc_msg}"
               f"{'eval=' + eval_wr if eval_wr else ''} ({secs:.0f}s)")
         hist.writerow([it, cstats["games"], cstats["unfinished"],
                        f"{cstats['win_rate']:.4f}", cstats["steps"],
                        f"{mean('pg_loss'):.5f}", f"{v_loss:.5f}",
                        f"{mean('entropy'):.4f}", f"{mean('approx_kl'):.5f}",
                        f"{mean('clip_frac'):.4f}", f"{net.beta:.4f}", eval_wr,
+                       f"{mean('bc_loss'):.5f}" if bc is not None else "",
+                       f"{mean('bc_acc'):.4f}" if bc is not None else "",
+                       bc_hold,
+                       f"{bc_coef:.4f}" if bc is not None else "",
                        f"{secs:.1f}"])
         hist_f.flush()
 
@@ -700,6 +826,33 @@ def self_test(args):
         print(f"policy {name}: ok (worst rel err so far {worst:.2e})")
     assert worst < 1e-4, f"policy gradient check failed: {worst}"
 
+    # 模倣項（bc_loss_grads）も同じ数値微分で検証（kk を教師ラベルとして流用）
+    def bc_only():
+        loss, _, _ = bc_loss_grads(net, Xp, mask, kk)
+        return loss
+
+    _, bgrads, _ = bc_loss_grads(net, Xp, mask, kk)
+    worst_b = 0.0
+    for name, p_arr, g in zip(names, params, bgrads):
+        flat = p_arr.reshape(-1)
+        gflat = np.asarray(g).reshape(-1)
+        for _ in range(min(10, flat.size)):
+            i = rng.randint(flat.size)
+            old = flat[i]
+            flat[i] = old + eps
+            net.beta = float(params[4][0])
+            lp = bc_only()
+            flat[i] = old - eps
+            net.beta = float(params[4][0])
+            lm = bc_only()
+            flat[i] = old
+            net.beta = float(params[4][0])
+            num = (lp - lm) / (2 * eps)
+            err = abs(num - gflat[i]) / max(1e-8, abs(num) + abs(gflat[i]))
+            worst_b = max(worst_b, err)
+        print(f"bc {name}: ok (worst rel err so far {worst_b:.2e})")
+    assert worst_b < 1e-4, f"bc gradient check failed: {worst_b}"
+
     critic = Critic(hidden=H, init_npz=None, seed=2)
     critic.W1 = rng.randn(H, 1) * 0.1
     S = rng.randn(6, vm.N_FEATURES)
@@ -723,7 +876,7 @@ def self_test(args):
             worst_c = max(worst_c, err)
         print(f"critic {name}: ok (worst rel err so far {worst_c:.2e})")
     assert worst_c < 1e-4, f"critic gradient check failed: {worst_c}"
-    print(f"self-test PASS (policy {worst:.2e} / critic {worst_c:.2e})")
+    print(f"self-test PASS (policy {worst:.2e} / bc {worst_b:.2e} / critic {worst_c:.2e})")
 
 
 if __name__ == "__main__":
