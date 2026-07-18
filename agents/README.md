@@ -26,6 +26,8 @@ Kaggle提出zipの中では、各ディレクトリの `main.py` がルートの
 - `mega_kangaskhan_rb/`: メガガルーラex（7/6メタ10%の新興。zoroark190リスト。BasePolicy）
 - `crustle_rb/`: イワパレス壁ガルーラ（7/14メタ シェア2位ファミリー。懒惰的金枪鱼=系統Bリスト。
   BasePolicy。07-14フィールド制圧度 63.2%+CR1/CR2。設計: デッキ設計_イワパレス.md）
+- `rocket_rb/`: ロケット団 ワナイダー+ミュウツーex（7/15メタ勝率1位56.4%の急伸アーキ。
+  lolzpo emonga 実リスト。BasePolicy 最小構成 v1。設計: デッキ設計_ロケット団.md）
 - `cubchoo_ogerpon_rb/`: クマシュン+オーガポンex（旧・自己完結型。2026-07-02提出、Elo 152）
 - `dragapult_ex_rb/`: ドラパルトex（旧・自己完結型）
 - `rb_001_baseline.py`: 汎用ベースライン（単一ファイル形式、`submission/main.py` と同一内容）

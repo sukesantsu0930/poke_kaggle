@@ -10,6 +10,7 @@
   "decks/fleet/archaludon_cityleague.csv": ["agents/archaludon_rb"],
   "decks/fleet/froslass_starmie_taksai.csv": ["agents/froslass_starmie_rb"],
   "decks/fleet/alakazam_top_0710.csv": ["agents/alakazam_rb"],
+  "decks/fleet/rocket_lolzpo_0715.csv": ["agents/rocket_rb"],
   "decks/archive/winrate_1_cubchoo_ogerpon.csv": ["agents/cubchoo_ogerpon_rb"],
   "decks/archive/deck_001_sample.csv": ["agents/rb_001_baseline.py"]
 }

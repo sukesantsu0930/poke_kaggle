@@ -153,3 +153,14 @@ agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv,megastarmie,3.0,80,42,38,0,
 agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv,froslass_starmie,3.0,80,39,41,0,0,0.4875
 agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv,dragapult,2.0,80,35,45,0,0,0.4375
 agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv,archaludon,2.0,80,47,33,0,0,0.5875
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,alakazam,40.0,80,73,7,0,0,0.9125
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,crustle_wall,12.0,80,55,25,0,0,0.6875
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,marnie,10.0,80,23,57,0,0,0.2875
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,crustle_prism,8.0,80,30,50,0,0,0.3750
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,garchomp,7.0,80,18,62,0,0,0.2250
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,chandelure,6.0,80,34,46,0,0,0.4250
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,rocket,4.0,80,65,15,0,0,0.8125
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,megastarmie,3.0,80,23,57,0,0,0.2875
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,froslass_starmie,3.0,80,13,67,0,0,0.1625
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,dragapult,2.0,80,23,57,0,0,0.2875
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,archaludon,2.0,80,8,72,0,0,0.1000
