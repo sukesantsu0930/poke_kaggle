@@ -10,6 +10,11 @@
     GAE の TD 誤差が V(s) 由来の密な信号を毎決定に配る（= potential shaping と等価な効果）
   - 相手 = gauntlet の凍結プール（θ=0・ネット無し、シェア加重サンプリング、holdout 除外）
     自己対戦はしない（正典 §7.2）。ミラー行の相手も凍結版なので非定常化しない
+  - 敵対的サンプリング（2026-07-20 追加・任意）: --adv-tau > 0 で相手の抽選を
+    「シェア比例」から「負けている相手ほど高頻度」（p ∝ exp((0.5−wr_ema)/τ)）へ切替。
+    「こちらが方策・敵対者が相手を選ぶ」メタゲームの近似 = プール上の maximin（頑健）方策。
+    AlphaStar の PFSP と同機構。プール自体は凍結のまま（サンプリング重みだけが動く）。
+    EXP-030 の教訓（シェア加重 BR のラダー逆噴射）への対策で、目的は頑健エージェント
   - EXP-006 の教訓（winner's curse）: デプロイ候補は ema.npz（重みの指数移動平均）。
     latest.npz は継続用チェックポイント
   - 模倣正則化（2026-07-17 追加・任意）: --bc-data で抽出 npz（extract_bc_dataset の出力）を
@@ -392,7 +397,7 @@ def _seq_games(sampler, games):
 def build_batch(game_iter, gamma, lam, critic):
     """(outcome, arch, steps) の列 → フラットな遷移バッチと統計（collect の共通部）。"""
     X_list, k_list, logp_list, adv_list, ret_list, S_list = [], [], [], [], [], []
-    outcomes, by_arch = [], Counter()
+    outcomes, by_arch, wins_by_arch = [], Counter(), Counter()
     unfinished = 0
     for outcome, arch, steps in game_iter:
         if outcome is None:
@@ -400,6 +405,7 @@ def build_batch(game_iter, gamma, lam, critic):
             continue
         outcomes.append(outcome)
         by_arch[arch] += 1
+        wins_by_arch[arch] += outcome
         if not steps:
             continue
         S = np.stack([st["X"][0, :vm.N_FEATURES] for st in steps]).astype(np.float64)
@@ -425,6 +431,8 @@ def build_batch(game_iter, gamma, lam, critic):
         "unfinished": unfinished,
         "win_rate": float(np.mean(outcomes)) if outcomes else 0.0,
         "steps": len(X_list),
+        "arch_games": dict(by_arch),
+        "arch_wins": {a: float(w) for a, w in wins_by_arch.items()},
     }
     return batch, stats
 
@@ -451,8 +459,10 @@ def _worker_init(agent_dir, deck, field_rows, max_steps, seed):
 
 
 def _worker_play(job):
-    weights, n_games = job
+    weights, n_games, probs = job
     sampler = _W["sampler"]
+    if probs is not None:   # 敵対的サンプリング: 今 iter の抽選分布を反映
+        sampler.p = np.asarray(probs, dtype=np.float64)
     policy = sampler.policy
     net = pn.PolicyNet(weights["W0"], weights["b0"], weights["W1"], weights["b1"],
                        float(weights["beta"]), list(weights["vocab"]))
@@ -473,12 +483,13 @@ def _worker_play(job):
     return games
 
 
-def collect_parallel(pool, workers, net, games, gamma, lam, critic):
+def collect_parallel(pool, workers, net, games, gamma, lam, critic, probs=None):
     """並列収集。バッチの中身・統計は collect と同一形式。"""
     weights = {"W0": net.W0, "b0": net.b0, "W1": net.W1, "b1": net.b1,
                "beta": net.beta, "vocab": net.vocab}
+    probs_l = list(map(float, probs)) if probs is not None else None
     per = [games // workers + (1 if i < games % workers else 0) for i in range(workers)]
-    jobs = [(weights, n) for n in per if n > 0]
+    jobs = [(weights, n, probs_l) for n in per if n > 0]
 
     def gen():
         for out in pool.imap_unordered(_worker_play, jobs):
@@ -571,6 +582,11 @@ def main():
     ap.add_argument("--bc-minibatch", type=int, default=256)
     ap.add_argument("--bc-eval-days", default="",
                     help="この日の決定は学習に混ぜず holdout 一致率の計測のみ（P-10）")
+    ap.add_argument("--adv-tau", type=float, default=0.0,
+                    help="敵対的サンプリングの温度。0 = 従来のシェア加重。"
+                         "推奨 0.15（p ∝ exp((0.5−wr)/τ) = soft maximin）")
+    ap.add_argument("--adv-ema", type=float, default=0.3,
+                    help="対面別勝率 EMA の更新率")
     ap.add_argument("--hidden", type=int, default=64)
     ap.add_argument("--vocab-size", type=int, default=64)
     ap.add_argument("--warmup-games", type=int, default=32)
@@ -655,9 +671,18 @@ def main():
         # 各ワーカーの初期化（エージェント+凍結プールのロード）を1件ジョブで待つ
         pool.map(_worker_play, [({"W0": net.W0, "b0": net.b0, "W1": net.W1,
                                   "b1": net.b1, "beta": net.beta,
-                                  "vocab": net.vocab}, 0)] * args.workers)
+                                  "vocab": net.vocab}, 0, None)] * args.workers)
         print(f"parallel pool: {args.workers} workers ready "
               f"({time.perf_counter() - t0:.0f}s)")
+
+    # ── 敵対的サンプリング状態（--adv-tau > 0 のとき有効） ──
+    arch_names = [r["archetype"] for r in field]
+    wr_ema = np.full(len(field), 0.5)
+    adv_probs = None
+    if args.adv_tau > 0:
+        adv_probs = np.full(len(field), 1.0 / len(field))   # 初期は均等
+        print(f"adversarial sampling: tau={args.adv_tau} ema={args.adv_ema} "
+              f"(uniform start, {len(field)} opponents)")
 
     hist_path = out / "history.csv"
     new_hist = not hist_path.exists()
@@ -667,17 +692,33 @@ def main():
         hist.writerow(["iter", "games", "unfinished", "win_rate", "steps",
                        "pg_loss", "v_loss", "entropy", "approx_kl", "clip_frac",
                        "beta", "eval_wr", "bc_loss", "bc_acc", "bc_holdout",
-                       "bc_coef", "secs"])
+                       "bc_coef", "adv_minwr", "secs"])
 
     for it in range(1, args.iters + 1):
         t0 = time.perf_counter()
+        if adv_probs is not None:
+            sampler.p = adv_probs   # 逐次経路。並列経路はジョブ経由で渡す
         if pool is not None:
             batch, cstats = collect_parallel(
                 pool, args.workers, net, args.games_per_iter,
-                args.gamma, args.lam, critic)
+                args.gamma, args.lam, critic, probs=adv_probs)
         else:
             batch, cstats = collect(sampler, args.games_per_iter,
                                     args.gamma, args.lam, critic)
+
+        # ── 対面別勝率 EMA → 次 iter の敵対的抽選分布（soft maximin） ──
+        adv_minwr = ""
+        if adv_probs is not None:
+            for i, a in enumerate(arch_names):
+                g = cstats["arch_games"].get(a, 0)
+                if g:
+                    wr = cstats["arch_wins"].get(a, 0.0) / g
+                    wr_ema[i] = (1 - args.adv_ema) * wr_ema[i] + args.adv_ema * wr
+            w = np.exp((0.5 - wr_ema) / args.adv_tau)
+            adv_probs = w / w.sum()
+            worst = int(np.argmin(wr_ema))
+            adv_minwr = f"{wr_ema[worst]:.4f}"
+            worst_name = arch_names[worst]
         n = len(batch["X"])
         if n == 0:
             print(f"iter {it}: no steps collected, skip")
@@ -744,10 +785,13 @@ def main():
             bc_msg = (f"bc={mean('bc_loss'):.3f}/acc={mean('bc_acc'):.1%}"
                       + (f"/hold={bc_hold}" if bc_hold else "")
                       + f"/l={bc_coef:.3f} ")
+        adv_msg = ""
+        if adv_probs is not None and adv_minwr:
+            adv_msg = f"minwr={worst_name}:{adv_minwr} "
         print(f"iter {it:3d}: wr={cstats['win_rate']:.1%} steps={cstats['steps']} "
               f"H={mean('entropy'):.3f} kl={mean('approx_kl'):.4f} "
               f"clip={mean('clip_frac'):.2f} vloss={v_loss:.4f} beta={net.beta:.3f} "
-              f"{bc_msg}"
+              f"{bc_msg}{adv_msg}"
               f"{'eval=' + eval_wr if eval_wr else ''} ({secs:.0f}s)")
         hist.writerow([it, cstats["games"], cstats["unfinished"],
                        f"{cstats['win_rate']:.4f}", cstats["steps"],
@@ -758,6 +802,7 @@ def main():
                        f"{mean('bc_acc'):.4f}" if bc is not None else "",
                        bc_hold,
                        f"{bc_coef:.4f}" if bc is not None else "",
+                       adv_minwr,
                        f"{secs:.1f}"])
         hist_f.flush()
 

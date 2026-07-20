@@ -1,0 +1,15 @@
+archetype,share,field_wr,agent_or_deck,deck
+alakazam,30.0,52.4,agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv
+crustle_wall,11.0,53.7,generic,decks/opponents/crustle_wall_kanga_budew_0713.csv
+marnie,9.0,53.6,agents/marnie_munkidori_rb,decks/fleet/winrate_2_marnie_grimmsnarl.csv
+crustle_prism,8.0,53.1,generic,decks/opponents/crustle_prism_thirdptcgclub_0713.csv
+garchomp,7.0,42.9,agents/cynthia_garchomp_rb,decks/fleet/cynthia_garchomp_top.csv
+chandelure,6.0,60.0,agents/chandelure_rb,decks/fleet/chandelure_top.csv
+lucario,6.0,50.0,generic,decks/opponents/band_lucario_0720.csv
+rocket,5.0,47.1,generic,decks/opponents/small_rocket.csv
+megastarmie,4.0,63.2,generic,decks/opponents/small_megastarmie.csv
+froslass_starmie,4.0,60.6,generic,decks/fleet/froslass_starmie_taksai.csv
+archaludon,4.0,50.0,agents/archaludon_rb,decks/fleet/archaludon_cityleague.csv
+dragapult,2.0,33.3,agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv
+thwackey_festival,2.0,50.0,generic,decks/opponents/band_thwackey_festival_0720.csv
+meganium_ogerpon,2.0,50.0,generic,decks/opponents/band_meganium_ogerpon_0720.csv

@@ -28,7 +28,13 @@ from cg.api import CardType, OptionType
 import policy_base as pb
 import value_model as vm
 
-PN_VERSION = 1
+PN_VERSION = 2   # v2（2026-07-20）: 状態ブロックの相手アーキ one-hot をゼロマスク（相手盲目化）
+
+# v2 相手盲目化: 相手適応は NN に焼き込まず、ルール（matchup 判定 → 対面ルール、
+# 未知は generic フォールバック）だけが担う。EXP-030 の L2↔L4 逆転（プール分布への
+# BR がラダーで逆噴射）への対策 = NN は相手が誰でも通用する普遍戦術のみ学ぶ。
+# critic（value_model）は従来どおり条件付けを保持（価値推定はデプロイ挙動に出ない）。
+_N_ARCH_BLOCK = len(vm.ARCH_LIST) + 1   # 相手 one-hot は状態ブロック末尾（unknown 枠込み）
 
 # 候補ブロックのレイアウト（状態ブロック vm.N_FEATURES の後ろに続く）
 N_OPT_TYPES = 17          # OptionType 0..16
@@ -73,6 +79,7 @@ def extract_features(obs, cands, vocab_index, n_vocab):
     cands: [(option_index, score, reason), ...] ルール順位の降順（正帯のみ）。
     状態ブロックは全行で共有（value_model.extract_features をそのまま流用）。"""
     state = vm.extract_features(obs, obs.current.yourIndex)
+    state[vm.N_FEATURES - _N_ARCH_BLOCK:] = 0.0   # v2: 相手アーキ one-hot を遮断
     k = len(cands)
     X = np.zeros((k, feature_dim(n_vocab)), dtype=np.float32)
     X[:, :vm.N_FEATURES] = state

@@ -1,0 +1,8 @@
+archetype,share,agent_or_deck,deck
+archaludon,52.3,agents/archaludon_rb,decks/fleet/archaludon_cityleague.csv
+alakazam,18.5,agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv
+thwackey_festival,10.8,generic,decks/opponents/band_thwackey_festival_0720.csv
+crustle_prism,9.2,generic,decks/opponents/crustle_prism_thirdptcgclub_0713.csv
+meganium_ogerpon,4.6,generic,decks/opponents/band_meganium_ogerpon_0720.csv
+froslass_starmie,3.1,generic,decks/fleet/froslass_starmie_taksai.csv
+marnie,1.5,agents/marnie_munkidori_rb,decks/fleet/winrate_2_marnie_grimmsnarl.csv
