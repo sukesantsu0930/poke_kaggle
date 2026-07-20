@@ -587,6 +587,11 @@ def main():
                          "推奨 0.15（p ∝ exp((0.5−wr)/τ) = soft maximin）")
     ap.add_argument("--adv-ema", type=float, default=0.3,
                     help="対面別勝率 EMA の更新率")
+    ap.add_argument("--adv-floor", type=float, default=0.25,
+                    help="重み計算時の wr 下限クリップ。構造的に勝てない対面（デッキ相性）へ"
+                         "分布が集中暴走するのを防ぐ（EXP-031 rocket vs archaludon の教訓）")
+    ap.add_argument("--adv-eps", type=float, default=0.25,
+                    help="均等分布の混合率。勝ち対面の忘却防止とカバレッジ維持")
     ap.add_argument("--hidden", type=int, default=64)
     ap.add_argument("--vocab-size", type=int, default=64)
     ap.add_argument("--warmup-games", type=int, default=32)
@@ -714,8 +719,12 @@ def main():
                 if g:
                     wr = cstats["arch_wins"].get(a, 0.0) / g
                     wr_ema[i] = (1 - args.adv_ema) * wr_ema[i] + args.adv_ema * wr
-            w = np.exp((0.5 - wr_ema) / args.adv_tau)
-            adv_probs = w / w.sum()
+            # 飽和つき soft maximin + 均等混合（v2 2026-07-20）:
+            # wr を floor でクリップ = 構造的に勝てない対面（デッキ相性）が分布を
+            # 独占して学習可能な対面を飢えさせるのを防ぐ。ε-均等混合で勝ち対面の
+            # 忘却も防ぐ（初版は rocket vs archaludon(〜10%) に14倍集中して暴走）
+            w = np.exp((0.5 - np.maximum(wr_ema, args.adv_floor)) / args.adv_tau)
+            adv_probs = (1 - args.adv_eps) * (w / w.sum()) + args.adv_eps / len(field)
             worst = int(np.argmin(wr_ema))
             adv_minwr = f"{wr_ema[worst]:.4f}"
             worst_name = arch_names[worst]
