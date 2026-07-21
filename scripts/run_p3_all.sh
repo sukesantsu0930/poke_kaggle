@@ -67,10 +67,10 @@ run_raw_deck () {
   fi
 }
 
-run_bc_deck  crustle    agents/crustle_rb          decks/fleet/crustle_wall_top.csv       models/bc_crustle_v4.npz  'data/imitation/crustle_bc/*.npz'
-run_bc_deck  alakazam   agents/alakazam_rb         decks/fleet/alakazam_top_0710.csv      models/bc_alakazam_v3.npz 'data/imitation/alakazam_bc/*.npz'
-run_bc_deck  marnie     agents/marnie_munkidori_rb decks/fleet/marnie_mainstream_0718.csv models/bc_marnie_v3.npz   'data/imitation/marnie_bc/*.npz'
-run_bc_deck  rocket     agents/rocket_rb           decks/fleet/rocket_lolzpo_0715.csv     models/bc_rocket_v2.npz   'data/imitation/rocket_bc/*.npz'
+run_bc_deck  crustle    agents/crustle_rb          decks/fleet/crustle_wall_top.csv       models/bc_gen4_crustle.npz  'data/imitation/crustle_bc/*.npz'
+run_bc_deck  alakazam   agents/alakazam_rb         decks/fleet/alakazam_top_0710.csv      models/bc_gen4_alakazam.npz 'data/imitation/alakazam_bc/*.npz'
+run_bc_deck  marnie     agents/marnie_munkidori_rb decks/fleet/marnie_mainstream_0718.csv models/bc_gen4_marnie.npz   'data/imitation/marnie_bc/*.npz'
+run_bc_deck  rocket     agents/rocket_rb           decks/fleet/rocket_lolzpo_0715.csv     models/bc_gen4_rocket.npz   'data/imitation/rocket_bc/*.npz'
 run_raw_deck chandelure agents/chandelure_rb       decks/fleet/chandelure_top.csv
 
 echo ""
