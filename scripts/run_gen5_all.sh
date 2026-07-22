@@ -11,7 +11,7 @@
 #     根拠 = ラダー実績 gen1(779) > gen3(669) > gen2(645)（教師に近いほど強い）+
 #     gen4 crustle の最悪対面掘り下げ（深い最適化の過学習）
 #   - 維持: 相手盲目化（PN v2）・敵対サンプリング --adv-tau 0.15・頑健プール14相手
-#   - ルール土台 = 第3ラウンド + R-30 済み（EXP-035/036）。BC は bc_gen5_*（教師 07-21 まで拡張）
+#   - ルール土台 = 第3ラウンド + R-30 済み（EXP-035/036）。BC は bc_gen5_*（教師 07-18 まで。07-19〜21 は DL 中につき次世代へ）
 #   - chandelure は対象外（教師なしデッキはルールで全覆 = EXP-034 確定方針。王者 997.5 防衛）
 set -u
 cd "$(dirname "$0")/.."
@@ -27,7 +27,7 @@ COMMON_ARGS=(
   --lr 3e-4 --ent 0.01
   --iters 60 --games-per-iter 256 --workers 7
   --bc-coef 0.5 --bc-coef-final 0.2
-  --bc-eval-days 2026-07-21
+  --bc-eval-days 2026-07-18
 )
 
 echo "=== gen5 all start: $(date) ==="
