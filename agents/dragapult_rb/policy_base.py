@@ -44,6 +44,7 @@ from dataclasses import dataclass, field
 
 from cg.api import (
     AreaType,
+    CardType,
     LogType,
     OptionType,
     SelectContext,
@@ -62,6 +63,9 @@ except Exception:
 CARD_DB = {c.cardId: c for c in all_card_data()}
 
 LETHAL_BAND = 1_000_000  # R-07: リーサル手の専用スコア帯（全優先則より上）
+
+# R-30「使用可能なグッズは使用する」の A/B トグル（既定 ON。詳細 = _r30_default_item）
+R30_ENABLED = os.environ.get("R30", "1") != "0"
 
 
 def band_of(score):
@@ -686,8 +690,42 @@ class BasePolicy(ABC):
 
         score, reason = self.mask_extra(obs, opt, score, reason)
         score, reason = self.apply_overrides(obs, opt, score, reason)
+        score, reason = self._r30_default_item(obs, opt, score, reason)
         score = self._apply_theta(score, reason)
         return self.apply_protocol(obs, opt, score, reason)
+
+    def _r30_default_item(self, obs, opt, score, reason):
+        """R-30（2026-07-21 一般ルール・ユーザー決定）: **使用可能なグッズは使用する**。
+
+        デッキが意見を持たなかった（score == 0 の素通し）PLAY のグッズ（CardType.ITEM）
+        だけを低正帯 400 へ持ち上げる = 「グッズを握ったまま end」の枝を原則消す。
+        Gate A 監査の最大ギャップ族（温存過剰: hold Switch 139 / Trimmer 66 / 死にポフィン
+        69 …）の一般化。継承はコードパスで自動: デッキの明示スコア（正帯の意図・負帯の
+        温存則）が常に先勝ちし、無意見の札だけが対象になる。
+
+        ガード（2026-07-21 設計合意）:
+          - ACE SPEC は対象外（1枚きり・不可逆はデッキの明示判断に委ねる）
+          - 対 LO アーキでは発動しない（山札=寿命。R-28 と同じ停止条件）
+          - 自分の山札 8 枚未満では発動しない（粗い R-11。精密な山札規律はデッキ側）
+        帯 400 = 学習帯: end(0) には必ず勝ち、デッキが意図して並べた行動（進化・エネ・
+        攻撃・1000 帯以上）は決して追い越さない。トグル = 環境変数 R30（既定 ON）。"""
+        if not R30_ENABLED or score != 0:
+            return score, reason
+        if obs.select.context != SelectContext.MAIN or opt.type != OptionType.PLAY:
+            return score, reason
+        card = option_card(obs, opt)
+        if card is None:
+            return score, reason
+        data = CARD_DB.get(card.id)
+        if data is None or int(getattr(data, "cardType", -1)) != int(CardType.ITEM):
+            return score, reason
+        if getattr(data, "aceSpec", False):
+            return score, reason
+        if self.t["matchup"] in mt.LO_ARCHETYPES:
+            return score, reason
+        if getattr(my_state(obs), "deckCount", 99) < 8:
+            return score, reason
+        return 400, "R-30: use available item"
 
     def update_belief(self, obs):
         """判定4種の毎手番更新（状態推定＝belief の縫い目。推定器の差し替えはここ）。
