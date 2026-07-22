@@ -108,6 +108,11 @@ ROC_RK2B = os.environ.get("ROC_RK2B", "1") != "0"  # div-RK2b: 被KO圏×ベン�
 ROC_RK4 = os.environ.get("ROC_RK4", "1") != "0"    # div-RK4: リーリエ死に手札リセット 300（end直上）
 ROC_RK9 = os.environ.get("ROC_RK9", "1") != "0"    # div-RK9: ロケットエネ→タマンチュラ 7200（在庫条件）
 ROC_RK10 = os.environ.get("ROC_RK10", "1") != "0"  # div-RK10: バングル非ルール持ち全般 低帯
+# ── 第3弾（2026-07-22 決定性監査 EXP-036 系。負け試合の tie/weak クラスタに意見を足す。
+#    設計md v1.3 節参照。SELECT 系サブ決定が主 = PN/BC への影響なし） ──
+ROC_PROMOTE = os.environ.get("ROC_PROMOTE", "1") != "0"  # ①: KO後の昇格ドクトリン（充足済>次T充足>壁>捨て駒）
+ROC_BENCH = os.environ.get("ROC_BENCH", "1") != "0"      # ②: ベンチ展開順（進化元>アタッカー>システム。差>=1000）
+ROC_CHARGE_TARGET = os.environ.get("ROC_CHARGE_TARGET", "1") != "0"  # ③: 燃料は次に攻撃する個体へ（充電個体・回収色・フュエル先 +1050）
 # 自軍アタッカーの攻撃タイプ（弱点計算はアタッカー毎。クラス属性1本だと
 # ミュウツーの超打点まで草弱点で2倍にしてしまう）
 ATTACKER_TYPE = {TAROUNTULA: 1, SPIDOPS: 1, ARTICUNO: 3, MEWTWO: 5, MIMIKYU: 5}
@@ -274,6 +279,85 @@ class RocketPolicy(BasePolicy):
                 best_pk, best_rank = pk, r
         return best_pk, best_rank
 
+    # ═══════════════ ROC_PROMOTE ①: KO後の昇格ドクトリン（2026-07-22 EXP-036） ═══════════════
+    # 監査実測: E-2 promote [TO_ACTIVE]226+[SWITCH]112 が負け試合の無意見決定の首位。
+    # archaludon 敗因診断（38敗リプレイ）: 攻撃ターン率46%・昇格候補がほぼ全員 8000 の
+    # 同点（index 頼み）・「撃てるミュウツー8160 < 素ワナイダー8200（旧+200癖）」の逆転や
+    # 「次ターンのアタッカー（Spid u1）を220打点に差し出して焼かれる」を確認。
+    # ドクトリン: 今ターン充足済み > 次ターン充足可能（手張り+チャージアップ勘定）>
+    # 壁（高HP = 相手最大打点を耐える。低HPを前に出さない）> 捨て駒（全員焼かれる高打点
+    # 対面では低価値から差し出す。燃料持ち・明日のアタッカー・主砲線・ex を守る）。
+
+    def _ready_next(self, obs, pk):
+        """次ターンに攻撃コストを充足できるか（手張り1枚 + チャージアップ勘定）。"""
+        hand = hand_ids(obs)
+        hand_e = {i for i in hand if i in self.ENERGY_IDS}
+        dc = self.p.get("dc", {})
+        charge = [e for e in (GRASS, WATER) if dc.get(e, 0) > 0]   # チャージアップ回収候補
+        rockets = self.p.get("rockets", 0)
+
+        def ok(cid, ids):
+            u = sum(2 if i == ROCKET_E else 1 for i in ids)
+            if cid == SPIDOPS:
+                return GRASS in ids and u >= 2
+            if cid == MEWTWO:
+                return ROCKET_E in ids and u >= 3 and rockets >= 4
+            if cid == ARTICUNO:
+                return WATER in ids and u >= 3
+            if cid == TAROUNTULA:
+                return GRASS in ids
+            return False
+
+        base_ids = attached_ids(pk)
+        forms = [pk.id]
+        if pk.id == TAROUNTULA and SPIDOPS in hand:
+            forms.append(SPIDOPS)          # 進化 → 同ターンにチャージアップ可
+        for cid in forms:
+            for a in (hand_e | {None}):
+                ids = base_ids + ([a] if a is not None else [])
+                if ok(cid, ids):
+                    return True
+                if cid == SPIDOPS:
+                    for c in charge:
+                        if ok(cid, ids + [c]):
+                            return True
+        return False
+
+    def _promote_score(self, obs, card):
+        """①: 前出し候補のスコア。(score, kills)。OFF は v1.2 の式（+200癖込み）。"""
+        kills, dmg, _ = self._attack_rank(obs, card)
+        dmg_term = min(max(dmg, 0), 990)
+        if not ROC_PROMOTE:
+            score = 8000 + kills * 6000 + dmg_term
+            if card.id == SPIDOPS:
+                score += 200
+            return score, kills
+        score = 8000 + dmg_term
+        if kills:
+            score += 6000 + (200 if card.id == SPIDOPS else 0)
+        elif dmg > 0:
+            score += 4000 + (200 if card.id == SPIDOPS else 0)   # 今ターン充足済み
+        else:
+            surv = self.opp_max_damage(obs) < card.hp
+            nxt = self._ready_next(obs, card)
+            if surv and nxt:
+                score += 2500        # 次ターン充足可能で、その番まで生き残る
+            elif surv:
+                score += 1400        # 壁: 対高打点は低HPを前に出さない
+            else:
+                # 捨て駒: 誰を出しても焼かれる → 低価値から差し出す
+                if card.id == MIMIKYU:
+                    score += 500     # v1 は攻撃評価0 = 最安の身代わり
+                score -= 400 * min(eff_units(card), 2)   # 燃料を道連れにしない
+                if nxt:
+                    score -= 600     # 明日のアタッカーを差し出さない
+                if card.id == SPIDOPS:
+                    score -= 300     # 主砲線
+                if card.id in (SPIDOPS, TAROUNTULA) and self.p.get("spid_line", 2) <= 1:
+                    score -= 600     # 最後の主砲線は温存
+            score -= (prize_value(card) - 1) * 700   # ex を突き出さない（サイド2）
+        return score, kills
+
     # ═══════════════ div-RK7: サカキ吊り出しKO（挙動変更系・単独A/B） ═══════════════
     # サカキ(1218)の自分側入替は必須（"If you do" = 吊り出しは入替の条件付きおまけ）。
     # → 入替後に撃てるのはベンチの撃てるアタッカーのみ。前提条件はベンチ側で判定する。
@@ -386,6 +470,12 @@ class RocketPolicy(BasePolicy):
             if cid == SPIDOPS:
                 # チャージアップ: トラッシュの基本エネを自分へ（無料加速）
                 if card is not None and eff_units(card) < 2:
+                    if ROC_CHARGE_TARGET:
+                        # ③: 複数ワナイダーが未充足のとき（旧 28500 の同点タイ =
+                        # index 先勝ち）は「次に攻撃する個体」を +2000 で確定優先
+                        desired, _ = self._desired_attacker(obs)
+                        if card is desired:
+                            return 30500, "S-5c: Charge Up (fuel next attacker)"
                     return 28500, "S-5: Charge Up (fuel Spidops)"
                 if ROC_RK5A and card is not None:
                     # div-RK5a: 満タンでも常時許可（無料・トラッシュの草回収は資源プラス。
@@ -477,6 +567,19 @@ class RocketPolicy(BasePolicy):
         if data is not None and data.cardType == CardType.POKEMON:
             # 盤面数=打点（ロケットラッシュ×30・アテナ8枚・パワーセーバー解禁）→ 絞らない
             if cid in BASICS:
+                if ROC_BENCH:
+                    # ② 展開順: 進化ラインの元 > 単体アタッカー（フィニッシャー>盾）>
+                    # システム。順序は旧テーブルと同一で、差を >=1000 に広げて確定化
+                    # （旧 18100/17900/17800/17600 は差200 = 全対が weak 帯だった）
+                    table = {TAROUNTULA: 22000, MEWTWO: 21000, ARTICUNO: 20000, MIMIKYU: 19000}
+                    if cid == ARTICUNO and fc[ARTICUNO] >= 1:
+                        # ヴェールは1体で全員有効 = 2枚目は素の身体（最下位。combat -4000 も
+                        # 適用 — 旧版の flat 17500 は combat 補正漏れで、交戦中に2枚目
+                        # フリーザーが最優先展開になる逆転があった）
+                        base = 18000
+                        return (base if not combat else base - 4000), "S-2: bench 2nd Articuno"
+                    base = table.get(cid, 17000)
+                    return (base if not combat else base - 4000), "S-2: bench rocket (board=damage)"
                 table = {TAROUNTULA: 18100, MEWTWO: 17900, ARTICUNO: 17800, MIMIKYU: 17600}
                 if cid == ARTICUNO and fc[ARTICUNO] >= 1:
                     return 17500, "S-2: bench 2nd Articuno"   # ヴェールは1体で全員有効
@@ -613,11 +716,16 @@ class RocketPolicy(BasePolicy):
         ids = attached_ids(target)
         units = eff_units(target)
         desired, rank = self._desired_attacker(obs)
+        # ③ ROC_CHARGE_TARGET: 主要フュエル4種は「次に攻撃する個体」へ +1050
+        # （帯 8200〜8600 → 9250〜9650。同帯の他ターゲット/他エネ択との差を >=1000 に
+        #  確定化。8900/8950/9200 = サカキ帯を跨ぐが、attach は非終端 1回/番なので
+        #  順序入替は結果同一。旧 +100 は grass→Spidops のみ・タイ止まりだった）
+        nxt = 1050 if (ROC_CHARGE_TARGET and target is desired) else 0
 
         if cid == GRASS:
             if tid == SPIDOPS:
                 if GRASS not in ids or units < 2:
-                    bonus = 100 if target is desired else 0
+                    bonus = nxt if ROC_CHARGE_TARGET else (100 if target is desired else 0)
                     return 8500 + bonus, "S-5: grass -> Spidops"
                 return -1, "R-10: Spidops fueled"
             # div-RK1a: 先行チャージ上限は技コスト{G}C=2個ぶんに一致させる
@@ -629,12 +737,12 @@ class RocketPolicy(BasePolicy):
         if cid == ROCKET_E:
             if tid == MEWTWO:
                 if ROCKET_E not in ids:
-                    return 8600, "S-5: Rocket Energy -> Mewtwo"
+                    return 8600 + nxt, "S-5: Rocket Energy -> Mewtwo"
                 if units < 3:
-                    return 8550, "S-5: finish Mewtwo cost"
+                    return 8550 + nxt, "S-5: finish Mewtwo cost"
                 return -1, "R-10: Mewtwo fueled"
             if tid == ARTICUNO and WATER in ids and ROCKET_E not in ids:
-                return 8200, "S-5: Rocket Energy -> Articuno (+60)"
+                return 8200 + nxt, "S-5: Rocket Energy -> Articuno (+60)"
             if tid == SPIDOPS and GRASS in ids and units < 2:
                 return 7400, "S-5: Rocket Energy fills colorless"
             if (ROC_RK9 and tid == TAROUNTULA and units == 0
@@ -647,7 +755,7 @@ class RocketPolicy(BasePolicy):
             return -1, "save Rocket Energy"
         if cid == WATER:
             if tid == ARTICUNO and WATER not in ids:
-                return 8200, "S-5: water -> Articuno"
+                return 8200 + nxt, "S-5: water -> Articuno"
             if tid == SPIDOPS and GRASS in ids and units < 2:
                 return 7300, "S-5: water fills colorless"
             return -1, "save water"
@@ -676,10 +784,7 @@ class RocketPolicy(BasePolicy):
             if pi == yi:
                 if card is None:
                     return 0, "promote none"
-                kills, dmg, _ = self._attack_rank(obs, card)
-                score = 8000 + kills * 6000 + min(max(dmg, 0), 990)
-                if card.id == SPIDOPS:
-                    score += 200      # 主砲（非ex・サイド1）を前に
+                score, kills = self._promote_score(obs, card)   # ① ROC_PROMOTE
                 if kills:
                     return score, "E-2: promote killer (skip R-08)"
                 return self.default_score_promote(obs, opt, score, "E-2: promote attacker")
@@ -748,6 +853,26 @@ class RocketPolicy(BasePolicy):
             if ctx == SelectContext.DISCARD_CARD_OR_ATTACHED_CARD:
                 return -50, "Erasure: keep own energy"
         if opt.area == AreaType.DISCARD and cid in (GRASS, WATER):
+            if ROC_CHARGE_TARGET:
+                # ③: 回収色は充電個体の必要色で確定（旧 100/40 = 差60 の weak 帯）。
+                # 充電個体は ABILITY 帯の選好と同順で推定（未充足ワナイダーの中の
+                # desired、居なければ先頭）。{G} 未装着なら草（ロケットラッシュの
+                # 必須色）、無色埋め/満タン備蓄なら死に水を先に取り草をトラッシュに
+                # 温存（トラッシュの草 = 将来のチャージアップの弾。水はこのデッキ
+                # では回収以外に使い道が無い = フリーザーは手張り {W} が必要）
+                spids = [pk for pk in all_my_pokemon(obs)
+                         if pk is not None and pk.id == SPIDOPS]
+                needy = [pk for pk in spids if eff_units(pk) < 2]
+                charger = None
+                if needy:
+                    desired, _ = self._desired_attacker(obs)
+                    charger = (desired if any(pk is desired for pk in needy)
+                               else needy[0])
+                if charger is not None and GRASS not in attached_ids(charger):
+                    return ((1500 if cid == GRASS else 100),
+                            "S-5c: Charge Up recover (need grass)")
+                return ((1500 if cid == WATER else 100),
+                        "S-5c: Charge Up recover (bank grass)")
             # チャージアップの回収択: 草優先（主砲の色。水はフリーザー専用）
             return (100 if cid == GRASS else 40), "Charge Up: recover energy"
 

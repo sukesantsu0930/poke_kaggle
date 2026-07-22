@@ -60,6 +60,14 @@ MAR_BOSS = os.environ.get("MAR_BOSS", "1") != "0"          # ボスの指令（�
 # greedy はほぼ不変・BC の候補回復。検証後の final 監査で coverage 99.1%）
 MAR_UNLOCK = os.environ.get("MAR_UNLOCK", "1") != "0"
 
+# ── 第3ラウンド 決定性ルール（2026-07-22。EXP-036 決定性監査 = 負け試合の無意見 SELECT 決定） ──
+# 監査実測（140戦）: number[RDC_COUNT] 161 / R-15 lowest HP [DAMAGE_COUNTER] 86・[DAMAGE] 84 /
+# take Grimmsnarl [TO_HAND] 128・take other 104 / div-4 attach 系 216
+MAR_DMGMOVE = os.environ.get("MAR_DMGMOVE", "1") != "0"  # ① Adrena-Brain 数量+配置ドクトリン
+MAR_SEARCH = os.environ.get("MAR_SEARCH", "1") != "0"    # ② TO_HAND サーチ選好の決定化（優先梯子）
+# ③ div-4 attach 系 216 は本ラウンド未実装（トグル MAR_ATT4 は宣言のみで実装無し = 死文だった
+# ため削除。2026-07-22 検証時）。次ラウンド候補として設計 md 未決事項に記載。
+
 # ── カードID（デッキ設計_マリィ.md のリスト） ──
 
 IMPIDIMP = 646        # マリィのベロバー HP70（Filch: 1ドロー）
@@ -113,6 +121,12 @@ class MarniePolicy(BasePolicy):
     def __init__(self):
         super().__init__()
         self.p = {}
+        # MAR_DMGMOVE: Adrena-Brain の数量選択で立てた計画（配置選択が同一ターン内で消費）
+        self._adrena_plan = None
+
+    def reset_game(self):
+        super().reset_game()
+        self._adrena_plan = None
 
     # ═══════════════ ターン分析（軽量: 枚数と旗だけ） ═══════════════
 
@@ -200,6 +214,129 @@ class MarniePolicy(BasePolicy):
             if self.guard_damage(plan.damage, plan.attacker, opp_act) >= opp_act.hp:
                 return True
         return False
+
+    # ═══════════════ MAR_DMGMOVE（2026-07-22 R3-①）: Adrena-Brain ドクトリン ═══════════════
+    # カード実測（cg.api）: Adrena-Brain = 「{D} が付いていれば、自分のポケモン1体の
+    # ダメカンを3個まで、相手のポケモン1体に移す」（毒などの付帯効果なし）。
+    # エンジンの選択順: REMOVE_DAMAGE_COUNTER（移動元）→ REMOVE_DAMAGE_COUNTER_COUNT
+    # （数量。移動元がダメカン1個なら省略）→ DAMAGE_COUNTER（相手側の配置先）。
+    # effect カードは 112（マシマシラ）。Pokemon.hp は現在HP（damage_on = maxHp - hp）。
+
+    @staticmethod
+    def _is_ex(cid):
+        data = CARD_DB.get(cid)
+        return bool(data is not None and getattr(data, "ex", False))
+
+    def _adrena_targets(self, obs):
+        """相手側の配置候補 [(coord, pokemon)]。coord = (area, index) = 配置選択肢の座標。"""
+        opp = opp_state(obs)
+        out = []
+        if opp.active and opp.active[0] is not None:
+            out.append(((int(AreaType.ACTIVE), 0), opp.active[0]))
+        for i, pk in enumerate(opp.bench or []):
+            if pk is not None:
+                out.append(((int(AreaType.BENCH), i), pk))
+        return out
+
+    def _adrena_plan_for(self, obs, cap):
+        """ドクトリン (a)+(b): 「今ターン or 次ターンに KO 圏へ入れる最小移動数」の計画。
+
+        対象順位 = KO 確定（class 0） > KO 圏入り（class 1）、各 class 内で
+        ex（サイド価値） > 最小移動数 > 低残HP。E-2a【ハード】と整合させるため
+        「攻撃だけで倒せる相手バトル場」は対象から除外する。
+        戻り値 {n, coord, ko_now} または None（KO 圏に入れられる対象なし）。"""
+        opp = opp_state(obs)
+        opp_act = opp.active[0] if opp.active else None
+        active_atk = self._max_active_damage_vs(obs, opp_act) if opp_act is not None else 0
+        e2a = self._active_ko_by_attack_alone(obs)
+        bench_shot = 30 if any(pk.id == GRIMMSNARL_EX and energy_count(pk) >= 2
+                               for pk in all_my_pokemon(obs)) else 0
+        best = None
+        for coord, t in self._adrena_targets(obs):
+            rem = t.hp                       # 現在HP = 残HP
+            if rem <= 0:
+                continue
+            is_active = coord[0] == int(AreaType.ACTIVE)
+            if is_active and e2a:
+                continue                     # E-2a: 過剰打点の防止（配置マスクと同条件）
+            non_ex = 0 if self._is_ex(t.id) else 1
+            n_ko = (rem + 9) // 10
+            if n_ko <= cap:
+                cand = (0, non_ex, n_ko, rem)
+            else:
+                atk = active_atk if is_active else bench_shot
+                if atk <= 0 or rem <= atk:
+                    continue                 # 既に圏内（追いダメカン不要）or 圏に入れられない
+                n_rng = (rem - atk + 9) // 10
+                if n_rng > cap:
+                    continue
+                cand = (1, non_ex, n_rng, rem)
+            if best is None or cand < best[0]:
+                best = (cand, coord)
+        if best is None:
+            return None
+        (cls, _non_ex, n, _rem), coord = best
+        return {"n": n, "coord": coord, "ko_now": cls == 0}
+
+    def score_number(self, obs, opt):
+        """MAR_DMGMOVE (a): 移動数 = 「KO 圏へ入れる最小数」を最優先。計画が立たない時は
+        最大数（自陣の回復最大）。旧既定（opt.number = 常に最大・margin 1 の無意見）を上書き。"""
+        if (MAR_DMGMOVE
+                and obs.select.context == SelectContext.REMOVE_DAMAGE_COUNTER_COUNT
+                and obs.select.effect is not None
+                and obs.select.effect.id == MUNKIDORI):
+            p = self.p
+            if "adrena_count" not in p:
+                cap = max((o.number or 0) for o in obs.select.option)
+                plan = self._adrena_plan_for(obs, cap)
+                if plan is not None:
+                    p["adrena_count"] = plan["n"]
+                    p["adrena_has_plan"] = True
+                    self._adrena_plan = {"turn": getattr(obs.current, "turn", None),
+                                         "coord": plan["coord"], "n": plan["n"]}
+                else:
+                    p["adrena_count"] = cap
+                    p["adrena_has_plan"] = False
+                    self._adrena_plan = None
+            if (opt.number or 0) == p["adrena_count"]:
+                if p["adrena_has_plan"]:
+                    return 5000, "MAR_DMGMOVE: min move into KO range"
+                return 5000, "MAR_DMGMOVE: heal max (no KO plan)"
+            return (opt.number or 0), "number"
+        return super().score_number(obs, opt)
+
+    def _score_placement(self, obs, opt, card):
+        """MAR_DMGMOVE (b): 相手側へのダメカン配置/スナイプ先。R-15 のデッキ上書き。
+        優先 = KO 確定 > ex（サイド価値） > 最低残HP。E-2a マスクは呼び出し側で適用済み。
+        Adrena（effect=112）は数量選択で立てた計画対象を最優先（数量と配置の整合）。"""
+        rem = card.hp                        # 現在HP = 残HP
+        dmg = damage_on(card)
+        is_ex = self._is_ex(card.id)
+        eff = obs.select.effect
+        if eff is not None and eff.id == MUNKIDORI:
+            if "adrena_plan" not in self.p:
+                ap, self._adrena_plan = self._adrena_plan, None   # 1決定で1回だけ消費
+                turn = getattr(obs.current, "turn", None)
+                self.p["adrena_plan"] = (ap if ap is not None
+                                         and ap.get("turn") == turn else None)
+            ap = self.p["adrena_plan"]
+            if ap is not None and (int(opt.area), int(opt.index or 0)) == tuple(ap["coord"]):
+                return 18000, "MAR_DMGMOVE: planned move target"
+            cap = ap["n"] if ap is not None else 3
+            if rem <= cap * 10:
+                return (15000 + (2000 if is_ex else 0) + (cap * 10 - rem),
+                        "MAR_DMGMOVE: counter-move KO")
+            if is_ex:
+                return 9000 + dmg // 2 - rem // 10, "MAR_DMGMOVE: chip ex (prize value)"
+            return (max(100, 8000 - rem * 20) + dmg // 10,
+                    "MAR_DMGMOVE: lowest remaining HP")
+        # Shadow Bullet のベンチ30 等（effect=648）。div-12 棄却の学びを尊重し
+        # 低HP基準（R-15）は保持、格差だけ決定化（×20）+ ex KO を優先
+        if rem <= 30:
+            return (15000 + (2000 if is_ex else 0) + (30 - rem) * 10,
+                    "MAR_DMGMOVE: snipe KO")
+        return (max(100, 10000 - rem * 20) + dmg // 2,
+                "MAR_DMGMOVE: snipe lowest HP")
 
     # ═══════════════ セットアップコンテキスト（S-1/S-2） ═══════════════
 
@@ -539,6 +676,67 @@ class MarniePolicy(BasePolicy):
 
     # ── CARD/ENERGY 選択（サーチ先・ダメカン移動先・前出し等） ──
 
+    def _score_to_hand_v2(self, obs, cid, combat):
+        """MAR_SEARCH（2026-07-22 R3-②）: TO_HAND サーチ選好の決定化。
+
+        div-13 の検証済み相対順序（Grimmsnarl > アメ > ジム > ベロバー > ポフィン >
+        マシマシラ > … > スタンプ > タンカ）を保ったまま格差を桁上げし
+        （margin 10〜90 の weak 帯 → 1000 級の decisive）、旧「take other」（全て同点 =
+        インデックス頼み）に ライン充足 > 不足エネ > ペトレル/ボス の優先梯子を敷く。
+        旧テーブルで同点だった帯の裁定: ポフィン>マシマシラ / エネ>ユキワラシ /
+        ユキメノコ>ボス（いずれも旧 margin 0、共起はタンカ回収のエネ vs ユキワラシのみ）。"""
+        p = self.p
+        fc, hc = p["fc"], p["hc"]
+        base = 250 - hc.get(cid, 0) * 100
+        if cid == GRIMMSNARL_EX:
+            path = fc[MORGREM] >= 1 or (fc[IMPIDIMP] >= 1 and hc[RARE_CANDY] >= 1)
+            return base + (9000 if path else 4200), "take Grimmsnarl"
+        if cid == RARE_CANDY:
+            return base + (8000 if fc[IMPIDIMP] >= 1 else 0), "take Rare Candy"
+        if cid == SPIKEMUTH_GYM and MAR_PETREL:
+            return base + (7000 if p["stadium_id"] != SPIKEMUTH_GYM else -400), "MAR_PET: take gym"
+        if cid == IMPIDIMP:
+            return base + (6000 if p["marnie_line"] < 2 else 2600), "take Impidimp"
+        if cid == POFFIN and MAR_PETREL:
+            need_basics = fc[IMPIDIMP] < 2 or (fc[SNORUNT] + fc[FROSLASS] < 1)
+            return base + (5500 if (not combat and need_basics) else 600), "MAR_PET: take Poffin"
+        if cid == MUNKIDORI:
+            return base + (5000 if fc[MUNKIDORI] < 2 else -400), "take Munkidori"
+        if cid == DUDUNSPARCE:
+            return base + (4800 if fc[DUNSPARCE] >= 1 else -300), "div-13: take Dudunsparce"
+        if cid == DUNSPARCE:
+            return base + (4000 if fc[DUNSPARCE] + fc[DUDUNSPARCE] < 1 else -500), "take Dunsparce"
+        if cid == FROSLASS and MAR_FROSLASS:
+            return base + (3600 if fc[SNORUNT] >= 1 and fc[FROSLASS] == 0 else 100), "MAR_FRO: take Froslass"
+        if cid == DARK_ENERGY:
+            return base + (3500 if hc[DARK_ENERGY] == 0 else -300), "take energy"
+        if cid == SNORUNT and MAR_FROSLASS:
+            return base + (2900 if fc[SNORUNT] + fc[FROSLASS] < 2 else -400), "MAR_FRO: take Snorunt"
+        if cid == DAWN:
+            missing = hc[GRIMMSNARL_EX] == 0 and fc[GRIMMSNARL_EX] == 0
+            return base + (2600 if missing else 1900), "MAR_SEARCH: take Dawn"
+        if cid == BOSS_ORDERS and MAR_PETREL:
+            return base + (2400 if combat else 300), "MAR_PET: take Boss"
+        if cid == PETREL:
+            return base + 1600, "MAR_SEARCH: take Petrel"
+        if cid == HANDHELD_FAN and MAR_PETREL:
+            bare = any(pk.id == GRIMMSNARL_EX and not has_tool(pk)
+                       for pk in all_my_pokemon(obs))
+            return base + (1300 if bare else 150), "MAR_PET: take Fan"
+        if cid == POKE_PAD:
+            return base + 1200, "MAR_SEARCH: take Pad"
+        if cid == LILLIE:
+            return base + 1000, "MAR_SEARCH: take Lillie"
+        if cid == MORGREM:
+            return base + 800, "take Morgrem"
+        if cid == HERO_CAPE:
+            return base + 750, "take Cape"
+        if cid == UNFAIR_STAMP and MAR_PETREL:
+            return base + 700, "MAR_PET: take Stamp"
+        if cid == NIGHT_STRETCHER and MAR_PETREL:
+            return base + 400, "MAR_PET: take Stretcher"
+        return base, "take other"
+
     def _score_card(self, obs, opt, combat):
         p = self.p
         yi = obs.current.yourIndex
@@ -604,6 +802,8 @@ class MarniePolicy(BasePolicy):
                 # E-2a【ハード】: バトル場だけで相手バトル場を倒せるなら30点はベンチへ
                 if is_opp_active and self._active_ko_by_attack_alone(obs):
                     return -1, "E-2a: active dies to attack alone -> send to bench"
+                if MAR_DMGMOVE:
+                    return self._score_placement(obs, opt, card)
                 hp = getattr(card, "hp", 999)
                 remaining = hp - damage_on(card)
                 if remaining <= 30:
@@ -625,13 +825,31 @@ class MarniePolicy(BasePolicy):
             if card is None:
                 return 0, "rdc none"
             dmg = damage_on(card)
+            bonus = 0
+            if MAR_DMGMOVE:
+                # (a)+(c): KO 確定プランを賄えるダメカン量を持つ移動元を優先し、
+                # 「次に KO されそうな自分の駒」（R-08 threats）から抜く。
+                # div-11 v2 の帯内の加点に留める: 合計最大 900 < 1000（既存の明確な意見
+                # rescue Munkidori(3000+) vs heal active(2000) の最小差 1060 を覆さない。
+                # 検証時修正 2026-07-22: 前任の 700+400=1100 は上記を覆え、自コメントの
+                # 「差<=1000 帯内」制約に反していた → 600+300 に縮小）
+                if "adrena_fund" not in p:
+                    plan3 = self._adrena_plan_for(obs, 3)
+                    p["adrena_fund"] = (plan3["n"]
+                                        if plan3 is not None and plan3["ko_now"] else 0)
+                if p["adrena_fund"] > 0 and dmg >= p["adrena_fund"] * 10:
+                    bonus += 600
+                if self.is_threatened(card):
+                    bonus += 300
             if cid == MUNKIDORI and dmg >= 60:
-                return 3000 + dmg, "div-11: rescue heavily-hit Munkidori"
+                return 3000 + dmg + bonus, "div-11: rescue heavily-hit Munkidori"
             if card is active_pokemon(obs):
-                return 2000, "div-11: heal active first"
-            return 1000 + dmg, "div-11: heal most damaged bench"
+                return 2000 + bonus, "div-11: heal active first"
+            return 1000 + dmg + bonus, "div-11: heal most damaged bench"
 
         if ctx == SelectContext.TO_HAND:
+            if MAR_SEARCH:
+                return self._score_to_hand_v2(obs, cid, combat)
             # div-13（2026-07-11 実測・07-08/07-09 両日）: サーチ先テーブルの補正。
             # ギモーの取りすぎ（H=Dudunsparce/Impidimp/Munkidori 等 vs O=Morgrem が
             # 両日計 191x。アメ本線でギモーの価値は低い）、ノココッチ未実装（人間は 77x

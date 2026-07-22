@@ -120,6 +120,19 @@ CR9 = os.environ.get("CRUSTLE_CR9", "1") != "0"    # setup 拘束ボスの学習
 CR11 = os.environ.get("CRUSTLE_CR11", "1") != "0"  # Xerosic 中間ハンド帯の setup 解錠（CL9 27件）
 CR12 = os.environ.get("CRUSTLE_CR12", "1") != "0"  # Jumbo 50-79 帯の学習帯（CL10 23件）
 CR8C = os.environ.get("CRUSTLE_CR8C", "1") != "0"  # Kanga 4枚目 Spiky/Mist の学習帯（CL7 39件）
+# ── ルール第4弾（2026-07-22 決定性監査 EXP-036: 負け試合の tie/weak クラスタに意見を足す。
+#    SELECT 系サブ決定の index タイブレークへ優先順位を与える = 既存の明確な意見（差>=1000）
+#    は覆さない。チャンピオン方式: 同点帯の勝者1枠だけを ±1200 で決定的にする） ──
+CR13 = os.environ.get("CRUSTLE_CR13", "1") != "0"  # C-4 エネ装填先の壁選択（同点解消）
+CR14 = os.environ.get("CRUSTLE_CR14", "1") != "0"  # TO_HAND 取得選好（{G} 色勘定 + 同点解消）
+CR15 = os.environ.get("CRUSTLE_CR15", "1") != "0"  # C-5 進化対象の同点解消
+
+# CR13 の発火下限: 学習帯（400/550）と Mist/Spiky 系の被脅威減点後（R-08 -2000 →
+# 5900〜6350）の装填は決定的にしない（攻撃帯 1000-2700 を飛び越えない下限。
+# C-4 正帯は 6800〜9050 なので全て対象。+1200 後の最大 10250 < 壁ローテ 10500。
+# 注: Grow→Crustle 6750 / 貫通時 Kanga 7050 など被脅威でも床を超える組はあるが、
+# champion キーは基礎スコア最優先なので被脅威候補が非被脅威候補を追い越すことはない）
+_CR13_FLOOR = 6500
 
 
 def _energy_types(pokemon):
@@ -229,6 +242,11 @@ class CrustleWallPolicy(BasePolicy):
             "dwebble_in_deck": max(0, 4 - dwebble_used),
             "crustle_in_deck": max(0, 4 - crustle_used),
             "hand_energy": sum(hc[e] for e in ALL_ENERGY),
+            # CR14: {G} 供給（Grow=GRASS(1)/基本草）が場か手札に1枚でもあるか。
+            # 無ければ主砲 Superb Scissors {G}CC が構造的に撃てない（CR8a と同じ色勘定）
+            "g_secured": (hc[GROW] + hc[G_ENERGY] > 0
+                          or any(1 in _energy_types(pk)
+                                 for pk in (ms.active + ms.bench) if pk is not None)),
         }
 
     def _is_lo(self):
@@ -354,7 +372,14 @@ class CrustleWallPolicy(BasePolicy):
                 target = option_target(obs, opt)
                 e = energy_count(target) if target is not None else 0
                 # C-5: 手貼り進化が85%・T2 最頻。エネの乗った個体を先に壁化
-                return 25000 + e * 100, "C-5: evolve Crustle"
+                score = 25000 + e * 100
+                # CR15: 進化対象の同点解消（決定性監査 2026-07-22: 'C-5: evolve Crustle'
+                # tie/weak 68件）。エネ同数の同点は アクティブ（前で壁化が急務）>
+                # 被脅威（HP70→150 で圏外へ）> 先頭 index。チャンピオン以外を -1200
+                # 降格（勝者は無変更 = 帯間関係を保つ。直下の正帯は 20500 で衝突なし）
+                if CR15 and self._cr15_champion(obs) is not opt:
+                    score -= 1200
+                return score, "C-5: evolve Crustle"
             return 18000, "evolve other"
 
         if opt.type == OptionType.PLAY:
@@ -613,7 +638,20 @@ class CrustleWallPolicy(BasePolicy):
             return -500, "skip non-energy attach"
         if obs.select.context == SelectContext.MAIN and obs.current.energyAttached:
             return -1, "already attached"
+        score, reason = self._energy_attach_score(obs, card, target)
+        # CR13: C-4 装填先の同点解消（決定性監査 2026-07-22: 'C-4: load Kangaskhan' 170 /
+        # 'C-4: load Crustle' 124 の tie/weak）。候補中のチャンピオン1枠だけ +1200 で
+        # 同点帯（0〜150差の index 頼み）を決定的にする。reason は C-4 のまま
+        # （θ/ネットの語彙を汚さない）。champion のキーは基礎スコア最優先 =
+        # 既存の明確な意見は覆らず、同点内だけ CR13 の優先順位が決める
+        if CR13 and score >= _CR13_FLOOR and self._cr13_champion(obs) is opt:
+            score += 1200
+        return score, reason
 
+    def _energy_attach_score(self, obs, card, target):
+        """C-4 エネ装填の基礎スコア（CR13 チャンピオン選定と実スコアの共通正本）。"""
+        p = self.p
+        cid, tid = card.id, target.id
         e = energy_count(target)
         attached_types = _energy_types(target)
         is_active = any(target is pk for pk in my_state(obs).active if pk)
@@ -658,6 +696,81 @@ class CrustleWallPolicy(BasePolicy):
         if self.is_threatened(target):
             score -= 2000     # R-08: 負け筋への追い銭防止
         return score, reason
+
+    def _cr13_next_front_species(self, obs):
+        """CR13: 次に前へ出る予定の壁種（E-1 壁ローテ/CR1 の行き先を静的に読む）。
+        該当なし（前が既に正しい壁 等）は None。"""
+        p = self.p
+        active = active_pokemon(obs)
+        bench_ids = {pk.id for pk in my_state(obs).bench if pk}
+        if p["opp_pierce_ex"]:
+            # CR1 整合: 貫通ex相手はガルーラが前で受ける予定（Cape/エネも Kanga 優先）
+            if (active is None or active.id != KANGA) and KANGA in bench_ids:
+                return KANGA
+            return None
+        if active is None or active.id not in WALL_IDS:
+            # 前が非壁（イシズマイ/シェイミ）→ Switch で壁を立てる（C-13: Crustle 優先）
+            if CRUSTLE in bench_ids:
+                return CRUSTLE
+            return KANGA if KANGA in bench_ids else None
+        if active.id == KANGA and p["opp_active_is_ex"] and CRUSTLE in bench_ids:
+            return CRUSTLE   # E-1: 相手 ex 主体は Crustle（ex 打点無効）へ交代予定
+        return None
+
+    def _cr13_champion(self, obs):
+        """CR13: エネ ATTACH 候補の装填先チャンピオン1枠（option オブジェクト）を選ぶ。
+        キー = (基礎スコア, 現アクティブ2/次に前へ出る壁1, 3枚完成への近さ, 実効HP,
+        先頭 index)。基礎スコア最優先なので greedy の勝者は不変 — 同点内の順位だけ
+        CR13 が決める。決定毎に self.p へキャッシュ。"""
+        champ = self.p.get("cr13_champ", "unset")
+        if champ != "unset":
+            return champ
+        champ, best_key = None, None
+        if (obs.select.context == SelectContext.MAIN
+                and not obs.current.energyAttached):
+            active = active_pokemon(obs)
+            next_wall = self._cr13_next_front_species(obs)
+            for i, o in enumerate(obs.select.option):
+                if o.type != OptionType.ATTACH:
+                    continue
+                card = option_card(obs, o)
+                target = option_target(obs, o)
+                if card is None or target is None or card.id not in ALL_ENERGY:
+                    continue
+                score, _ = self._energy_attach_score(obs, card, target)
+                if score < _CR13_FLOOR:
+                    continue
+                tier = 2 if target is active else (1 if target.id == next_wall else 0)
+                key = (score, tier, energy_count(target),
+                       getattr(target, "hp", 0) or 0, -i)
+                if best_key is None or key > best_key:
+                    best_key, champ = key, o
+        self.p["cr13_champ"] = champ
+        return champ
+
+    def _cr15_champion(self, obs):
+        """CR15: 'C-5: evolve Crustle' の進化対象チャンピオン1枠。
+        キー = (エネ枚数 = 既存の e*100 意見, アクティブ, 被脅威, 先頭 index)。"""
+        champ = self.p.get("cr15_champ", "unset")
+        if champ != "unset":
+            return champ
+        champ, best_key = None, None
+        active = active_pokemon(obs)
+        for i, o in enumerate(obs.select.option):
+            if o.type != OptionType.EVOLVE:
+                continue
+            card = option_card(obs, o)
+            if card is None or card.id != CRUSTLE:
+                continue
+            target = option_target(obs, o)
+            key = (energy_count(target) if target is not None else 0,
+                   1 if (target is not None and target is active) else 0,
+                   1 if (target is not None and self.is_threatened(target)) else 0,
+                   -i)
+            if best_key is None or key > best_key:
+                best_key, champ = key, o
+        self.p["cr15_champ"] = champ
+        return champ
 
     # ── ATTACK ──
 
@@ -731,7 +844,7 @@ class CrustleWallPolicy(BasePolicy):
             return self.default_score_damage_target(obs, opt)   # R-15
 
         if ctx == SelectContext.TO_HAND:
-            return self._score_to_hand(obs, cid)
+            return self._score_to_hand(obs, cid, opt)
 
         if ctx == SelectContext.TO_BENCH:
             table = {DWEBBLE: 100, SHAYMIN: 50, KANGA: 40}
@@ -764,9 +877,42 @@ class CrustleWallPolicy(BasePolicy):
 
     # ── TO_HAND（ヒルダ/ポケギアのサーチ先） ──
 
-    def _score_to_hand(self, obs, cid):
+    def _score_to_hand(self, obs, cid, opt):
+        score, reason = self._to_hand_base(obs, cid)
+        # CR14: 取得選好の同点解消（決定性監査 2026-07-22: 'take Grow Grass' 55 /
+        # 'take Crustle' 51 の tie/weak）。ビュー内チャンピオン1枠だけ +1200 —
+        # 既存の並び（基礎スコア）を変えず、同一カード重複は先頭1枠に決める。
+        # TO_HAND は同種オプションだけの SELECT なので帯間衝突なし
+        if CR14 and score > 0 and self._cr14_champion(obs) is opt:
+            score += 1200
+        return score, reason
+
+    def _cr14_champion(self, obs):
+        """CR14: TO_HAND ビューの基礎スコア最大（同点は先頭 index）の1枠。"""
+        champ = self.p.get("cr14_champ", "unset")
+        if champ != "unset":
+            return champ
+        champ, best = None, None
+        for o in obs.select.option:
+            c = option_card(obs, o)
+            if c is None:
+                continue
+            s, _ = self._to_hand_base(obs, c.id)
+            if best is None or s > best:
+                best, champ = s, o
+        self.p["cr14_champ"] = champ
+        return champ
+
+    def _to_hand_base(self, obs, cid):
+        """TO_HAND の基礎スコア（CR14 チャンピオン選定と実スコアの共通正本）。"""
         p = self.p
         fc, hc = p["fc"], p["hc"]
+        # CR14: {G} 色勘定 — 場・手札に {G} 供給が1枚も無ければ Grow を帯最上位へ
+        # （Superb Scissors {G}CC が構造的に撃てない状態の修理。CR8a と整合。
+        #  基本草は Grow の下 = HP+20 ぶん Grow 優先）
+        if CR14 and not p["g_secured"] and cid in (GROW, G_ENERGY):
+            # g_secured=False は hc[GROW]=hc[G_ENERGY]=0 を含意 → 重複減点は不要
+            return (300 if cid == GROW else 290), "CR14: take Grow (secure {G})"
         base = 100 - hc.get(cid, 0) * 40
         if cid == CRUSTLE:
             return base + (90 if fc[CRUSTLE] < 2 and hc[CRUSTLE] == 0 else 55), "take Crustle"

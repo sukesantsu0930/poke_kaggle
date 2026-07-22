@@ -130,6 +130,13 @@ ALA_ATTACH_PIVOT = os.environ.get("ALA_ATTACH_PIVOT", "1") != "0"      # 超エ�
 ALA_SD_ABILITY = os.environ.get("ALA_SD_ABILITY", "1") != "0"          # Run Away Draw の sd ガード掛かりを学習帯 250 へ
 # ALA_2ND_ENERGY は棄却（check_agent の R-10 外形検査と衝突。ATTACH 節のコメント参照）
 
+# ── 決定性ラウンド3（2026-07-22。decisiveness_audit = 負け試合の SELECT 系「無意見決定」
+#    の同点解消。監査実測: to hand 377 / evolve Dudunsparce 142 / evolve Kadabra 94 /
+#    attach psychic 108。SELECT 系はネット不介入の純ルール領土 = PN/BC 影響なし）──
+ALA_SEARCH = os.environ.get("ALA_SEARCH", "1") != "0"              # ① TO_HAND サーチ選好表（×200 スケール + 状態条件タイブレーク）
+ALA_EVOLVE_ORDER = os.environ.get("ALA_EVOLVE_ORDER", "1") != "0"  # ② 進化対象の同点解消（アクティブ+6・被弾+2）
+ALA_ATTACH_ORDER = os.environ.get("ALA_ATTACH_ORDER", "1") != "0"  # ③ attach psychic 対象の同点解消（無傷+2）
+
 
 def _prize_count(pokemon):
     """参照実装版のサイド価値（Legacy Energy / Lillie's Pearl 補正付き）。"""
@@ -673,27 +680,68 @@ class AlakazamPolicy(BasePolicy):
                 # div-6（2026-07-07 divergence 実測）: サーチはケーシィ進化ライン > ノコッチ系
                 score = 200 - p["hand_counts"].get(card.id, 0) * 50
                 fc = p["field_counts"]
-                # div-9（2026-07-08 divergence 実測・7/7）: 上位勢は Dudunsparce（ドローエンジン）を
-                # Kadabra/Alakazam より先に取る（human=Dudunsparce / ours=Kadabra,Alakazam）
+                if not ALA_SEARCH:
+                    # ── 旧実装（R3 以前。トグル OFF で完全再現） ──
+                    # div-9（2026-07-08 divergence 実測・7/7）: 上位勢は Dudunsparce（ドローエンジン）を
+                    # Kadabra/Alakazam より先に取る（human=Dudunsparce / ours=Kadabra,Alakazam）
+                    if card.id == DUDUNSPARCE:
+                        score += 80 if (fc[DUNSPARCE] >= 1 and fc[DUDUNSPARCE] == 0) else -50
+                    elif card.id == KADABRA:
+                        score += 70 if fc[ABRA] >= 1 else -20
+                    elif card.id == ALAKAZAM:
+                        score += 65 if (fc[KADABRA] >= 1 or fc[ABRA] >= 1) else -20
+                    elif card.id == ABRA:
+                        score += 60 if p["abra_line"] < 3 else -50
+                    elif card.id == DUNSPARCE:
+                        score += 30 if p["dunsparce_line"] < 2 else -50
+                    elif card.id in PSYCHIC_ENERGY_IDS:
+                        score += 30 if not state.energyAttached else -10
+                    elif card.id == ENRICHING_ENERGY:
+                        # div-23【暫定】（2026-07-15 対Yushin divergence、4件）: サーチのエネ指名は
+                        # エンリッチング（付与時+3ドロー）をテレパスより先に取る
+                        score += 35
+                    elif card.id == RARE_CANDY:
+                        score += 40 if fc[ABRA] >= 1 else -10
+                    return score, "to hand"
+                # ALA_SEARCH（2026-07-22 R3 ①）: 監査「to hand 377（最大クラスタ）」の同点解消。
+                # (a) 全体を ×200 スケール = 既存の greedy 順位（div-6/9/23 採用済み）は完全保存
+                #     しつつ、隣接ティア差（最小 5）を 1000 以上（decisive）へ持ち上げる。
+                # (b) 状態条件つきの新意見を旧同点帯（未表カード=0 と衝突ペア）に追加:
+                #     超エネは手札{P}エネ0時に +45/+50 へ昇格（Candy 40 を追い越す = 旧差10 の
+                #     weak 帯内の並べ替え。Enriching>Telepath の div-23 順は両状態で維持）/
+                #     Dunsparce 30→25（旧: 超エネ 30 と真同点で index 任せだった）/
+                #     ボス +28（詰め時。cg.api 実測: 本デッキの TO_HAND 発生源 Pad/Hilda/Dawn/
+                #     ストレッチャー/ランナはサポートを取れず実質不活性 — 将来効果への保険で記述）/
+                #     Fez −30（R-12 温存則と整合: 汎用 0 より下・余剰ライン −50 より上）。
+                # 手札{P}エネ = 5/19 のみ（Enriching 13 は {C} 供給で Powerful Hand を撃てない。実測）
+                # 余剰尾部も分離（初版 OFF/ON 計測で −50/−50・−20/−20 の異カード真同点が残存:
+                # ライン飽和時の Pad/Dawn で Abra/Dunsparce/Dudunsparce が全て −50 で index 任せ）:
+                # Alakazam −18 > Kadabra −24 > Fez −30 > Dudunsparce −45 > Abra −50 > Dunsparce −56
+                hand_p_energy = p["hand_counts"][PSY_ENERGY] + p["hand_counts"][TELEPATH_ENERGY]
                 if card.id == DUDUNSPARCE:
-                    score += 80 if (fc[DUNSPARCE] >= 1 and fc[DUDUNSPARCE] == 0) else -50
+                    score += 80 if (fc[DUNSPARCE] >= 1 and fc[DUDUNSPARCE] == 0) else -45
                 elif card.id == KADABRA:
-                    score += 70 if fc[ABRA] >= 1 else -20
+                    score += 70 if fc[ABRA] >= 1 else -24
                 elif card.id == ALAKAZAM:
-                    score += 65 if (fc[KADABRA] >= 1 or fc[ABRA] >= 1) else -20
+                    score += 65 if (fc[KADABRA] >= 1 or fc[ABRA] >= 1) else -18
                 elif card.id == ABRA:
                     score += 60 if p["abra_line"] < 3 else -50
                 elif card.id == DUNSPARCE:
-                    score += 30 if p["dunsparce_line"] < 2 else -50
+                    score += 25 if p["dunsparce_line"] < 2 else -56
                 elif card.id in PSYCHIC_ENERGY_IDS:
-                    score += 30 if not state.energyAttached else -10
+                    if not state.energyAttached:
+                        score += 45 if hand_p_energy == 0 else 30
+                    else:
+                        score += -10
                 elif card.id == ENRICHING_ENERGY:
-                    # div-23【暫定】（2026-07-15 対Yushin divergence、4件）: サーチのエネ指名は
-                    # エンリッチング（付与時+3ドロー）をテレパスより先に取る
-                    score += 35
+                    score += 50 if hand_p_energy == 0 else 35
                 elif card.id == RARE_CANDY:
                     score += 40 if fc[ABRA] >= 1 else -10
-                return score, "to hand"
+                elif card.id == BOSS:
+                    score += 28 if (p["target_use_boss"] and p["target_can_kill"]) else 0
+                elif card.id == FEZANDIPITI_EX:
+                    score += -30
+                return score * 200, "to hand"
 
             if ctx == SelectContext.ATTACH_FROM:
                 if hasattr(card, "energyCards"):
@@ -985,6 +1033,13 @@ class AlakazamPolicy(BasePolicy):
                     score = 8000 + {ALAKAZAM: 30, KADABRA: 20, ABRA: 10}.get(pokemon.id, 0)
                     if opt.inPlayArea == AreaType.ACTIVE:
                         score += 5
+                    # ALA_ATTACH_ORDER（2026-07-22 R3 ③）: 監査「attach psychic 108」—
+                    # 同種複数体（ベンチのケーシィ2体等）が同点 = index タイブレークだった。
+                    # ready 化が最速 = エネを載せた個体が生存して進化まで届く見込みの個体を
+                    # 優先（無傷 +2）。+2 < アクティブ 5 < 種別差 10 なので既存意見は覆さない。
+                    # 種別ティア 30/20/10（Alakazam=即 ready > Kadabra > Abra）は既存のまま。
+                    if ALA_ATTACH_ORDER and damage_on(pokemon) == 0:
+                        score += 2
                     if card.id == TELEPATH_ENERGY and p["safe_draws"] < 2:
                         return -1, "R-11: deck thin (Telepath)"
                     return score, "attach psychic"
@@ -1038,6 +1093,17 @@ class AlakazamPolicy(BasePolicy):
             score = 17500
             sd = p["safe_draws"]
             hc = p["hand_counts"]
+            # ALA_EVOLVE_ORDER（2026-07-22 R3 ②）: 監査「evolve Dudunsparce 142 / Kadabra 94」
+            # — 複数体同時進化可のとき同スコア = index タイブレークだった。アクティブ優先 +6・
+            # 被脅威（ダメカン持ち）優先 +2 の位置タイブレークを帯内に追加。合計最大 8 <
+            # 帯内最小既存差 10（energies*10）なので既存意見（エネ無し優先/アメ温存等）は
+            # 覆さない。種間の順序意見は div-19 棄却に従い足さない（位置ボーナスは種対称）。
+            order_tb = 0
+            if ALA_EVOLVE_ORDER:
+                if opt.inPlayArea == AreaType.ACTIVE:
+                    order_tb += 6
+                if damage_on(pokemon) > 0:
+                    order_tb += 2
             if card.id == ALAKAZAM:
                 # ALA_SD_EVOLVE v3（2026-07-17 Gate A 監査 → 同日 A/B 2回改訂）: sd<3 の
                 # 進化を負帯から低正帯 150 へ = 候補空間には入れる（被覆率回復）が、ルール
@@ -1051,7 +1117,7 @@ class AlakazamPolicy(BasePolicy):
                     return 150, "evolve Alakazam (deck thin, learn)"
                 score += 200 if opt.inPlayArea == AreaType.ACTIVE else 50
                 score += len(pokemon.energies) * 10
-                return score, "evolve Alakazam"
+                return score + order_tb, "evolve Alakazam"
             if card.id == KADABRA:
                 # ALA_SD_EVOLVE v3: 同上（Kadabra draw 2。学習帯 150・LO/絶対フロアは負帯）
                 deck_cnt = sd + p["my_prize"] + 1
@@ -1078,13 +1144,19 @@ class AlakazamPolicy(BasePolicy):
                     score -= 20
                     if hc[RARE_CANDY] > 0 and hc[ALAKAZAM] > 0:
                         score -= 100
-                return score, "evolve Kadabra"
+                return score + order_tb, "evolve Kadabra"
             if card.id == DUDUNSPARCE:
                 # div-12（2026-07-11 実測。07-08/07-09 両日同方向）: sd<2 ガードを撤去。
                 # 上位勢は山薄でも Dudunsparce へ進化する（我々のブロック 07-08 186件 /
                 # 07-09 202件、うち sd<2 が 180/199）。進化時ドローは任意（ACTIVATE）で
                 # div-5 が山薄時の辞退を担保するため、進化自体に山札切れリスクはない。
-                return score + 80, "evolve Dudunsparce"
+                # ALA_EVOLVE_ORDER 追補（初版計測でベンチ同士の同点 104 件が残存）:
+                # Run Away Draw は「このポケモンと付いている全カードを山へ戻す」（cg.api 実測）
+                # = エネを載せた個体を進化させるとエネごと消える → エネ無し個体を優先 +4
+                # （Kadabra のエネ無し優先 +50 と同方向。アクティブ +6 は上位のまま）
+                if ALA_EVOLVE_ORDER and len(pokemon.energies) == 0:
+                    order_tb += 4
+                return score + 80 + order_tb, "evolve Dudunsparce"
             return score, "evolve other"
 
         if opt.type == OptionType.ABILITY:

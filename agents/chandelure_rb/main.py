@@ -35,6 +35,7 @@ from policy_base import (
     DIAG,
     active_pokemon,
     all_my_pokemon,
+    damage_on,
     energy_count,
     get_card,
     has_in_play,
@@ -81,6 +82,23 @@ ATK_FLOWER_SHOWER = 215   # Comfey {P} 0dmg お互い3ドロー
 ATK_PLAY_ROUGH = 216      # Comfey {P} 20+コイン20
 
 OPP_MUNKIDORI = 112       # 相手のマシマシラ（バトルケージの主対象）
+
+# ── 決定性ラウンド トグル（EXP-036 第3ラウンド 2026-07-22） ──
+# 決定性監査（scripts/decisiveness_audit.py 140戦・純ルール）で、負け試合の
+# 無意見決定（首位-2位 margin が 0 or <1000）が SELECT 系に集中していると判明。
+# 負け対面は froslass_starmie / marnie に集中し、敗因の型はプライズレース負け
+# （相手山3〜6枚まで追い詰めての力尽き = ミルテンポの浪費が直接効く）。
+#
+# 【判定 2026-07-22 A/B 実測（80戦×7対面 + 160戦確定）】3つの挙動系トグルは
+# 全構成で集計悪化（全ON −4.3pt / PROMOTE単 −5.2 / FUEL単 −2.9 / TAKE単 −4.3、
+# 160戦確定 全ON −0.7 / プール240戦 −1.8pt）。本デッキの厳格基準
+# 「集計 −1pt 超悪化は即 OFF（ルール王者 997.5 非劣化が絶対条件）」により既定 OFF。
+# 代わりに CHA_MARGIN（挙動厳密不変のマージン拡幅のみ）を既定 ON で採用 —
+# 監査の無意見クラスタ解消は挙動を変えずに達成する（詳細 デッキ設計_シャンデラ.md）。
+CHA_MARGIN = os.environ.get("CHA_MARGIN", "1") != "0"            # 挙動不変のマージン拡幅（採用・既定ON）
+CHA_PROMOTE = os.environ.get("CHA_PROMOTE", "0") != "0"          # 昇格順ドクトリン（棄却・既定OFF）
+CHA_FUEL_TARGET = os.environ.get("CHA_FUEL_TARGET", "0") != "0"  # fuel対象+ミル手順序（棄却・既定OFF）
+CHA_TAKE_ENERGY = os.environ.get("CHA_TAKE_ENERGY", "0") != "0"  # TO_HANDエネ使い分け（棄却・既定OFF）
 
 CHANDELURE_LINE = {LITWICK, LAMPENT, CHANDELURE}
 ENERGY_CARDS = {BASIC_P, TELEPATH}
@@ -236,10 +254,23 @@ class ChandelurePolicy(BasePolicy):
                 #（相手山≤3なら相手のターン開始ドローが先に尽きるので解除）
                 if p["my_deck"] <= 3 and p["opp_deck"] > 3:
                     return -1, "E-1a: Flower Shower would deck us out"
-                return 1200, "E-1: Flower Shower (mill 3)"
+                # 【2026-07-22 決定性監査】負け試合の最大無意見クラスタ（OFF監査117件）が
+                # 「FS 1200 vs Play Rough 1020+dmg = margin 180」。選択自体は実測どおり
+                # FS（106:1）で正しく、margin だけが薄い。
+                # CHA_MARGIN【採用】: FS 1200→1950 / chip 1000+dmg→850+dmg。序列は全対全で
+                # 厳密不変（FS > chip > 宝石700 > END のまま。(870,1200] 帯に他スコア無し —
+                # generic play 1000 はこのデッキの60枚全てが明示ハンドラ持ちで不到達）。
+                # margin 180→1080 = decisive。generic ability 2000 の下は維持。
+                # CHA_FUEL_TARGET【棄却・opt-in】: FS 1750 / chip 150+dmg（chip vs 宝石の
+                # 弱序列320を反転 = FS封印末期に宝石を張ってから殴る、まで踏み込む版）。
+                if CHA_FUEL_TARGET:
+                    return 1750, "E-1: Flower Shower (mill 3)"
+                return (1950 if CHA_MARGIN else 1200), "E-1: Flower Shower (mill 3)"
             active = active_pokemon(obs)
             dmg = self.attack_damage(obs, active, aid) if active else 0
-            return 1000 + dmg, "attack (chip damage)"
+            if CHA_FUEL_TARGET:
+                return 150 + dmg, "attack (chip damage)"
+            return ((850 if CHA_MARGIN else 1000) + dmg), "attack (chip damage)"
 
         if opt.type == OptionType.END:
             return 0, "end"
@@ -424,6 +455,8 @@ class ChandelurePolicy(BasePolicy):
     # ── ATTACH（S-5 + R-10 + R-08） ──
 
     def _score_attach(self, obs, opt):
+        p = self.p
+        fc, hc, dc = p["fc"], p["hc"], p["dc"]
         card = option_card(obs, opt)
         target = option_target(obs, opt)
         if card is None or target is None:
@@ -458,8 +491,40 @@ class ChandelurePolicy(BasePolicy):
             # ポフィン(18000)/パッド(17000)/NZ(19500) より前に手張りを済ませる
             # （human=ATTACH ours=Poffin/Pad/NZ が 07-08 ×8 + 07-09 ×4、逆方向計6件。
             #  1ターン1回の権利を先に確実に消費する順序が上位勢の型）
-            bonus = 100 if (active is not None and target is active) else 0
-            bonus += 50 if cid == TELEPATH else 0   # テレパスはベンチ連鎖付き
+            if CHA_FUEL_TARGET:
+                # CHA_FUEL_TARGET【棄却・opt-in 2026-07-22】: S-5 の同点（負け試合 =
+                # ベンチ間 m=0 / テレパス vs 基本 m=50 / アクティブ vs ベンチ m=100）に
+                # 挙動を変える意見を与える版。A/B 実測で集計悪化のため既定 OFF。
+                #   (1) アクティブ +3500（今番の FS 即撃ち）
+                #   (2) ベンチ間は壁 +2000 — 注: コンフィ HP70 < 汎用打点想定 220 のため
+                #       実質不発（発火はミラーの打点想定40のみ）
+                #   (3) 両種所持時のみ種の使い分け +1000（連鎖生存→テレパス/死→基本）
+                # 上限 19800+3500+1000=24300 は進化帯 24000 と交差しうる。
+                bonus = 0
+                if active is not None and target is active:
+                    bonus += 3500
+                elif target.hp > self.opp_max_damage(obs):
+                    bonus += 2000
+                if hc[BASIC_P] >= 1 and hc[TELEPATH] >= 1:
+                    comfey_in_deck = 4 - fc[COMFEY] - hc[COMFEY] - dc[COMFEY]
+                    chain_live = p["bench_free"] >= 2 and comfey_in_deck >= 1
+                    preferred = TELEPATH if chain_live else BASIC_P
+                    bonus += 1000 if cid == preferred else 0
+            else:
+                # CHA_MARGIN【採用 2026-07-22】: 既存の選好（アクティブ>ベンチ、テレパス>基本）
+                # の順序はそのままに段差だけ 100→2100 / 50→1050 に拡幅 = 監査の decisive
+                # 閾値 1000 を跨がせる（S-5 の m=50/m=100 クラスタ解消。ベンチ間同種 m=0 は
+                # 実在の選好が無いため対象外）。序列検証: 上限 19800+3150=22950 は
+                # EVOLVE 24000 の下・PLAY ポケモン帯 20000-20500 とは交差するが両者とも
+                # 番を終えない手で同一ターン実行集合は不変（対戦ハーネスは PYTHONHASHSEED
+                # 固定でも非決定的なため軌跡一致検証は不可 — 同一性の根拠は本注釈の全帯
+                # 序列照合 + null A/B ±3pt 以内）。R-08 脅威対象は旧段差のまま
+                # （拡幅すると 19800+3150-2000=20950 > ポフィン18000 となり「ポフィンで
+                #  新コンフィを出してから張る」旧挙動の順序が壊れるため脅威時は旧式固定）。
+                wide = CHA_MARGIN and not self.is_threatened(target)
+                bonus = ((2100 if wide else 100)
+                         if (active is not None and target is active) else 0)
+                bonus += (1050 if wide else 50) if cid == TELEPATH else 0   # テレパスはベンチ連鎖付き
             score = 19800 + bonus
             if self.is_threatened(target):
                 score -= 2000   # R-08: 負け筋への追い銭防止
@@ -481,7 +546,25 @@ class ChandelurePolicy(BasePolicy):
             if pi == yi:
                 # E-7: 前出しはコンフィ最優先（実測45/54）。シャンデラ/シェイミは守る
                 if cid == COMFEY:
-                    score, reason = 15000 + energy_count(card) * 100, "promote Comfey"
+                    if CHA_PROMOTE and not self.is_threatened(card):
+                        # CHA_PROMOTE【棄却・opt-in 2026-07-22】: promote Comfey 同点
+                        # （m=0 / m=100）への挙動を変える意見（エネ付き +4000 > 壁 +2000 >
+                        # 無傷 +1000 > 素。辞書式段差）。壁 +2000 はコンフィ HP70 < 打点
+                        # 想定 220 で実質不発。A/B 実測で集計悪化のため既定 OFF。
+                        # R-08 脅威駒は旧式のままにして、脅威コンフィがヒトモシ4500等を
+                        # 追い越す事故を構造的に防ぐ。
+                        bonus = 4000 if energy_count(card) >= 1 else 0
+                        bonus += 2000 if card.hp > self.opp_max_damage(obs) else 0
+                        bonus += 1000 if damage_on(card) == 0 else 0
+                        score, reason = 15000 + bonus, "promote Comfey"
+                    else:
+                        # CHA_MARGIN【採用 2026-07-22】: 既存の「エネ付き優先」の段差だけ
+                        # ×100→×1100 に拡幅（m=100 クラスタを decisive 化。順序厳密不変:
+                        # コンフィ帯 [15000,16100+] は他候補 4500/4300/3000/2500 と交差せず、
+                        # R-08 −15000 後の帯 [0,1100+] も同順序を保つ。同状態 m=0 は実在の
+                        # 選好が無いため対象外）。
+                        mult = 1100 if CHA_MARGIN else 100
+                        score, reason = 15000 + energy_count(card) * mult, "promote Comfey"
                 elif cid == LITWICK:
                     score, reason = 4500, "promote Litwick"
                 elif cid == LAMPENT:
@@ -523,31 +606,56 @@ class ChandelurePolicy(BasePolicy):
             #   (2) シャンデラの path 判定に手札のランプラーを含める（確保後はシャンデラ優先 07-09 実測）
             #   (3) 2枚目以降のシャンデラは減衰（human=Comfey/ours=Chandelure ×3。特性ボディは1体で十分）
             #   (4) 場にコンフィ0ならコンフィ最優先（S-0: エンジン無しではミルが始まらない）
-            base = 100 - hc.get(cid, 0) * 25
+            # CHA_MARGIN【採用 2026-07-22】: TO_HAND 表全体を ×50 に等倍スケール
+            # （順序・符号は厳密に不変 = 挙動同一。実在する選好差、例えば
+            # ランプラー92 vs シャンデラ90 の 2 が 100 になり、監査の絶対閾値 1000 に
+            # 対して意見が計測可能になる下地）。同名カード同士の m=0 は論理的に解消不能。
+            # CHA_TAKE_ENERGY【棄却・opt-in】: 選択肢に基本{P}とテレパスの両種が
+            # 並ぶ時だけ使い分けの意見 +1000: テレパス連鎖が生きている（ベンチ2枠以上
+            # ∧ 山にコンフィ残）ならテレパス、死んでいるなら基本（夜のタンカ/エネ転送で
+            # 回収できる方を使い、連鎖価値のある特殊エネは温存しない場面を作らない）。
+            # A/B 実測で集計悪化のため既定 OFF（TAKE 有効時はスケールも強制 = ±1000 が
+            # 未スケール表を飲み込む事故を防ぐ）。
+            sc = 50 if (CHA_MARGIN or CHA_TAKE_ENERGY) else 1
+            base = (100 - hc.get(cid, 0) * 25) * sc
             if cid == CHANDELURE:
                 path = fc[LITWICK] + fc[LAMPENT] + hc[LITWICK] + hc[LAMPENT] >= 1
                 first = fc[CHANDELURE] + hc[CHANDELURE] == 0
-                return base + ((90 if first else 65) if path else 55), "div-C4/C9: take Chandelure"
+                return base + ((90 if first else 65) if path else 55) * sc, "div-C4/C9: take Chandelure"
             if cid == COMFEY:
                 if fc[COMFEY] == 0:
-                    return base + 95, "div-C9: take Comfey (engine down)"
-                return base + (70 if fc[COMFEY] + hc[COMFEY] < 4 else -20), "div-C4: take Comfey"
+                    return base + 95 * sc, "div-C9: take Comfey (engine down)"
+                return base + (70 if fc[COMFEY] + hc[COMFEY] < 4 else -20) * sc, "div-C4: take Comfey"
             if cid in ENERGY_CARDS:
-                bonus = 60 if (p["energy_in_hand"] == 0 and p["comfey_need"] >= 1) else 25
-                bonus += 5 if cid == TELEPATH else 0
+                bonus = (60 if (p["energy_in_hand"] == 0 and p["comfey_need"] >= 1) else 25) * sc
+                if CHA_TAKE_ENERGY:
+                    kinds = set()
+                    for o in obs.select.option:
+                        c2 = option_card(obs, o)
+                        if c2 is not None and c2.id in ENERGY_CARDS:
+                            kinds.add(c2.id)
+                    if len(kinds) >= 2:
+                        comfey_in_deck = 4 - fc[COMFEY] - hc[COMFEY] - p["dc"][COMFEY]
+                        chain_live = p["bench_free"] >= 2 and comfey_in_deck >= 1
+                        preferred = TELEPATH if chain_live else BASIC_P
+                        bonus += 1000 if cid == preferred else 0
+                    else:
+                        bonus += 5 * sc if cid == TELEPATH else 0
+                else:
+                    bonus += 5 * sc if cid == TELEPATH else 0
                 return base + bonus, "take energy"
             if cid == LITWICK:
                 if p["line_in_play"] == 0:
-                    return base + 75, "div-C4: take Litwick (start the line)"
-                return base + (50 if p["line_in_play"] < 3 else -20), "take Litwick"
+                    return base + 75 * sc, "div-C4: take Litwick (start the line)"
+                return base + (50 if p["line_in_play"] < 3 else -20) * sc, "take Litwick"
             if cid == LAMPENT:
                 if fc[LAMPENT] + hc[LAMPENT] == 0 and fc[LITWICK] + hc[LITWICK] >= 1:
-                    return base + 92, "div-C9: take Lampent (missing middle)"
-                return base + (45 if fc[LITWICK] >= 1 else 10), "take Lampent"
+                    return base + 92 * sc, "div-C9: take Lampent (missing middle)"
+                return base + (45 if fc[LITWICK] >= 1 else 10) * sc, "take Lampent"
             if cid == SHAYMIN:
-                return base + (20 if fc[SHAYMIN] == 0 else -30), "take Shaymin"
+                return base + (20 if fc[SHAYMIN] == 0 else -30) * sc, "take Shaymin"
             if cid == RARE_CANDY:
-                return base + (40 if fc[LITWICK] >= 1 and hc[CHANDELURE] >= 1 else 0), "take Candy"
+                return base + (40 if fc[LITWICK] >= 1 and hc[CHANDELURE] >= 1 else 0) * sc, "take Candy"
             return base, "take other"
 
         if ctx == SelectContext.TO_BENCH:
