@@ -1,0 +1,7 @@
+archetype,share,field_wr,agent_or_deck,deck
+alakazam,29.9,41.5,agents/alakazam_rb,decks/opponents/band_900_1100_0723/01_alakazam_296x.csv
+marnie_luca,22.0,53.4,agents/marnie_munkidori_rb,decks/opponents/band_900_1100_0723/02_marnie_206x.csv
+marnie_main,16.3,53.4,agents/marnie_munkidori_rb,decks/opponents/band_900_1100_0723/03_marnie_174x.csv
+crustle_wall,17.8,41.6,agents/crustle_rb,decks/opponents/band_900_1100_0723/04_crustle_wall_138x.csv
+rocket,8.6,49.1,agents/rocket_rb,decks/opponents/band_900_1100_0723/05_rocket_110x.csv
+froslass_starmie,2.0,44.0,agents/froslass_starmie_rb,decks/fleet/froslass_starmie_taksai.csv

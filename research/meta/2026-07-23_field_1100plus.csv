@@ -1,0 +1,8 @@
+archetype,share,field_wr,agent_or_deck,deck
+alakazam,43.0,53.2,agents/alakazam_rb,decks/opponents/band_1100_0723/01_alakazam_313x.csv
+garchomp,20.2,52.3,agents/cynthia_garchomp_rb,decks/fleet/cynthia_garchomp_top.csv
+rocket,14.0,63.0,agents/rocket_rb,decks/opponents/band_1100_0723/04_rocket_75x.csv
+marnie,8.9,69.7,agents/marnie_munkidori_rb,decks/opponents/band_1100_0723/03_marnie_76x.csv
+dragapult_dusknoir,7.0,45.7,agents/dragapult_dusknoir_rb,decks/opponents/band_1100_0723/05_dragapult_60x.csv
+dragapult,5.3,45.7,agents/dragapult_rb,decks/opponents/band_1100_0723/08_dragapult_44x.csv
+crustle_wall,1.1,11.1,generic,decks/opponents/crustle_wall_kanga_budew_0713.csv
