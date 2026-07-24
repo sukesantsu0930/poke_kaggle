@@ -99,6 +99,11 @@ CHA_MARGIN = os.environ.get("CHA_MARGIN", "1") != "0"            # 挙動不変�
 CHA_PROMOTE = os.environ.get("CHA_PROMOTE", "0") != "0"          # 昇格順ドクトリン（棄却・既定OFF）
 CHA_FUEL_TARGET = os.environ.get("CHA_FUEL_TARGET", "0") != "0"  # fuel対象+ミル手順序（棄却・既定OFF）
 CHA_TAKE_ENERGY = os.environ.get("CHA_TAKE_ENERGY", "0") != "0"  # TO_HANDエネ使い分け（棄却・既定OFF）
+# ── 第4弾（2026-07-24 ユーザー指示。判定は王者ゲート = A/B −1pt 超悪化で即 OFF） ──
+CHA_BOSS_HEAVY = os.environ.get("CHA_BOSS_HEAVY", "1") != "0"    # にげ重ベンチの吊り出し（余裕時）
+CHA_ERI_IDLE = os.environ.get("CHA_ERI_IDLE", "1") != "0"        # サポート枠が暇なら Eri（ビワ）
+CHA_NC_HOLD = os.environ.get("CHA_NC_HOLD", "1") != "0"          # NZ は敗北リーチ可視まで温存
+CHA_LILLIE_EARLY = os.environ.get("CHA_LILLIE_EARLY", "1") != "0"  # 後攻T1/先攻T2 はリーリエ優先
 
 CHANDELURE_LINE = {LITWICK, LAMPENT, CHANDELURE}
 ENERGY_CARDS = {BASIC_P, TELEPATH}
@@ -314,6 +319,18 @@ class ChandelurePolicy(BasePolicy):
         if cid == NEUTRAL_ZONE:
             if p["stadium_id"] == NEUTRAL_ZONE:
                 return -1, "NZ already up"
+            # CHA_NC_HOLD v2（2026-07-24 ユーザー指示・同日改訂）: NZ は ACE SPEC ×1 で
+            # 回収不能 — 早張りは貼り替えで剥がされ損なので、**次の相手番の敗北リーチが
+            # 見えた時だけ**リーサルブロッカーとして張る。リーチは2系統:
+            #   (a) R-08 threats = 取られるとサイド取り切りで負ける駒が存在
+            #   (b) 盤面全滅リーチ = ベンチ0 ∧ バトル場が相手投影打点で落ちる
+            #       （初版「相手サイド1-2枚」条件はこの序盤全滅パターンを守れなかった）
+            if CHA_NC_HOLD:
+                active = active_pokemon(obs)
+                wipe_risk = (p["bench_used"] == 0 and active is not None
+                             and self.opp_max_damage(obs) >= active.hp)
+                if not self.t["threats"] and not wipe_risk:
+                    return -1, "CHA: hold NZ until lethal visible"
             if p["opp_has_ex"]:
                 return 19500, "E-4: Neutralization Zone (block ex damage)"
             return -1, "E-4: hold NZ (no rule-box threat yet)"
@@ -416,6 +433,16 @@ class ChandelurePolicy(BasePolicy):
                 return 4800, "E-3: Xerosic"
             return -1, "save Xerosic"
         if cid == LILLIE:
+            # CHA_LILLIE_EARLY（2026-07-24 ユーザー指示）: 序盤はリーリエで攻める —
+            # ベンチ展開・エネ堀りなどやりたいことが多い立ち上がりは、トウコ（Hilda 5000）
+            # より手数の増えるリーリエを先に切る。対象は「後攻の自分1ターン目（global
+            # turn 2）/ 先攻の自分2ターン目（global turn 3）」。帯 5600 = Hilda より上、
+            # 山回復 6500・対アラカザム Xerosic 6000 より下（緊急時はそちらが先勝ち）
+            if CHA_LILLIE_EARLY:
+                st = obs.current
+                first = (st.firstPlayer == st.yourIndex)
+                if (first and st.turn == 3) or (not first and st.turn == 2):
+                    return 5600, "CHA: Lillie (early tempo)"
             # E-2: 山の回復装置。山が薄い時は最優先、手札が太い時は山へ還流
             # div-C4: 手札≤6 のリフレッシュを許可（実測: 手札4〜6での使用が最多帯）
             if p["my_deck"] <= 6:
@@ -426,6 +453,15 @@ class ChandelurePolicy(BasePolicy):
                 return 4200, "E-2: Lillie (bank fat hand)"
             return -1, "save Lillie"
         if cid == mt.BOSS:
+            # CHA_BOSS_HEAVY（2026-07-24 ユーザー指示）: にげるコストの重い相手ベンチは
+            # 余裕があれば吊り出して拘束（LO の勝ち筋 = 前を止めてミルの番数を稼ぐ）。
+            # 帯 5800 = Lillie 山回復 6500 / 対アラカザム Xerosic 6000 より下（緊急時は
+            # そちらが先勝ち）、通常 Xerosic 5500 より上。setup でも重い獲物がいれば 5000。
+            # 吊り先の選択は既存の E-5 ターゲット則（にげ重×200 − エネ×300）がそのまま裁く
+            if CHA_BOSS_HEAVY and any(
+                    retreat_cost(b) >= 2 and energy_count(b) <= 1
+                    for b in opp_state(obs).bench if b):
+                return (5800 if combat else 5000), "CHA: Boss (heavy retreat trap)"
             # E-5: 拘束用。エネ0の相手ベンチがいる交戦期のみ
             if combat and any(energy_count(b) == 0 for b in opp_state(obs).bench if b):
                 return 5200, "E-5: Boss (drag & trap)"
@@ -449,6 +485,11 @@ class ChandelurePolicy(BasePolicy):
         if cid == ERI:
             if combat and p["opp_hand"] >= 4:
                 return 4000, "E-3: Eri"
+            # CHA_ERI_IDLE（2026-07-24 ユーザー指示）: サポート枠が暇なら Eri（ビワ）を
+            # 切る — 相手手札のグッズ破壊は LO では常にプラス方向。帯 400 = 学習帯級で、
+            # 他のサポート・本命行動が全て沈黙した番だけ浮上する（end(0) にだけ勝つ）
+            if CHA_ERI_IDLE:
+                return 400, "CHA: Eri (idle supporter)"
             return -1, "save Eri"
         return 1000, "generic play"
 
