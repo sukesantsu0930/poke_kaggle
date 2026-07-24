@@ -111,6 +111,9 @@ ENERGY_CARDS = {BASIC_P, TELEPATH}
 
 class ChandelurePolicy(BasePolicy):
     DECK_NAME = "chandelure_mill"
+    # R-31 不適用（2026-07-24 実測）: 均等80戦/枠×3標本で一貫 −2pt 超 = 王者ゲート抵触。
+    # 前出し表（エネ付き Comfey 優先 = ミルの即時継続）が支配戦略の例外になるデッキ
+    R31_OPT_OUT = True
     GO_FIRST = True            # R-21 確定（2026-07-07 実測: kidekikish IS_FIRST 9/9 YES）
     TAKE_MULLIGAN = True       # R-22【ハード・ユーザー決定 2026-07-07】マリガンは常にマックス引く
     ATTACKER_IDS = {COMFEY}

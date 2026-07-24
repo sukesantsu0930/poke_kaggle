@@ -66,6 +66,8 @@ LETHAL_BAND = 1_000_000  # R-07: リーサル手の専用スコア帯（全優�
 
 # R-30「使用可能なグッズは使用する」の A/B トグル（既定 ON。詳細 = _r30_default_item）
 R30_ENABLED = os.environ.get("R30", "1") != "0"
+# R-31「KO 後の前出しは、にげエネ0のベンチがいれば常にそれ」（既定 ON。詳細 = _r31_promote_free）
+R31_ENABLED = os.environ.get("R31", "1") != "0"
 
 
 def band_of(score):
@@ -691,8 +693,37 @@ class BasePolicy(ABC):
         score, reason = self.mask_extra(obs, opt, score, reason)
         score, reason = self.apply_overrides(obs, opt, score, reason)
         score, reason = self._r30_default_item(obs, opt, score, reason)
+        score, reason = self._r31_promote_free(obs, opt, score, reason)
         score = self._apply_theta(score, reason)
         return self.apply_protocol(obs, opt, score, reason)
+
+    def _r31_promote_free(self, obs, opt, score, reason):
+        """R-31（2026-07-24 一般ルール・ユーザー決定）: バトル場が空いた時（KO 後の
+        強制前出し = TO_ACTIVE）、**にげエネ 0 のベンチがいれば常にそれを出す**。
+
+        根拠: 自分の手番中はにげる（コスト0 = 無料）でいつでも本命に並べ替えられる
+        ため、前出し時点で選択肢を一切失わない支配的な手 — 数少ないゲーム理論的に
+        厳密な優先則（ユーザー命名）。デッキ毎の前出し表より上の帯 45000 で確定させる。
+        ガード:
+          - 自分側の選択のみ（相手側 TO_ACTIVE = ボス吊り先はデッキ則のまま）
+          - 負帯（デッキの保護マスク）と R-08 敗北リーチ駒には適用しない
+          - SWITCH（自発的な入れ替え先 = デッキの意図した本命選び）は対象外
+          - クラス属性 R31_OPT_OUT = True のデッキは不適用（chandelure: 3標本一貫で
+            −2pt 超 = 王者ゲート抵触。ミル即時性と自前の重力宝石がにげ0前提を崩す）"""
+        if not R31_ENABLED or getattr(self, "R31_OPT_OUT", False) or score < 0:
+            return score, reason
+        if obs.select.context != SelectContext.TO_ACTIVE:
+            return score, reason
+        yi = obs.current.yourIndex
+        pi = opt.playerIndex if opt.playerIndex is not None else yi
+        if pi != yi:
+            return score, reason
+        card = option_card(obs, opt)
+        if card is None or retreat_cost(card) != 0 or self.is_threatened(card):
+            return score, reason
+        # にげ0候補が複数いる時はデッキの序列（元スコア）を 1/10 スケールで保存する
+        # （v1 の 45000 均一はチャンデラの「エネ付き Comfey 優先」を壊して −2.1pt だった）
+        return 45000 + max(0.0, score) / 10.0, "R-31: promote free-retreat"
 
     def _r30_default_item(self, obs, opt, score, reason):
         """R-30（2026-07-21 一般ルール・ユーザー決定）: **使用可能なグッズは使用する**。

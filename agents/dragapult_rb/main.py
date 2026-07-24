@@ -97,6 +97,12 @@ ATTACKER_IDS_LEARNED = frozenset({58, 63, 96, 108, 116, 117, 121, 169, 190, 245,
 
 DRAGAPULT_LINE = frozenset({DREEPY, DRAKLOAK, DRAGAPULT_EX})
 
+# DRA_CONCENTRATE（2026-07-24 ユーザー指示）: エネ集中の A/B トグル（既定 ON）
+DRA_CONCENTRATE = os.environ.get("DRA_CONCENTRATE", "1") != "0"
+# 「この番はまだドラパルト化が確定不可能ではない」判定に使う掘り札（ドロー/サーチ手段）。
+# 手札にこれらが1枚でもあれば、ドラパルトを引き込む余地がある = エネ分散はまだ許可しない
+DIG_OUT_IDS = frozenset({ULTRA_BALL, POKE_PAD, LILLIE, CRISPIN, BROCK, NIGHT_STRETCHER})
+
 # R-10: ライン最大コスト（技の実コストから確認済み: Phantom Dive=2 / Cruel Arrow・Eon Blade・Tuck Tail=3）
 LINE_MAX_COST = {DREEPY: 2, DRAKLOAK: 2, DRAGAPULT_EX: 2,
                  FEZANDIPITI_EX: 3, LATIAS_EX: 3, MEOWTH_EX: 3, BUDEW: 0}
@@ -954,6 +960,24 @@ class DragapultPolicy(BasePolicy):
             return -1
         if active and f["can_main_attack"]:
             return -1
+        # DRA_CONCENTRATE（2026-07-24 ユーザー指示）: 常にファントムダイブ（{R}{P}×2）を
+        # 狙う — 充電途中（e==1）のライン個体がいる間、別個体（e==0）への新規付与 =
+        # **エネ分散を禁止**する。分散を許可するのは「この番のドラパルト化が確定不可能」
+        # な時だけ: 手札にドラパルト無し ∧ 掘り札（DIG_OUT_IDS）も無し。リーリエ等が
+        # 残っている手札はまだ確定しない（ユーザー観測の事故: 炎1のドロンチを横目に
+        # 別ドロンチへ手張り = 従来は e==0 の +120 が e==1 継続の −120 に勝っていた）。
+        # 場のドラパルト ex 本体への付与は常に「ダイブ狙い」なので対象外。
+        if (DRA_CONCENTRATE and e == 0 and pokemon.id != DRAGAPULT_EX):
+            charged = any(
+                pk is not pokemon and pk.id in DRAGAPULT_LINE
+                and len(pk.energies or []) == 1
+                for pk in all_my_pokemon(obs))
+            if charged:
+                hc = p["hc"]
+                not_final = (hc[DRAGAPULT_EX] >= 1
+                             or any(hc[c] >= 1 for c in DIG_OUT_IDS))
+                if not_final:
+                    return -1   # 分散禁止（集中先が生きている間は手張りを温存してよい）
         score = 20000
         if e == 1:
             if pokemon.energyCards and attach_id == pokemon.energyCards[0].id:
