@@ -462,6 +462,16 @@ class DragapultDusknoirPolicy(BasePolicy):
                         if best < s:
                             best = s
                             self.use_support = card.id
+                # ルート実行（ユーザー 2026-07-25「計算したルートを実際に辿れるか」）:
+                # ダイブ完成が手張りチャネルでは不可・アカマツでのみ可能な局面なら、
+                # 汎用サポート選定を上書きして必ずアカマツを打つ（確率1.0の route を確定執行）。
+                # deck_counts で今ダイブ完成できる（P=1）ことを条件に、リーリエ等に化けさせない。
+                if (DUSK_STREAMS and self._dive_needs_crispin(obs)
+                        and any(o.type == OptionType.PLAY
+                                and get_card(obs, AreaType.HAND, o.index, yi) is not None
+                                and get_card(obs, AreaType.HAND, o.index, yi).id == CRISPIN
+                                for o in obs.select.option)):
+                    self.use_support = CRISPIN
 
         # 手札スコア（PLAY 採点の材料）
         for card in (ms.hand or []):
@@ -1212,16 +1222,20 @@ class DragapultDusknoirPolicy(BasePolicy):
         need = PSYCHIC_ENERGY if has_fire else FIRE_ENERGY   # e==1 の欠け色
         p = self.p
         hc, deck = p["hc"], p["deck_counts"]
-        # アカマツ（クリスピン）の単純化（ユーザー 2026-07-25）: 「サポート権を消費して
-        # エネ2枚ぶんを満たす要求札」= 不足エネを埋める out の一種。e==1 の完成手段は
-        # 「必要色を手張り」か「アカマツを打つ」の2択なので、out = {必要色, アカマツ}。
-        # アカマツはサポートなので、既にサポートを使った番は out から外す。
-        crispin_ok = not obs.current.supporterPlayed
-        if hc[need] >= 1 or (crispin_ok and hc[CRISPIN] >= 1):
-            return 1.0                      # 手札に必要色 or アカマツ = 確定
-        K = deck[need] + (deck[CRISPIN] if crispin_ok else 0)   # 掘れる out
+        # 完成手段は2チャネル: [必要色を手張り] or [アカマツを打つ]。
+        # 各チャネルは「今そのターン使えるか」で開閉する（= その番既にやった行動の記憶）:
+        #   color_ch  … 手張り権が残っている（energyAttached=False）
+        #   crispin_ch… サポート権が残っている（supporterPlayed=False）。アカマツ=エネ2枚
+        #               ぶんのサポート out（ユーザー単純化 2026-07-25）
+        color_ch = not obs.current.energyAttached
+        crispin_ch = not obs.current.supporterPlayed
+        if not color_ch and not crispin_ch:
+            return 0.0                      # 手張りもサポートも使い切り = このターン不可
+        if (color_ch and hc[need] >= 1) or (crispin_ch and hc[CRISPIN] >= 1):
+            return 1.0                      # 手札に必要色(張れる) or アカマツ(打てる) = 確定
+        K = (deck[need] if color_ch else 0) + (deck[CRISPIN] if crispin_ch else 0)
         if K <= 0:
-            return 0.0                      # 死に線（色もアカマツも掘れない）
+            return 0.0                      # 死に線（開いてるチャネルの当たりが枯れ）
         # ハイパーボール（item = supporter 制約なし）で山から色 or アカマツを確定サーチ
         if hc[ULTRA_BALL] >= 1 and len(my_state(obs).hand or []) >= 3:
             return 1.0
@@ -1235,6 +1249,23 @@ class DragapultDusknoirPolicy(BasePolicy):
         if N > D - K:
             return 1.0                      # 引く枚数が外れ枚数を超える = 必ず当たる
         return 1.0 - comb(D - K, N) / comb(D, N)
+
+    def _dive_needs_crispin(self, obs):
+        """ダイブ完成が「アカマツを打つ」チャネルでのみ可能な局面か（手張りチャネルでは
+        不可）。バトル場ドラパルト ex・アカマツが手札・サポート権残・かつアカマツで実際に
+        {R}{P} が埋まる（e==0 は2枚必要=アカマツ必須 / e==1 は手張り済で手動色が不可）。"""
+        if obs.current.supporterPlayed:
+            return False
+        if self.p["hc"][CRISPIN] < 1:
+            return False
+        active = active_pokemon(obs)
+        if active is None or active.id != DRAGAPULT_EX:
+            return False
+        e = len(active.energyCards or [])
+        if e >= 2:
+            return False
+        # e==0（2色不足=手張り1回では無理→アカマツ必須） or e==1 かつ手張り権が無い
+        return e == 0 or obs.current.energyAttached
 
     def _dive_threshold(self, obs):
         """2×2 閾値表（ユーザー構想）: 安全な降り先(スボミー=ムズムズ)の有無 ×
