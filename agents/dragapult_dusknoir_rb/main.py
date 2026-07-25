@@ -114,16 +114,15 @@ LINE_MAX_COST = {DREEPY: 2, DRAKLOAK: 2, DRAGAPULT_EX: 2,
 
 UNNECESSARY = -10_000_000
 
-# ── 第3弾（2026-07-25 ユーザー観察ドクトリン。判定 = 全対面 A/B・最悪対面
-#    marnie(10%)/archaludon(20%) を主計器に160戦確定。通常版は不可侵） ──
-# 【160戦A/B結果】4件一括ONは非加算の悪相互作用で最悪対面 marnie −5.0（13.8 vs 18.8）と
-# 崩壊。二分探索で切り分け: OPEN_BUDEW 単独は marnie 床 +5.0（18.8→23.8・均等ほぼ横ばい）の
-# 明確な当たり = 既定 ON。MUNKI_LATE（marnie −2.6）と PAD（−0.7）は pool で報われず既定 OFF
-# （ユーザードクトリンとして温存 = トグルで観察・ラダー検証可。generic 相手のプールは
-#  「マシマシラ温存」の価値を測れていない可能性 → 実戦観察で再評価）。
-DUSK_OPEN_BUDEW = os.environ.get("DUSK_OPEN_BUDEW", "1") != "0"      # 序盤 Poffin で Dreepy+Budew（T1 も）採用
-DUSK_MUNKI_LATE = os.environ.get("DUSK_MUNKI_LATE", "0") != "0"      # マシマシラ終盤/余裕時のみ（温存OFF）
-DUSK_PAD_DRAKLOAK = os.environ.get("DUSK_PAD_DRAKLOAK", "0") != "0"  # Pad→Drakloak 優先（温存OFF）
+# ── 背骨の組み直し（2026-07-25 ユーザー構想: メインストリーム/サブストリーム × 3フェーズ）──
+# 立ち上げ(setup) … ムズムズ花粉ロック + ドロンチ engine(2-3体) を最優先。サブは従属
+# 始動(priming)   … ドロンチ着地・ダイブ完成へ最短
+# 詰め(online)    … ドラパルト ex 着地・ダイブ稼働。**サブストリーム(カーズドボム/アドレナ)起動**
+# 判定は戦績でなく「意図した振る舞いになったか」のプローブで行う（本流が組み上がるまで
+# 戦績で判定しない = ユーザー方針。序盤を変えたら中盤以降を紐づけ調整してから測る）。
+DUSK_STREAMS = os.environ.get("DUSK_STREAMS", "1") != "0"            # 本流優先・サブ従属の背骨（採用）
+DUSK_OPEN_BUDEW = os.environ.get("DUSK_OPEN_BUDEW", "1") != "0"      # 序盤 Poffin で Dreepy+Budew（T1 も）
+DUSK_PAD_DRAKLOAK = os.environ.get("DUSK_PAD_DRAKLOAK", "1") != "0"  # Pad→Drakloak（本流 engine の一部として再ON）
 # 場のドラパルト線 max 3 は既存の main_pokemon_count>=3 ゲート（_hand_score DREEPY）で
 # 既に成立（ユーザー「max 3匹でいい」と一致）。トグル不要 = 現状維持。
 
@@ -1055,8 +1054,8 @@ class DragapultDusknoirPolicy(BasePolicy):
         if pokemon.id == MUNKIDORI:
             if attach_id != DARK_ENERGY:
                 return -1
-            # DUSK_MUNKI_LATE（ユーザー 2026-07-25）: アドレナは終盤/余裕時のみ起動
-            if DUSK_MUNKI_LATE and not self._munki_ok(obs, p):
+            # サブストリーム: アドレナ用の悪エネは本流稼働(online)/終盤のみ張る
+            if DUSK_STREAMS and not self._munki_ok(obs, p):
                 return -1
             return 8300   # アドレナブレイン起動（アカマツの「余裕があるとき」の受け皿）
         f = self.flags
@@ -1152,11 +1151,22 @@ class DragapultDusknoirPolicy(BasePolicy):
 
     # ── 手札価値（PLAY/サーチ/DISCARD の共通材料） ──
 
+    def _plan_phase(self, obs, p):
+        """本流の進行フェーズ（ユーザー構想 2026-07-25）。
+          setup   … ドロンチもドラパルト ex も未着地 = ムズムズ + engine を作る立ち上げ
+          priming … ドロンチ着地・ドラパルト ex 未完成 = ダイブ完成へ最短
+          online  … ドラパルト ex 着地 = ダイブ稼働。サブストリーム(ボム/アドレナ)起動可"""
+        fc = p["fc"]
+        if fc[DRAGAPULT_EX] >= 1:
+            return "online"
+        if fc[DRAKLOAK] >= 1:
+            return "priming"
+        return "setup"
+
     def _munki_ok(self, obs, p):
-        """DUSK_MUNKI_LATE: マシマシラを出す/起動してよい「終盤 or かなり余裕」の局面か。
-        余裕 = ダイブ主戦力が既に立っている（場のドラパルト ex >= 1）。
-        終盤 = 相手の残サイド <= 3（詰めのダメカン移動が勝ち筋に直結）。"""
-        return (p["fc"][DRAGAPULT_EX] >= 1
+        """マシマシラ(アドレナ)= サブストリーム。本流が稼働(online)してから、または
+        終盤(相手サイド<=3 の詰め)でのみ場に出す/起動する。立ち上げ・始動では休眠。"""
+        return (self._plan_phase(obs, p) == "online"
                 or len(opp_state(obs).prize) <= 3)
 
     def _hand_score(self, obs, p, cid, ignore_count):
@@ -1180,7 +1190,13 @@ class DragapultDusknoirPolicy(BasePolicy):
                 score = 50 if fc[DRAGAPULT_EX] >= 2 else 2000
         elif cid == DUSKULL:
             line = fc[DUSKULL] + fc[DUSCLOPS] + fc[DUSKNOIR]
-            score = 15000 if line < 2 else 100
+            # サブストリーム: 立ち上げ(setup)ではボムは種1体までのサブタスク。engine
+            # (Dreepy 18000 / Drakloak 20000 / Budew 30000) を追い越さない 4000 帯に留め、
+            # ベンチ枠と手札を本流に集中。始動/詰め(priming/online)では通常展開
+            if DUSK_STREAMS and self._plan_phase(obs, p) == "setup":
+                score = 4000 if line == 0 else 60
+            else:
+                score = 15000 if line < 2 else 100
         elif cid == DUSCLOPS:
             score = 17000 if p["can_evolve_duskull"] else 2500
         elif cid == DUSKNOIR:
@@ -1191,12 +1207,13 @@ class DragapultDusknoirPolicy(BasePolicy):
             else:
                 score = 1500
         elif cid == MUNKIDORI:
-            # DUSK_MUNKI_LATE（ユーザー 2026-07-25）: マシマシラは終盤/余裕時のみ場に出す。
-            # 余裕が出るまでは温存（40 = end より上・展開札より下でベンチ枠を主戦力に残す）
+            # サブストリーム: マシマシラは本流稼働(online)/終盤のみ場に出す。立ち上げ・始動では
+            # **ハード休眠**（UNNECESSARY = 手札に温存。ベンチ枠・手張り・進化を本流に集中）。
+            # ソフト降格(40)だと他に手が無い番に出てしまい従属が漏れる（プローブで実測）
             if fc[MUNKIDORI] >= 1:
                 score = 30
-            elif DUSK_MUNKI_LATE and not self._munki_ok(obs, p):
-                score = 40
+            elif DUSK_STREAMS and not self._munki_ok(obs, p):
+                score = UNNECESSARY
             else:
                 score = 12000
         elif cid == FEZANDIPITI_EX:
