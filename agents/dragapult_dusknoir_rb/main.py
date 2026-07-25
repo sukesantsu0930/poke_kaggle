@@ -239,6 +239,10 @@ class DragapultDusknoirPolicy(BasePolicy):
         self.bomb_plan = None       # ルール1: カーズドボムの計画（MAIN 毎に再計算）
         self._attach_tag = None     # _attach_score の特殊分岐ラベル（ログ用）
         self.stuck = False          # ルール10: 詰まり判定（MAIN 毎に再計算）
+        # ダイブ「持続 vs 損切り」の決定は【ターン頭に一度だけ】確定し、その番は固定する
+        # （ユーザー 2026-07-25）。手札/盤面がターン中に変わっても判断をブレさせない。
+        self._dive_plan = None      # {"kind","persist","prob","threshold"} or None
+        self._dive_plan_turn = -1   # プランを確定したターン番号
 
     def reset_game(self):
         super().reset_game()
@@ -253,6 +257,8 @@ class DragapultDusknoirPolicy(BasePolicy):
         self.spread_plan = None
         self.bomb_plan = None
         self.stuck = False
+        self._dive_plan = None
+        self._dive_plan_turn = -1
 
     # ═══════════════ ログ追跡（pre_ko / no_item） ═══════════════
 
@@ -433,6 +439,9 @@ class DragapultDusknoirPolicy(BasePolicy):
             # ハイパーボール→ニャース（Last-Ditch Catch）→リーリエで前へ進む。
             # phase は前決定の値（1決定ラグ・同一ターン内なら実害なし）
             self.p = p   # _score_evolve が self.p を読むため先行代入
+            # ダイブ「持続 vs 損切り」を【このターンで一度だけ】確定（ユーザー 2026-07-25）。
+            # 以後この番の attach/use_support は _dive_plan を固定参照する（判断をブレさせない）。
+            self._ensure_dive_plan(obs)
             can_attach_now = False
             can_evolve_now = False
             for o in obs.select.option:
@@ -463,10 +472,12 @@ class DragapultDusknoirPolicy(BasePolicy):
                             best = s
                             self.use_support = card.id
                 # ルート実行（ユーザー 2026-07-25「計算したルートを実際に辿れるか」）:
-                # ダイブ完成が手張りチャネルでは不可・アカマツでのみ可能な局面なら、
-                # 汎用サポート選定を上書きして必ずアカマツを打つ（確率1.0の route を確定執行）。
-                # deck_counts で今ダイブ完成できる（P=1）ことを条件に、リーリエ等に化けさせない。
-                if (DUSK_STREAMS and self._dive_needs_crispin(obs)
+                # ターン頭の決定が【持続】で、かつダイブ完成が手張りチャネルでは不可・アカマツで
+                # のみ可能な局面なら、汎用サポート選定を上書きして必ずアカマツを打つ（route を確定
+                # 執行）。損切りターンには打たない = 決定と実行を一致させる。
+                if (DUSK_STREAMS and self._dive_plan is not None
+                        and self._dive_plan.get("persist")
+                        and self._dive_needs_crispin(obs)
                         and any(o.type == OptionType.PLAY
                                 and get_card(obs, AreaType.HAND, o.index, yi) is not None
                                 and get_card(obs, AreaType.HAND, o.index, yi).id == CRISPIN
@@ -1105,23 +1116,18 @@ class DragapultDusknoirPolicy(BasePolicy):
             return -1
         if active and f["can_main_attack"]:
             return -1
-        # ファントムダイブ「持続 vs 損切り」（ユーザー 2026-07-25）: バトル場がダイブ準備中の
-        # ドラパルト ex のとき、必要色でないエネをベンチへ散らすかを確率で決める。
-        #   e==1（あと1色）: P(不足色を取れる) を _dive_prob_this_turn で厳密計算し、2×2 閾値と
-        #     比較。P>=閾値 → 持続（散らさず掘る = -1）/ P<閾値 → 損切り（散布許可 = fall through）。
-        #     確定(1.0)なら必ず持続、死に線(0.0=必要色が枯れ)なら必ず損切り。
-        #   e==0（まだ本流構築中）: 従来どおり散らさない（1色目を活性へ寄せる）。
+        # ファントムダイブ「持続 vs 損切り」（ユーザー 2026-07-25）。判断は【ターン頭で確定】済み
+        # （_dive_plan）。ここでは persist フラグを参照するだけ = ターン中に手札/盤面が変わっても
+        # 判断がブレない。対象は「準備中ドラパルト ex(e<2)」または「掘り進め中ドロンチ」の露出局面。
+        #   persist → 必要色でないエネもベンチへ散らさない(-1、本流の活性ラインへ寄せる)
+        #   losscut → fall through して散布許可（エネ分散して安全に降りる）
         # ベンチのドラパルト ex 本体（2体目起動）と山切れ時は除外。
+        plan = self._dive_plan
         if (DUSK_STREAMS and not active and pokemon.id != DRAGAPULT_EX
-                and self._dive_priming(obs) and ms.deckCount > 0):
-            active_dex = active_pokemon(obs)
-            e_active = len(active_dex.energyCards or []) if active_dex is not None else 0
-            if e_active >= 1:
-                if self._dive_prob_this_turn(obs) >= self._dive_threshold(obs):
-                    return -1              # 持続: 散らさず掘る
-                # 損切り: fall through してベンチ手張りを許可（エネ分散）
-            else:
-                return -1                  # e==0: 1色目を活性へ寄せる（従来）
+                and plan is not None and plan.get("kind") and ms.deckCount > 0):
+            if plan["persist"]:
+                return -1                  # 持続: 散らさず本流へ寄せる
+            # 損切り: fall through してベンチ手張りを許可（エネ分散）
         score = 20000
         if e == 1:
             if pokemon.energyCards and attach_id == pokemon.energyCards[0].id:
@@ -1189,14 +1195,6 @@ class DragapultDusknoirPolicy(BasePolicy):
 
     # ── 手札価値（PLAY/サーチ/DISCARD の共通材料） ──
 
-    def _dive_priming(self, obs):
-        """バトル場がダイブ準備中のドラパルト ex（エネ<2 = まだ Phantom Dive を撃てない）か。
-        True の間は必要色を探してドローを続ける（ベンチへエネを散らさない）。"""
-        active = active_pokemon(obs)
-        return (active is not None and active.id == DRAGAPULT_EX
-                and len(active.energies or []) < 2
-                and not self.flags.get("can_main_attack"))
-
     def _draw_count_this_turn(self, obs):
         """このターンまだ山を見られる枚数の近似。Recon Directive（場のドロンチ = top2 見て
         1枚 ≈ 1）+ リーリエ（サポート未使用時 ≈ 6）。※ v1 近似。ワイルド（ハイパーボール
@@ -1207,65 +1205,159 @@ class DragapultDusknoirPolicy(BasePolicy):
             n += 6
         return n
 
-    def _dive_prob_this_turn(self, obs):
-        """バトル場ドラパルト ex（e==1 前提）が、このターン不足色を取って Phantom Dive を
-        撃てる確率。1.0=確定 / 0.0=死に線（必要色が掘れない = deck_counts で厳密判定）/
-        灰色=多変量（ここは1色なので単変量）超幾何。ユーザー方針で EV は扱わず確率のみ。"""
-        active = active_pokemon(obs)
-        if active is None or active.id != DRAGAPULT_EX:
+    def _draw_hit_prob(self, obs, K):
+        """このターンのドロー枚数 N で、山の当たり K 枚のうち1枚以上を引ける確率（単変量超幾何）。
+        K は呼び出し側で「開いてるチャネルの当たり総数」を渡す（K<=0 は死に線=0.0）。"""
+        if K <= 0:
+            return 0.0
+        deck = self.p["deck_counts"]
+        D = sum(v for v in deck.values() if v > 0)
+        N = self._draw_count_this_turn(obs)
+        if N <= 0 or D <= 0:
+            return 0.0
+        if K >= D or N >= D or N > D - K:
+            return 1.0                      # 引く枚数が外れ枚数を超える等 = 必ず当たる
+        from math import comb
+        return 1.0 - comb(D - K, N) / comb(D, N)
+
+    def _color_reach_prob(self, obs, need_ids):
+        """バトル場/進化先が、このターン中に不足色 need_ids を全て乗せられる確率（超幾何 v1）。
+        手段: 手張り(1色) / アカマツ(2色ぶん) / ハイパーボール確定サーチ。各チャネルは
+        「その番まだ使えるか」(energyAttached / supporterPlayed) で開閉する（行動列の記憶）。
+          need_ids=[]  → 1.0（色は足りている）
+          len==1       → 手張り or アカマツ
+          len==2       → アカマツ必須（手張りは1回=1色まで）"""
+        m = len(need_ids)
+        if m == 0:
             return 1.0
-        types = [c.id for c in (active.energyCards or [])]
-        has_fire = FIRE_ENERGY in types
-        has_psy = PSYCHIC_ENERGY in types
-        if has_fire and has_psy:
-            return 1.0                      # 既に {R}{P}（呼ばれない想定）
-        need = PSYCHIC_ENERGY if has_fire else FIRE_ENERGY   # e==1 の欠け色
         p = self.p
         hc, deck = p["hc"], p["deck_counts"]
-        # 完成手段は2チャネル: [必要色を手張り] or [アカマツを打つ]。
-        # 各チャネルは「今そのターン使えるか」で開閉する（= その番既にやった行動の記憶）:
-        #   color_ch  … 手張り権が残っている（energyAttached=False）
-        #   crispin_ch… サポート権が残っている（supporterPlayed=False）。アカマツ=エネ2枚
-        #               ぶんのサポート out（ユーザー単純化 2026-07-25）
-        color_ch = not obs.current.energyAttached
-        crispin_ch = not obs.current.supporterPlayed
+        color_ch = not obs.current.energyAttached      # 手張り権（1回=1色）
+        crispin_ch = not obs.current.supporterPlayed    # アカマツ権（=2色ぶん）
+        ub_ready = hc[ULTRA_BALL] >= 1 and len(my_state(obs).hand or []) >= 3
+        if m >= 2:
+            # 2色を1ターンで乗せるには実質アカマツ（手張りは1色まで）。
+            if not crispin_ch:
+                return 0.0
+            if hc[CRISPIN] >= 1:
+                return 1.0                  # 手札のアカマツを打てば確定
+            if deck[CRISPIN] <= 0:
+                return 0.0                  # アカマツが手札にも山にも無い = 2色は無理
+            if ub_ready:
+                return 1.0                  # UB でアカマツを確定サーチ→即打ち
+            return self._draw_hit_prob(obs, deck[CRISPIN])
+        # m == 1: 不足1色。手張り(その色) or アカマツ。
+        need = need_ids[0]
         if not color_ch and not crispin_ch:
             return 0.0                      # 手張りもサポートも使い切り = このターン不可
         if (color_ch and hc[need] >= 1) or (crispin_ch and hc[CRISPIN] >= 1):
             return 1.0                      # 手札に必要色(張れる) or アカマツ(打てる) = 確定
         K = (deck[need] if color_ch else 0) + (deck[CRISPIN] if crispin_ch else 0)
         if K <= 0:
-            return 0.0                      # 死に線（開いてるチャネルの当たりが枯れ）
-        # ハイパーボール（item = supporter 制約なし）で山から色 or アカマツを確定サーチ
-        if hc[ULTRA_BALL] >= 1 and len(my_state(obs).hand or []) >= 3:
-            return 1.0
-        D = sum(v for v in deck.values() if v > 0)
-        N = self._draw_count_this_turn(obs)
-        if N <= 0 or D <= 0:
-            return 0.0
-        if K >= D or N >= D:
-            return 1.0
-        from math import comb
-        if N > D - K:
-            return 1.0                      # 引く枚数が外れ枚数を超える = 必ず当たる
-        return 1.0 - comb(D - K, N) / comb(D, N)
+            return 0.0                      # 開いてるチャネルの当たりが山でも枯れ = 死に線
+        if ub_ready:
+            return 1.0                      # UB で色 or アカマツを確定サーチ（当たりは山に在る）
+        return self._draw_hit_prob(obs, K)
 
-    def _dive_needs_crispin(self, obs):
-        """ダイブ完成が「アカマツを打つ」チャネルでのみ可能な局面か（手張りチャネルでは
-        不可）。バトル場ドラパルト ex・アカマツが手札・サポート権残・かつアカマツで実際に
-        {R}{P} が埋まる（e==0 は2枚必要=アカマツ必須 / e==1 は手張り済で手動色が不可）。"""
-        if obs.current.supporterPlayed:
-            return False
-        if self.p["hc"][CRISPIN] < 1:
-            return False
+    def _dive_prob_this_turn(self, obs):
+        """バトル場ドラパルト ex が、このターン不足色を取って Phantom Dive を撃てる確率。
+        1.0=確定 / 0.0=死に線（deck_counts で厳密判定）/ 灰色=超幾何。EV は扱わず確率のみ。
+        色到達は _color_reach_prob に委譲（不足0/1色を一般に扱う）。"""
         active = active_pokemon(obs)
         if active is None or active.id != DRAGAPULT_EX:
-            return False
+            return 1.0
+        types = [c.id for c in (active.energyCards or [])]
+        need_ids = [cid for cid in (FIRE_ENERGY, PSYCHIC_ENERGY) if cid not in types]
+        return self._color_reach_prob(obs, need_ids)
+
+    def _dive_prob_drakloak(self, obs):
+        """バトル場ドロンチが、このターン中に進化(→ドラパルト ex)＋{R}{P} を揃えて Phantom Dive
+        を撃てる確率（v1 近似）。進化out × 色out の独立積で保守的に見積もる。
+          進化out … active ドロンチにドラパルト ex を今ターン乗せられるか（手札/UB確定/ドロー超幾何）
+          色out  … ドロンチ上の現エネから不足色を今ターン満たせるか（進化でエネ持ち越し）
+        ※ 両者は同じドローを食い合うため厳密には独立でない。ドロンチ露出のケアは低め P が安全側
+          （ユーザー『ドロンチをさらけ出すのは明確に不利』）なので v1 は積で保守的に寄せる。
+        ※ 既知の過大: 進化と色の双方が『UBで唯一の1枚を取る』に依存する稀ケースは積が過大評価。"""
+        active = active_pokemon(obs)
+        if active is None or active.id != DRAKLOAK:
+            return 0.0
+        p = self.p
+        hc, deck = p["hc"], p["deck_counts"]
+        # 進化 out: 今ターン active ドロンチに ドラパルト ex を乗せられるか
+        if hc[DRAGAPULT_EX] >= 1:
+            p_evo = 1.0
+        elif (hc[ULTRA_BALL] >= 1 and len(my_state(obs).hand or []) >= 3
+                and deck[DRAGAPULT_EX] >= 1):
+            p_evo = 1.0                     # UB でドラパルト ex を確定サーチ
+        else:
+            p_evo = self._draw_hit_prob(obs, deck[DRAGAPULT_EX])
+        if p_evo <= 0.0:
+            return 0.0                      # ドラパルト ex が場にも山にも無い = 死に線
+        # 色 out: ドロンチ上の現エネから {R}{P} の不足色を満たせるか（進化で持ち越し）
+        types = [c.id for c in (active.energyCards or [])]
+        need_ids = [cid for cid in (FIRE_ENERGY, PSYCHIC_ENERGY) if cid not in types]
+        return p_evo * self._color_reach_prob(obs, need_ids)
+
+    def _ensure_dive_plan(self, obs):
+        """【ターン頭で一度だけ】ダイブ『持続 vs 損切り』を確定してキャッシュ。以後その番は
+        _dive_plan を固定参照し、手札/盤面が変わっても判断をブレさせない（ユーザー 2026-07-25）。"""
+        turn = getattr(obs.current, "turn", -1)
+        if turn == self._dive_plan_turn and self._dive_plan is not None:
+            return
+        self._dive_plan_turn = turn
+        self._dive_plan = self._compute_dive_plan(obs) if DUSK_STREAMS else None
+
+    def _compute_dive_plan(self, obs):
+        """露出中の本流ポケモン（準備中ドラパルト ex(e<2) or 掘り進め中ドロンチ）について、
+        今ターンにダイブ完成できる確率 P と 2×2 閾値を比較し、persist / losscut を確定して返す。
+        対象外（該当ポケが場にない・山切れ）は None。"""
+        active = active_pokemon(obs)
+        ms = my_state(obs)
+        if active is None or ms.deckCount <= 0:
+            return None
         e = len(active.energyCards or [])
-        if e >= 2:
+        if active.id == DRAGAPULT_EX and e < 2:
+            if e == 0:
+                # まだ2色不足の立ち上げ = 常に持続（1色目を活性へ寄せる。従来踏襲）
+                return {"kind": "dragapult", "persist": True,
+                        "prob": None, "threshold": None}
+            prob = self._dive_prob_this_turn(obs)
+            kind = "dragapult"
+        elif active.id == DRAKLOAK:
+            prob = self._dive_prob_drakloak(obs)
+            kind = "drakloak"
+        else:
+            return None
+        th = self._dive_threshold(obs)
+        return {"kind": kind, "persist": prob >= th, "prob": prob, "threshold": th}
+
+    def _dive_needs_crispin(self, obs):
+        """このターンのダイブ完成が『アカマツを打つ』ことを要する局面か（手張りだけでは不可）。
+        ルート実行用: True かつ持続ターンなら use_support をアカマツに固定して計算ルートを辿らせる。
+        対象は準備中ドラパルト ex か掘り進め中ドロンチ。アカマツが手札・サポート権残が前提。"""
+        if obs.current.supporterPlayed:
             return False
-        # e==0（2色不足=手張り1回では無理→アカマツ必須） or e==1 かつ手張り権が無い
-        return e == 0 or obs.current.energyAttached
+        p = self.p
+        if p["hc"][CRISPIN] < 1:
+            return False
+        active = active_pokemon(obs)
+        if active is None or active.id not in (DRAGAPULT_EX, DRAKLOAK):
+            return False
+        types = [c.id for c in (active.energyCards or [])]
+        missing = [cid for cid in (FIRE_ENERGY, PSYCHIC_ENERGY) if cid not in types]
+        m = len(missing)
+        if m == 0:
+            return False                    # 色は足りている
+        if active.id == DRAKLOAK:
+            # ドロンチは進化(ドラパルト ex)も必要。ex を『サポート以外』で確保できる時だけ寄せる
+            # （さもなくばリーリエ等で ex を掘る番を潰さない）。
+            ub_ready = (p["hc"][ULTRA_BALL] >= 1
+                        and len(my_state(obs).hand or []) >= 3)
+            if not (p["hc"][DRAGAPULT_EX] >= 1 or ub_ready):
+                return False
+        if m >= 2:
+            return True                     # 2色は手張り1回では無理 = アカマツ必須
+        return obs.current.energyAttached   # m==1: 手張り権が無い時のみアカマツ必須
 
     def _dive_threshold(self, obs):
         """2×2 閾値表（ユーザー構想）: 安全な降り先(スボミー=ムズムズ)の有無 ×
