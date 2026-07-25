@@ -123,6 +123,17 @@ UNNECESSARY = -10_000_000
 DUSK_STREAMS = os.environ.get("DUSK_STREAMS", "1") != "0"            # 本流優先・サブ従属の背骨（採用）
 DUSK_OPEN_BUDEW = os.environ.get("DUSK_OPEN_BUDEW", "1") != "0"      # 序盤 Poffin で Dreepy+Budew（T1 も）
 DUSK_PAD_DRAKLOAK = os.environ.get("DUSK_PAD_DRAKLOAK", "1") != "0"  # Pad→Drakloak（本流 engine の一部として再ON）
+
+# ── ファントムダイブ「持続 vs 損切り」の 2×2 閾値表（2026-07-25 ユーザー構想）──
+# バトル場ドラパルト ex が e==1（あと1色でダイブ）のとき、不足色を取れる確率 P を
+# _dive_prob_this_turn で厳密計算し（deck_counts=掘れる枚数・確定/死に線を含む）、
+# 状態別閾値と比較。P>=閾値 → 持続（散らさず掘る）/ P<閾値 → 損切り（エネ分散）。
+# 閾値は「安全な降り先(スボミー=ムズムズ)の有無 × 晒しの痛み(次番KO)」で変える
+# （50%の一発置きは不適 = ユーザー指摘）。値はサーバーでグリッドサーチして較正する。
+DUSK_TH_SAFE_PAIN = float(os.environ.get("DUSK_TH_SAFE_PAIN", "0.80"))      # 安全策◎・痛み大
+DUSK_TH_SAFE_NOPAIN = float(os.environ.get("DUSK_TH_SAFE_NOPAIN", "0.60"))  # 安全策◎・痛み小
+DUSK_TH_NOSAFE_PAIN = float(os.environ.get("DUSK_TH_NOSAFE_PAIN", "0.45"))  # 安全策✗・痛み大
+DUSK_TH_NOSAFE_NOPAIN = float(os.environ.get("DUSK_TH_NOSAFE_NOPAIN", "0.30"))  # 安全策✗・痛み小
 # 場のドラパルト線 max 3 は既存の main_pokemon_count>=3 ゲート（_hand_score DREEPY）で
 # 既に成立（ユーザー「max 3匹でいい」と一致）。トグル不要 = 現状維持。
 
@@ -1084,14 +1095,23 @@ class DragapultDusknoirPolicy(BasePolicy):
             return -1
         if active and f["can_main_attack"]:
             return -1
-        # ファントムダイブ持続（ユーザー 2026-07-25）: バトル場がダイブ準備中のドラパルト ex
-        # （e<2・まだ撃てない）のとき、必要色でないエネをベンチへ散らさない。山が残る限り
-        # ドローで必要色を探す = 諦めない。ベンチ手張りはダイブ完成を遅らせ資源を薄める
-        # （observed: 活性 e==1 に同色2枚目が積めず(-1) → ベンチへ散っていた）。
-        # ベンチのドラパルト ex 本体（2体目の起動）と、他に何も手が無い場合(山切れ)は除外。
+        # ファントムダイブ「持続 vs 損切り」（ユーザー 2026-07-25）: バトル場がダイブ準備中の
+        # ドラパルト ex のとき、必要色でないエネをベンチへ散らすかを確率で決める。
+        #   e==1（あと1色）: P(不足色を取れる) を _dive_prob_this_turn で厳密計算し、2×2 閾値と
+        #     比較。P>=閾値 → 持続（散らさず掘る = -1）/ P<閾値 → 損切り（散布許可 = fall through）。
+        #     確定(1.0)なら必ず持続、死に線(0.0=必要色が枯れ)なら必ず損切り。
+        #   e==0（まだ本流構築中）: 従来どおり散らさない（1色目を活性へ寄せる）。
+        # ベンチのドラパルト ex 本体（2体目起動）と山切れ時は除外。
         if (DUSK_STREAMS and not active and pokemon.id != DRAGAPULT_EX
                 and self._dive_priming(obs) and ms.deckCount > 0):
-            return -1
+            active_dex = active_pokemon(obs)
+            e_active = len(active_dex.energyCards or []) if active_dex is not None else 0
+            if e_active >= 1:
+                if self._dive_prob_this_turn(obs) >= self._dive_threshold(obs):
+                    return -1              # 持続: 散らさず掘る
+                # 損切り: fall through してベンチ手張りを許可（エネ分散）
+            else:
+                return -1                  # e==0: 1色目を活性へ寄せる（従来）
         score = 20000
         if e == 1:
             if pokemon.energyCards and attach_id == pokemon.energyCards[0].id:
@@ -1166,6 +1186,62 @@ class DragapultDusknoirPolicy(BasePolicy):
         return (active is not None and active.id == DRAGAPULT_EX
                 and len(active.energies or []) < 2
                 and not self.flags.get("can_main_attack"))
+
+    def _draw_count_this_turn(self, obs):
+        """このターンまだ山を見られる枚数の近似。Recon Directive（場のドロンチ = top2 見て
+        1枚 ≈ 1）+ リーリエ（サポート未使用時 ≈ 6）。※ v1 近似。ワイルド（ハイパーボール
+        任意サーチ）は _dive_prob 側で確定扱い。Crispin/精密 Recon は Phase 2。"""
+        p = self.p
+        n = p["fc"][DRAKLOAK]
+        if p["hc"][LILLIE] >= 1 and not obs.current.supporterPlayed:
+            n += 6
+        return n
+
+    def _dive_prob_this_turn(self, obs):
+        """バトル場ドラパルト ex（e==1 前提）が、このターン不足色を取って Phantom Dive を
+        撃てる確率。1.0=確定 / 0.0=死に線（必要色が掘れない = deck_counts で厳密判定）/
+        灰色=多変量（ここは1色なので単変量）超幾何。ユーザー方針で EV は扱わず確率のみ。"""
+        active = active_pokemon(obs)
+        if active is None or active.id != DRAGAPULT_EX:
+            return 1.0
+        types = [c.id for c in (active.energyCards or [])]
+        has_fire = FIRE_ENERGY in types
+        has_psy = PSYCHIC_ENERGY in types
+        if has_fire and has_psy:
+            return 1.0                      # 既に {R}{P}（呼ばれない想定）
+        need = PSYCHIC_ENERGY if has_fire else FIRE_ENERGY   # e==1 の欠け色
+        p = self.p
+        hc, deck = p["hc"], p["deck_counts"]
+        if hc[need] >= 1:
+            return 1.0                      # 手札に必要色 = 確定
+        K = deck[need]
+        if K <= 0:
+            return 0.0                      # 死に線（トラッシュ/場/サイド落ちで枯れ）
+        # ハイパーボール（item = supporter 制約なし）で山から確定サーチ
+        if hc[ULTRA_BALL] >= 1 and len(my_state(obs).hand or []) >= 3:
+            return 1.0
+        D = sum(v for v in deck.values() if v > 0)
+        N = self._draw_count_this_turn(obs)
+        if N <= 0 or D <= 0:
+            return 0.0
+        if K >= D or N >= D:
+            return 1.0
+        from math import comb
+        if N > D - K:
+            return 1.0                      # 引く枚数が外れ枚数を超える = 必ず当たる
+        return 1.0 - comb(D - K, N) / comb(D, N)
+
+    def _dive_threshold(self, obs):
+        """2×2 閾値表（ユーザー構想）: 安全な降り先(スボミー=ムズムズ)の有無 ×
+        晒しの痛み(バトル場が次番 KO 圏)。値はグリッドサーチで較正。"""
+        p = self.p
+        active = active_pokemon(obs)
+        hp = getattr(active, "hp", 999) if active is not None else 999
+        pain = self.opp_max_damage(obs) >= hp
+        safe = p["fc"][BUDEW] >= 1
+        if safe:
+            return DUSK_TH_SAFE_PAIN if pain else DUSK_TH_SAFE_NOPAIN
+        return DUSK_TH_NOSAFE_PAIN if pain else DUSK_TH_NOSAFE_NOPAIN
 
     def _plan_phase(self, obs, p):
         """本流の進行フェーズ（ユーザー構想 2026-07-25）。
