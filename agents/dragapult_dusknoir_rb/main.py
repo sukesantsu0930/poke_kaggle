@@ -1084,6 +1084,14 @@ class DragapultDusknoirPolicy(BasePolicy):
             return -1
         if active and f["can_main_attack"]:
             return -1
+        # ファントムダイブ持続（ユーザー 2026-07-25）: バトル場がダイブ準備中のドラパルト ex
+        # （e<2・まだ撃てない）のとき、必要色でないエネをベンチへ散らさない。山が残る限り
+        # ドローで必要色を探す = 諦めない。ベンチ手張りはダイブ完成を遅らせ資源を薄める
+        # （observed: 活性 e==1 に同色2枚目が積めず(-1) → ベンチへ散っていた）。
+        # ベンチのドラパルト ex 本体（2体目の起動）と、他に何も手が無い場合(山切れ)は除外。
+        if (DUSK_STREAMS and not active and pokemon.id != DRAGAPULT_EX
+                and self._dive_priming(obs) and ms.deckCount > 0):
+            return -1
         score = 20000
         if e == 1:
             if pokemon.energyCards and attach_id == pokemon.energyCards[0].id:
@@ -1150,6 +1158,14 @@ class DragapultDusknoirPolicy(BasePolicy):
         return all(dc[cid] >= 1 for cid in need)
 
     # ── 手札価値（PLAY/サーチ/DISCARD の共通材料） ──
+
+    def _dive_priming(self, obs):
+        """バトル場がダイブ準備中のドラパルト ex（エネ<2 = まだ Phantom Dive を撃てない）か。
+        True の間は必要色を探してドローを続ける（ベンチへエネを散らさない）。"""
+        active = active_pokemon(obs)
+        return (active is not None and active.id == DRAGAPULT_EX
+                and len(active.energies or []) < 2
+                and not self.flags.get("can_main_attack"))
 
     def _plan_phase(self, obs, p):
         """本流の進行フェーズ（ユーザー構想 2026-07-25）。
