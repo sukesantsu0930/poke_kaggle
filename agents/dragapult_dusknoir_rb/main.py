@@ -1212,12 +1212,17 @@ class DragapultDusknoirPolicy(BasePolicy):
         need = PSYCHIC_ENERGY if has_fire else FIRE_ENERGY   # e==1 の欠け色
         p = self.p
         hc, deck = p["hc"], p["deck_counts"]
-        if hc[need] >= 1:
-            return 1.0                      # 手札に必要色 = 確定
-        K = deck[need]
+        # アカマツ（クリスピン）の単純化（ユーザー 2026-07-25）: 「サポート権を消費して
+        # エネ2枚ぶんを満たす要求札」= 不足エネを埋める out の一種。e==1 の完成手段は
+        # 「必要色を手張り」か「アカマツを打つ」の2択なので、out = {必要色, アカマツ}。
+        # アカマツはサポートなので、既にサポートを使った番は out から外す。
+        crispin_ok = not obs.current.supporterPlayed
+        if hc[need] >= 1 or (crispin_ok and hc[CRISPIN] >= 1):
+            return 1.0                      # 手札に必要色 or アカマツ = 確定
+        K = deck[need] + (deck[CRISPIN] if crispin_ok else 0)   # 掘れる out
         if K <= 0:
-            return 0.0                      # 死に線（トラッシュ/場/サイド落ちで枯れ）
-        # ハイパーボール（item = supporter 制約なし）で山から確定サーチ
+            return 0.0                      # 死に線（色もアカマツも掘れない）
+        # ハイパーボール（item = supporter 制約なし）で山から色 or アカマツを確定サーチ
         if hc[ULTRA_BALL] >= 1 and len(my_state(obs).hand or []) >= 3:
             return 1.0
         D = sum(v for v in deck.values() if v > 0)
