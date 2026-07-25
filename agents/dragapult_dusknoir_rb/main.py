@@ -114,6 +114,19 @@ LINE_MAX_COST = {DREEPY: 2, DRAKLOAK: 2, DRAGAPULT_EX: 2,
 
 UNNECESSARY = -10_000_000
 
+# ── 第3弾（2026-07-25 ユーザー観察ドクトリン。判定 = 全対面 A/B・最悪対面
+#    marnie(10%)/archaludon(20%) を主計器に160戦確定。通常版は不可侵） ──
+# 【160戦A/B結果】4件一括ONは非加算の悪相互作用で最悪対面 marnie −5.0（13.8 vs 18.8）と
+# 崩壊。二分探索で切り分け: OPEN_BUDEW 単独は marnie 床 +5.0（18.8→23.8・均等ほぼ横ばい）の
+# 明確な当たり = 既定 ON。MUNKI_LATE（marnie −2.6）と PAD（−0.7）は pool で報われず既定 OFF
+# （ユーザードクトリンとして温存 = トグルで観察・ラダー検証可。generic 相手のプールは
+#  「マシマシラ温存」の価値を測れていない可能性 → 実戦観察で再評価）。
+DUSK_OPEN_BUDEW = os.environ.get("DUSK_OPEN_BUDEW", "1") != "0"      # 序盤 Poffin で Dreepy+Budew（T1 も）採用
+DUSK_MUNKI_LATE = os.environ.get("DUSK_MUNKI_LATE", "0") != "0"      # マシマシラ終盤/余裕時のみ（温存OFF）
+DUSK_PAD_DRAKLOAK = os.environ.get("DUSK_PAD_DRAKLOAK", "0") != "0"  # Pad→Drakloak 優先（温存OFF）
+# 場のドラパルト線 max 3 は既存の main_pokemon_count>=3 ゲート（_hand_score DREEPY）で
+# 既に成立（ユーザー「max 3匹でいい」と一致）。トグル不要 = 現状維持。
+
 # デッキリスト（dragapult_dusknoir_paper.csv と同一。deck.csv 不在時のフォールバック）
 DECK_FALLBACK = (
     [DREEPY] * 4 + [DRAKLOAK] * 4 + [DRAGAPULT_EX] * 3
@@ -1042,6 +1055,9 @@ class DragapultDusknoirPolicy(BasePolicy):
         if pokemon.id == MUNKIDORI:
             if attach_id != DARK_ENERGY:
                 return -1
+            # DUSK_MUNKI_LATE（ユーザー 2026-07-25）: アドレナは終盤/余裕時のみ起動
+            if DUSK_MUNKI_LATE and not self._munki_ok(obs, p):
+                return -1
             return 8300   # アドレナブレイン起動（アカマツの「余裕があるとき」の受け皿）
         f = self.flags
         ms = my_state(obs)
@@ -1136,6 +1152,13 @@ class DragapultDusknoirPolicy(BasePolicy):
 
     # ── 手札価値（PLAY/サーチ/DISCARD の共通材料） ──
 
+    def _munki_ok(self, obs, p):
+        """DUSK_MUNKI_LATE: マシマシラを出す/起動してよい「終盤 or かなり余裕」の局面か。
+        余裕 = ダイブ主戦力が既に立っている（場のドラパルト ex >= 1）。
+        終盤 = 相手の残サイド <= 3（詰めのダメカン移動が勝ち筋に直結）。"""
+        return (p["fc"][DRAGAPULT_EX] >= 1
+                or len(opp_state(obs).prize) <= 3)
+
     def _hand_score(self, obs, p, cid, ignore_count):
         fc, hc, deck, dc = p["fc"], p["hc"], p["deck_counts"], p["dc"]
         f = self.flags
@@ -1168,7 +1191,14 @@ class DragapultDusknoirPolicy(BasePolicy):
             else:
                 score = 1500
         elif cid == MUNKIDORI:
-            score = 12000 if fc[MUNKIDORI] == 0 else 30
+            # DUSK_MUNKI_LATE（ユーザー 2026-07-25）: マシマシラは終盤/余裕時のみ場に出す。
+            # 余裕が出るまでは温存（40 = end より上・展開札より下でベンチ枠を主戦力に残す）
+            if fc[MUNKIDORI] >= 1:
+                score = 30
+            elif DUSK_MUNKI_LATE and not self._munki_ok(obs, p):
+                score = 40
+            else:
+                score = 12000
         elif cid == FEZANDIPITI_EX:
             if p["pre_ko"]:
                 score = 15000
@@ -1179,7 +1209,9 @@ class DragapultDusknoirPolicy(BasePolicy):
         elif cid == BUDEW:
             if fc[BUDEW] + fc[DRAKLOAK] + fc[DRAGAPULT_EX] >= 1:
                 score = UNNECESSARY
-            elif obs.current.turn >= 2:
+            # DUSK_OPEN_BUDEW（ユーザー 2026-07-25）: 序盤 Poffin で Dreepy と一緒に
+            # スボミーを盤面へ（先行T1=turn 1 も。旧 turn>=2 ゲートを解錠）
+            elif DUSK_OPEN_BUDEW or obs.current.turn >= 2:
                 score = 30000
         elif cid == MEOWTH_EX:
             if p["support_count"] > hc[BOSS] or p["stadium_id"] == WATCHTOWER:
@@ -1372,6 +1404,13 @@ class DragapultDusknoirPolicy(BasePolicy):
                 score = max(score, 46000)
             if self.stuck and p["effect_id"] == MEOWTH_EX and cid == LILLIE:
                 score = max(score, 61000)   # ボス(60000)より上 = 詰まり時はリーリエ直行
+            # DUSK_PAD_DRAKLOAK（ユーザー 2026-07-25）: ポケパッドで手札に取るとき、
+            # 場にドラメシヤを用意できる（進化元が居る）ならドロンチを優先的に持ってくる
+            # （Dusknoir 21000 の上に置く。ダイブ線の次ターン完成を最優先）
+            if (DUSK_PAD_DRAKLOAK and ctx == SelectContext.TO_HAND
+                    and p["effect_id"] == POKE_PAD and cid == DRAKLOAK
+                    and p["can_evolve_dreepy"]):
+                score = max(score, 33000)
             if ctx == SelectContext.TO_HAND:
                 return self._take_band(score), "S-4: take to hand"
             return min(score, 900000), "S-2: take to bench"
