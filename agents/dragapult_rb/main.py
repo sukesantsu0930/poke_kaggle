@@ -99,6 +99,8 @@ DRAGAPULT_LINE = frozenset({DREEPY, DRAKLOAK, DRAGAPULT_EX})
 
 # DRA_CONCENTRATE（2026-07-24 ユーザー指示）: エネ集中の A/B トグル（既定 ON）
 DRA_CONCENTRATE = os.environ.get("DRA_CONCENTRATE", "1") != "0"
+# DRA_BUDEW_OPEN（2026-07-24 ユーザー指示）: 開幕ムズムズ花粉ロック（既定 ON）
+DRA_BUDEW_OPEN = os.environ.get("DRA_BUDEW_OPEN", "1") != "0"
 # 「この番はまだドラパルト化が確定不可能ではない」判定に使う掘り札（ドロー/サーチ手段）。
 # 手札にこれらが1枚でもあれば、ドラパルトを引き込む余地がある = エネ分散はまだ許可しない
 DIG_OUT_IDS = frozenset({ULTRA_BALL, POKE_PAD, LILLIE, CRISPIN, BROCK, NIGHT_STRETCHER})
@@ -411,11 +413,22 @@ class DragapultPolicy(BasePolicy):
                 if data is not None and data.cardType == CardType.SUPPORTER and card.id != BOSS:
                     p["support_count"] += 1
 
+        # DRA_BUDEW_OPEN（2026-07-24 ユーザー指示）: 開幕（両者の最初の番 = turn<=2）で
+        # ファントムダイブが撃てないとき、バトル場に1エネ張って退却しスボミーを前に出し、
+        # ムズムズ花粉（相手グッズロック）を撃つ。1エネ捨てる無理攻めを肯定。旧実装は
+        # 退却が turn>=2 ゲートで先行T1（global turn 1）を除外していた + エネ張りが
+        # ベンチのドロンチ(20120)を優先してバトル場が退却できなかった（両方をここで解錠）。
+        budew_open = (DRA_BUDEW_OPEN
+                      and not self.flags["can_main_attack"]
+                      and not self.flags["active_route"]
+                      and obs.current.turn <= 2
+                      and active_id != BUDEW and fc[BUDEW] >= 1)
+        p["budew_open"] = budew_open
         p["do_switch"] = (not self.flags["can_main_attack"]
                           and not self.flags["active_route"]   # R-30: バトル場で撃てるなら退却しない
                           and (bench_attacker
                                or (active_id != BUDEW and fc[BUDEW] >= 1
-                                   and obs.current.turn >= 2)))
+                                   and (obs.current.turn >= 2 or budew_open))))
         return p
 
     # ═══════════════ R-30: バトル場から今すぐ Phantom Dive を撃てるか（手番内ルート検証） ═══════════════
@@ -954,6 +967,11 @@ class DragapultPolicy(BasePolicy):
         ms = my_state(obs)
         if pokemon.id == BUDEW:
             return -1
+        # DRA_BUDEW_OPEN: 開幕ロックのため、バトル場に退却分の1エネを供給（ベンチ充電
+        # 20120 より上に置いてバトル場へ確実に乗せる。退却で捨てる前提の1エネ = ユーザー
+        # 肯定の無理攻め。この番ダイブ不可・スボミー待機の開幕のみ発火）
+        if p.get("budew_open") and active and e == 0:
+            return 20500, "S-5: fund active retreat (Budew lock)"
         if pokemon.id in (MEOWTH_EX, FEZANDIPITI_EX, LATIAS_EX):
             if active and not f["can_switch"] and not ms.asleep and not ms.paralyzed:
                 return 22000 if (p["bench_attacker"] or p["fc"][BUDEW] >= 1) else 18000
