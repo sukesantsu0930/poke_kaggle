@@ -150,6 +150,10 @@ CHA_PAD_PLAYABLE = os.environ.get("CHA_PAD_PLAYABLE", "1") != "0"
 # 確定。以後は山の中身を完全既知として、パッドは「確実に山にある即プレイ駒」がある時だけ使う。
 # 履歴保持は Kaggle で禁止されておらず（永続ポリシーインスタンス）、コストも無視できる。
 CHA_DECK_COUNT = os.environ.get("CHA_DECK_COUNT", "1") != "0"
+# ── 第13弾（2026-07-26 ユーザー指示・サイド落ち活用） ──
+# シャンデラが全部サイド落ち（カウンティングで確定）なら、ヒトモシラインは死に札 → 出さず、
+# キュワワー単体ミル＋山札回復（リーリエ）に振る。手札の死にライン札はリーリエで山へ戻して寿命に。
+CHA_CHAND_DEAD = os.environ.get("CHA_CHAND_DEAD", "1") != "0"
 # ── 第10弾（2026-07-26 ユーザー指示）: サポートの時間帯優先 + クセロシキ被弾時の残し手札 ──
 # バグ修正（常時ON）: 1T目空ベンチでヒカリをスルーしクセロシキ連打→負け → ライン全欠損時は
 #   ヒカリを Xerosic より上の帯で打って盤面成熟を優先（下の DAWN ハンドラ 5700）。
@@ -270,6 +274,14 @@ class ChandelurePolicy(BasePolicy):
             n -= self._prizes.get(card_id, 0)
         return max(0, n)
 
+    def _chandelure_dead(self):
+        """第13弾: シャンデラ3枚が全てサイド落ち = ラインが死んでいる（カウンティング確定時のみ）。
+        3枚とも prize なら fc/hc/dc/山 は全て0 = 二度と到達できない → ヒトモシ線を捨てる根拠。
+        （ポケモンのサイド落ち枚数はカウンティングで正確 = limbo 誤差は非ポケのみ）。"""
+        if not (CHA_CHAND_DEAD and CHA_DECK_COUNT) or self._prizes is None:
+            return False
+        return self._prizes.get(CHANDELURE, 0) >= 3
+
     def _analyze(self, obs):
         ms = my_state(obs)
         os_ = opp_state(obs)
@@ -319,9 +331,12 @@ class ChandelurePolicy(BasePolicy):
     # ═══════════════ 判定（S-0） ═══════════════
 
     def judge_subgoal(self, obs):
-        """S-0: 場のコンフィが Flower Shower を払える({P}1枚以上) かつ シャンデラが1体以上。"""
+        """S-0: 場のコンフィが Flower Shower を払える({P}1枚以上) かつ シャンデラが1体以上。
+        第13弾: シャンデラ全落ちなら、コンフィ即撃ちだけで交戦扱い（キュワワー単体ミル＝自山温存モード）。"""
         comfey_ready = any(p.id == COMFEY and energy_count(p) >= 1
                            for p in all_my_pokemon(obs))
+        if comfey_ready and self._chandelure_dead():
+            return True
         return comfey_ready and has_in_play(obs, CHANDELURE)
 
     def _opp_bench_snipes(self, obs):
@@ -424,8 +439,9 @@ class ChandelurePolicy(BasePolicy):
                 return known > 0
             return (total - fc[card_id] - hc[card_id] - dc[card_id]) > 0
 
+        dead = self._chandelure_dead()   # 第13弾: シャンデラ全落ちならライン部品は掘らない
         if p["bench_free"] >= 1:
-            if p["line_in_play"] < 3 and maybe_in_deck(LITWICK, 3):
+            if (not dead) and p["line_in_play"] < 3 and maybe_in_deck(LITWICK, 3):
                 return True                                   # 土台ヒトモシを即ベンチ
             if (fc[COMFEY] + hc[COMFEY] < COMFEY_FIELD_CAP
                     and fc[COMFEY] < COMFEY_FIELD_CAP and maybe_in_deck(COMFEY, 4)):
@@ -433,10 +449,10 @@ class ChandelurePolicy(BasePolicy):
             if (self._opp_bench_snipes(obs) and fc[SHAYMIN] == 0 and hc[SHAYMIN] == 0
                     and maybe_in_deck(SHAYMIN, 1)):
                 return True                                   # 狙撃相手の壁シェイミ
-        if (fc[CHANDELURE] == 0 and hc[CHANDELURE] == 0
+        if (not dead and fc[CHANDELURE] == 0 and hc[CHANDELURE] == 0
                 and self._pad_immediately_playable(CHANDELURE) and maybe_in_deck(CHANDELURE, 3)):
             return True                                       # 即進化できるシャンデラ
-        if (fc[LAMPENT] == 0 and hc[LAMPENT] == 0
+        if (not dead and fc[LAMPENT] == 0 and hc[LAMPENT] == 0
                 and self._pad_immediately_playable(LAMPENT) and maybe_in_deck(LAMPENT, 2)):
             return True                                       # 場ヒトモシへ即進化のランプラー
         return False
@@ -578,6 +594,9 @@ class ChandelurePolicy(BasePolicy):
         if data is not None and data.cardType == CardType.POKEMON:
             score, reason = 20000, "play pokemon"
             if cid == LITWICK:
+                if self._chandelure_dead():
+                    # 第13弾: シャンデラ全落ち = ヒトモシ線は死に札。出さずベンチをコンフィに空ける
+                    return -1, "第13弾: Chandelure dead — don't deploy Litwick line"
                 score += 500 if p["line_in_play"] < 3 else 100
             elif cid == COMFEY:
                 # 第7弾（ユーザー指示）: 場のキュワワーは3体で十分。4体目はベンチ=サイド献上 +
@@ -644,7 +663,9 @@ class ChandelurePolicy(BasePolicy):
             # （ミルの生命線）③盤面飽和（キュワワー3体上限 ∧ ライン3体 = 増やす先が無い=空撃ち）
             if p["bench_free"] <= 0:
                 return -1, "Poffin: bench full"
-            can_add = (fc[COMFEY] < COMFEY_FIELD_CAP) or (p["line_in_play"] < 3)
+            # 第13弾: シャンデラ全落ちならヒトモシは足さない（コンフィ補充だけ）
+            can_add = (fc[COMFEY] < COMFEY_FIELD_CAP) or (
+                p["line_in_play"] < 3 and not self._chandelure_dead())
             if not can_add:
                 return -1, "Poffin: board saturated (nothing to add)"
             if CHA_FORCE_ITEMS:
@@ -790,6 +811,10 @@ class ChandelurePolicy(BasePolicy):
                 first = (st.firstPlayer == st.yourIndex)
                 if (first and st.turn == 3) or (not first and st.turn == 2):
                     return 5600, "CHA: Lillie (early tempo)"
+            # 第13弾: シャンデラ全落ち = キュワワー単体ミルの寿命勝負 → 山札回復を最優先（早めに回す）。
+            # 手札の死にヒトモシ線も山へ戻って寿命に変わる（「山札回復に割り当てる」）。
+            if self._chandelure_dead() and p["my_deck"] <= 12:
+                return 6500, "第13弾: Lillie (deck recovery, Chandelure dead)"
             # E-2: 山の回復装置。山が薄い時は最優先、手札が太い時は山へ還流
             # div-C4: 手札≤6 のリフレッシュを許可（実測: 手札4〜6での使用が最多帯）
             if p["my_deck"] <= 6:
@@ -813,6 +838,9 @@ class ChandelurePolicy(BasePolicy):
                 return (5000 if not combat else 4200), "S-4: Hilda"
             return -1, "save Hilda"
         if cid == DAWN:
+            # 第13弾: シャンデラ全落ちなら一式サーチは無意味（線は死に札）→ 打たない
+            if self._chandelure_dead():
+                return -1, "第13弾: Dawn useless (Chandelure dead)"
             # 第10弾バグ修正（常時ON）: ライン全欠損（場に線0 ∧ 手札にも線0）なら、ヒカリで一式
             # （たね+1進化+2進化）サーチを Xerosic(5500) より上の 5700 で打ち、盤面成熟を最優先。
             # = 1T目空ベンチでヒカリをスルーしクセロシキ連打→負けの事故の修正。
@@ -1098,6 +1126,8 @@ class ChandelurePolicy(BasePolicy):
                     bonus += 5 * sc if cid == TELEPATH else 0
                 return base + bonus, "take energy"
             if cid == LITWICK:
+                if self._chandelure_dead():
+                    return -1, "第13弾: skip Litwick (Chandelure dead)"
                 if p["line_in_play"] == 0:
                     return base + 75 * sc, "div-C4: take Litwick (start the line)"
                 return base + (50 if p["line_in_play"] < 3 else -20) * sc, "take Litwick"
@@ -1130,6 +1160,8 @@ class ChandelurePolicy(BasePolicy):
                     return -1, "第7弾: 3 Comfey is enough (no 4th)"
                 return 120 - fc[COMFEY] * 10, "div-C3: bench Comfey first"
             if cid == LITWICK:
+                if self._chandelure_dead():
+                    return -1, "第13弾: don't bench Litwick (Chandelure dead)"
                 return 70 - p["line_in_play"] * 15, "S-2: bench Litwick"
             if cid == SHAYMIN:
                 if (CHA_SHAYMIN_VS_SNIPE and fc[SHAYMIN] == 0
