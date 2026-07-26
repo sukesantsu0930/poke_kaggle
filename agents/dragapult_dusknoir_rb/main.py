@@ -1263,9 +1263,17 @@ class DragapultDusknoirPolicy(BasePolicy):
     def _dive_prob_this_turn(self, obs):
         """バトル場ドラパルト ex が、このターン不足色を取って Phantom Dive を撃てる確率。
         1.0=確定 / 0.0=死に線（deck_counts で厳密判定）/ 灰色=超幾何。EV は扱わず確率のみ。
-        色到達は _color_reach_prob に委譲（不足0/1色を一般に扱う）。"""
+        色到達は _color_reach_prob に委譲（不足0/1色を一般に扱う）。
+        チャネル3=メイのはげまし(Rosa) は手張り/アカマツと別経路（トラッシュ発・山に無くても撃てる）
+        なので、確定完成する局面はここで先に 1.0 を返す（ユーザー指摘 2026-07-26）。"""
         active = active_pokemon(obs)
         if active is None or active.id != DRAGAPULT_EX:
+            return 1.0
+        # チャネル3: Rosa — サイド負け時、トラッシュの基本エネ2枚を2進化(ex)へ付けて確定完成
+        # （Rosa 手札＋サポート権残＋prize_diff>0＋不足色がトラッシュ = _rosa_enables）。
+        p = self.p
+        if (p["hc"][ROSA] >= 1 and not obs.current.supporterPlayed
+                and p["prize_diff"] > 0 and self._rosa_enables(obs, p)):
             return 1.0
         types = [c.id for c in (active.energyCards or [])]
         need_ids = [cid for cid in (FIRE_ENERGY, PSYCHIC_ENERGY) if cid not in types]
@@ -1337,33 +1345,40 @@ class DragapultDusknoirPolicy(BasePolicy):
 
     def _dive_impossible(self, obs):
         """ファントムダイブが原理的に不可能（＝打てない）な局面か。必要色 {R}{P} のうち少なくとも
-        1色が『手札・山・（夜のタンカで回収可能な）トラッシュ』のどこからも取れない＝永久に
-        張れない＝ダイブ完成不能。ドロンチはさらに進化先ドラパルト ex が同様にどこからも取れ
-        なければ進化不能。True なら閾値に関わらず損切り確定（ユーザー 2026-07-26: 打てないなら
-        パッシブ確定）。
+        1色が『手札・山・（夜のタンカ or メイのはげましで使える）トラッシュ』のどこからも取れない
+        ＝永久に張れない＝ダイブ完成不能。ドロンチはさらに進化先ドラパルト ex が同様に取れなければ
+        進化不能。True なら閾値に関わらず損切り確定（ユーザー 2026-07-26: 打てないならパッシブ確定）。
 
-        トラッシュ回収は夜のタンカ専用ルール（Night Stretcher=Pokémon か基本エネを1枚
-        トラッシュ→手札）。夜のタンカが手札か山にある間は、トラッシュの必要色/ex は回収可能
-        として不可能から除外。サイド落ち(prize)は取りに行けないので回収不可＝不可能扱い。
-        ※ 夜のタンカ1枚で回収できるのは1枚だが、複数不足でも各色を独立に『回収可』と見なす
-          （＝不可能を過小申告＝アグレ側に安全に倒す。損切りの誤爆＝生きた線を降りる方を防ぐ）。"""
+        トラッシュ回収は2枚:
+          夜のタンカ(Night Stretcher) … Pokémon か基本エネを1枚トラッシュ→手札
+          メイのはげまし(Rosa)        … トラッシュの基本エネを最大2枚、2進化(ex)へ付ける
+        いずれかが手札か山にある間は、トラッシュの必要『色』は回収/使用可能として不可能から除外。
+        ※ ex(ポケモン)の回収は夜のタンカのみ（Rosa は基本エネ専用）。サイド落ちは回収不可＝不可能。
+        ※ 保守設計: 複数不足でも各色を独立に回収可と見なし、Rosa の prize 条件も緩め扱い
+          （＝不可能を過小申告＝アグレ側に倒す＝生きた線の損切り誤爆を防ぐ）。"""
         active = active_pokemon(obs)
         if active is None or active.id not in (DRAGAPULT_EX, DRAKLOAK):
             return False
         p = self.p
         hc, deck, dc = p["hc"], p["deck_counts"], p["dc"]
-        ns_avail = hc[NIGHT_STRETCHER] + deck[NIGHT_STRETCHER] >= 1  # 夜のタンカが使える
+        # トラッシュの基本エネを使える札（夜のタンカ or Rosa）が手札か山にあるか
+        recov_energy = (hc[NIGHT_STRETCHER] + deck[NIGHT_STRETCHER]
+                        + hc[ROSA] + deck[ROSA]) >= 1
+        ns_avail = hc[NIGHT_STRETCHER] + deck[NIGHT_STRETCHER] >= 1  # ex(ポケモン)回収は夜タンカのみ
         types = [c.id for c in (active.energyCards or [])]
-
-        def reachable(cid):
-            # 手札か山にある / 夜のタンカが使えてトラッシュにある → 取れる
-            return hc[cid] + deck[cid] >= 1 or (ns_avail and dc[cid] >= 1)
-
         for cid in (FIRE_ENERGY, PSYCHIC_ENERGY):
-            if cid not in types and not reachable(cid):
-                return True                 # その色をどこからも取れない = 永久に張れない
-        if active.id == DRAKLOAK and not reachable(DRAGAPULT_EX):
-            return True                     # 進化先ドラパルト ex も取れない = 進化不能
+            if cid in types:
+                continue
+            if hc[cid] + deck[cid] >= 1:
+                continue                    # 手札か山にある = 張れる
+            if recov_energy and dc[cid] >= 1:
+                continue                    # トラッシュにあり回収札(夜タンカ/Rosa)がある = 使える
+            return True                     # その色をどこからも取れない = 永久に張れない
+        if active.id == DRAKLOAK:
+            ex_ok = (hc[DRAGAPULT_EX] + deck[DRAGAPULT_EX] >= 1
+                     or (ns_avail and dc[DRAGAPULT_EX] >= 1))
+            if not ex_ok:
+                return True                 # 進化先ドラパルト ex も取れない = 進化不能
         return False
 
     def _dive_needs_crispin(self, obs):
