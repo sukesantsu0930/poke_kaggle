@@ -1337,23 +1337,33 @@ class DragapultDusknoirPolicy(BasePolicy):
 
     def _dive_impossible(self, obs):
         """ファントムダイブが原理的に不可能（＝打てない）な局面か。必要色 {R}{P} のうち少なくとも
-        1色が『手札にも山にも無い』（サイド落ち/トラッシュで永久に張れない。アカマツも山の基本
-        エネを取るので同様に不可）＝ダイブ完成不能。ドロンチはさらに進化先ドラパルト ex が
-        手札・場・山のどこにも無ければ進化できず不可能。True なら閾値に関わらず損切り確定
-        （ユーザー 2026-07-26: 打てないならパッシブ確定）。
-        ※ v1: 夜のタンカ等のトラッシュ回収は未モデル（回収可能な色を稀に不可能と誤判定しうる）。"""
+        1色が『手札・山・（夜のタンカで回収可能な）トラッシュ』のどこからも取れない＝永久に
+        張れない＝ダイブ完成不能。ドロンチはさらに進化先ドラパルト ex が同様にどこからも取れ
+        なければ進化不能。True なら閾値に関わらず損切り確定（ユーザー 2026-07-26: 打てないなら
+        パッシブ確定）。
+
+        トラッシュ回収は夜のタンカ専用ルール（Night Stretcher=Pokémon か基本エネを1枚
+        トラッシュ→手札）。夜のタンカが手札か山にある間は、トラッシュの必要色/ex は回収可能
+        として不可能から除外。サイド落ち(prize)は取りに行けないので回収不可＝不可能扱い。
+        ※ 夜のタンカ1枚で回収できるのは1枚だが、複数不足でも各色を独立に『回収可』と見なす
+          （＝不可能を過小申告＝アグレ側に安全に倒す。損切りの誤爆＝生きた線を降りる方を防ぐ）。"""
         active = active_pokemon(obs)
         if active is None or active.id not in (DRAGAPULT_EX, DRAKLOAK):
             return False
         p = self.p
-        hc, deck, fc = p["hc"], p["deck_counts"], p["fc"]
+        hc, deck, dc = p["hc"], p["deck_counts"], p["dc"]
+        ns_avail = hc[NIGHT_STRETCHER] + deck[NIGHT_STRETCHER] >= 1  # 夜のタンカが使える
         types = [c.id for c in (active.energyCards or [])]
+
+        def reachable(cid):
+            # 手札か山にある / 夜のタンカが使えてトラッシュにある → 取れる
+            return hc[cid] + deck[cid] >= 1 or (ns_avail and dc[cid] >= 1)
+
         for cid in (FIRE_ENERGY, PSYCHIC_ENERGY):
-            if cid not in types and hc[cid] + deck[cid] <= 0:
-                return True                 # その色が手札にも山にも無い = 永久に張れない
-        if active.id == DRAKLOAK:
-            if hc[DRAGAPULT_EX] + deck[DRAGAPULT_EX] + fc[DRAGAPULT_EX] <= 0:
-                return True                 # 進化先が枯れ = ドロンチから進化できない
+            if cid not in types and not reachable(cid):
+                return True                 # その色をどこからも取れない = 永久に張れない
+        if active.id == DRAKLOAK and not reachable(DRAGAPULT_EX):
+            return True                     # 進化先ドラパルト ex も取れない = 進化不能
         return False
 
     def _dive_needs_crispin(self, obs):
