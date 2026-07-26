@@ -14,7 +14,7 @@
 
 import os
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 # sys.path ブートストラップ（base import より前に必須）
 try:
@@ -144,6 +144,12 @@ CHA_ACTIVE_PRIORITY = os.environ.get("CHA_ACTIVE_PRIORITY", "1") != "0"
 # ポケパッドは「即プレイできるカードしか持ってこない」。即プレイできる札が山に無ければ使わない。
 # バグ = 即進化できないシャンデラをパッドで手札に持ってきて、リーリエで山に戻す無駄挙動。
 CHA_PAD_PLAYABLE = os.environ.get("CHA_PAD_PLAYABLE", "1") != "0"
+# ── 第12弾（2026-07-26 ユーザー指示・カウンティング） ──
+# 「ポケパッドで山を見たらサイド落ちでした」を無くす。山を見るカード発動時に obs.select.deck が
+# 全山を見せる（実測）ので、サイド落ち = デッキリスト − 見えた山 − 見えるゾーン（進化下敷き込み）で
+# 確定。以後は山の中身を完全既知として、パッドは「確実に山にある即プレイ駒」がある時だけ使う。
+# 履歴保持は Kaggle で禁止されておらず（永続ポリシーインスタンス）、コストも無視できる。
+CHA_DECK_COUNT = os.environ.get("CHA_DECK_COUNT", "1") != "0"
 # ── 第10弾（2026-07-26 ユーザー指示）: サポートの時間帯優先 + クセロシキ被弾時の残し手札 ──
 # バグ修正（常時ON）: 1T目空ベンチでヒカリをスルーしクセロシキ連打→負け → ライン全欠損時は
 #   ヒカリを Xerosic より上の帯で打って盤面成熟を優先（下の DAWN ハンドラ 5700）。
@@ -188,12 +194,81 @@ class ChandelurePolicy(BasePolicy):
     def __init__(self):
         super().__init__()
         self.p = {}
+        # 第12弾: 自山カウンティング（サイド落ち確定）の永続 state
+        self._deck_counter = None   # デッキリスト60枚の Counter（遅延生成）
+        self._prizes = None         # サイド落ちの Counter（None=未確定）
+        self._prize_slots = None    # 確定時のサイド枚数（奪取検知ガード）
+        self._visible = None        # 手札+トラッシュ+盤面フルスタック（進化下敷き込み）の Counter
+
+    def reset_game(self):
+        super().reset_game()
+        self._deck_counter = None
+        self._prizes = None
+        self._prize_slots = None
+        self._visible = None
 
     # ═══════════════ ターン分析（軽量: 枚数と旗だけ） ═══════════════
 
     def choose(self, obs):
         self.p = self._analyze(obs)
+        self._update_deck_knowledge(obs)   # 第12弾: 山を見た瞬間サイド落ちを確定
         return super().choose(obs)
+
+    # ── 第12弾: 自山カウンティング（サイド落ち確定 = 「Pad打ったらサイド落ち」を無くす） ──
+
+    def _collect_stack_into(self, node, counter):
+        """盤面ポケモンの進化スタック全カードID を counter に足す（preEvolution 再帰）。"""
+        cid = getattr(node, "id", None)
+        if cid is not None:
+            counter[cid] += 1
+        for c in (getattr(node, "preEvolution", None) or []):
+            self._collect_stack_into(c, counter)
+
+    def _update_deck_knowledge(self, obs):
+        """毎手番: 見えるゾーンを集計。山を見るカード発動時（obs.select.deck=全山）は
+        サイド落ち = デッキリスト − 見えた山 − 見えるゾーン を確定して記憶する。"""
+        if not CHA_DECK_COUNT:
+            return
+        if self._deck_counter is None:
+            if not self.my_deck_list:
+                return
+            self._deck_counter = Counter(self.my_deck_list)
+        ms = my_state(obs)
+        visible = Counter()
+        for c in (ms.hand or []):
+            if c is not None:
+                visible[c.id] += 1
+        for c in (ms.discard or []):
+            if c is not None:
+                visible[c.id] += 1
+        for pk in (ms.active + ms.bench):
+            if pk is not None:
+                self._collect_stack_into(pk, visible)
+        self._visible = visible
+        prize_slots = len(ms.prize) if ms.prize is not None else 0
+        # サイドを取られたら（枚数減）どれが減ったか不明 → 次の全山公開まで未確定に戻す
+        if (self._prizes is not None and self._prize_slots is not None
+                and prize_slots < self._prize_slots):
+            self._prizes = None
+        # 全山ビュー（len==deckCount）ならサイド落ちを割り出す
+        sel = obs.select
+        deck_cards = getattr(sel, "deck", None) if sel is not None else None
+        if deck_cards is not None:
+            deck_ids = [c.id for c in deck_cards if c is not None]
+            if deck_ids and len(deck_ids) == ms.deckCount:
+                prizes = self._deck_counter - Counter(deck_ids) - visible
+                self._prizes = +prizes      # 非正（誤差）を落とす
+                self._prize_slots = prize_slots
+
+    def _in_deck_count(self, card_id):
+        """今『山に』このカードが何枚あるか。サイド確定後は正確、未確定なら山+サイドの近似。
+        情報が全く無い（デッキリスト未取得）なら None を返し、呼び出し側は従来近似を使う。"""
+        if not CHA_DECK_COUNT or self._deck_counter is None or self._visible is None:
+            return None
+        n = self._deck_counter.get(card_id, 0) - self._visible.get(card_id, 0)
+        if self._prizes is not None:
+            n -= self._prizes.get(card_id, 0)
+        return max(0, n)
 
     def _analyze(self, obs):
         ms = my_state(obs)
@@ -342,6 +417,11 @@ class ChandelurePolicy(BasePolicy):
         fc, hc, dc = p["fc"], p["hc"], p["dc"]
 
         def maybe_in_deck(card_id, total):
+            # 第12弾: サイド落ちが確定していれば「確実に山にある」枚数で判定。
+            # 未確定/情報なしなら従来の山+サイド近似（total − 見えるゾーン > 0）。
+            known = self._in_deck_count(card_id)
+            if known is not None:
+                return known > 0
             return (total - fc[card_id] - hc[card_id] - dc[card_id]) > 0
 
         if p["bench_free"] >= 1:
