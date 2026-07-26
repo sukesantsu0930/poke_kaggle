@@ -1309,28 +1309,52 @@ class DragapultDusknoirPolicy(BasePolicy):
         self._dive_plan = self._compute_dive_plan(obs) if DUSK_STREAMS else None
 
     def _compute_dive_plan(self, obs):
-        """露出中の本流ポケモン（準備中ドラパルト ex(e<2) or 掘り進め中ドロンチ）について、
-        今ターンにダイブ完成できる確率 P と 2×2 閾値を比較し、persist / losscut を確定して返す。
-        対象外（該当ポケが場にない・山切れ）は None。"""
+        """露出中の本流ポケモン（準備中ドラパルト ex(e<2) or 掘り進め中ドロンチ）について
+        persist(持続=掘る) / losscut(損切り=散らす) を確定して返す。対象外は None。優先順:
+          ① ダイブが原理的に不可能（必要色/進化先が手札にも山にも無い）→ 損切り確定
+             （打てないのに掘り続けない。ユーザー 2026-07-26）。閾値に優先。
+          ② e==0 ドラパルト ex の立ち上げ（複数ターン手張りで構築）→ 常に持続（従来）。
+          ③ それ以外 → 今ターンのダイブ確率 P と単一閾値 DUSK_TH_DIVE 比較（既定0.0=常に持続）。"""
         active = active_pokemon(obs)
         ms = my_state(obs)
         if active is None or ms.deckCount <= 0:
             return None
         e = len(active.energyCards or [])
         if active.id == DRAGAPULT_EX and e < 2:
-            if e == 0:
-                # まだ2色不足の立ち上げ = 常に持続（1色目を活性へ寄せる。従来踏襲）
-                return {"kind": "dragapult", "persist": True,
-                        "prob": None, "threshold": None}
-            prob = self._dive_prob_this_turn(obs)
             kind = "dragapult"
         elif active.id == DRAKLOAK:
-            prob = self._dive_prob_drakloak(obs)
             kind = "drakloak"
         else:
             return None
         th = self._dive_threshold(obs)
+        if self._dive_impossible(obs):
+            return {"kind": kind, "persist": False, "prob": 0.0, "threshold": th}
+        if kind == "dragapult" and e == 0:
+            return {"kind": kind, "persist": True, "prob": None, "threshold": th}
+        prob = (self._dive_prob_this_turn(obs) if kind == "dragapult"
+                else self._dive_prob_drakloak(obs))
         return {"kind": kind, "persist": prob >= th, "prob": prob, "threshold": th}
+
+    def _dive_impossible(self, obs):
+        """ファントムダイブが原理的に不可能（＝打てない）な局面か。必要色 {R}{P} のうち少なくとも
+        1色が『手札にも山にも無い』（サイド落ち/トラッシュで永久に張れない。アカマツも山の基本
+        エネを取るので同様に不可）＝ダイブ完成不能。ドロンチはさらに進化先ドラパルト ex が
+        手札・場・山のどこにも無ければ進化できず不可能。True なら閾値に関わらず損切り確定
+        （ユーザー 2026-07-26: 打てないならパッシブ確定）。
+        ※ v1: 夜のタンカ等のトラッシュ回収は未モデル（回収可能な色を稀に不可能と誤判定しうる）。"""
+        active = active_pokemon(obs)
+        if active is None or active.id not in (DRAGAPULT_EX, DRAKLOAK):
+            return False
+        p = self.p
+        hc, deck, fc = p["hc"], p["deck_counts"], p["fc"]
+        types = [c.id for c in (active.energyCards or [])]
+        for cid in (FIRE_ENERGY, PSYCHIC_ENERGY):
+            if cid not in types and hc[cid] + deck[cid] <= 0:
+                return True                 # その色が手札にも山にも無い = 永久に張れない
+        if active.id == DRAKLOAK:
+            if hc[DRAGAPULT_EX] + deck[DRAGAPULT_EX] + fc[DRAGAPULT_EX] <= 0:
+                return True                 # 進化先が枯れ = ドロンチから進化できない
+        return False
 
     def _dive_needs_crispin(self, obs):
         """このターンのダイブ完成が『アカマツを打つ』ことを要する局面か（手張りだけでは不可）。
