@@ -140,6 +140,10 @@ ITEM_DECK_FLOOR = 6   # これ未満の自山では確定使用を止める（�
 # 狙撃  : キュワワー ＞ シャンデラライン ＞ シェイミ（壁のシェイミを温存し線を先に切る）
 # ライン内は常にたね優先（ヒトモシ ＞ ランプラー ＞ シャンデラ = 既存序列で充足）
 CHA_ACTIVE_PRIORITY = os.environ.get("CHA_ACTIVE_PRIORITY", "1") != "0"
+# ── 第11弾（2026-07-26 ユーザー指示・ポケパッドバグ修正） ──
+# ポケパッドは「即プレイできるカードしか持ってこない」。即プレイできる札が山に無ければ使わない。
+# バグ = 即進化できないシャンデラをパッドで手札に持ってきて、リーリエで山に戻す無駄挙動。
+CHA_PAD_PLAYABLE = os.environ.get("CHA_PAD_PLAYABLE", "1") != "0"
 # ── 第10弾（2026-07-26 ユーザー指示）: サポートの時間帯優先 + クセロシキ被弾時の残し手札 ──
 # バグ修正（常時ON）: 1T目空ベンチでヒカリをスルーしクセロシキ連打→負け → ライン全欠損時は
 #   ヒカリを Xerosic より上の帯で打って盤面成熟を優先（下の DAWN ハンドラ 5700）。
@@ -309,6 +313,53 @@ class ChandelurePolicy(BasePolicy):
         top = hc[CHANDELURE] + fc[CHANDELURE]                          # シャンデラのカード
         bridge = fc[LAMPENT] + hc[LAMPENT] + hc[RARE_CANDY]            # 進化の橋渡し
         return base == 0 or top == 0 or bridge == 0
+
+    # ── 第11弾: ポケパッドは「即プレイできる駒」だけ持ってくる ──
+
+    def _pad_immediately_playable(self, cid):
+        """ポケパッドで手札に加えて「その番に即プレイ/進化できる」カードか。
+        たね = ベンチ空きで即ベンチ／ランプラー = 場のヒトモシに即進化／
+        シャンデラ = 場のランプラーに即進化 or アメ手札∧場ヒトモシで即直行。"""
+        p = self.p
+        fc, hc = p["fc"], p["hc"]
+        if cid in (LITWICK, COMFEY, SHAYMIN):
+            if p["bench_free"] <= 0:
+                return False
+            if cid == COMFEY and fc[COMFEY] >= COMFEY_FIELD_CAP:
+                return False
+            return True
+        if cid == LAMPENT:
+            return fc[LITWICK] >= 1
+        if cid == CHANDELURE:
+            return fc[LAMPENT] >= 1 or (hc[RARE_CANDY] >= 1 and fc[LITWICK] >= 1)
+        return False
+
+    def _pad_wanted_playable(self, obs):
+        """ポケパッドで取ってきて『即使える ∧ まだ欲しい ∧ 山にありそう』な駒があるか。
+        無ければパッドを使わない（ユーザー指示）。山の有無は hand/play/discard 以外に
+        残っているか（= 山orサイド）で近似する。"""
+        p = self.p
+        fc, hc, dc = p["fc"], p["hc"], p["dc"]
+
+        def maybe_in_deck(card_id, total):
+            return (total - fc[card_id] - hc[card_id] - dc[card_id]) > 0
+
+        if p["bench_free"] >= 1:
+            if p["line_in_play"] < 3 and maybe_in_deck(LITWICK, 3):
+                return True                                   # 土台ヒトモシを即ベンチ
+            if (fc[COMFEY] + hc[COMFEY] < COMFEY_FIELD_CAP
+                    and fc[COMFEY] < COMFEY_FIELD_CAP and maybe_in_deck(COMFEY, 4)):
+                return True                                   # ミルのキュワワーを即ベンチ
+            if (self._opp_bench_snipes(obs) and fc[SHAYMIN] == 0 and hc[SHAYMIN] == 0
+                    and maybe_in_deck(SHAYMIN, 1)):
+                return True                                   # 狙撃相手の壁シェイミ
+        if (fc[CHANDELURE] == 0 and hc[CHANDELURE] == 0
+                and self._pad_immediately_playable(CHANDELURE) and maybe_in_deck(CHANDELURE, 3)):
+            return True                                       # 即進化できるシャンデラ
+        if (fc[LAMPENT] == 0 and hc[LAMPENT] == 0
+                and self._pad_immediately_playable(LAMPENT) and maybe_in_deck(LAMPENT, 2)):
+            return True                                       # 場ヒトモシへ即進化のランプラー
+        return False
 
     # ── 第8弾: 場スタートのシェイミを逃がしてキュワワーのFSを始める ──
 
@@ -533,6 +584,19 @@ class ChandelurePolicy(BasePolicy):
             # 打たないのは「自山下限」か「取得先が全く無い」時だけ。
             snipe_need = (fc[SHAYMIN] == 0 and hc[SHAYMIN] == 0
                           and self._opp_bench_snipes(obs))
+            if CHA_PAD_PLAYABLE:
+                # 第11弾（ユーザー指示・バグ修正）: 即プレイできる取得先が山にありそうな時だけ使う。
+                # 即進化できないシャンデラを持ってきてリーリエで山に戻す無駄挙動を根絶する。
+                if p["my_deck"] < 5:
+                    return -1, "Pad: deck too thin (mill life-line)"
+                if combat:
+                    # エンジン完成後は自山温存。即ベンチできる壁シェイミ（狙撃相手）だけ許可
+                    if snipe_need and p["bench_free"] >= 1 and p["my_deck"] >= 8:
+                        return 8000, "第11弾: Pad for Shaymin (vs snipe, combat)"
+                    return -1, "div-C2: preserve deck (combat)"
+                if not self._pad_wanted_playable(obs):
+                    return -1, "第11弾: Pad (no immediately-playable target in deck)"
+                return 17000, "第11弾: Poke Pad (fetch immediately-playable)"
             line_dig = CHA_PAD_BUILD and self._need_line_dig()
             if CHA_FORCE_ITEMS:
                 if p["my_deck"] < ITEM_DECK_FLOOR:
@@ -918,6 +982,10 @@ class ChandelurePolicy(BasePolicy):
             sc = 50 if (CHA_MARGIN or CHA_TAKE_ENERGY) else 1
             base = (100 - hc.get(cid, 0) * 25) * sc
             if cid == CHANDELURE:
+                # 第11弾（ユーザー指示）: 即進化できないシャンデラは持ってこない（低帯へ）。
+                # = 場にランプラー or アメ手札∧場ヒトモシ が無ければ探索先にしない。
+                if CHA_PAD_PLAYABLE and not self._pad_immediately_playable(CHANDELURE):
+                    return -1, "第11弾: skip Chandelure (can't evolve this turn)"
                 # 第7弾b（ユーザー指示）: ふしぎなアメが手札 ∧ 場にヒトモシ = アメで即進化できる
                 # → 探索（ポケパッド等）はランプラーを飛ばしてシャンデラを最優先で持ってくる
                 # （ヒトモシ+アメ+シャンデラ = 1ターン完成。ランプラー経由の2ターン進化より速い）
@@ -954,6 +1022,10 @@ class ChandelurePolicy(BasePolicy):
                     return base + 75 * sc, "div-C4: take Litwick (start the line)"
                 return base + (50 if p["line_in_play"] < 3 else -20) * sc, "take Litwick"
             if cid == LAMPENT:
+                # 第11弾: 場にヒトモシがいて即進化できる時だけ持ってくる（手札のヒトモシは同ターン
+                # 進化不可なので対象外 = fc[LITWICK] のみ）。
+                if CHA_PAD_PLAYABLE and not self._pad_immediately_playable(LAMPENT):
+                    return -1, "第11弾: skip Lampent (no Litwick in play)"
                 if fc[LAMPENT] + hc[LAMPENT] == 0 and fc[LITWICK] + hc[LITWICK] >= 1:
                     return base + 92 * sc, "div-C9: take Lampent (missing middle)"
                 return base + (45 if fc[LITWICK] >= 1 else 10) * sc, "take Lampent"
