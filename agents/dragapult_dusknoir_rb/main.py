@@ -125,15 +125,16 @@ DUSK_OPEN_BUDEW = os.environ.get("DUSK_OPEN_BUDEW", "1") != "0"      # 序盤 Po
 DUSK_PAD_DRAKLOAK = os.environ.get("DUSK_PAD_DRAKLOAK", "1") != "0"  # Pad→Drakloak（本流 engine の一部として再ON）
 
 # ── ファントムダイブ「持続 vs 損切り」の 2×2 閾値表（2026-07-25 ユーザー構想）──
-# バトル場ドラパルト ex が e==1（あと1色でダイブ）のとき、不足色を取れる確率 P を
-# _dive_prob_this_turn で厳密計算し（deck_counts=掘れる枚数・確定/死に線を含む）、
-# 状態別閾値と比較。P>=閾値 → 持続（散らさず掘る）/ P<閾値 → 損切り（エネ分散）。
-# 閾値は「安全な降り先(スボミー=ムズムズ)の有無 × 晒しの痛み(次番KO)」で変える
-# （50%の一発置きは不適 = ユーザー指摘）。値はサーバーでグリッドサーチして較正する。
-DUSK_TH_SAFE_PAIN = float(os.environ.get("DUSK_TH_SAFE_PAIN", "0.80"))      # 安全策◎・痛み大
-DUSK_TH_SAFE_NOPAIN = float(os.environ.get("DUSK_TH_SAFE_NOPAIN", "0.60"))  # 安全策◎・痛み小
-DUSK_TH_NOSAFE_PAIN = float(os.environ.get("DUSK_TH_NOSAFE_PAIN", "0.45"))  # 安全策✗・痛み大
-DUSK_TH_NOSAFE_NOPAIN = float(os.environ.get("DUSK_TH_NOSAFE_NOPAIN", "0.30"))  # 安全策✗・痛み小
+# バトル場が準備中（ドラパルト ex e<2 / 掘り進め中ドロンチ）のとき、今ターンにダイブを
+# 撃てる確率 P を _dive_prob_this_turn / _dive_prob_drakloak で厳密計算し（deck_counts=
+# 掘れる枚数・確定/死に線を含む）、単一閾値と比較。P>=閾値 → 持続（散らさず掘る）/
+# P<閾値 → 損切り（エネ分散）。
+# 【2026-07-26 統一】旧 2×2(安全な降り先×晒しの痛み) はグリッドサーチ81構成で勝率に無効
+# （均等制圧度が全構成 55.0-56.5 で平坦）と実証。さらに両極端の実測で アグレッシブ(常に掘る)
+# が全7対面でパッシブ以上・制圧度 57.1% vs 52.9% と判明。→ 2×2 を廃し単一閾値に統一。
+# 既定 0.0 = 準備中は常にダイブへ賭ける（＝アグレッシブ・ドラパルト。ユーザー方針 2026-07-26）。
+# 値を上げるほどパッシブ（確定に近い時のみ賭ける）。tune したい時はこの1本だけ振る。
+DUSK_TH_DIVE = float(os.environ.get("DUSK_TH_DIVE", "0.0"))
 # 場のドラパルト線 max 3 は既存の main_pokemon_count>=3 ゲート（_hand_score DREEPY）で
 # 既に成立（ユーザー「max 3匹でいい」と一致）。トグル不要 = 現状維持。
 
@@ -1360,16 +1361,10 @@ class DragapultDusknoirPolicy(BasePolicy):
         return obs.current.energyAttached   # m==1: 手張り権が無い時のみアカマツ必須
 
     def _dive_threshold(self, obs):
-        """2×2 閾値表（ユーザー構想）: 安全な降り先(スボミー=ムズムズ)の有無 ×
-        晒しの痛み(バトル場が次番 KO 圏)。値はグリッドサーチで較正。"""
-        p = self.p
-        active = active_pokemon(obs)
-        hp = getattr(active, "hp", 999) if active is not None else 999
-        pain = self.opp_max_damage(obs) >= hp
-        safe = p["fc"][BUDEW] >= 1
-        if safe:
-            return DUSK_TH_SAFE_PAIN if pain else DUSK_TH_SAFE_NOPAIN
-        return DUSK_TH_NOSAFE_PAIN if pain else DUSK_TH_NOSAFE_NOPAIN
+        """ダイブ「持続 vs 損切り」の単一閾値（2026-07-26 統一・アグレッシブ既定 0.0）。
+        旧 2×2(safe×pain) は実測で無効（グリッド平坦・両極端でアグレが全対面優位）と判り廃止。
+        obs は将来また状態依存にしたくなった時のため受けるだけ（現状は未使用）。"""
+        return DUSK_TH_DIVE
 
     def _plan_phase(self, obs, p):
         """本流の進行フェーズ（ユーザー構想 2026-07-25）。
