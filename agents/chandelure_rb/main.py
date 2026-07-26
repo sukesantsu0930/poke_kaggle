@@ -154,6 +154,13 @@ CHA_DECK_COUNT = os.environ.get("CHA_DECK_COUNT", "1") != "0"
 # シャンデラが全部サイド落ち（カウンティングで確定）なら、ヒトモシラインは死に札 → 出さず、
 # キュワワー単体ミル＋山札回復（リーリエ）に振る。手札の死にライン札はリーリエで山へ戻して寿命に。
 CHA_CHAND_DEAD = os.environ.get("CHA_CHAND_DEAD", "1") != "0"
+# ── 第14弾（2026-07-26 敗因分析→ユーザー着手指示）: LO デッキが LO（自滅）で負けない ──
+# 敗因診断: marnie/alakazam の負けの ~46%/42% が「相手を残り数枚まで削りながら自分が先に山切れ」。
+# 機構: 相手KOで再展開（Pad/Poffin等）を強いられ、探索が自山を非対称に薄める（自滅損7.0回 > 勝ち6.1）。
+# 対策: 終盤（自山が薄い）で「ミルできるキュワワーが場にいる」なら非対称な掘りを止め、ミル＋回復で凌ぐ。
+CHA_LO_SAFETY = os.environ.get("CHA_LO_SAFETY", "1") != "0"
+LO_DANGER_DECK = 13       # 自山がこれ以下＝終盤の自山切れ危険域
+OPP_ENDGAME_DECK = 10     # 相手山もこれ以下＝最終レース（もう1〜2ターンで決着・再建不要）
 # ── 第10弾（2026-07-26 ユーザー指示）: サポートの時間帯優先 + クセロシキ被弾時の残し手札 ──
 # バグ修正（常時ON）: 1T目空ベンチでヒカリをスルーしクセロシキ連打→負け → ライン全欠損時は
 #   ヒカリを Xerosic より上の帯で打って盤面成熟を優先（下の DAWN ハンドラ 5700）。
@@ -281,6 +288,28 @@ class ChandelurePolicy(BasePolicy):
         if not (CHA_CHAND_DEAD and CHA_DECK_COUNT) or self._prizes is None:
             return False
         return self._prizes.get(CHANDELURE, 0) >= 3
+
+    # ── 第14弾: 自山切れ（自滅）回避 ──
+
+    def _engine_intact(self, obs):
+        """ミルできるキュワワー（{P}1枚以上）が場にいる = 掘り直さなくてもミルを続けられる。"""
+        return any(pk.id == COMFEY and energy_count(pk) >= 1 for pk in all_my_pokemon(obs))
+
+    def _lo_deck_thinning_forbidden(self, obs):
+        """最終レース = 自山が薄い ∧ 相手山も薄い（あと1〜2ターンで決着）∧ ミルできるキュワワー健在。
+        この局面では①これ以上掘ると自滅②相手も削り切る寸前で再建の必要も無い → 掘りを止めて
+        ミル＋回復で自山を保たせ、相手を先に山切れさせる。エンジンが落ちていれば再建の掘りは許可。
+        （初版は自山だけで判定→中盤の再建まで止めて resilience を失い −1.7pt。相手山条件で最終
+        レースに限定して改善。）"""
+        if not CHA_LO_SAFETY:
+            return False
+        # R-08 脅威（次番に取られると負ける駒がある = 相手が攻めてくる）時は resilience が要る
+        # ので掘りを止めない。froslass 等の攻撃デッキで再建を止めて負ける事故（−7pt）を回避。
+        if self.t["threats"]:
+            return False
+        return (self.p["my_deck"] <= LO_DANGER_DECK
+                and self.p["opp_deck"] <= OPP_ENDGAME_DECK
+                and self._engine_intact(obs))
 
     def _analyze(self, obs):
         ms = my_state(obs)
@@ -663,6 +692,9 @@ class ChandelurePolicy(BasePolicy):
             # （ミルの生命線）③盤面飽和（キュワワー3体上限 ∧ ライン3体 = 増やす先が無い=空撃ち）
             if p["bench_free"] <= 0:
                 return -1, "Poffin: bench full"
+            # 第14弾: 終盤の自山切れ危険域 ∧ ミルエンジン健在なら掘らない（自滅回避）
+            if self._lo_deck_thinning_forbidden(obs):
+                return -1, "第14弾: LO safety — don't thin (mill+recover)"
             # 第13弾: シャンデラ全落ちならヒトモシは足さない（コンフィ補充だけ）
             can_add = (fc[COMFEY] < COMFEY_FIELD_CAP) or (
                 p["line_in_play"] < 3 and not self._chandelure_dead())
@@ -679,6 +711,9 @@ class ChandelurePolicy(BasePolicy):
             need = (fc[COMFEY] < 2) or (p["line_in_play"] < 2)
             return (18000 if need else 8000), "S-2: Poffin"
         if cid == POKE_PAD:
+            # 第14弾: 終盤の自山切れ危険域 ∧ ミルエンジン健在なら掘らない（自滅回避）
+            if self._lo_deck_thinning_forbidden(obs):
+                return -1, "第14弾: LO safety — don't thin (mill+recover)"
             # S-4: シャンデラ堀り（TO_HAND 実測33回の主役）
             # 第8弾（ユーザー指示・確定使用）: 温存（交戦期 div-C2 ホールド）を撤廃。有用な
             # 取得先（ライン部品/エンジン駒/2枚目シャンデラ/狙撃対策シェイミ）がある限り必ず掘る。
@@ -744,7 +779,8 @@ class ChandelurePolicy(BasePolicy):
             # 07-09 ×5 + 07-08 ×1、逆方向1件）
             need_comfey = (fc[COMFEY] < 2 and dc[COMFEY] >= 1)
             need_chand = (fc[CHANDELURE] + hc[CHANDELURE] == 0 and dc[CHANDELURE] >= 1)
-            if need_comfey or need_chand:
+            # 第14弾: 終盤の自山切れ危険域 ∧ エンジン健在なら再建の掘りはしない（自滅回避）
+            if (need_comfey or need_chand) and not self._lo_deck_thinning_forbidden(obs):
                 return 12000, "div-C11: Night Stretcher (rebuild engine)"
             return -1, "Night Stretcher: nothing"
         if cid == ENERGY_SEARCH:
@@ -753,7 +789,9 @@ class ChandelurePolicy(BasePolicy):
             # 差し戻し、エネ0のコンフィが実在する時だけ使う。上位勢は不要な山掘りをしない
             # （human=Flower/Comfey/Lillie 等 / ours=Energy Search が 07-08 ×5 + 07-09 ×9、逆方向1件。
             #  ミル型は自山1枚の温存が勝敗に直結する）
-            if p["energy_in_hand"] == 0 and p["comfey_need"] >= 1:
+            # 第14弾: 終盤の自山切れ危険域 ∧ ミルエンジン健在なら予備エネ堀りはしない（自滅回避）
+            if (p["energy_in_hand"] == 0 and p["comfey_need"] >= 1
+                    and not self._lo_deck_thinning_forbidden(obs)):
                 return 14800, "div-C10: Energy Search (fuel needed)"
             return -1, "Energy Search: not needed"
         if cid == SWITCH_ITEM:
@@ -815,6 +853,10 @@ class ChandelurePolicy(BasePolicy):
             # 手札の死にヒトモシ線も山へ戻って寿命に変わる（「山札回復に割り当てる」）。
             if self._chandelure_dead() and p["my_deck"] <= 12:
                 return 6500, "第13弾: Lillie (deck recovery, Chandelure dead)"
+            # 第14弾: 終盤の自山切れ危険域は、手札が回復に足りる（≥7 = 山が純増）なら早めに回復して
+            # エンジンドロー（FS3+AL1+ドロー1=約5/ターン）で山切れする前に立て直す（自滅回避）。
+            if (CHA_LO_SAFETY and p["my_deck"] <= LO_DANGER_DECK and p["hand_size"] >= 7):
+                return 6500, "第14弾: Lillie (deck recovery, LO danger)"
             # E-2: 山の回復装置。山が薄い時は最優先、手札が太い時は山へ還流
             # div-C4: 手札≤6 のリフレッシュを許可（実測: 手札4〜6での使用が最多帯）
             if p["my_deck"] <= 6:
@@ -832,12 +874,18 @@ class ChandelurePolicy(BasePolicy):
         if cid == mt.BOSS:
             return self._score_boss(obs, combat)
         if cid == HILDA:
+            # 第14弾: 終盤の自山切れ危険域 ∧ エンジン健在なら掘らない（自滅回避）
+            if self._lo_deck_thinning_forbidden(obs):
+                return -1, "第14弾: LO safety — save Hilda (don't thin)"
             need_evo = (fc[LITWICK] >= 1 and hc[LAMPENT] + hc[CHANDELURE] == 0)
             need_energy = (p["energy_in_hand"] == 0 and p["comfey_need"] >= 1)
             if need_evo or need_energy:
                 return (5000 if not combat else 4200), "S-4: Hilda"
             return -1, "save Hilda"
         if cid == DAWN:
+            # 第14弾: 終盤の自山切れ危険域 ∧ エンジン健在なら掘らない（自滅回避）
+            if self._lo_deck_thinning_forbidden(obs):
+                return -1, "第14弾: LO safety — save Dawn (don't thin)"
             # 第13弾: シャンデラ全落ちなら一式サーチは無意味（線は死に札）→ 打たない
             if self._chandelure_dead():
                 return -1, "第13弾: Dawn useless (Chandelure dead)"
