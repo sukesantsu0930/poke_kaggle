@@ -38,14 +38,17 @@ from policy_base import (
     damage_on,
     energy_count,
     get_card,
+    hand_ids,
     has_in_play,
     has_tool,
     is_ex,
     make_agent,
     my_state,
+    opp_active_pokemon,
     opp_state,
     option_card,
     option_target,
+    payable_attacks,
     retreat_cost,
     read_deck_csv as _read_deck_csv,
 )
@@ -104,9 +107,66 @@ CHA_BOSS_HEAVY = os.environ.get("CHA_BOSS_HEAVY", "1") != "0"    # にげ重ベ�
 CHA_ERI_IDLE = os.environ.get("CHA_ERI_IDLE", "1") != "0"        # サポート枠が暇なら Eri（ビワ）
 CHA_NC_HOLD = os.environ.get("CHA_NC_HOLD", "1") != "0"          # NZ は敗北リーチ可視まで温存
 CHA_LILLIE_EARLY = os.environ.get("CHA_LILLIE_EARLY", "1") != "0"  # 後攻T1/先攻T2 はリーリエ優先
+# ── 第5弾（2026-07-25 ユーザー指示） ──
+# 「サポート・道具を手札に抱えたまま end するターンをなくす」+「ベンチ狙撃相手にはシェイミ設置」。
+# 判定は王者ゲート = A/B −1pt 超悪化で即 OFF。詳細 = デッキ設計_シャンデラ.md 第5弾。
+CHA_USE_SUPPORTER = os.environ.get("CHA_USE_SUPPORTER", "1") != "0"  # 妨害系サポートは攻撃前に必ず使う（遊軍帯）
+CHA_USE_TOOL = os.environ.get("CHA_USE_TOOL", "1") != "0"            # 手札の道具（重力宝石）は攻撃前に必ず着ける
+CHA_SHAYMIN_VS_SNIPE = os.environ.get("CHA_SHAYMIN_VS_SNIPE", "1") != "0"  # ベンチ狙撃相手ならシェイミを壁に置く
+# ── 第6弾（2026-07-25 ユーザー指示・ボスの指令バグ修正） ──
+# 第5弾の「遊軍ボス（相手ベンチがいれば無条件吊り）」がバトル場のベロバーに対してベンチの
+# ベロバーを呼ぶ無意味ドラッグを誘発（＋ヒカリを無視）。ボスは「相手バトル場が攻撃条件を
+# 満たす ∧ ベンチに攻撃条件を満たさない駒（にげ≥1・≥2 望ましい）がいる」時だけ拘束に使い、
+# 番を返すと負け確定の時だけ最優先で吊る（あがき）。
+CHA_BOSS_SMART = os.environ.get("CHA_BOSS_SMART", "1") != "0"
+# ── 第7弾（2026-07-25 ユーザー指示） ──
+# ①ポケパッド温存しすぎ（R-30「グッズは積極使用」）＋②シャンデラ完成率が低い → 場にシャンデラが
+# 出るまでポケパッドで積極的にライン部品を掘る。③キュワワーは場に3体で十分（4体目はベンチ献上）。
+CHA_PAD_BUILD = os.environ.get("CHA_PAD_BUILD", "1") != "0"    # シャンデラ完成までポケパッドを掘る
+CHA_COMFEY_CAP = os.environ.get("CHA_COMFEY_CAP", "1") != "0"  # キュワワーは場に3体まで
+COMFEY_FIELD_CAP = 3
+# ── 第8弾（2026-07-26 ユーザー指示） ──
+# ①ベンチ狙撃相手ならシェイミを夜のタンカでも回収（ポケパッドは第5弾で対応済）。
+# ②バトル場スタートのシェイミは、ベンチにFS即撃ちキュワワー（エネ≥1）がいれば
+#   エネを張って逃げ→キュワワー前出し→フラワーシャワー（逃げエネ1枚の対価を肯定）。
+# ③ポフィン・ポケパッドは温存せず確定使用（自山切れ防止の下限のみ残す）。
+CHA_SHAYMIN_RETREAT = os.environ.get("CHA_SHAYMIN_RETREAT", "1") != "0"  # 場スタートのシェイミを逃がしてFS
+# CHA_FORCE_ITEMS（確定使用）: A/B で自山切れにより −2〜3pt 悪化（王者ゲート抵触）→ 既定 OFF に暫定。
+# ユーザーが勝率低下を承知で確定使用を望む場合は既定を "1" に戻す（コードは保持）。
+CHA_FORCE_ITEMS = os.environ.get("CHA_FORCE_ITEMS", "0") != "0"          # ポフィン/ポケパッド確定使用
+ITEM_DECK_FLOOR = 6   # これ未満の自山では確定使用を止める（ミルの生命線 = 自分の山切れ負けを防ぐ）
+# ── 第9弾（2026-07-26 ユーザー指示）: バトル場に出す（＝いけにえ）優先順位を狙撃有無で切替 ──
+# 非狙撃: キュワワー ＞ シェイミ ＞ シャンデラライン（シェイミを犠牲に線を守る）
+# 狙撃  : キュワワー ＞ シャンデラライン ＞ シェイミ（壁のシェイミを温存し線を先に切る）
+# ライン内は常にたね優先（ヒトモシ ＞ ランプラー ＞ シャンデラ = 既存序列で充足）
+CHA_ACTIVE_PRIORITY = os.environ.get("CHA_ACTIVE_PRIORITY", "1") != "0"
+# ── 第10弾（2026-07-26 ユーザー指示）: サポートの時間帯優先 + クセロシキ被弾時の残し手札 ──
+# バグ修正（常時ON）: 1T目空ベンチでヒカリをスルーしクセロシキ連打→負け → ライン全欠損時は
+#   ヒカリを Xerosic より上の帯で打って盤面成熟を優先（下の DAWN ハンドラ 5700）。
+# 【棄却→opt-in OFF】CHA_SUPPORTER_TIMING = クセロシキ/ビワを後半限定＋手札多少で使い分ける
+#   doctrine。A/B で −1.4〜−3.9pt（早期妨害=特に対 marnie の価値を失う）→ 既定 OFF。
+CHA_SUPPORTER_TIMING = os.environ.get("CHA_SUPPORTER_TIMING", "0") != "0"
+XEROSIC_HAND = 6   # 相手手札がこれ以上=クセロシキ / 未満=ビワ（大体の基準。doctrine 有効時のみ）
+# CHA_DISCARD_KEEP = 手札を減らす時に「サポート1枚だけ残す」（ユーザー指示・再確認）。
+#   初版（フル独自ランキング）は −2.1pt（エネ捨て副作用）→ 改版は「既定 discard ＋ 最良サポ
+#   1枚だけ残す」の最小実装で再計測（下の A/B 参照）。
+CHA_DISCARD_KEEP = os.environ.get("CHA_DISCARD_KEEP", "1") != "0"
 
 CHANDELURE_LINE = {LITWICK, LAMPENT, CHANDELURE}
 ENERGY_CARDS = {BASIC_P, TELEPATH}
+# 第10弾: 手札を減らす時に残すサポートの優先度（高い順 = 手札回復→サーチ→妨害）。
+# リーリエ = 山回復＆6ドローで手札を丸ごと立て直せるので最優先で残す。
+SUPPORTER_KEEP = (LILLIE, HILDA, DAWN, mt.BOSS, XEROSIC, ERI)
+
+# ── ベンチ狙撃（攻撃ダメージによるベンチ加害）デッキの識別（第5弾・ユーザー指示） ──
+# シェイミ Flower Curtain は「相手ポケモンの攻撃によるベンチ非ルールボックスへのダメージ」を
+# 無効化する。対象は攻撃ダメージ型の狙撃のみ:
+#   starmie … メガスターミー JetBlow（120 + ベンチ50）= スターみぃ
+#   marnie  … オーロンゲ Shadow Bullet（180 + ベンチ30）= べろばぁ（ベロバー線）
+# ※ドラパルト Phantom Dive / マシマシラ Adrena-Brain は「ダメカン配置・移動」で攻撃ダメージ
+#   ではないためシェイミでは止まらない（後者はバトルケージ担当）→ 意図的に除外。
+BENCH_SNIPE_ARCHETYPES = {"starmie", "marnie"}
+FROSLASS_IDS = {860, 861}   # ユキワラシ/メガユキメノコ（スターミー不在でも JetBlow デッキの tell）
 
 
 class ChandelurePolicy(BasePolicy):
@@ -185,6 +245,85 @@ class ChandelurePolicy(BasePolicy):
                            for p in all_my_pokemon(obs))
         return comfey_ready and has_in_play(obs, CHANDELURE)
 
+    def _opp_bench_snipes(self, obs):
+        """第5弾（ユーザー指示）: 相手が攻撃ダメージでベンチを狙撃するデッキか。
+        フラグが立ったらシェイミ（壁）を能動的に探して置く。self.t["matchup"] は
+        update_belief 済み（= choose 内スコアリング時は最新）。detect_matchup は
+        スターミー不在の素ユキメノコ盤面を拾えないため生ID も直接見る。"""
+        if not CHA_SHAYMIN_VS_SNIPE:
+            return False
+        if self.t["matchup"] in BENCH_SNIPE_ARCHETYPES:
+            return True
+        opp = opp_state(obs)
+        return any(p.id in FROSLASS_IDS for p in (opp.active + opp.bench) if p)
+
+    # ── 第6弾: ボスの指令の「意味のある拘束」判定 ──
+
+    def _can_attack_now(self, pokemon):
+        """攻撃条件を満たす = エネが1枚以上載っていて払える技が1つ以上ある。
+        0エネの置物たね（ベロバー等）を「アタッカー」と誤認しないための下限（energy≥1）。"""
+        return (pokemon is not None and energy_count(pokemon) >= 1
+                and len(payable_attacks(pokemon)) >= 1)
+
+    def _boss_trap_targets(self, obs):
+        """ボスで吊るのが有意義な相手ベンチ = 攻撃条件を満たさない（今は殴れない）かつ
+        にげるコスト≥1（≥2 が望ましい）。攻撃できる駒を吊るのは相手が得するだけなので除外。"""
+        return [b for b in opp_state(obs).bench
+                if b is not None and not self._can_attack_now(b)
+                and retreat_cost(b) >= 1]
+
+    # ── 第10弾: 手札を減らす時（クセロシキ等）に残す札を選ぶ ──
+
+    def _best_supporter_in_hand(self):
+        """手札にある最良サポート1枚（SUPPORTER_KEEP の優先順）。無ければ None。"""
+        hc = self.p["hc"]
+        for s in SUPPORTER_KEEP:
+            if hc.get(s, 0) > 0:
+                return s
+        return None
+
+    def _score_discard(self, obs, opt):
+        """クセロシキ等で手札を減らす時「サポートを1枚だけ残す」（第10弾ユーザー指示・改）。
+        既定の discard（ライン保護＋余剰カット＝A/B で最良と判明）をそのまま使い、最良サポート
+        1枚だけを追加で残す。余剰サポート（最良以外）は既定どおり捨てる。"""
+        base_score, base_reason = self.default_score_discard(obs, opt)
+        card = option_card(obs, opt)
+        cid = card.id if card else getattr(opt, "cardId", None)
+        if cid is None:
+            return base_score, base_reason
+        # 最良サポート1枚だけ残す（ライン -5000 の下、余剰/generic より上 = 確実に生き残る）
+        if cid == self._best_supporter_in_hand():
+            return -3000, "第10弾: keep 1 supporter (act next turn)"
+        return base_score, base_reason
+
+    # ── 第7弾: シャンデラライン完成のためのポケパッド積極堀り ──
+
+    def _need_line_dig(self):
+        """場にシャンデラがいない間、ポケパッドで掘って揃えたいライン部品があるか。
+        端（土台ヒトモシ/ランプラー・上のシャンデラのカード）や橋（ランプラー/ふしぎなアメ）が
+        欠けていれば掘る = シャンデラ完成まで手を止めない（R-30 積極グッズ＋完成率改善）。"""
+        fc, hc = self.p["fc"], self.p["hc"]
+        if fc[CHANDELURE] >= 1:
+            return False                                   # エンジン完成 = これ以上ラインは掘らない
+        base = fc[LITWICK] + hc[LITWICK] + fc[LAMPENT] + hc[LAMPENT]   # 土台
+        top = hc[CHANDELURE] + fc[CHANDELURE]                          # シャンデラのカード
+        bridge = fc[LAMPENT] + hc[LAMPENT] + hc[RARE_CANDY]            # 進化の橋渡し
+        return base == 0 or top == 0 or bridge == 0
+
+    # ── 第8弾: 場スタートのシェイミを逃がしてキュワワーのFSを始める ──
+
+    def _shaymin_retreat_ready(self, obs):
+        """バトル場がシェイミ ∧ ベンチにフラワーシャワー即撃ち可能なキュワワー（エネ≥1）がいる。
+        = シェイミにエネを張って逃げ、キュワワーを前に出してミルを始めるべき局面
+        （逃げエネ1枚の対価を払ってでもFSを始める。ユーザー肯定）。"""
+        if not CHA_SHAYMIN_RETREAT:
+            return False
+        active = active_pokemon(obs)
+        if active is None or active.id != SHAYMIN:
+            return False
+        return any(pk.id == COMFEY and energy_count(pk) >= 1
+                   for pk in my_state(obs).bench if pk)
+
     # ═══════════════ セットアップコンテキスト（S-1/S-2） ═══════════════
 
     def score_setup_context(self, obs, opt):
@@ -253,6 +392,12 @@ class ChandelurePolicy(BasePolicy):
             return 7000, "generic evolve"
 
         if opt.type == OptionType.RETREAT:
+            # 第8弾: 場スタートのシェイミは、FS即撃ちキュワワーがベンチにいてシェイミが
+            # 逃げエネを払えるなら逃がす（キュワワー前出し→フラワーシャワー）。
+            if self._shaymin_retreat_ready(obs):
+                active = active_pokemon(obs)
+                if active is not None and energy_count(active) >= retreat_cost(active):
+                    return 9000, "第8弾: retreat Shaymin (promote Comfey for FS)"
             return -5000, "E-7: never retreat (use Switch item)"
 
         if opt.type == OptionType.ATTACK:
@@ -304,13 +449,21 @@ class ChandelurePolicy(BasePolicy):
             if cid == LITWICK:
                 score += 500 if p["line_in_play"] < 3 else 100
             elif cid == COMFEY:
+                # 第7弾（ユーザー指示）: 場のキュワワーは3体で十分。4体目はベンチ=サイド献上 +
+                # シャンデラ線のベンチ枠を潰すので出さない
+                if CHA_COMFEY_CAP and fc[COMFEY] >= COMFEY_FIELD_CAP:
+                    score, reason = -1, "第7弾: 3 Comfey is enough (no 4th)"
                 # div-C2: 2体目以降のコンフィ素出しは急がない（ベンチ=サイド献上。妨害が先）
-                if fc[COMFEY] >= 1:
+                elif fc[COMFEY] >= 1:
                     score, reason = 13800, "play spare Comfey (after items)"
                 else:
                     score += 400
             elif cid == SHAYMIN:
-                score += 300 if fc[SHAYMIN] == 0 else -300
+                if (CHA_SHAYMIN_VS_SNIPE and fc[SHAYMIN] == 0
+                        and self._opp_bench_snipes(obs)):
+                    score += 900   # 第5弾: ベンチ狙撃相手は壁を優先設置（ヒトモシ線より上）
+                else:
+                    score += 300 if fc[SHAYMIN] == 0 else -300
             # R-03: ベンチ0は即死筋 → 最優先で解消 / R-24: 1枠空け
             if p["bench_used"] == 0:
                 score += 5000
@@ -354,28 +507,54 @@ class ChandelurePolicy(BasePolicy):
                 return 19000, "S-3: Rare Candy -> Chandelure"
             return -1, "Rare Candy: no line"
         if cid == POFFIN:
-            # div-C2（2026-07-07 divergence 実測）: 交戦期（エンジン完成後）は山を薄めず攻撃を優先
+            # 第8弾（ユーザー指示・確定使用）: 温存（div-C2 の交戦期ホールド）を撤廃し、
+            # 「ベンチ枠がある ∧ 自山切れしない ∧ まだ増やせる駒がある」限り必ず打つ。
+            # 打たない理由は3つに限定 = ①ベンチ満杯（物理的に置けない）②自山下限
+            # （ミルの生命線）③盤面飽和（キュワワー3体上限 ∧ ライン3体 = 増やす先が無い=空撃ち）
             if p["bench_free"] <= 0:
                 return -1, "Poffin: bench full"
+            can_add = (fc[COMFEY] < COMFEY_FIELD_CAP) or (p["line_in_play"] < 3)
+            if not can_add:
+                return -1, "Poffin: board saturated (nothing to add)"
+            if CHA_FORCE_ITEMS:
+                if p["my_deck"] < ITEM_DECK_FLOOR:
+                    return -1, "Poffin: deck floor (mill life-line)"
+                need = (fc[COMFEY] < 2) or (p["line_in_play"] < 2)
+                return (18000 if need else 12000), "第8弾: Poffin (確定使用)"
+            # 旧ロジック（CHA_FORCE_ITEMS=0 フォールバック）
             if combat:
                 return (8000 if fc[COMFEY] < 2 else -1), "div-C2: Poffin only to rebuild"
             need = (fc[COMFEY] < 2) or (p["line_in_play"] < 2)
             return (18000 if need else 8000), "S-2: Poffin"
         if cid == POKE_PAD:
             # S-4: シャンデラ堀り（TO_HAND 実測33回の主役）
-            # div-C2: 使用は「欠けている駒がある時」だけ（上位勢は毎ターン掘らず攻撃を優先）
+            # 第8弾（ユーザー指示・確定使用）: 温存（交戦期 div-C2 ホールド）を撤廃。有用な
+            # 取得先（ライン部品/エンジン駒/2枚目シャンデラ/狙撃対策シェイミ）がある限り必ず掘る。
+            # 打たないのは「自山下限」か「取得先が全く無い」時だけ。
+            snipe_need = (fc[SHAYMIN] == 0 and hc[SHAYMIN] == 0
+                          and self._opp_bench_snipes(obs))
+            line_dig = CHA_PAD_BUILD and self._need_line_dig()
+            if CHA_FORCE_ITEMS:
+                if p["my_deck"] < ITEM_DECK_FLOOR:
+                    return -1, "Poke Pad: deck floor (mill life-line)"
+                want_2nd_chand = (fc[CHANDELURE] < 2 and hc[CHANDELURE] == 0)
+                want_comfey = (fc[COMFEY] + hc[COMFEY] < COMFEY_FIELD_CAP)
+                if line_dig or snipe_need or want_2nd_chand or want_comfey:
+                    return 17000, "第8弾: Poke Pad (確定使用)"
+                return -1, "Poke Pad: nothing useful to fetch"
+            # 旧ロジック（CHA_FORCE_ITEMS=0 フォールバック）
             if combat:
                 if fc[CHANDELURE] < 2 and hc[CHANDELURE] == 0 and p["my_deck"] >= 10:
                     return 8000, "div-C2: Pad for 2nd Chandelure"
+                if snipe_need and p["my_deck"] >= 8:
+                    return 7800, "第5弾: Pad for Shaymin (vs snipe)"
                 return -1, "div-C2: preserve deck"
-            need = (hc[CHANDELURE] + fc[CHANDELURE] == 0) or (fc[COMFEY] + hc[COMFEY] == 0)
-            if need:
+            if line_dig and p["my_deck"] >= 5:
+                return 17000, "第7弾: Poke Pad (build Chandelure line)"
+            need = ((fc[COMFEY] + hc[COMFEY] == 0) or snipe_need)
+            if need and p["my_deck"] >= 5:
                 return 17000, "S-4: Poke Pad (missing piece)"
-            # div-C6【棄却→差し戻し 2026-07-11】: 「セットアップ期は山≥15なら欠け駒なしでも掘る」
-            # （7/7 kidekikish ×4 由来の暫定）を新データで再計測 — 07-08 67.3→67.0%(+1手)、
-            # 07-09 58.9→59.4%(−1手) と両日で逆方向のノイズ。新ピロット（Star-mine/Taimo）の
-            # 支持なし + ミル型の自山温存原則（山を無駄に薄めない）に反するため差し戻し
-            return -1, "S-4: hold Pad (no missing piece)"
+            return -1, "S-4: hold Pad (line ready)"
         if cid == CRUSHING_HAMMER:
             # E-6: エネが見える限り毎ターン投げる（実測50回 = 最多プレイ）
             if p["opp_energy_total"] >= 1:
@@ -387,6 +566,11 @@ class ChandelurePolicy(BasePolicy):
                 return 13500, "E-6: Enhanced Hammer (special energy)"
             return -1, "Enhanced Hammer: no special energy"
         if cid == NIGHT_STRETCHER:
+            # 第8弾（ユーザー指示）: ベンチ狙撃相手で壁のシェイミが焼かれた（トラッシュ）なら、
+            # 夜のタンカで回収して置き直す（ポケパッドと並ぶ回収ルートに割り当て）。
+            if (self._opp_bench_snipes(obs) and fc[SHAYMIN] == 0
+                    and hc[SHAYMIN] == 0 and dc[SHAYMIN] >= 1):
+                return 12500, "第8弾: Night Stretcher (recover Shaymin vs snipe)"
             if (dc[BASIC_P] >= 1 and p["energy_in_hand"] == 0 and p["comfey_need"] >= 1):
                 return 13000, "Night Stretcher: recover energy"
             # div-C11（2026-07-11 実測・調整日07-08/09）: ポケモン回収は「エンジン駒が実際に
@@ -415,25 +599,41 @@ class ChandelurePolicy(BasePolicy):
                 return 11000, "Switch: promote Comfey attacker"
             return -1, "save Switch"
         if cid == GRAVITY_GEMSTONE:
-            # div-C1（2026-07-07 divergence 実測）: 攻撃より下の帯（埋め手）
+            # div-C1（2026-07-07 divergence 実測）: 攻撃より下の帯（埋め手）だったが、
+            # 第5弾（ユーザー指示）で CHA_USE_TOOL 既定 ON = 手札の道具は攻撃前に必ず着ける
+            # （Flower Shower 1950 の上 2080/2060 に持ち上げ、着けてから殴る）。着け先は
+            # 従来どおりアクティブ or コンフィ（永久ベンチのシャンデラ等に着けても無意味なので除外）。
             active = active_pokemon(obs)
             if active is not None and not has_tool(active):
-                return 700, "E-5/div-C1: Gemstone (filler)"
+                return (2080 if CHA_USE_TOOL else 700), "E-5/div-C1: Gemstone (filler)"
             if any(pk.id == COMFEY and not has_tool(pk) for pk in all_my_pokemon(obs)):
-                return 650, "E-5/div-C1: Gemstone (bench Comfey filler)"
+                return (2060 if CHA_USE_TOOL else 650), "E-5/div-C1: Gemstone (bench Comfey filler)"
             return -1, "save Gravity Gemstone"
 
         # ── サポート（択一） ──
         if obs.current.supporterPlayed and data is not None and data.cardType == CardType.SUPPORTER:
             return -1, "Supporter already used"
         if cid == XEROSIC:
-            # E-3: 対アラカザムは Powerful Hand 減衰で最優先。通常は相手手札≥7（実測モード）
+            if CHA_SUPPORTER_TIMING:
+                # 第10弾: 序盤（盤面未成熟 = ラインが場に0）はヒカリ/リーリエで展開を優先し、
+                # クセロシキは温存（1T目空ベンチでXerosic連打→負けの修正）。ライン始動後は
+                # 相手手札が多い時（≥XEROSIC_HAND）にクセロシキ。少ない時はビワへ。
+                if p["line_in_play"] == 0:
+                    return -1, "第10弾: save Xerosic (develop board first)"
+                if self.t["matchup"] == "alakazam" and p["opp_hand"] >= 4:
+                    return 6000, "E-3: Xerosic vs Alakazam"
+                if p["opp_hand"] >= XEROSIC_HAND:
+                    return 5500, "第10弾: Xerosic (hand large)"
+                return -1, "第10弾: save Xerosic (hand small→Eri)"
+            # 旧ロジック（CHA_SUPPORTER_TIMING=0 フォールバック）
             if self.t["matchup"] == "alakazam" and p["opp_hand"] >= 4:
                 return 6000, "E-3: Xerosic vs Alakazam"
             if p["opp_hand"] >= 7:
                 return 5500, "E-3: Xerosic (big hand)"
             if combat and p["opp_hand"] >= 4:
                 return 4800, "E-3: Xerosic"
+            if CHA_USE_SUPPORTER and p["opp_hand"] >= 4:
+                return 2450, "第5弾: Xerosic (idle disruption)"
             return -1, "save Xerosic"
         if cid == LILLIE:
             # CHA_LILLIE_EARLY（2026-07-24 ユーザー指示）: 序盤はリーリエで攻める —
@@ -454,27 +654,14 @@ class ChandelurePolicy(BasePolicy):
                 return 4500, "E-2: Lillie (refresh)"
             if p["hand_size"] >= 9 and p["my_deck"] <= 15:
                 return 4200, "E-2: Lillie (bank fat hand)"
+            # 第5弾: サポート枠が暇でも、リーリエは「手札を山へ戻す」= 手札≥7 なら山が増える
+            # （ミルの自山温存に順方向）時だけ遊軍で切る。手札<7 は山を薄めるので温存のまま
+            # （自山を無駄に薄めない原則 div-C6/C10 と非衝突）
+            if CHA_USE_SUPPORTER and p["hand_size"] >= 7:
+                return 2300, "第5弾: Lillie (idle, bank into deck)"
             return -1, "save Lillie"
         if cid == mt.BOSS:
-            # CHA_BOSS_HEAVY（2026-07-24 ユーザー指示）: にげるコストの重い相手ベンチは
-            # 余裕があれば吊り出して拘束（LO の勝ち筋 = 前を止めてミルの番数を稼ぐ）。
-            # 帯 5800 = Lillie 山回復 6500 / 対アラカザム Xerosic 6000 より下（緊急時は
-            # そちらが先勝ち）、通常 Xerosic 5500 より上。setup でも重い獲物がいれば 5000。
-            # 吊り先の選択は既存の E-5 ターゲット則（にげ重×200 − エネ×300）がそのまま裁く
-            if CHA_BOSS_HEAVY and any(
-                    retreat_cost(b) >= 2 and energy_count(b) <= 1
-                    for b in opp_state(obs).bench if b):
-                return (5800 if combat else 5000), "CHA: Boss (heavy retreat trap)"
-            # E-5: 拘束用。エネ0の相手ベンチがいる交戦期のみ
-            if combat and any(energy_count(b) == 0 for b in opp_state(obs).bench if b):
-                return 5200, "E-5: Boss (drag & trap)"
-            # div-C5（2026-07-08 divergence 実測・7/7 kidekikish）: 上位ピロットはボスを
-            # もっと自由に切る（human=Boss / ours=Crushing,NZ）。交戦期はベンチがいれば拘束に使う
-            # 【確定昇格 2026-07-11】OFF 変異で調整日07-08/09 とも完全同値（フリップ0手・悪化なし）。
-            # Boss 系不一致は依然 human=Boss 方向のみ（両日計8件、逆0）で新ピロット（Star-mine）も支持
-            if combat and any(b for b in opp_state(obs).bench if b):
-                return 4700, "div-C5: Boss (loose drag)"
-            return -1, "save Boss"
+            return self._score_boss(obs, combat)
         if cid == HILDA:
             need_evo = (fc[LITWICK] >= 1 and hc[LAMPENT] + hc[CHANDELURE] == 0)
             need_energy = (p["energy_in_hand"] == 0 and p["comfey_need"] >= 1)
@@ -482,19 +669,68 @@ class ChandelurePolicy(BasePolicy):
                 return (5000 if not combat else 4200), "S-4: Hilda"
             return -1, "save Hilda"
         if cid == DAWN:
+            # 第10弾バグ修正（常時ON）: ライン全欠損（場に線0 ∧ 手札にも線0）なら、ヒカリで一式
+            # （たね+1進化+2進化）サーチを Xerosic(5500) より上の 5700 で打ち、盤面成熟を最優先。
+            # = 1T目空ベンチでヒカリをスルーしクセロシキ連打→負けの事故の修正。
             if p["line_in_play"] == 0 and hc[LITWICK] + hc[LAMPENT] + hc[CHANDELURE] == 0:
-                return 4800, "S-4: Dawn (whole line)"
+                return 5700, "第10弾: Dawn (develop whole line, beats Xerosic)"
             return -1, "save Dawn"
         if cid == ERI:
+            if CHA_SUPPORTER_TIMING:
+                # 第10弾: ビワも試合後半（combat）＋相手手札が少ない時（クセロシキが空振る帯 =
+                # 手札 < XEROSIC_HAND）。序盤は温存して盤面成熟を優先。
+                if combat and 1 <= p["opp_hand"] < XEROSIC_HAND:
+                    return 4000, "第10弾: Eri (late-game, hand small)"
+                return -1, "第10弾: save Eri (early or hand large→Xerosic)"
+            # 旧ロジック（CHA_SUPPORTER_TIMING=0 フォールバック）
             if combat and p["opp_hand"] >= 4:
                 return 4000, "E-3: Eri"
-            # CHA_ERI_IDLE（2026-07-24 ユーザー指示）: サポート枠が暇なら Eri（ビワ）を
-            # 切る — 相手手札のグッズ破壊は LO では常にプラス方向。帯 400 = 学習帯級で、
-            # 他のサポート・本命行動が全て沈黙した番だけ浮上する（end(0) にだけ勝つ）
+            if CHA_USE_SUPPORTER:
+                return 2400, "第5弾: Eri (idle disruption)"
             if CHA_ERI_IDLE:
                 return 400, "CHA: Eri (idle supporter)"
             return -1, "save Eri"
         return 1000, "generic play"
+
+    # ── ボスの指令（第6弾 2026-07-25 ユーザー指示で全面改訂） ──
+
+    def _score_boss(self, obs, combat):
+        """拘束（trap）として意味を持つ最低条件（ユーザー指定）:
+          (a) 相手バトル場が攻撃条件を満たす（エネ載り・払える技あり = 実アタッカー）
+          (b) ベンチに攻撃条件を満たさない駒がいる（にげ≥1、≥2 が望ましい）
+        → 相手の実アタッカーをベンチへ剥がし、殴れない＆重い駒を前に貼って番を潰す。
+        (a) を欠く「バトル場のベロバーに対しベンチのベロバーを呼ぶ」無意味ドラッグを廃止。
+
+        あがき: 番を返すと負け確定（R-08 脅威が可視 ∧ 相手バトル場が攻撃可能）な時だけ、
+        トラップ先を最優先で吊ってリーサルを1ターン遅らせる延命策。
+        （リーサルボスは apply_protocol が LETHAL_BAND へ昇格するのでここは非リーサル帯のみ）"""
+        if not CHA_BOSS_SMART:
+            return self._score_boss_legacy(obs, combat)
+        trap_targets = self._boss_trap_targets(obs)
+        if not trap_targets:
+            return -1, "第6弾: Boss (no trappable non-attacker)"
+        if not self._can_attack_now(opp_active_pokemon(obs)):
+            return -1, "第6弾: Boss (opp active can't attack — pointless)"
+        # あがき: 負け確定リーチなら最優先で延命（Lillie 山回復 6500 も上回る）
+        if self.t["threats"]:
+            return 6800, "第6弾: Boss (あがき: deny next-turn lethal)"
+        if any(retreat_cost(b) >= 2 for b in trap_targets):
+            return (5800 if combat else 5000), "第6弾: Boss (heavy retreat trap)"
+        return (5200 if combat else 4700), "第6弾: Boss (trap, retreat>=1)"
+
+    def _score_boss_legacy(self, obs, combat):
+        """CHA_BOSS_SMART=0 時のフォールバック（第4/5弾の旧ロジック。ロールバック用）。"""
+        if CHA_BOSS_HEAVY and any(
+                retreat_cost(b) >= 2 and energy_count(b) <= 1
+                for b in opp_state(obs).bench if b):
+            return (5800 if combat else 5000), "CHA: Boss (heavy retreat trap)"
+        if combat and any(energy_count(b) == 0 for b in opp_state(obs).bench if b):
+            return 5200, "E-5: Boss (drag & trap)"
+        if combat and any(b for b in opp_state(obs).bench if b):
+            return 4700, "div-C5: Boss (loose drag)"
+        if CHA_USE_SUPPORTER and any(b for b in opp_state(obs).bench if b):
+            return 2500, "第5弾: Boss (idle drag)"
+        return -1, "save Boss"
 
     # ── ATTACH（S-5 + R-10 + R-08） ──
 
@@ -509,16 +745,17 @@ class ChandelurePolicy(BasePolicy):
 
         if cid == GRAVITY_GEMSTONE:
             # div-C1: 攻撃より下の帯 = 「攻撃できないターンの埋め手」（実測: 上位勢は
-            # 宝石を持ったまま攻撃するターンが多く、装着は22試合で20回に留まる）
+            # 宝石を持ったまま攻撃するターンが多く、装着は22試合で20回に留まる）だったが、
+            # 第5弾（ユーザー指示）で CHA_USE_TOOL 既定 ON = 攻撃前に必ず着ける（FS1950 の上へ）。
             if has_tool(target):
                 return -1, "target has tool"
             active = active_pokemon(obs)
             if tid == COMFEY and active is not None and target is active:
-                return 700, "E-5/div-C1: Gemstone on active Comfey (filler)"
+                return (2080 if CHA_USE_TOOL else 700), "E-5/div-C1: Gemstone on active Comfey (filler)"
             if tid == COMFEY:
-                return 650, "E-5/div-C1: Gemstone on bench Comfey (filler)"
+                return (2060 if CHA_USE_TOOL else 650), "E-5/div-C1: Gemstone on bench Comfey (filler)"
             if active is not None and target is active:
-                return 600, "E-5: Gemstone on active (filler)"
+                return (2040 if CHA_USE_TOOL else 600), "E-5: Gemstone on active (filler)"
             return -1, "save Gravity Gemstone"
 
         if cid not in ENERGY_CARDS:
@@ -573,6 +810,15 @@ class ChandelurePolicy(BasePolicy):
             if self.is_threatened(target):
                 score -= 2000   # R-08: 負け筋への追い銭防止
             return score, "S-5: fuel Flower Shower"
+        # 第8弾: 場スタートのシェイミに逃げエネを張る（入れ替えが手札に無い時だけ = Switch は
+        # 無料なので優先）。1枚張れば逃げエネ1を払える → 次の決定で逃げ→キュワワー前出し→FS。
+        # 帯 19850 = S-5 手張り(19800)の直上 = 「今番FSを始める」を最優先。
+        if (tid == SHAYMIN and self._shaymin_retreat_ready(obs)
+                and p["hc"][SWITCH_ITEM] == 0):
+            active = active_pokemon(obs)
+            if (active is not None and target is active
+                    and energy_count(target) < retreat_cost(target)):
+                return 19850, "第8弾: fuel Shaymin to retreat (Comfey FS ready)"
         return -1, "S-5: energy only on Comfey"
 
     # ── CARD/ENERGY 選択（サーチ先・前出し・吊り出し等） ──
@@ -610,13 +856,18 @@ class ChandelurePolicy(BasePolicy):
                         mult = 1100 if CHA_MARGIN else 100
                         score, reason = 15000 + energy_count(card) * mult, "promote Comfey"
                 elif cid == LITWICK:
-                    score, reason = 4500, "promote Litwick"
+                    score, reason = 4500, "promote Litwick"   # ライン内はたね=ヒトモシを先に犠牲
                 elif cid == LAMPENT:
                     score, reason = 4300, "promote Lampent"
                 elif cid == CHANDELURE:
                     score, reason = 3000, "protect Chandelure (engine)"
                 elif cid == SHAYMIN:
-                    score, reason = 2500, "protect Shaymin (wall)"
+                    # 第9弾: 非狙撃はシェイミを線より先に犠牲（線を守る）→ ヒトモシ4500 の上 5000。
+                    # 狙撃相手は壁のシェイミを温存し線を先に切る → シャンデラ3000 の下 2500。
+                    if CHA_ACTIVE_PRIORITY and not self._opp_bench_snipes(obs):
+                        score, reason = 5000, "第9弾: sacrifice Shaymin (protect line)"
+                    else:
+                        score, reason = 2500, "protect Shaymin (wall vs snipe)"
                 else:
                     score, reason = 1000, "promote other"
                 return self.default_score_promote(obs, opt, score, reason)   # R-08
@@ -625,6 +876,10 @@ class ChandelurePolicy(BasePolicy):
             # 5/5 でユキメノコ > マシマシラ（Star-mine ×4 + kidekikish ×1 のクロスピロット）。
             # Adrena-Brain はベンチからでも機能するため吊っても止まらない = 拘束価値なし
             score = 5000 + retreat_cost(card) * 200 - energy_count(card) * 300
+            # 第6弾: 攻撃できる駒を吊ると相手が得するだけ（前に出して殴られる）→ 強く忌避。
+            # 攻撃条件を満たさない駒（＝ホントの拘束先）を必ず優先する
+            if CHA_BOSS_SMART and self._can_attack_now(card):
+                score -= 4000
             if p["stadium_id"] == NEUTRAL_ZONE and is_ex(card):
                 score += 800   # NZ 稼働中の ex は完全に無力
             return score, "E-5: drag & trap target"
@@ -663,6 +918,12 @@ class ChandelurePolicy(BasePolicy):
             sc = 50 if (CHA_MARGIN or CHA_TAKE_ENERGY) else 1
             base = (100 - hc.get(cid, 0) * 25) * sc
             if cid == CHANDELURE:
+                # 第7弾b（ユーザー指示）: ふしぎなアメが手札 ∧ 場にヒトモシ = アメで即進化できる
+                # → 探索（ポケパッド等）はランプラーを飛ばしてシャンデラを最優先で持ってくる
+                # （ヒトモシ+アメ+シャンデラ = 1ターン完成。ランプラー経由の2ターン進化より速い）
+                if (CHA_PAD_BUILD and hc[RARE_CANDY] >= 1 and fc[LITWICK] >= 1
+                        and fc[CHANDELURE] + hc[CHANDELURE] == 0):
+                    return base + 130 * sc, "第7弾b: take Chandelure (Rare Candy ready)"
                 path = fc[LITWICK] + fc[LAMPENT] + hc[LITWICK] + hc[LAMPENT] >= 1
                 first = fc[CHANDELURE] + hc[CHANDELURE] == 0
                 return base + ((90 if first else 65) if path else 55) * sc, "div-C4/C9: take Chandelure"
@@ -697,6 +958,11 @@ class ChandelurePolicy(BasePolicy):
                     return base + 92 * sc, "div-C9: take Lampent (missing middle)"
                 return base + (45 if fc[LITWICK] >= 1 else 10) * sc, "take Lampent"
             if cid == SHAYMIN:
+                if (CHA_SHAYMIN_VS_SNIPE and fc[SHAYMIN] == 0
+                        and self._opp_bench_snipes(obs)):
+                    # 第5弾: 狙撃相手なら壁を engine 級で確保（ヒトモシ75/コンフィ70 の上・
+                    # 本命のシャンデラ90/ランプラー92/エンジン欠けコンフィ95 の下）
+                    return base + 78 * sc, "第5弾: take Shaymin (vs snipe)"
                 return base + (20 if fc[SHAYMIN] == 0 else -30) * sc, "take Shaymin"
             if cid == RARE_CANDY:
                 return base + (40 if fc[LITWICK] >= 1 and hc[CHANDELURE] >= 1 else 0) * sc, "take Candy"
@@ -707,15 +973,26 @@ class ChandelurePolicy(BasePolicy):
             if p["bench_free"] <= 0:
                 return -1, "bench full"
             if cid == COMFEY:
+                # 第7弾: 場のキュワワーは3体で十分（4体目はベンチ献上＋ライン枠を潰す）
+                if CHA_COMFEY_CAP and fc[COMFEY] >= COMFEY_FIELD_CAP:
+                    return -1, "第7弾: 3 Comfey is enough (no 4th)"
                 return 120 - fc[COMFEY] * 10, "div-C3: bench Comfey first"
             if cid == LITWICK:
                 return 70 - p["line_in_play"] * 15, "S-2: bench Litwick"
             if cid == SHAYMIN:
+                if (CHA_SHAYMIN_VS_SNIPE and fc[SHAYMIN] == 0
+                        and self._opp_bench_snipes(obs)):
+                    return 110, "第5弾: bench Shaymin (vs snipe)"   # コンフィ120の下・ヒトモシ70の上
                 return (60 if fc[SHAYMIN] == 0 else -30), "S-2: bench Shaymin"
             return 10, "bench other"
 
-        if ctx in (SelectContext.DISCARD, SelectContext.DISCARD_CARD_OR_ATTACHED_CARD):
+        if ctx == SelectContext.DISCARD:
+            # 第10弾: 手札を減らす（クセロシキ等）時は次ターン暇しない残し方（サポート最低1枚）
+            if CHA_DISCARD_KEEP:
+                return self._score_discard(obs, opt)
             return self.default_score_discard(obs, opt)   # R-13
+        if ctx == SelectContext.DISCARD_CARD_OR_ATTACHED_CARD:
+            return self.default_score_discard(obs, opt)   # R-13（付与エネ含む場面は従来通り）
 
         if ctx == SelectContext.TO_DECK:
             if cid in CHANDELURE_LINE:

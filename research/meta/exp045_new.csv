@@ -1,0 +1,8 @@
+agent,deck,archetype,share,games,wins,losses,draws,unfinished,winrate
+agents/chandelure_rb,decks/fleet/chandelure_top.csv,archaludon,14.2857,160,145,15,0,0,0.9062
+agents/chandelure_rb,decks/fleet/chandelure_top.csv,alakazam,14.2857,160,134,26,0,0,0.8375
+agents/chandelure_rb,decks/fleet/chandelure_top.csv,thwackey_festival,14.2857,160,144,16,0,0,0.9000
+agents/chandelure_rb,decks/fleet/chandelure_top.csv,crustle_prism,14.2857,160,155,5,0,0,0.9688
+agents/chandelure_rb,decks/fleet/chandelure_top.csv,meganium_ogerpon,14.2857,160,144,16,0,0,0.9000
+agents/chandelure_rb,decks/fleet/chandelure_top.csv,froslass_starmie,14.2857,160,44,116,0,0,0.2750
+agents/chandelure_rb,decks/fleet/chandelure_top.csv,marnie,14.2857,160,112,48,0,0,0.7000
