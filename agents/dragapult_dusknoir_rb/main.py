@@ -184,6 +184,24 @@ DUSK_GRIM = os.environ.get("DUSK_GRIM", "1") != "0"          # パッケージ�
 #   なので、マシマシラ狩りは 1:1 交換（しかも相手は4枚積み・こちらは2進化を1体消費）＝損。
 #   200+130=330 >= 320 が唯一の勝ち交換（+2 −1 = +1）なので、そこまでボマーを温存する。
 DUSK_GRIM_BOMB = os.environ.get("DUSK_GRIM_BOMB", "1") != "0"
+# B-2（2026-07-28）: ボムを「サイドの取引」として扱う。①合算はダイブ確定時のみ
+# ②サイド純増が正のときだけ撃つ。実測（dusknoir_bomb_diag.py）の空撃ち23%と
+# 収支ゼロ取引（1サイドの置物撃ち）への対処。
+DUSK_BOMB_LEDGER = os.environ.get("DUSK_BOMB_LEDGER", "0") != "0"
+# B-3（ユーザー 2026-07-28・B-2 の設計誤りの訂正）: **サイドレースは差ではなく着順**。
+# 「相手のサイドが1枚残りで勝とうが2枚残りで勝とうが、どちらも勝ち」なので、
+# 1対1交換それ自体は悪くない — 差を変えずに試合を短くするだけで、**盤面性能で
+# 勝っている側（＝ドラパルトが回っている側）には加速が有利に働く**。
+# B-2 の「純増が正でなければ撃たない」は、この加速の価値をゼロと見なしていた点で誤り。
+# 禁じるべきは交換比ではなく、**渡した1枚で相手が先に0へ到達する形**だけ。
+# ボム＋ダイブで2枚以上取れる形は当然もうけもの（既存の sort key が prize を優先する）。
+DUSK_BOMB_RACE = os.environ.get("DUSK_BOMB_RACE", "0") != "0"
+# ═══════ A-1: 攻撃探索（ユーザー指示 2026-07-28）═══════
+# 攻撃を**ルールベースでなく探索ベース**にする。ファントムダイブ＋カーズドボム（複数）
+# ＋アドレナブレイン＋ボスの指令の組合せで、**この手番に取れるサイドの最大値**を求め、
+# その手順をそのまま辿る（ダイブ到達オラクル D-2 と同じ「探索して執行」の型）。
+# 次ターン以降は考えない = 手番内に閉じるのでパターン数は数千で収まる。
+DUSK_ATK_SEARCH = os.environ.get("DUSK_ATK_SEARCH", "1") != "0"
 # G-2 対オーロンゲでは「危ない廃墟」を張らない（ユーザー懸念 2026-07-26）。
 #   廃墟は「非{D}のたねがベンチに出るたび2個」。相手のたねは マリィのベロバー={悪} で対象外、
 #   マシマシラ/ノコッチだけが食らう。一方こちらは ドラメシヤ(70)/ヨマワル(60)/スボミー(30) が
@@ -349,12 +367,12 @@ class DragapultDusknoirPolicy(BasePolicy):
         self.plan_b = {"attack": -1, "counter": [], "prizes": 0}
         self.flags = {"can_switch": False, "can_attack": False, "can_main_attack": False}
         self.use_support = 0
-        self._prize_ids = []
         self._log_buf = []
         self._pre_logs = []
         self._deck_cache = None
         self.spread_plan = None
         self.bomb_plan = None       # ルール1: カーズドボムの計画（MAIN 毎に再計算）
+        self.atk_plan = None        # A-1: 攻撃探索の結果（MAIN 毎に再計算）
         self._attach_tag = None     # _attach_score の特殊分岐ラベル（ログ用）
         self.stuck = False          # ルール10: 詰まり判定（MAIN 毎に再計算）
         # ダイブ「持続 vs 損切り」の決定は【ターン頭に一度だけ】確定し、その番は固定する
@@ -374,11 +392,11 @@ class DragapultDusknoirPolicy(BasePolicy):
         self.plan_b = {"attack": -1, "counter": [], "prizes": 0}
         self.flags = {"can_switch": False, "can_attack": False, "can_main_attack": False}
         self.use_support = 0
-        self._prize_ids = []
         self._log_buf = []
         self._pre_logs = []
         self.spread_plan = None
         self.bomb_plan = None
+        self.atk_plan = None
         self.stuck = False
         self._dive_plan = None
         self._dive_plan_turn = -1
@@ -547,42 +565,21 @@ class DragapultDusknoirPolicy(BasePolicy):
                 self._deck_cache = list(DECK_FALLBACK)
         return self._deck_cache
 
-    def _subtract_visible(self, counts, serials, card, my_index):
-        if card is None:
-            return
-        if isinstance(card, Pokemon) or card.playerIndex == my_index:
-            if card.serial not in serials:
-                counts[card.id] -= 1
-                serials.add(card.serial)
-        if isinstance(card, Pokemon):
-            for c in (card.energyCards or []):
-                self._subtract_visible(counts, serials, c, my_index)
-            for c in (card.tools or []):
-                self._subtract_visible(counts, serials, c, my_index)
-            for c in (card.preEvolution or []):
-                self._subtract_visible(counts, serials, c, my_index)
-
-    def _visible_counts(self, obs):
-        counts = defaultdict(int)
-        serials = set()
-        for cid in self._deck_list():
-            counts[cid] += 1
-        yi = obs.current.yourIndex
-        ms = my_state(obs)
-        for zone in (ms.hand or []), (ms.discard or []), ms.bench, ms.active:
-            for card in zone:
-                self._subtract_visible(counts, serials, card, yi)
-        for card in obs.current.stadium:
-            self._subtract_visible(counts, serials, card, yi)
-        if obs.current.looking is not None:
-            for card in obs.current.looking:
-                self._subtract_visible(counts, serials, card, yi)
-        self._subtract_visible(counts, serials, obs.select.effect, yi)
-        return counts
+    # ※ 自山カウンティングは基盤 R-32（policy_base）へ一本化した（2026-07-28）。
+    #    旧 `_visible_counts` / `_subtract_visible` / `_prize_ids` は削除済み。
+    #    旧実装には2つのバグがあり、**ダイブ確率・不可能判定がその上に載っていた**:
+    #      ①全山ビューの確認が無く、部分公開でも「見えなかった山」をサイド扱いし得た
+    #      ②サイドを取られても無効化せず、手札側と二重に減算して山を過小評価した
+    #        （＝生きている線を『ダイブ不可能』と誤判定して損切りする向きの誤り）
 
     # ═══════════════ ターン分析 ═══════════════
 
     def choose(self, obs):
+        # R-32 の自己回復（2026-07-28）: ハーネスが my_deck_list を注入しない場合でも
+        # 本機は CSV/DUSK_DECK_CSV→DECK_FALLBACK で自リストを確定できる。
+        if not self.my_deck_list:
+            self.my_deck_list = list(self._deck_list())
+        self.update_deck_knowledge(obs)  # _analyze が deck_min/deck_max を読む
         self._latch_grimmsnarl(obs)     # _analyze(_plan_bomb) より先に認識を確定させる
         self.p = self._analyze(obs)
         return super().choose(obs)
@@ -592,16 +589,18 @@ class DragapultDusknoirPolicy(BasePolicy):
         osn = opp_state(obs)
         yi = obs.current.yourIndex
 
-        # R-18: 山札閲覧（select.deck）が来たらサイド集合を確定
-        if obs.select.deck is not None:
-            counts = self._visible_counts(obs)
-            for card in obs.select.deck:
-                if card is not None:
-                    counts[card.id] -= 1
-            self._prize_ids = [cid for cid, n in counts.items() for _ in range(max(0, n))]
-        deck_counts = self._visible_counts(obs)
-        for cid in self._prize_ids:
-            deck_counts[cid] -= 1
+        # R-32（基盤の自山カウンティング）に一本化。**上限と下限を分離**する:
+        # 見えていない札は山とサイドのどちらにもあり得るので、「確定できる」の主張は
+        # 下限（deck_min）、「不可能」の判定は上限（deck_counts=deck_max）を見なければ
+        # 嘘になる。旧実装は上限だけで「ダイブ確定」を語っていた。
+        deck_counts = defaultdict(int)
+        deck_min = defaultdict(int)
+        for cid in set(self._deck_list()):
+            hi = self.deck_max(cid)
+            if hi is None:
+                break                       # 基盤がまだリスト未取得（初手のみ）
+            deck_counts[cid] = hi
+            deck_min[cid] = self.deck_min(cid) or 0
 
         fc = defaultdict(int)
         hc = defaultdict(int)
@@ -671,7 +670,9 @@ class DragapultDusknoirPolicy(BasePolicy):
                              if c is not None and c.id in BASIC_ENERGIES)
 
         p = {
+            # deck_counts = 上限（山にあるかもしれない） / deck_min = 下限（確実に山にある）
             "fc": fc, "hc": hc, "dc": dc, "deck_counts": deck_counts,
+            "deck_min": deck_min,
             "active_id": active_id, "bench_attacker": bench_attacker,
             "can_evolve_dreepy": can_evolve_dreepy,
             "evolve_dreepy_count": evolve_dreepy_count,
@@ -694,14 +695,36 @@ class DragapultDusknoirPolicy(BasePolicy):
         # S-7: ばら撒き配分の探索計画（DAMAGE_COUNTER_ANY の連続選択中はキャッシュ）
         if self.USE_SPREAD_SEARCH and obs.select.context == SelectContext.DAMAGE_COUNTER_ANY:
             if self.spread_plan is None:
-                self.spread_plan = self._plan_spread(obs)
+                # A-1/A-4: 攻撃探索が有効なら配分は探索プラン（取り切り0 + 押し込み目標）
+                # をそのまま辿る。形式は同じ {coord: 目標残HP} なので実行機構は共通。
+                ap = self.atk_plan if DUSK_ATK_SEARCH else None
+                self.spread_plan = (dict(ap["spread"])
+                                    if ap is not None and ap.get("spread")
+                                    else self._plan_spread(obs))
         else:
             self.spread_plan = None
 
         # MAIN でだけ: 配分プラン（DFS）+ ボム計画 + 詰まり判定 + 使うサポートの択一
         if obs.select.context == SelectContext.MAIN:
             self._main_option_proc(obs, p)
+            # A-1: 攻撃探索は配分プラン(_main_option_proc)の後・ボム計画の前に回す。
+            # ボム計画とばら撒き配分の両方がこの結果を参照する。
+            self.atk_plan = self._attack_search(obs) if DUSK_ATK_SEARCH else None
             self.bomb_plan = self._plan_bomb(obs)   # flags 更新後に計算（②③は can_main_attack 前提）
+            if self.atk_plan is not None:
+                # 探索が吊り出し/正面/取り切り枚数を決めたら、既存の配分プランに載せ替える
+                # （R-16 のボス採用判断・R-07 のリーサル昇格がこの構造を読むため）。
+                # counter は**取り切り座標のみ**（押し込み座標を混ぜるとリーサル判定が
+                # 過大になる）。front が無い番は -1 = 攻撃計画なし。
+                ap = self.atk_plan
+                kill_coords = [c for c, tgt in ap["spread"].items() if tgt == 0]
+                atk_a = ap["boss"] if ap["boss"] is not None else (
+                    ap["front"] if ap["front"] is not None else -1)
+                self.plan_a = {"attack": atk_a, "counter": kill_coords,
+                               "prizes": ap["take"]}
+                self.plan_b = {"attack": (ap["front"]
+                                          if ap["front"] is not None else -1),
+                               "counter": kill_coords, "prizes": ap["take"]}
             # ルール10（2026-07-14 ユーザー）: 詰まり判定 —
             # 「エネルギーが張れない または 進化できない」が成立する序盤の番は
             # ハイパーボール→ニャース（Last-Ditch Catch）→リーリエで前へ進む。
@@ -1014,13 +1037,325 @@ class DragapultDusknoirPolicy(BasePolicy):
 
     # ═══════════════ ルール1: カーズドボム計画 ═══════════════
 
+    # ═══════════ A-1: 攻撃探索（手番内のサイド最大化） ═══════════
+
+    def _atk_targets(self, obs, boss_pull):
+        """boss_pull（None or ベンチ座標）を反映した相手盤面 (active, bench)。
+
+        各要素 = {"coord","id","hp","prize","body","cnt","imm"}。coord は**元の座標**
+        （0=バトル場, 1..=ベンチ）で、実行時の指定に使う。
+          body = 本体特性でダメカン配置を防ぐ（ボム/アドレナも通らない）
+          cnt  = ワザ効果のダメカン配置を防ぐ（ばら撒きが通らない。ミスト等）
+          imm  = ex のワザダメージを無効化（正面200が通らない）"""
+        osn = opp_state(obs)
+        cards = ([osn.active[0]] if osn.active else [None]) + list(osn.bench)
+
+        def mk(coord, pk):
+            return {"coord": coord, "id": pk.id, "hp": pk.hp,
+                    "prize": self._prize_count(pk, False),
+                    "body": _counter_blocked_by_body(pk),
+                    "cnt": _no_damage_counter(pk),
+                    "imm": pk.id in NO_DAMAGE_DEX}
+
+        act, bench = None, []
+        for i, pk in enumerate(cards):
+            if pk is None:
+                continue
+            t = mk(i, pk)
+            if boss_pull is not None and i == boss_pull:
+                act = t
+            elif i == 0 and boss_pull is not None:
+                bench.append(t)          # 吊り出しで元バトル場はベンチへ下がる
+            elif i == 0:
+                act = t
+            else:
+                bench.append(t)
+        return act, bench
+
+    def _atk_resources(self, obs):
+        """この手番に使える打点資源。(ボム打点list, アドレナ30, 正面打点, ばら撒き, ボス可否)"""
+        ms = my_state(obs)
+        bombers = []
+        for pk in all_my_pokemon(obs):
+            if pk is None:
+                continue
+            if pk.id == DUSKNOIR:
+                bombers.append(130)
+            elif pk.id == DUSCLOPS:
+                bombers.append(50)
+        bombers.sort(reverse=True)
+        munki = 0
+        has_dmg = any(damage_on(pk) >= 10 for pk in all_my_pokemon(obs) if pk)
+        if has_dmg:
+            for pk in all_my_pokemon(obs):
+                if pk is None or pk.id != MUNKIDORI:
+                    continue
+                if any(c.id == DARK_ENERGY for c in (pk.energyCards or []) if c):
+                    munki = 30
+                    break
+        front, spread = 0, 0
+        sel = obs.select
+        if sel is not None and sel.context == SelectContext.MAIN:
+            for o in (sel.option or []):
+                if o.type != OptionType.ATTACK:
+                    continue
+                if o.attackId == ATK_PHANTOM_DIVE:
+                    front, spread = 200, 60
+                    break
+                if o.attackId == ATK_JET_HEADBUTT and front < 70:
+                    front = 70
+        boss_ok = (not obs.current.supporterPlayed
+                   and any(c is not None and c.id == BOSS for c in (ms.hand or [])))
+        return bombers, munki, front, spread, boss_ok
+
+    @staticmethod
+    def _spread_best(bench, dealt, spread):
+        """ばら撒き（10刻み）をベンチへ配ってサイドを最大化する。
+
+        ベンチは最大5体なので部分集合を全列挙（32通り）。
+        戻り値 (取れたサイド, {coord: 使ったダメージ})。"""
+        cand = [t for t in bench
+                if not t["cnt"] and dealt.get(t["coord"], 0) < t["hp"]]
+        budget = spread // 10
+        best_prize, best_use, best_need = 0, {}, 99
+        for mask in range(1 << len(cand)):
+            need, prize, use, ok = 0, 0, {}, True
+            for k, t in enumerate(cand):
+                if not (mask >> k) & 1:
+                    continue
+                rem = t["hp"] - dealt.get(t["coord"], 0)
+                c = (rem + 9) // 10
+                need += c
+                if need > budget:
+                    ok = False
+                    break
+                prize += t["prize"]
+                use[t["coord"]] = c * 10
+            if ok and (prize > best_prize or (prize == best_prize and need < best_need)):
+                best_prize, best_use, best_need = prize, use, need
+        return best_prize, best_use
+
+    # ═══════════ A-4: 余りダメージの押し込み（ユーザー仕様 2026-07-28） ═══════════
+    #
+    # 探索（A-1）が**サイドに使わなかった**余り = ばら撒きの残りとアドレナブレインは、
+    # ルールで「押し込み」に配る。押し込みライン = 次ターンに仕留める手段への対応:
+    #   60  残し → ばら撒き60だけで取れる（ボスも2進化も不要 = 最安）
+    #   190 残し → カーズドボム130 + ばら撒き60（2進化の手間）
+    #   200 残し → 正面200（ボスで吊り出す必要 = 最高コスト）
+    # 優先は 60 > 190 > 200【ユーザー: 2進化の手間よりボス吊り出しのほうがコスト】。
+    # **進化先が存在する的は優先度を下げる**（押し込んでも進化でHPが伸びて無効化されうる）。
+    # 完成できる押し込みが無ければ、最有力の的へ集中して蓄積する（分散させない）。
+
+    PUSH_LINES = ((60, 3), (190, 2), (200, 1))   # (目標残HP, 価値)
+
+    def _push_evolvable(self, cid):
+        """この的にまだ進化先が存在するか（= 押し込みが進化で無効化されうるか）。"""
+        data = CARD_DB.get(cid)
+        if data is None or getattr(data, "stage2", False):
+            return False
+        return bool(_children_map().get(getattr(data, "name", None)))
+
+    def _push_pick(self, cands, budget):
+        """押し込み先を1体選ぶ。(的, 注ぐダメージ) or (None, 0)。
+
+        cands = [(target_dict, 残HP)]。完成できる押し込み（残HP→ライン以下）を
+        ライン価値 → 進化先なし → サイド → 必要量最小 で選ぶ。完成が無ければ
+        最有力の的へ予算全量を蓄積（旧 _plan_spread の布石B と同じ思想）。"""
+        best = None
+        for t, r in cands:
+            no_evo = 0 if self._push_evolvable(t["id"]) else 1
+            for line, value in self.PUSH_LINES:
+                if r <= line:
+                    continue
+                need = r - line
+                if need > budget:
+                    continue
+                key = (1, value, no_evo, t["prize"], -need)
+                if best is None or key > best[0]:
+                    best = (key, t, need)
+        if best is not None:
+            return best[1], best[2]
+        for t, r in cands:
+            no_evo = 0 if self._push_evolvable(t["id"]) else 1
+            key = (0, no_evo, t["prize"], r)
+            if best is None or key > best[0]:
+                best = (key, t, budget)
+        return (best[1], best[2]) if best else (None, 0)
+
+    def _push_plan(self, act, bench, dealt, budget10, want_munki):
+        """余りの配分。(spread_push {coord: 目標残HP}, munki_coord or None)。
+
+        budget10 = ばら撒きの余り個数（10点単位）。want_munki = アドレナ30 を配るか。
+        ばら撒きはベンチのみ（cnt ガード）、アドレナは正面も可（body ガードのみ）。"""
+        spread_push = {}
+        munki_coord = None
+
+        def residual(t):
+            r = t["hp"] - dealt.get(t["coord"], 0)
+            if t["coord"] in spread_push:
+                r = spread_push[t["coord"]]      # ばら撒き押し込み後の残
+            return r
+
+        if budget10 > 0:
+            cands = [(t, residual(t)) for t in bench
+                     if not t["cnt"] and residual(t) > 0]
+            t, amount = self._push_pick(cands, budget10 * 10)
+            if t is not None and amount > 0:
+                spread_push[t["coord"]] = max(0, residual(t) - amount)
+        if want_munki:
+            pool = ([act] if act is not None else []) + bench
+            cands = [(t, residual(t)) for t in pool
+                     if not t["body"] and residual(t) > 0]
+            t, amount = self._push_pick(cands, 30)
+            if t is not None and amount > 0:
+                munki_coord = t["coord"]
+        return spread_push, munki_coord
+
+    def _attack_search(self, obs):
+        """**この手番に取れるサイドの最大値**とその手順を探索する（A-1）。
+
+        ルールで「ボムはKOが取れる時だけ」「ばら撒きはHP最小から」と個別に決める代わりに、
+        使える打点資源（正面/ばら撒き/ボム複数/アドレナ）と吊り出しの組合せを全部並べ、
+        **サイド枚数**で選ぶ。次ターン以降は見ない = 手番内に閉じるので組合せは数千。
+
+        着順の規律（B-3）はここにも入れる: 自分が取り切れないのに、献上で相手を
+        残り1枚にする形は選ばない（相手のほうが先に手番が回るため）。
+
+        【A-2 契約・ユーザー 2026-07-28】ボムは**サイド枚数が変化するときだけ**使う。
+        これは選択キー (take, -give, -waste) の辞書式比較で構造的に保証される:
+        ボム無し案は常に列挙されるので、あるボムを外しても take が同じなら
+        献上の少ない無し案が必ず勝つ = 限界寄与ゼロのボムは選ばれない。"""
+        osn = opp_state(obs)
+        if not osn.active or osn.active[0] is None:
+            return None
+        bombers, munki, front, spread, boss_ok = self._atk_resources(obs)
+        if not bombers and front <= 0:
+            return None
+        bench_idx = [i + 1 for i, pk in enumerate(osn.bench) if pk is not None]
+        boss_opts = [None] + (bench_idx if boss_ok else [])
+        my_left = len(my_state(obs).prize)
+        opp_left = len(osn.prize)
+        best = None
+
+        for boss in boss_opts:
+            act, bench = self._atk_targets(obs, boss)
+            if act is None:
+                continue
+            allt = [act] + bench
+            coords = [t["coord"] for t in allt]
+            byc = {t["coord"]: t for t in allt}
+            assigns = [()]
+            for _ in bombers:
+                assigns = [a + (c,) for a in assigns for c in ([None] + coords)]
+            for asg in assigns:
+                for mk in ([None] + coords if munki else [None]):
+                    dealt = {}
+                    used_bombs = []
+                    for dmg, c in zip(bombers, asg):
+                        if c is None or byc[c]["body"]:
+                            continue          # 本体特性でダメカンが置けない
+                        dealt[c] = dealt.get(c, 0) + dmg
+                        used_bombs.append((dmg, c))
+                    if mk is not None and not byc[mk]["body"]:
+                        dealt[mk] = dealt.get(mk, 0) + munki
+                    fc = None
+                    if front > 0:
+                        fc = act["coord"]
+                        if not act["imm"]:
+                            dealt[fc] = dealt.get(fc, 0) + front
+                    take = sum(t["prize"] for t in allt
+                               if dealt.get(t["coord"], 0) >= t["hp"])
+                    sp_prize, sp_use = ((0, {}) if not (spread > 0 and front > 0)
+                                        else self._spread_best(bench, dealt, spread))
+                    take += sp_prize
+                    give = len(used_bombs)
+                    if give and opp_left - give <= 0:
+                        continue               # 献上で相手が取り切る = 選ばない
+                    if take < my_left and give and opp_left - give <= 1:
+                        continue               # 着順を渡す形（B-3）
+                    kills = [t["coord"] for t in allt
+                             if dealt.get(t["coord"], 0) >= t["hp"]]
+                    kills += [c for c in sp_use]
+                    waste = sum(max(0, dealt.get(t["coord"], 0) - t["hp"])
+                                for t in allt if dealt.get(t["coord"], 0) >= t["hp"])
+                    key = (take, -give, -waste)
+                    if best is None or key > best["key"]:
+                        best = {"key": key, "take": take, "give": give,
+                                "net": take - give, "boss": boss,
+                                "bombs": used_bombs, "munki": mk,
+                                "front": fc, "spread": sp_use, "kills": kills}
+        if best is None or best["take"] <= 0:
+            # サイドが取れない番でも、資源（ばら撒き/アドレナ）があれば押し込みだけ行う
+            if front <= 0 and not munki:
+                return None
+            best = {"key": (0, 0, 0), "take": 0, "give": 0, "net": 0,
+                    "boss": None, "bombs": [], "munki": None,
+                    "front": (0 if front > 0 else None), "spread": {}, "kills": []}
+        # ── A-4: 余りダメージの押し込み ──
+        act, bench = self._atk_targets(obs, best["boss"])
+        dealt = {}
+        for dmg, c in best["bombs"]:
+            dealt[c] = dealt.get(c, 0) + dmg
+        if best["front"] is not None and front > 0 and act is not None \
+                and not act["imm"]:
+            dealt[act["coord"]] = dealt.get(act["coord"], 0) + front
+        # 取り切りに使うばら撒き（目標0）を dealt に反映し、余りを数える
+        spread_goal = {}
+        used10 = 0
+        for c, v in best["spread"].items():
+            spread_goal[c] = 0
+            dealt[c] = dealt.get(c, 0) + v
+            used10 += v // 10
+        leftover10 = (spread // 10 - used10) if (front > 0 and spread > 0) else 0
+        # A-3: マシマシラは条件が満たされるなら**常用**（自壊コストが無い = 撃ち得。
+        # 探索でサイドに寄与するならその的、しないなら押し込みの的へ）
+        if best["munki"] is not None and munki:
+            mc = best["munki"]
+            dealt[mc] = dealt.get(mc, 0) + munki
+        push, munki_push = self._push_plan(
+            act, bench, dealt, leftover10,
+            want_munki=(munki > 0 and best["munki"] is None))
+        spread_goal.update(push)
+        if best["munki"] is None and munki_push is not None:
+            best["munki"] = munki_push
+        best["spread"] = spread_goal        # {coord: 目標残HP}（0 = 取り切り）
+        return best
+
     def _plan_bomb(self, obs):
         """爆発は「KO を取り切れる時だけ」【ハード】。
         ①130(50)単体 / ②正面200と合算（アクティブ） / ③ばら撒き60と合算（ベンチ）。
         自壊 = 相手にサイド1を渡すため、相手残りサイド1以下では絶対に撃たない【ハード】。
         サマヨール(50)は「基本は2進化を目指す」に従い、①でサイド2以上を取れる時だけ。
-        戻り値: {"bomber", "dmg", "coord", "mode", "prize", "remain"} or None。"""
+        戻り値: {"bomber", "dmg", "coord", "mode", "prize", "remain"} or None。
+
+        【B-2 2026-07-28】ボムは打点でなく**サイドの取引**（自壊で1枚献上）。よって
+        評価軸は収支ひとつ。実測で2つの穴が出た（scripts/dusknoir_bomb_diag.py）:
+          ①**can-vs-did**: mode2/3 は「ダイブが撃てる（can_main_attack）」を前提に
+            合算するが、撃つことは保証されていない。空撃ち 6/6 が全て
+            「mode2/3 なのにダイブ不発」だった = ダイブ側で潰したのと同じ穴。
+            → **ダイブが確定している番だけ**合算を許す（`_dive_secured`）。
+          ②**収支ゼロの取引**: 1サイドの置物（Duraludon 0.42回/試合・Relicanth 等）を
+            落としても献上1枚と相殺で純増ゼロ、しかも3枚投資した2進化を失う。
+            → **純増（相手サイド - 1）が正でないと撃たない**。リーサル成立時と
+            「そのターンで勝てる」場合だけ例外（`_bomb_lethal_now` が別途昇格させる）。"""
         osn = opp_state(obs)
+        # A-1: 攻撃探索が有効なら、ボムの採否と的は探索結果から引く（ルールで個別に
+        # 決めるのをやめる）。探索は「この手番に取れるサイド最大」で選んでいるので、
+        # ボム単体KO/正面合算/ばら撒き合算という mode の区別自体が不要になる。
+        if DUSK_ATK_SEARCH:
+            ap = self.atk_plan
+            if not ap or not ap.get("bombs"):
+                return None
+            dmg, coord = ap["bombs"][0]
+            tgt = None
+            cards = ([osn.active[0]] if osn.active else [None]) + list(osn.bench)
+            if coord < len(cards) and cards[coord] is not None:
+                tgt = cards[coord]
+            return {"key": (1, 0, 0, 0),
+                    "bomber": DUSKNOIR if dmg >= 130 else DUSCLOPS,
+                    "dmg": dmg, "coord": coord, "mode": 1,
+                    "prize": self._prize_count(tgt, False) if tgt else 1,
+                    "remain": tgt.hp if tgt else 0}
         if len(osn.prize) <= 1:
             return None
         bombers = {pk.id for pk in all_my_pokemon(obs)} & DUSKNOIR_LINE
@@ -1031,7 +1366,11 @@ class DragapultDusknoirPolicy(BasePolicy):
         else:
             return None
         cards = ([osn.active[0]] if osn.active else [None]) + list(osn.bench)
+        # B-2①: 合算は「ダイブが**確定**している番」だけ許す。can_main_attack は
+        # 「撃てる」であって「撃つ」ではない（実測の空撃ちは全てこの取り違え）。
         can_dive = self.flags.get("can_main_attack", False)
+        dive_now = can_dive if not DUSK_BOMB_LEDGER else (
+            can_dive and self._dive_committed(obs))
         best = None
         grim_only = self.vs_grimmsnarl() and DUSK_GRIM_BOMB
         for i, pk in enumerate(cards):
@@ -1045,14 +1384,22 @@ class DragapultDusknoirPolicy(BasePolicy):
             prize = self._prize_count(pk, False)
             if remain <= dmg:
                 mode = 1
-            elif i == 0 and can_dive and pk.id not in NO_DAMAGE_DEX and remain <= 200 + dmg:
+            elif (i == 0 and dive_now and pk.id not in NO_DAMAGE_DEX
+                    and remain <= 200 + dmg and self._dive_hits(i)):
                 mode = 2   # ボム→正面200 で取り切り（正面はダメージ=ミスト無関係）
-            elif (i > 0 and can_dive and remain <= 60 + dmg
-                    and not _no_damage_counter(pk)):
+            elif (i > 0 and dive_now and remain <= 60 + dmg
+                    and not _no_damage_counter(pk) and self._spread_hits(i)):
                 mode = 3   # ボム→ばら撒き60 で取り切り（ばら撒き側はミストに阻まれる）
             else:
                 continue
             if bomber == DUSCLOPS and not (mode == 1 and prize >= 2):
+                continue
+            # B-2②（既定OFF・設計誤りとして温存）: サイド純増が正でなければ撃たない。
+            # → 加速の価値を無視していた。B-3 が正しい形（下記）。
+            if DUSK_BOMB_LEDGER and prize - 1 <= 0 and not self._bomb_wins_now(obs, prize):
+                continue
+            # B-3: 着順で判定する。1対1交換は許すが、レースを渡す形だけ禁じる。
+            if DUSK_BOMB_RACE and not self._bomb_race_ok(obs, prize):
                 continue
             waste = dmg - remain if mode == 1 else 0
             key = (1 if mode == 1 else 0, prize, -waste, -remain)
@@ -1060,6 +1407,69 @@ class DragapultDusknoirPolicy(BasePolicy):
                 best = {"key": key, "bomber": bomber, "dmg": dmg, "coord": i,
                         "mode": mode, "prize": prize, "remain": remain}
         return best
+
+    def _bomb_race_ok(self, obs, prize):
+        """このボムがレース（着順）を渡さないか（B-3）。
+
+        サイドレースは最後の1枚が取られるまで負けではない。よって差の増減ではなく
+        **どちらが先に0へ到達するか**だけを見る:
+          ① このKOで自分が取り切る → 常に撃つ（勝ち）
+          ② 献上後に相手の残りが1枚になる → **撃たない**。相手は自分より先に手番が
+             回るので、こちらのポケモン1体をKOするだけで負ける。
+          ③ それ以外（相手の残り2枚以上）→ 1対1交換も許可。差は変わらず試合が短くなる
+             だけで、盤面性能が上なら加速は有利。
+        ※ ボム＋ダイブで複数取れる形は prize がそのまま大きくなるので①に寄る。"""
+        my_left = len(my_state(obs).prize) - prize
+        opp_left = len(opp_state(obs).prize) - 1
+        if my_left <= 0:
+            return True                     # ①
+        return opp_left >= 2                # ②③
+
+    def _dive_hits(self, coord):
+        """配分プランの正面200が**この的に**飛ぶか（B-2①の核心）。
+
+        実測（dusknoir_bomb_diag.py）: mode2 の空撃ちは全て
+        「ボムは相手の現バトル場を狙ったのに、ダイブはボスで吊った別の的へ飛んだ」形だった。
+        爆撃済みの個体はベンチへ下がって生き残り、こちらはサイドを1枚献上しただけになる。
+        よって『ダイブが撃てる』だけでなく『**その的に当たる**』ことを要求する。"""
+        if not DUSK_BOMB_LEDGER:
+            return True
+        plan = self.plan_a or {}
+        return plan.get("attack") == coord
+
+    def _spread_hits(self, coord):
+        """ばら撒き60が**この的に**割り当たるか（mode3 の同型ガード）。"""
+        if not DUSK_BOMB_LEDGER:
+            return True
+        plan = self.plan_b or {}
+        return coord in (plan.get("counter") or [])
+
+    def _bomb_wins_now(self, obs, prize):
+        """このボムのKOだけで自分の残りサイドを取り切れるか（純増ゼロでも許す例外）。"""
+        return prize >= len(my_state(obs).prize)
+
+    def _dive_committed(self, obs):
+        """この番ファントムダイブを**実際に撃つ**と言い切れるか（B-2①）。
+
+        can_main_attack（撃てる）との差は「他に選ぶ理由が無い」ことの確認:
+        バトル場がドラパルト ex で必要色が乗っており、攻撃を妨げる状態異常が無く、
+        ダイブが提示されている（＝この番の攻撃はダイブになる）。
+        エンジンの選択肢を真値にするので、鉱山などのコスト増も自動的に反映される。"""
+        ms = my_state(obs)
+        if ms.asleep or ms.paralyzed:
+            return False
+        active = active_pokemon(obs)
+        if active is None or active.id != DRAGAPULT_EX:
+            return False
+        sel = obs.select
+        if sel is not None and sel.context == SelectContext.MAIN:
+            opts = sel.option or []
+            has_dive = any(o.type == OptionType.ATTACK and o.attackId == ATK_PHANTOM_DIVE
+                           for o in opts)
+            if any(o.type == OptionType.ATTACK for o in opts):
+                return has_dive        # 攻撃可能なら「ダイブが選択肢にあるか」が真値
+        types = {c.id for c in (active.energyCards or []) if c is not None}
+        return FIRE_ENERGY in types and PSYCHIC_ENERGY in types
 
     def _bomb_lethal_now(self, obs):
         """ボムを絡めた取り切り（ボム単体 or ボム+配分プラン）。成立ならボム特性を
@@ -1198,7 +1608,13 @@ class DragapultDusknoirPolicy(BasePolicy):
                 return 2600, f"B-1: Cursed Blast mode{bp['mode']}"
             if cid == MUNKIDORI:
                 # E-6: アドレナブレイン。自分の場にダメカンがある時だけ（回復+削り）。
-                # 順序は攻撃直前帯（marnie div-14 準拠）
+                # 順序は攻撃直前帯（marnie div-14 準拠）。
+                # A-3: 攻撃探索が有効なら「条件成立で常用」= 探索プランに的があるとき使う
+                # （自壊コストが無いので撃ち得。的はサイド寄与 or A-4 の押し込み先）
+                if DUSK_ATK_SEARCH and self.atk_plan is not None:
+                    if self.atk_plan.get("munki") is not None:
+                        return 2500, "E-6/A-3: Adrena-Brain (plan target)"
+                    return -1, "E-6: save Adrena-Brain (no plan target)"
                 if p["own_damage"]:
                     return 2500, "E-6: Adrena-Brain (move counters)"
                 return -1, "E-6: save Adrena-Brain (no damage)"
@@ -1612,7 +2028,10 @@ class DragapultDusknoirPolicy(BasePolicy):
             return True
         ms = my_state(obs)
         hand = [c.id for c in (ms.hand or []) if c is not None]
-        deck = (self.p or {}).get("deck_counts") or {}
+        # 【R-32 適用 2026-07-28】「山にある」は **deck_min（確実に山にある下限）**。
+        # 従来は上限（山＋サイド）で見ていたため、**サイド落ちした色を『確定で取れる』と
+        # 主張していた**。サイド確定後は下限＝上限になり判定は本来の強さに戻る。
+        deck = (self.p or {}).get("deck_min") or {}
         attach_left = not obs.current.energyAttached
         crispin_ready = (not obs.current.supporterPlayed) and CRISPIN in hand
         if len(need) == 1:
@@ -1851,6 +2270,9 @@ class DragapultDusknoirPolicy(BasePolicy):
         if active is None or active.id not in (DRAGAPULT_EX, DRAKLOAK):
             return False
         p = self.p
+        # 【R-32】こちらは「不可能と**証明**できるか」を問うので **deck_counts（上限）**が
+        # 正しい（上限が0のときだけ『どこからも取れない』が確定する）。確定側の
+        # `_dive_now_after_evolve` が下限を使うのと対になっている。
         hc, deck, dc = p["hc"], p["deck_counts"], p["dc"]
         # トラッシュの基本エネを使える札（夜のタンカ or Rosa）が手札か山にあるか
         recov_energy = (hc[NIGHT_STRETCHER] + deck[NIGHT_STRETCHER]
@@ -2298,6 +2720,12 @@ class DragapultDusknoirPolicy(BasePolicy):
             return 0, "adrena target none"
         if _counter_blocked_by_body(card):
             return -1, "E-6: body-ability guard"
+        # A-3/A-4: 攻撃探索の的（サイド寄与 or 押し込み先）に固定
+        if DUSK_ATK_SEARCH and self.atk_plan is not None \
+                and self.atk_plan.get("munki") is not None:
+            coord = 0 if opt.area == AreaType.ACTIVE else (opt.index or 0) + 1
+            if coord == self.atk_plan["munki"]:
+                return 500000, "E-6/A-4: adrena plan target"
         hp = getattr(card, "hp", 999)
         if hp <= 30:
             return 15000 + (500 - hp), "E-6: counter-move KO"

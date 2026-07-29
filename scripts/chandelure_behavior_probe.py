@@ -157,6 +157,34 @@ def probe_game(payload, alog):
                 m["sup_slot_idle"] += 1
                 if actionable:
                     m["sup_slot_idle_bad"] += 1
+        # [調査] 第16弾の使用条件（ベンチにキュワワー無し or ライン<2）を満たすのに
+        # ポフィンを握ったままターンを終えた回数と、その原因の内訳
+        field0 = [pk for pk in (me["active"] + me["bench"]) if pk]
+        bench_ids0 = [pk["id"] for pk in me["bench"] if pk]
+        line0 = sum(1 for pk in field0 if pk["id"] in (LITWICK, LAMPENT, CHAND))
+        comfey0 = sum(1 for pk in field0 if pk["id"] == COMFEY)
+        bench_free0 = 5 - len(bench_ids0)
+        should_poffin = (POFFIN in hand0 and bench_free0 > 0
+                         and (COMFEY not in bench_ids0 or line0 < 2))
+        if should_poffin:
+            m["poffin_due"] += 1
+            played = any(POFFIN in sel_ids(r) and any("play" in s for s in r["selected"])
+                         for r, _ in recs)
+            if not played:
+                m["poffin_missed"] += 1
+                my_deck0 = me["deckCount"]
+                opp_deck0 = cur0["players"][1]["deckCount"]
+                chand_in_play = any(pk["id"] == CHAND for pk in field0)
+                fueled_comfey = any(pk["id"] == COMFEY and energy_n(pk) >= 1
+                                    for pk in field0)
+                if my_deck0 <= 13 and opp_deck0 <= 10:
+                    m["poffin_missed_lo"] += 1
+                elif comfey0 >= 3 and line0 >= 3:
+                    m["poffin_missed_saturated"] += 1
+                elif chand_in_play and fueled_comfey and comfey0 >= 2:
+                    m["poffin_missed_divc2"] += 1     # 交戦期 div-C2 温存の疑い
+                else:
+                    m["poffin_missed_other"] += 1
         # [第23弾③] ミルできない番（前が燃料付きキュワワーでない）に妨害を優先した
         act0 = me["active"][0] if me["active"] else None
         can_mill = (act0 is not None and act0["id"] == COMFEY
@@ -257,6 +285,10 @@ def main():
     print(f"[第23弾] 山厚(≥12)でのリーリエ回復: {total['lillie_slack']/g:.2f}回/戦  "
           f"前を進化(ベンチに進化元あり): {total['evolve_active_bad']/g:.2f}回/戦  "
           f"ミル不能番に妨害優先: {total['nofs_disrupt_bad']/g:.2f}回/戦")
+    print(f"[調査]   打つべきポフィン所持ターン: {total['poffin_due']/g:.2f}回/戦  "
+          f"うち握ったまま終了 {total['poffin_missed']/g:.2f}回/戦  "
+          f"(LO {total['poffin_missed_lo']/g:.2f} / 飽和 {total['poffin_missed_saturated']/g:.2f} / "
+          f"div-C2疑い {total['poffin_missed_divc2']/g:.2f} / 他 {total['poffin_missed_other']/g:.2f})")
     print(f"[全般]   FS: {total['fs_attacks']/g:.1f}回/戦  "
           f"終局 自山 {sum(end_my)/g:.1f} / 相手山 {sum(end_opp)/g:.1f}")
 

@@ -148,6 +148,30 @@ CHA_LILLIE_URGENT = os.environ.get("CHA_LILLIE_URGENT", "1") != "0"
 CHA_EVOLVE_BENCH = os.environ.get("CHA_EVOLVE_BENCH", "1") != "0"
 # ③キュワワーの技が打てない番はリーリエを妨害札より優先（掘ってエンジンを直す）。
 CHA_LILLIE_NOFS = os.environ.get("CHA_LILLIE_NOFS", "1") != "0"
+# ── 第24弾（2026-07-29 ユーザー指示・EXP-069） ──
+# ポフィンの div-C2 交戦期ホールド（2026-07-07 由来・場にキュワワー2体で無条件温存）を撤廃。
+# ライン<2 か在庫ゼロなら交戦期でも打つ（ヒトモシは積極的に出す）。ただし取ってくる駒が
+# 山札に存在しないと**判明**していたら空撃ちしない（第12弾カウンティング）。
+CHA_POFFIN_TARGETED = os.environ.get("CHA_POFFIN_TARGETED", "1") != "0"
+# ── 第25弾（2026-07-29 ユーザー指摘・EXP-070）: 山札記憶のローカル自己回復 ──
+# 基盤 R-32 の会計は my_deck_list（= CWD の deck.csv、本番のみ存在）が無いと**丸ごと休止**する。
+# ローカル（gauntlet/プローブ/観戦）では None のままで、サイド落ちを「山にあるかも」と数える
+# 近似に落ちていた＝ポケパッド/ポフィンの空撃ちの原因（ユーザー指摘）。dusknoir の
+# DUSK_DECK_CSV→DECK_FALLBACK と同じ自己回復を chandelure 側だけに実装（基盤・ドラパは不変）。
+# リスト A/B 時は CHA_DECK_CSV で差し替える（会計が対象デッキと一致していないと嘘になる）。
+CHA_DECK_CSV = os.environ.get("CHA_DECK_CSV", "")
+CHA_DECK_RECOVER = os.environ.get("CHA_DECK_RECOVER", "1") != "0"   # 0=自己回復なし（旧挙動）
+DECK_FALLBACK = (   # decks/fleet/chandelure_top.csv と同一60枚
+    164, 164, 164, 164, 97, 97, 97, 494, 494, 98, 98, 98,
+    343, 19, 19, 19, 19, 5, 5, 5, 5, 1086, 1086, 1086,
+    1086, 1152, 1152, 1152, 1152, 1227, 1227, 1227, 1227, 1197, 1197, 1197,
+    1225, 1225, 1225, 1264, 1182, 1182, 1182, 1119, 1119, 1120, 1120, 1120,
+    1120, 1186, 1186, 1097, 1097, 1166, 1166, 1079, 1247, 1231, 1123, 1081,
+)
+# ── 第25弾b（2026-07-29 ユーザー指示・EXP-070）──
+# キュワワーがベンチ+山に居ない ∧ 夜のタンカが手札に無い → リーリエ最優先で夜のタンカを
+# 引きに行く（コンスタントに3枚引かせ続けるのが最重要）。
+CHA_LILLIE_FOR_TANKA = os.environ.get("CHA_LILLIE_FOR_TANKA", "1") != "0"
 # 第16弾b: 赤字リーリエの可否を「打った後も相手より山が多いか」で決める（山札レース不変条件）。
 # 0 = 赤字は常に禁止（第16弾a の挙動）。CHA_LILLIE_LEDGER=0 なら丸ごと旧ロジック。
 CHA_LILLIE_RACE = os.environ.get("CHA_LILLIE_RACE", "1") != "0"
@@ -289,6 +313,22 @@ class ChandelurePolicy(BasePolicy):
     # ═══════════════ ターン分析（軽量: 枚数と旗だけ） ═══════════════
 
     def choose(self, obs):
+        # 第25弾: 基盤 R-32 会計の自己回復。ハーネスが my_deck_list を注入しない場合でも
+        # CHA_DECK_CSV → deck.csv（基盤が試す）→ DECK_FALLBACK の順で自リストを確定させる。
+        if CHA_DECK_RECOVER and not self.my_deck_list:
+            deck = None
+            if CHA_DECK_CSV:
+                try:
+                    with open(CHA_DECK_CSV) as f:
+                        deck = [int(l) for l in f.read().split() if l.strip()][:60]
+                except Exception:
+                    deck = None
+            if not deck:
+                try:
+                    deck = _read_deck_csv()   # 本番: 同梱 deck.csv
+                except Exception:
+                    deck = None
+            self.my_deck_list = list(deck) if deck else list(DECK_FALLBACK)
         self.p = self._analyze(obs)
         return super().choose(obs)
 
@@ -557,6 +597,16 @@ class ChandelurePolicy(BasePolicy):
             return fc[LAMPENT] >= 1 or (hc[RARE_CANDY] >= 1 and fc[LITWICK] >= 1)
         return False
 
+    def _maybe_in_deck(self, card_id, total):
+        """山にまだあり得るか。第12弾: サイド落ちが確定していれば「確実に山にある」枚数で
+        判定。未確定/情報なしなら山+サイド近似（total − 見えるゾーン > 0）＝
+        「存在しないと判明」した時だけ False を返す保守的判定。"""
+        known = self._in_deck_count(card_id)
+        if known is not None:
+            return known > 0
+        p = self.p
+        return (total - p["fc"][card_id] - p["hc"][card_id] - p["dc"][card_id]) > 0
+
     def _pad_wanted_playable(self, obs):
         """ポケパッドで取ってきて『即使える ∧ まだ欲しい ∧ 山にありそう』な駒があるか。
         無ければパッドを使わない（ユーザー指示）。山の有無は hand/play/discard 以外に
@@ -565,12 +615,7 @@ class ChandelurePolicy(BasePolicy):
         fc, hc, dc = p["fc"], p["hc"], p["dc"]
 
         def maybe_in_deck(card_id, total):
-            # 第12弾: サイド落ちが確定していれば「確実に山にある」枚数で判定。
-            # 未確定/情報なしなら従来の山+サイド近似（total − 見えるゾーン > 0）。
-            known = self._in_deck_count(card_id)
-            if known is not None:
-                return known > 0
-            return (total - fc[card_id] - hc[card_id] - dc[card_id]) > 0
+            return self._maybe_in_deck(card_id, total)
 
         dead = self._chandelure_dead()   # 第13弾: シャンデラ全落ちならライン部品は掘らない
         if p["bench_free"] >= 1:
@@ -854,7 +899,21 @@ class ChandelurePolicy(BasePolicy):
                     return -1, "Poffin: deck floor (mill life-line)"
                 need = (fc[COMFEY] < 2) or (p["line_in_play"] < 2)
                 return (18000 if need else 12000), "第8弾: Poffin (確定使用)"
-            # 旧ロジック（CHA_FORCE_ITEMS=0 フォールバック）
+            # 第24弾（2026-07-29 ユーザー指示・EXP-069）: div-C2 の交戦期ホールドを撤廃。
+            # 温存条件は第16弾（上の STRICT）に一本化し、**ヒトモシは積極的に出す**。
+            # ただし「取ってくる駒が山札に存在しないと判明」していたら空撃ちしない
+            # （第12弾カウンティングで確定した時だけ False になる保守的判定）。
+            if CHA_POFFIN_TARGETED:
+                want_litwick = (p["line_in_play"] < 2
+                                and not self._chandelure_dead()
+                                and self._maybe_in_deck(LITWICK, 3))
+                want_comfey = (p["bench_comfey"] == 0
+                               and fc[COMFEY] < COMFEY_FIELD_CAP
+                               and self._maybe_in_deck(COMFEY, 4))
+                if want_litwick or want_comfey:
+                    return 18000, "第24弾: Poffin (restock Litwick/Comfey)"
+                return -1, "第24弾: Poffin 空撃ち回避（山に対象なし）"
+            # 旧ロジック（CHA_POFFIN_TARGETED=0 フォールバック）
             if combat:
                 return (8000 if fc[COMFEY] < 2 else -1), "div-C2: Poffin only to rebuild"
             need = (fc[COMFEY] < 2) or (p["line_in_play"] < 2)
@@ -1016,6 +1075,21 @@ class ChandelurePolicy(BasePolicy):
                 first = (st.firstPlayer == st.yourIndex)
                 if (first and st.turn == 3) or (not first and st.turn == 2):
                     return 5600, "CHA: Lillie (early tempo)"
+            # 第25弾b（ユーザー指示）: キュワワーがベンチ+山に居らず（山は会計で不在が判明した
+            # 時だけ）、夜のタンカも手札に無い → リーリエ最優先で夜のタンカを引きに行く。
+            # トラッシュにキュワワーが居る時だけ（居なければタンカでも回収できない＝掘る意味なし）。
+            # 帯 6700 = 回復 6500 より上・あがきボス 6800 の下。
+            if CHA_LILLIE_FOR_TANKA:
+                # 手札のキュワワーも確認（ユーザー監査 2026-07-29）: 手札に居るなら出せば
+                # 済む＝掘り不要。ベンチ満杯で置けない局面での誤発火（手札のキュワワーごと
+                # 山へシャッフル）も防ぐ。トラッシュにも居ない（=4枚全サイド落ち）なら
+                # タンカでも回収不能＝この筋は諦める（dc ガードで自然に不発火）。
+                if (p["bench_comfey"] == 0
+                        and hc[COMFEY] == 0
+                        and not self._maybe_in_deck(COMFEY, 4)
+                        and hc[NIGHT_STRETCHER] == 0
+                        and dc[COMFEY] >= 1):
+                    return 6700, "第25弾: Lillie (dig for Night Stretcher)"
             # 第23弾③（ユーザー指示）: キュワワーの技が打てない番は、妨害札（クセロシキ
             # 5600/ビワ 5000）より先にリーリエで掘ってエンジンを直す。ミルが止まった番の
             # 妨害はレースを進めない。帯 5800 = クセロシキ 5600 の直上。
@@ -1025,13 +1099,17 @@ class ChandelurePolicy(BasePolicy):
                 act = active_pokemon(obs)
                 if not (act is not None and act.id == COMFEY
                         and energy_count(act) >= 1):
-                    # ③b: 赤字の掘りは山札レースに勝っている時だけ（負けている時に赤字で
-                    # 掘ると自滅を早める。crustle 型では Hilda 遊軍 2350 が固定費 −2 で
-                    # 同じ再建をやる）。黒字（手札≥9）なら常に掘ってよい。
+                    # ③b: 赤字の掘りは「**打った後も**自山 > 相手山」の時だけ（ユーザーの
+                    # 不変条件と同じ事後判定 = 第16弾ゲートと統一）。これで
+                    #   ・しまっている首をさらにしめる（打つ前から負けレースで赤字掘り）
+                    #   ・首をしめる（打つと追い越される。例: 自山16/相手15/手札3 → 打つと10）
+                    # の両方を止める。黒字（手札≥9）は山が減らないので常に掘ってよい。
+                    # 負けレース時の再建は Hilda 遊軍 2350（固定費 −2）が担う。
                     # 帯 6100（2026-07-28 ユーザー監査で 5800→6100）: 対アラカザムの
                     # クセロシキ特化帯 6000 より上に置く。「ミル不能番はリーリエが妨害より
                     # 優先」は対アラカザムでも成立する（回復6500・あがき6800の下）。
-                    if p["hand_size"] >= 9 or p["my_deck"] > p["opp_deck"]:
+                    if (p["hand_size"] >= 9
+                            or p["my_deck"] + (p["hand_size"] - 9) > p["opp_deck"]):
                         return 6100, "第23弾: Lillie (can't mill — dig, beats disruption)"
             # ── 第16弾（EXP-060）: 収支を実際に計算してから打つ ──
             # 旧実装は「手札≥7 で山が純増」（＝6ドロー前提）を3か所で仮定していたが、
