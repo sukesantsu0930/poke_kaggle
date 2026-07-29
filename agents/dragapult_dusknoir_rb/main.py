@@ -202,6 +202,16 @@ DUSK_BOMB_RACE = os.environ.get("DUSK_BOMB_RACE", "0") != "0"
 # その手順をそのまま辿る（ダイブ到達オラクル D-2 と同じ「探索して執行」の型）。
 # 次ターン以降は考えない = 手番内に閉じるのでパターン数は数千で収まる。
 DUSK_ATK_SEARCH = os.environ.get("DUSK_ATK_SEARCH", "1") != "0"
+# ═══════ EN: 手張り規律（ユーザー 2026-07-29・観戦由来）═══════
+# 「エネルギーが手札にあって、手張りしないターンはつくらない」。3段構造:
+#   EN-1 完成張り: この1枚でライン個体の {R}{P} が完成するなら最優先で張る
+#        （例: ドロンチに炎付き＋手札に超 → 張る。ソフトマスクより前）
+#   EN-2 リーリエ例外: リーリエを打つ番、完成しないエネは張らずに山へ返して
+#        引き直しに賭ける（完成張りは EN-1 が先に通るので張られる = R-26 と整合）
+#   EN-3 受け皿: ソフトマスク（persist/CONCENTRATE/R-29/同色2枚目等）で全部
+#        負になっても、ハードマスク（R-10 上限・悪エネ専用・スボミー）以外なら
+#        ATTACK より上の低帯 400 で必ずどこかへ張る = 手張り権を捨てない
+DUSK_ATTACH_V2 = os.environ.get("DUSK_ATTACH_V2", "1") != "0"
 # G-2 対オーロンゲでは「危ない廃墟」を張らない（ユーザー懸念 2026-07-26）。
 #   廃墟は「非{D}のたねがベンチに出るたび2個」。相手のたねは マリィのベロバー={悪} で対象外、
 #   マシマシラ/ノコッチだけが食らう。一方こちらは ドラメシヤ(70)/ヨマワル(60)/スボミー(30) が
@@ -1843,10 +1853,66 @@ class DragapultDusknoirPolicy(BasePolicy):
     # ── ATTACH（S-5 + R-10 + ルール2） ──
 
     def _attach_score(self, obs, p, attach_id, pokemon, active):
+        score = self._attach_score_core(obs, p, attach_id, pokemon, active)
+        if not DUSK_ATTACH_V2 or score >= 0:
+            return score
+        # EN-3【ユーザー 2026-07-29】受け皿: ソフトマスクで負になっても、
+        # 手張りしないターンは作らない。ハードマスクだけは維持する。
+        data = CARD_DB.get(attach_id)
+        if data is None or data.cardType != CardType.BASIC_ENERGY:
+            return score
+        if self.use_support == LILLIE and not self._dive_impossible(obs):
+            return score                    # EN-2 が優先（山へ返す）。不可能確定なら受け皿有効
+        if len(pokemon.energies or []) >= LINE_MAX_COST.get(pokemon.id, 2):
+            return score                    # R-10【ハード】
+        if attach_id == DARK_ENERGY and pokemon.id != MUNKIDORI:
+            return score                    # ルール2【ハード】
+        if pokemon.id == MUNKIDORI and attach_id != DARK_ENERGY:
+            return score
+        if pokemon.id == BUDEW:
+            return score
+        # EN-3a【ユーザー 2026-07-29】受け皿の否定: 場のドラパルトラインが**全員
+        # 2エネ揃っている**なら張らなくてよい。ラインは R-10 で張れず、残る先は
+        # ニャース/フェザン等への無駄張りになるだけなので、手張り権を温存する。
+        line = [pk for pk in all_my_pokemon(obs)
+                if pk is not None and pk.id in DRAGAPULT_LINE]
+        if line and all(len(pk.energies or []) >= 2 for pk in line):
+            return score
+        cols = [c.id for c in (pokemon.energyCards or []) if c is not None]
+        dup = attach_id in cols
+        pref = {DRAGAPULT_EX: 30, DRAKLOAK: 20, DREEPY: 10}.get(pokemon.id, 0)
+        self._attach_tag = "EN-3: never waste the attach (fallback)"
+        # 400 = ATTACK(154) より上・スタジアム(500) より下。攻撃でターンが終わる前に
+        # 必ず張られる。同色2枚目は受け皿内の最後の選択肢（-200）。
+        return 400 + pref - (200 if dup else 0)
+
+    def _attach_score_core(self, obs, p, attach_id, pokemon, active):
         self._attach_tag = None
         data = CARD_DB.get(attach_id)
         if data is not None and data.cardType == CardType.TOOL:
             return 60000 + (1000 if active else 0)
+
+        # EN-1【ユーザー 2026-07-29】完成張り: この1枚でライン個体の {R}{P} が完成する
+        # なら、ソフトマスク（persist/CONCENTRATE/R-29）より前に最優先で張る。
+        # R-10 は e==1→2 なので構造上抵触しない。同色2枚目も定義上あり得ない。
+        if (DUSK_ATTACH_V2 and pokemon.id in DRAGAPULT_LINE
+                and attach_id in (FIRE_ENERGY, PSYCHIC_ENERGY)):
+            cols = {c.id for c in (pokemon.energyCards or []) if c is not None}
+            if (attach_id not in cols
+                    and {FIRE_ENERGY, PSYCHIC_ENERGY} <= (cols | {attach_id})):
+                self._attach_tag = "EN-1: complete {R}{P} (dive colors)"
+                return 26000
+        # EN-2【同】リーリエを打つ番は、完成しないエネを張らずに山へ返す
+        # （張っても色が進まないなら、引き直しで満たせる可能性に賭ける）。
+        # 【ユーザー 2026-07-29 追補】ダイブ不可能が**確定**しているときはこの例外を
+        # 無視して普通にラインへ張る — 引き直しに賭ける意味があるのは、色を満たせる
+        # 可能性が残っているときだけ（不可能判定 = R-32 上限ベースの _dive_impossible）。
+        if (DUSK_ATTACH_V2 and self.use_support == LILLIE
+                and data is not None
+                and data.cardType == CardType.BASIC_ENERGY
+                and not self._dive_impossible(obs)):
+            self._attach_tag = "EN-2: hold for Lillie reshuffle"
+            return -1
 
         e = len(pokemon.energies or [])
         if e >= LINE_MAX_COST.get(pokemon.id, 2):

@@ -171,7 +171,13 @@ DECK_FALLBACK = (   # decks/fleet/chandelure_top.csv と同一60枚
 # ── 第25弾b（2026-07-29 ユーザー指示・EXP-070）──
 # キュワワーがベンチ+山に居ない ∧ 夜のタンカが手札に無い → リーリエ最優先で夜のタンカを
 # 引きに行く（コンスタントに3枚引かせ続けるのが最重要）。
+# 第25弾c（2026-07-29 ユーザー再指示）で**条件を反転して復活**:
+# 「山にキュワワーが残っているときは追いかける（引く期待値がお得＝当たりが本体+タンカ+ポフィン）。
+#   山に無ければタンカ狙いより妨害を優先」。旧版（山に無い時に掘る）は当たりがタンカ2枚だけで
+# 妨害の期待値に負けて −1.2〜1.6pt だった。弱め条件 = 自山 ≥ CHA_TANKA_DECK_MIN の序中盤のみ
+# （終盤の恒常発火を構造的に排除）+ レース事後判定。
 CHA_LILLIE_FOR_TANKA = os.environ.get("CHA_LILLIE_FOR_TANKA", "1") != "0"
+CHA_TANKA_DECK_MIN = int(os.environ.get("CHA_TANKA_DECK_MIN", "15"))
 # 第16弾b: 赤字リーリエの可否を「打った後も相手より山が多いか」で決める（山札レース不変条件）。
 # 0 = 赤字は常に禁止（第16弾a の挙動）。CHA_LILLIE_LEDGER=0 なら丸ごと旧ロジック。
 CHA_LILLIE_RACE = os.environ.get("CHA_LILLIE_RACE", "1") != "0"
@@ -1084,12 +1090,21 @@ class ChandelurePolicy(BasePolicy):
                 # 済む＝掘り不要。ベンチ満杯で置けない局面での誤発火（手札のキュワワーごと
                 # 山へシャッフル）も防ぐ。トラッシュにも居ない（=4枚全サイド落ち）なら
                 # タンカでも回収不能＝この筋は諦める（dc ガードで自然に不発火）。
+                # 第25弾c（条件反転・ユーザー再指示 2026-07-29）:
+                #   山にキュワワーが**残っている**なら追いかける（8ドローの当たり = 本体 or
+                #   タンカ or ポフィン ＝ 期待値がお得）。山に**無い**なら当たりはタンカ2枚
+                #   だけで妨害の期待値に負ける → 発火しない（旧版はここで −1.2〜1.6pt）。
+                # 手札にタンカ ∧ トラッシュにキュワワー が居るなら打てば済む＝掘り不要。
+                # 弱め: 自山 ≥ CHA_TANKA_DECK_MIN（序中盤のみ・終盤の恒常発火を排除）
+                # ＋ レース事後判定（③c と同じ）。
                 if (p["bench_comfey"] == 0
                         and hc[COMFEY] == 0
-                        and not self._maybe_in_deck(COMFEY, 4)
-                        and hc[NIGHT_STRETCHER] == 0
-                        and dc[COMFEY] >= 1):
-                    return 6700, "第25弾: Lillie (dig for Night Stretcher)"
+                        and self._maybe_in_deck(COMFEY, 4)
+                        and not (hc[NIGHT_STRETCHER] >= 1 and dc[COMFEY] >= 1)
+                        and p["my_deck"] >= CHA_TANKA_DECK_MIN
+                        and (p["hand_size"] >= 9
+                             or p["my_deck"] + (p["hand_size"] - 9) > p["opp_deck"])):
+                    return 6700, "第25弾c: Lillie (chase Comfey — deck has outs)"
             # 第23弾③（ユーザー指示）: キュワワーの技が打てない番は、妨害札（クセロシキ
             # 5600/ビワ 5000）より先にリーリエで掘ってエンジンを直す。ミルが止まった番の
             # 妨害はレースを進めない。帯 5800 = クセロシキ 5600 の直上。

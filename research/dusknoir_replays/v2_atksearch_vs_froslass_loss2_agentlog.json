@@ -1,0 +1,1574 @@
+[
+ {
+  "step": 0,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 0,
+  "select_type": "YES_NO",
+  "select_context": "IS_FIRST",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: yes"
+  ],
+  "options": [
+   "0: yes",
+   "1: no"
+  ]
+ },
+ {
+  "step": 1,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 0,
+  "select_type": "CARD",
+  "select_context": "SETUP_ACTIVE_POKEMON",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Meowth ex (ID 1071) / area=HAND / index=6"
+  ],
+  "options": [
+   "0: card Meowth ex (ID 1071) / area=HAND / index=6"
+  ]
+ },
+ {
+  "step": 2,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 0,
+  "select_type": "CARD",
+  "select_context": "SETUP_ACTIVE_POKEMON",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Snorunt (ID 860) / area=HAND / index=6"
+  ],
+  "options": [
+   "0: card Snorunt (ID 860) / area=HAND / index=6"
+  ]
+ },
+ {
+  "step": 3,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Poké Pad (ID 1152) / index=0"
+  ],
+  "options": [
+   "0: play Poké Pad (ID 1152) / index=0",
+   "1: attach Basic {P} Energy (ID 5) / area=HAND / index=2 / target=ACTIVE:0",
+   "2: play Poké Pad (ID 1152) / index=5",
+   "3: play Fezandipiti ex (ID 140) / index=6",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 4,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Budew (ID 235) / area=DECK / index=0"
+  ],
+  "options": [
+   "0: card Budew (ID 235) / area=DECK / index=0",
+   "1: card Dreepy (ID 119) / area=DECK / index=2",
+   "2: card Dreepy (ID 119) / area=DECK / index=4",
+   "3: card Dusknoir (ID 133) / area=DECK / index=10",
+   "4: card Duskull (ID 131) / area=DECK / index=11",
+   "5: card Dreepy (ID 119) / area=DECK / index=14",
+   "6: card Drakloak (ID 120) / area=DECK / index=16",
+   "7: card Drakloak (ID 120) / area=DECK / index=17",
+   "8: card Dusclops (ID 132) / area=DECK / index=20",
+   "9: card Drakloak (ID 120) / area=DECK / index=35",
+   "10: card Budew (ID 235) / area=DECK / index=37",
+   "11: card Duskull (ID 131) / area=DECK / index=40"
+  ]
+ },
+ {
+  "step": 5,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: play Budew (ID 235) / index=6"
+  ],
+  "options": [
+   "0: attach Basic {P} Energy (ID 5) / area=HAND / index=1 / target=ACTIVE:0",
+   "1: play Poké Pad (ID 1152) / index=4",
+   "2: play Fezandipiti ex (ID 140) / index=5",
+   "3: play Budew (ID 235) / index=6",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 6,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Poké Pad (ID 1152) / index=4"
+  ],
+  "options": [
+   "0: attach Basic {P} Energy (ID 5) / area=HAND / index=1 / target=ACTIVE:0",
+   "1: attach Basic {P} Energy (ID 5) / area=HAND / index=1 / target=BENCH:0",
+   "2: play Poké Pad (ID 1152) / index=4",
+   "3: play Fezandipiti ex (ID 140) / index=5",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 7,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: card Dreepy (ID 119) / area=DECK / index=10"
+  ],
+  "options": [
+   "0: card Dusclops (ID 132) / area=DECK / index=1",
+   "1: card Drakloak (ID 120) / area=DECK / index=4",
+   "2: card Duskull (ID 131) / area=DECK / index=6",
+   "3: card Dreepy (ID 119) / area=DECK / index=10",
+   "4: card Duskull (ID 131) / area=DECK / index=13",
+   "5: card Drakloak (ID 120) / area=DECK / index=18",
+   "6: card Dusknoir (ID 133) / area=DECK / index=19",
+   "7: card Budew (ID 235) / area=DECK / index=21",
+   "8: card Dreepy (ID 119) / area=DECK / index=23",
+   "9: card Drakloak (ID 120) / area=DECK / index=24",
+   "10: card Dreepy (ID 119) / area=DECK / index=42"
+  ]
+ },
+ {
+  "step": 8,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: play Dreepy (ID 119) / index=5"
+  ],
+  "options": [
+   "0: attach Basic {P} Energy (ID 5) / area=HAND / index=1 / target=ACTIVE:0",
+   "1: attach Basic {P} Energy (ID 5) / area=HAND / index=1 / target=BENCH:0",
+   "2: play Fezandipiti ex (ID 140) / index=4",
+   "3: play Dreepy (ID 119) / index=5",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 9,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: attach Basic {P} Energy (ID 5) / area=HAND / index=1 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: attach Basic {P} Energy (ID 5) / area=HAND / index=1 / target=ACTIVE:0",
+   "1: attach Basic {P} Energy (ID 5) / area=HAND / index=1 / target=BENCH:0",
+   "2: attach Basic {P} Energy (ID 5) / area=HAND / index=1 / target=BENCH:1",
+   "3: play Fezandipiti ex (ID 140) / index=4",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 10,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: end turn"
+  ],
+  "options": [
+   "0: play Fezandipiti ex (ID 140) / index=3",
+   "1: retreat",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 11,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: play Buddy-Buddy Poffin (ID 1086) / index=3"
+  ],
+  "options": [
+   "0: play Surfing Beach (ID 1262) / index=2",
+   "1: play Buddy-Buddy Poffin (ID 1086) / index=3",
+   "2: play Salvatore (ID 1189) / index=4",
+   "3: play Buddy-Buddy Poffin (ID 1086) / index=5",
+   "4: attach Basic {W} Energy (ID 3) / area=HAND / index=6 / target=ACTIVE:0",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 12,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "TO_BENCH",
+  "min_count": 0,
+  "max_count": 2,
+  "action": [
+   0,
+   1
+  ],
+  "selected": [
+   "0: card Staryu (ID 1030) / area=DECK / index=4",
+   "1: card Staryu (ID 1030) / area=DECK / index=9"
+  ],
+  "options": [
+   "0: card Staryu (ID 1030) / area=DECK / index=4",
+   "1: card Staryu (ID 1030) / area=DECK / index=9",
+   "2: card Staryu (ID 1030) / area=DECK / index=19",
+   "3: card Snorunt (ID 860) / area=DECK / index=36"
+  ]
+ },
+ {
+  "step": 13,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Buddy-Buddy Poffin (ID 1086) / index=4"
+  ],
+  "options": [
+   "0: play Surfing Beach (ID 1262) / index=2",
+   "1: play Salvatore (ID 1189) / index=3",
+   "2: play Buddy-Buddy Poffin (ID 1086) / index=4",
+   "3: attach Basic {W} Energy (ID 3) / area=HAND / index=5 / target=ACTIVE:0",
+   "4: attach Basic {W} Energy (ID 3) / area=HAND / index=5 / target=BENCH:0",
+   "5: attach Basic {W} Energy (ID 3) / area=HAND / index=5 / target=BENCH:1",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 14,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "TO_BENCH",
+  "min_count": 0,
+  "max_count": 2,
+  "action": [
+   0,
+   1
+  ],
+  "selected": [
+   "0: card Snorunt (ID 860) / area=DECK / index=1",
+   "1: card Staryu (ID 1030) / area=DECK / index=39"
+  ],
+  "options": [
+   "0: card Snorunt (ID 860) / area=DECK / index=1",
+   "1: card Staryu (ID 1030) / area=DECK / index=39"
+  ]
+ },
+ {
+  "step": 15,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: play Salvatore (ID 1189) / index=3"
+  ],
+  "options": [
+   "0: play Surfing Beach (ID 1262) / index=2",
+   "1: play Salvatore (ID 1189) / index=3",
+   "2: attach Basic {W} Energy (ID 3) / area=HAND / index=4 / target=ACTIVE:0",
+   "3: attach Basic {W} Energy (ID 3) / area=HAND / index=4 / target=BENCH:0",
+   "4: attach Basic {W} Energy (ID 3) / area=HAND / index=4 / target=BENCH:1",
+   "5: attach Basic {W} Energy (ID 3) / area=HAND / index=4 / target=BENCH:2",
+   "6: attach Basic {W} Energy (ID 3) / area=HAND / index=4 / target=BENCH:3",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 16,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "EVOLVES_TO",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: card Mega Starmie ex (ID 1031) / area=DECK / index=11"
+  ],
+  "options": [
+   "0: card Mega Froslass ex (ID 861) / area=DECK / index=8",
+   "1: card Mega Starmie ex (ID 1031) / area=DECK / index=11",
+   "2: card Mega Froslass ex (ID 861) / area=DECK / index=22",
+   "3: card Mega Starmie ex (ID 1031) / area=DECK / index=25"
+  ]
+ },
+ {
+  "step": 17,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "EVOLVES_FROM",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Staryu (ID 1030) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Staryu (ID 1030) / area=BENCH / index=0",
+   "1: card Staryu (ID 1030) / area=BENCH / index=1",
+   "2: card Staryu (ID 1030) / area=BENCH / index=3"
+  ]
+ },
+ {
+  "step": 18,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Surfing Beach (ID 1262) / index=2"
+  ],
+  "options": [
+   "0: play Surfing Beach (ID 1262) / index=2",
+   "1: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=ACTIVE:0",
+   "2: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:0",
+   "3: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:1",
+   "4: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:2",
+   "5: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:3",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 19,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   5
+  ],
+  "selected": [
+   "5: ability area=STADIUM / index=0"
+  ],
+  "options": [
+   "0: attach Basic {W} Energy (ID 3) / area=HAND / index=2 / target=ACTIVE:0",
+   "1: attach Basic {W} Energy (ID 3) / area=HAND / index=2 / target=BENCH:0",
+   "2: attach Basic {W} Energy (ID 3) / area=HAND / index=2 / target=BENCH:1",
+   "3: attach Basic {W} Energy (ID 3) / area=HAND / index=2 / target=BENCH:2",
+   "4: attach Basic {W} Energy (ID 3) / area=HAND / index=2 / target=BENCH:3",
+   "5: ability area=STADIUM / index=0",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 20,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "SWITCH",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Mega Starmie ex (ID 1031) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Mega Starmie ex (ID 1031) / area=BENCH / index=0",
+   "1: card Staryu (ID 1030) / area=BENCH / index=1",
+   "2: card Snorunt (ID 860) / area=BENCH / index=2",
+   "3: card Staryu (ID 1030) / area=BENCH / index=3"
+  ]
+ },
+ {
+  "step": 21,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: attach Basic {W} Energy (ID 3) / area=HAND / index=2 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: attach Basic {W} Energy (ID 3) / area=HAND / index=2 / target=ACTIVE:0",
+   "1: attach Basic {W} Energy (ID 3) / area=HAND / index=2 / target=BENCH:0",
+   "2: attach Basic {W} Energy (ID 3) / area=HAND / index=2 / target=BENCH:1",
+   "3: attach Basic {W} Energy (ID 3) / area=HAND / index=2 / target=BENCH:2",
+   "4: attach Basic {W} Energy (ID 3) / area=HAND / index=2 / target=BENCH:3",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 22,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: attack Jetting Blow damage=120"
+  ],
+  "options": [
+   "0: attack Jetting Blow damage=120",
+   "1: end turn"
+  ]
+ },
+ {
+  "step": 23,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "DAMAGE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Budew (ID 235) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Budew (ID 235) / area=BENCH / index=0",
+   "1: card Dreepy (ID 119) / area=BENCH / index=1"
+  ]
+ },
+ {
+  "step": 24,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=PRIZE / index=0"
+  ],
+  "options": [
+   "0: card area=PRIZE / index=0",
+   "1: card area=PRIZE / index=1",
+   "2: card area=PRIZE / index=2",
+   "3: card area=PRIZE / index=3",
+   "4: card area=PRIZE / index=4",
+   "5: card area=PRIZE / index=5"
+  ]
+ },
+ {
+  "step": 25,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: play Lillie's Determination (ID 1227) / index=4"
+  ],
+  "options": [
+   "0: play Night Stretcher (ID 1097) / index=0",
+   "1: play Crispin (ID 1198) / index=2",
+   "2: play Fezandipiti ex (ID 140) / index=3",
+   "3: play Lillie's Determination (ID 1227) / index=4",
+   "4: retreat",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 26,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: evolve Drakloak (ID 120) / area=HAND / index=0 / target=BENCH:0"
+  ],
+  "options": [
+   "0: evolve Drakloak (ID 120) / area=HAND / index=0 / target=BENCH:0",
+   "1: evolve Drakloak (ID 120) / area=HAND / index=1 / target=BENCH:0",
+   "2: play Poké Pad (ID 1152) / index=3",
+   "3: attach Basic {P} Energy (ID 5) / area=HAND / index=5 / target=ACTIVE:0",
+   "4: attach Basic {P} Energy (ID 5) / area=HAND / index=5 / target=BENCH:0",
+   "5: play Duskull (ID 131) / index=6",
+   "6: play Unfair Stamp (ID 1080) / index=7",
+   "7: retreat",
+   "8: end turn"
+  ]
+ },
+ {
+  "step": 27,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attach Basic {P} Energy (ID 5) / area=HAND / index=4 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Poké Pad (ID 1152) / index=2",
+   "1: attach Basic {P} Energy (ID 5) / area=HAND / index=4 / target=ACTIVE:0",
+   "2: attach Basic {P} Energy (ID 5) / area=HAND / index=4 / target=BENCH:0",
+   "3: play Duskull (ID 131) / index=5",
+   "4: play Unfair Stamp (ID 1080) / index=6",
+   "5: ability Drakloak (ID 120) / area=BENCH / index=0",
+   "6: retreat",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 28,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Unfair Stamp (ID 1080) / index=5"
+  ],
+  "options": [
+   "0: play Poké Pad (ID 1152) / index=2",
+   "1: play Duskull (ID 131) / index=4",
+   "2: play Unfair Stamp (ID 1080) / index=5",
+   "3: ability Drakloak (ID 120) / area=BENCH / index=0",
+   "4: retreat",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 29,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: play Team Rocket's Watchtower (ID 1256) / index=4"
+  ],
+  "options": [
+   "0: play Poké Pad (ID 1152) / index=0",
+   "1: play Ultra Ball (ID 1121) / index=1",
+   "2: play Night Stretcher (ID 1097) / index=3",
+   "3: play Team Rocket's Watchtower (ID 1256) / index=4",
+   "4: ability Drakloak (ID 120) / area=BENCH / index=0",
+   "5: retreat",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 30,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: ability Drakloak (ID 120) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: play Poké Pad (ID 1152) / index=0",
+   "1: play Ultra Ball (ID 1121) / index=1",
+   "2: play Night Stretcher (ID 1097) / index=3",
+   "3: ability Drakloak (ID 120) / area=BENCH / index=0",
+   "4: retreat",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 31,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: card area=LOOKING / index=1"
+  ],
+  "options": [
+   "0: card area=LOOKING / index=0",
+   "1: card area=LOOKING / index=1"
+  ]
+ },
+ {
+  "step": 32,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Poké Pad (ID 1152) / index=0"
+  ],
+  "options": [
+   "0: play Poké Pad (ID 1152) / index=0",
+   "1: play Ultra Ball (ID 1121) / index=1",
+   "2: play Night Stretcher (ID 1097) / index=3",
+   "3: retreat",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 33,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Dreepy (ID 119) / area=DECK / index=9"
+  ],
+  "options": [
+   "0: card Dreepy (ID 119) / area=DECK / index=9",
+   "1: card Drakloak (ID 120) / area=DECK / index=13",
+   "2: card Duskull (ID 131) / area=DECK / index=14",
+   "3: card Dreepy (ID 119) / area=DECK / index=18",
+   "4: card Dusclops (ID 132) / area=DECK / index=19",
+   "5: card Dusknoir (ID 133) / area=DECK / index=27",
+   "6: card Duskull (ID 131) / area=DECK / index=31",
+   "7: card Drakloak (ID 120) / area=DECK / index=32",
+   "8: card Dusknoir (ID 133) / area=DECK / index=33",
+   "9: card Budew (ID 235) / area=DECK / index=34"
+  ]
+ },
+ {
+  "step": 34,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Dreepy (ID 119) / index=4"
+  ],
+  "options": [
+   "0: play Ultra Ball (ID 1121) / index=0",
+   "1: play Night Stretcher (ID 1097) / index=2",
+   "2: play Dreepy (ID 119) / index=4",
+   "3: retreat",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 35,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Ultra Ball (ID 1121) / index=0"
+  ],
+  "options": [
+   "0: play Ultra Ball (ID 1121) / index=0",
+   "1: play Night Stretcher (ID 1097) / index=2",
+   "2: retreat",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 36,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "CARD",
+  "select_context": "DISCARD",
+  "min_count": 2,
+  "max_count": 2,
+  "action": [
+   2,
+   0
+  ],
+  "selected": [
+   "2: card Basic {R} Energy (ID 2) / area=HAND / index=2",
+   "0: card Brock’s Scouting (ID 1210) / area=HAND / index=0"
+  ],
+  "options": [
+   "0: card Brock’s Scouting (ID 1210) / area=HAND / index=0",
+   "1: card Night Stretcher (ID 1097) / area=HAND / index=1",
+   "2: card Basic {R} Energy (ID 2) / area=HAND / index=2"
+  ]
+ },
+ {
+  "step": 37,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   8
+  ],
+  "selected": [
+   "8: card Dreepy (ID 119) / area=DECK / index=23"
+  ],
+  "options": [
+   "0: card Fezandipiti ex (ID 140) / area=DECK / index=3",
+   "1: card Dusknoir (ID 133) / area=DECK / index=6",
+   "2: card Dragapult ex (ID 121) / area=DECK / index=9",
+   "3: card Dusclops (ID 132) / area=DECK / index=11",
+   "4: card Duskull (ID 131) / area=DECK / index=15",
+   "5: card Dragapult ex (ID 121) / area=DECK / index=18",
+   "6: card Dusknoir (ID 133) / area=DECK / index=20",
+   "7: card Drakloak (ID 120) / area=DECK / index=22",
+   "8: card Dreepy (ID 119) / area=DECK / index=23",
+   "9: card Dragapult ex (ID 121) / area=DECK / index=24",
+   "10: card Drakloak (ID 120) / area=DECK / index=27",
+   "11: card Budew (ID 235) / area=DECK / index=32",
+   "12: card Duskull (ID 131) / area=DECK / index=33"
+  ]
+ },
+ {
+  "step": 38,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: play Dreepy (ID 119) / index=1"
+  ],
+  "options": [
+   "0: play Night Stretcher (ID 1097) / index=0",
+   "1: play Dreepy (ID 119) / index=1",
+   "2: retreat",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 39,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: end turn"
+  ],
+  "options": [
+   "0: play Night Stretcher (ID 1097) / index=0",
+   "1: retreat",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 40,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: play Mega Signal (ID 1145) / index=2"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=0",
+   "1: play Mega Signal (ID 1145) / index=2",
+   "2: attack Jetting Blow damage=120",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 41,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Mega Froslass ex (ID 861) / area=DECK / index=1"
+  ],
+  "options": [
+   "0: card Mega Froslass ex (ID 861) / area=DECK / index=1",
+   "1: card Mega Froslass ex (ID 861) / area=DECK / index=11",
+   "2: card Mega Froslass ex (ID 861) / area=DECK / index=21",
+   "3: card Mega Starmie ex (ID 1031) / area=DECK / index=22",
+   "4: card Mega Starmie ex (ID 1031) / area=DECK / index=26"
+  ]
+ },
+ {
+  "step": 42,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: evolve Mega Froslass ex (ID 861) / area=HAND / index=2 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=0",
+   "1: evolve Mega Froslass ex (ID 861) / area=HAND / index=2 / target=BENCH:0",
+   "2: evolve Mega Froslass ex (ID 861) / area=HAND / index=2 / target=BENCH:2",
+   "3: attack Jetting Blow damage=120",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 43,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Lillie's Determination (ID 1227) / index=0"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=0",
+   "1: attack Jetting Blow damage=120",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 44,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Buddy-Buddy Poffin (ID 1086) / index=1",
+   "1: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=ACTIVE:0",
+   "2: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:0",
+   "3: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:1",
+   "4: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:2",
+   "5: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:3",
+   "6: attach Basic {W} Energy (ID 3) / area=HAND / index=4 / target=ACTIVE:0",
+   "7: attach Basic {W} Energy (ID 3) / area=HAND / index=4 / target=BENCH:0",
+   "8: attach Basic {W} Energy (ID 3) / area=HAND / index=4 / target=BENCH:1",
+   "9: attach Basic {W} Energy (ID 3) / area=HAND / index=4 / target=BENCH:2",
+   "10: attach Basic {W} Energy (ID 3) / area=HAND / index=4 / target=BENCH:3",
+   "11: attack Jetting Blow damage=120",
+   "12: end turn"
+  ]
+ },
+ {
+  "step": 45,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: attack Jetting Blow damage=120"
+  ],
+  "options": [
+   "0: play Buddy-Buddy Poffin (ID 1086) / index=1",
+   "1: attack Jetting Blow damage=120",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 46,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "CARD",
+  "select_context": "DAMAGE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: card Dreepy (ID 119) / area=BENCH / index=1"
+  ],
+  "options": [
+   "0: card Drakloak (ID 120) / area=BENCH / index=0",
+   "1: card Dreepy (ID 119) / area=BENCH / index=1",
+   "2: card Dreepy (ID 119) / area=BENCH / index=2"
+  ]
+ },
+ {
+  "step": 47,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 2,
+  "max_count": 2,
+  "action": [
+   0,
+   1
+  ],
+  "selected": [
+   "0: card area=PRIZE / index=0",
+   "1: card area=PRIZE / index=1"
+  ],
+  "options": [
+   "0: card area=PRIZE / index=0",
+   "1: card area=PRIZE / index=1",
+   "2: card area=PRIZE / index=2",
+   "3: card area=PRIZE / index=3",
+   "4: card area=PRIZE / index=4"
+  ]
+ },
+ {
+  "step": 48,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 4,
+  "select_type": "CARD",
+  "select_context": "TO_ACTIVE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Drakloak (ID 120) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Drakloak (ID 120) / area=BENCH / index=0",
+   "1: card Dreepy (ID 119) / area=BENCH / index=1",
+   "2: card Dreepy (ID 119) / area=BENCH / index=2"
+  ]
+ },
+ {
+  "step": 49,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: play Duskull (ID 131) / index=1"
+  ],
+  "options": [
+   "0: play Night Stretcher (ID 1097) / index=0",
+   "1: play Duskull (ID 131) / index=1",
+   "2: ability Drakloak (ID 120) / area=ACTIVE / index=0",
+   "3: retreat",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 50,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: ability Drakloak (ID 120) / area=ACTIVE / index=0"
+  ],
+  "options": [
+   "0: play Night Stretcher (ID 1097) / index=0",
+   "1: ability Drakloak (ID 120) / area=ACTIVE / index=0",
+   "2: retreat",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 51,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=LOOKING / index=0"
+  ],
+  "options": [
+   "0: card area=LOOKING / index=0",
+   "1: card area=LOOKING / index=1"
+  ]
+ },
+ {
+  "step": 52,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: play Buddy-Buddy Poffin (ID 1086) / index=1"
+  ],
+  "options": [
+   "0: play Night Stretcher (ID 1097) / index=0",
+   "1: play Buddy-Buddy Poffin (ID 1086) / index=1",
+   "2: retreat",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 53,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "CARD",
+  "select_context": "TO_BENCH",
+  "min_count": 0,
+  "max_count": 2,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: card Duskull (ID 131) / area=DECK / index=27"
+  ],
+  "options": [
+   "0: card Budew (ID 235) / area=DECK / index=21",
+   "1: card Duskull (ID 131) / area=DECK / index=27"
+  ]
+ },
+ {
+  "step": 54,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: end turn"
+  ],
+  "options": [
+   "0: play Night Stretcher (ID 1097) / index=0",
+   "1: retreat",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 55,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Buddy-Buddy Poffin (ID 1086) / index=1",
+   "1: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=ACTIVE:0",
+   "2: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:0",
+   "3: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:1",
+   "4: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:2",
+   "5: attach Basic {W} Energy (ID 3) / area=HAND / index=3 / target=BENCH:3",
+   "6: play Boss’s Orders (ID 1182) / index=4",
+   "7: play Buddy-Buddy Poffin (ID 1086) / index=6",
+   "8: play Boss’s Orders (ID 1182) / index=7",
+   "9: attack Jetting Blow damage=120",
+   "10: end turn"
+  ]
+ },
+ {
+  "step": 56,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   4
+  ],
+  "selected": [
+   "4: attack Jetting Blow damage=120"
+  ],
+  "options": [
+   "0: play Buddy-Buddy Poffin (ID 1086) / index=1",
+   "1: play Boss’s Orders (ID 1182) / index=3",
+   "2: play Buddy-Buddy Poffin (ID 1086) / index=5",
+   "3: play Boss’s Orders (ID 1182) / index=6",
+   "4: attack Jetting Blow damage=120",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 57,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "CARD",
+  "select_context": "DAMAGE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Dreepy (ID 119) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Dreepy (ID 119) / area=BENCH / index=0",
+   "1: card Dreepy (ID 119) / area=BENCH / index=1",
+   "2: card Duskull (ID 131) / area=BENCH / index=2",
+   "3: card Duskull (ID 131) / area=BENCH / index=3"
+  ]
+ },
+ {
+  "step": 58,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=PRIZE / index=0"
+  ],
+  "options": [
+   "0: card area=PRIZE / index=0",
+   "1: card area=PRIZE / index=1",
+   "2: card area=PRIZE / index=2"
+  ]
+ },
+ {
+  "step": 59,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=PRIZE / index=0"
+  ],
+  "options": [
+   "0: card area=PRIZE / index=0",
+   "1: card area=PRIZE / index=1"
+  ]
+ },
+ {
+  "step": 60,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 6,
+  "select_type": "CARD",
+  "select_context": "TO_ACTIVE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Dreepy (ID 119) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Dreepy (ID 119) / area=BENCH / index=0",
+   "1: card Duskull (ID 131) / area=BENCH / index=1",
+   "2: card Duskull (ID 131) / area=BENCH / index=2"
+  ]
+ },
+ {
+  "step": 61,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Night Stretcher (ID 1097) / index=0"
+  ],
+  "options": [
+   "0: play Night Stretcher (ID 1097) / index=0",
+   "1: play Boss’s Orders (ID 1182) / index=1",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 62,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Budew (ID 235) / area=DISCARD / index=2"
+  ],
+  "options": [
+   "0: card Budew (ID 235) / area=DISCARD / index=2",
+   "1: card Basic {R} Energy (ID 2) / area=DISCARD / index=6",
+   "2: card Meowth ex (ID 1071) / area=DISCARD / index=9",
+   "3: card Basic {P} Energy (ID 5) / area=DISCARD / index=10",
+   "4: card Drakloak (ID 120) / area=DISCARD / index=12",
+   "5: card Dreepy (ID 119) / area=DISCARD / index=13",
+   "6: card Basic {P} Energy (ID 5) / area=DISCARD / index=14",
+   "7: card Dreepy (ID 119) / area=DISCARD / index=15"
+  ]
+ },
+ {
+  "step": 63,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: play Budew (ID 235) / index=1"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Budew (ID 235) / index=1",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 64,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: end turn"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: end turn"
+  ]
+ },
+ {
+  "step": 65,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 8,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   11
+  ],
+  "selected": [
+   "11: attack Jetting Blow damage=120"
+  ],
+  "options": [
+   "0: play Buddy-Buddy Poffin (ID 1086) / index=1",
+   "1: play Boss’s Orders (ID 1182) / index=3",
+   "2: play Buddy-Buddy Poffin (ID 1086) / index=5",
+   "3: play Boss’s Orders (ID 1182) / index=6",
+   "4: play Snorunt (ID 860) / index=7",
+   "5: attach Basic {W} Energy (ID 3) / area=HAND / index=8 / target=ACTIVE:0",
+   "6: attach Basic {W} Energy (ID 3) / area=HAND / index=8 / target=BENCH:0",
+   "7: attach Basic {W} Energy (ID 3) / area=HAND / index=8 / target=BENCH:1",
+   "8: attach Basic {W} Energy (ID 3) / area=HAND / index=8 / target=BENCH:2",
+   "9: attach Basic {W} Energy (ID 3) / area=HAND / index=8 / target=BENCH:3",
+   "10: play Cheren (ID 1224) / index=9",
+   "11: attack Jetting Blow damage=120",
+   "12: end turn"
+  ]
+ },
+ {
+  "step": 66,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 8,
+  "select_type": "CARD",
+  "select_context": "DAMAGE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: card Budew (ID 235) / area=BENCH / index=2"
+  ],
+  "options": [
+   "0: card Duskull (ID 131) / area=BENCH / index=0",
+   "1: card Duskull (ID 131) / area=BENCH / index=1",
+   "2: card Budew (ID 235) / area=BENCH / index=2"
+  ]
+ },
+ {
+  "step": 67,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 8,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=PRIZE / index=0"
+  ],
+  "options": [
+   "0: card area=PRIZE / index=0"
+  ]
+ }
+]
