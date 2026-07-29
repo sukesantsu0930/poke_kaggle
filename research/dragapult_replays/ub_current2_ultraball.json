@@ -1,0 +1,91 @@
+{
+ "agent": "agents/dragapult_rb",
+ "deck": "decks/fleet/popular_4_dragapult.csv",
+ "opponent": "marnie",
+ "result": "loss",
+ "steps": 212,
+ "ultra_ball_uses": [
+  {
+   "turn": 7,
+   "step": 93,
+   "reason": "S-4: Ultra Ball",
+   "hand_before": [
+    "Crispin",
+    "Budew",
+    "Basic {P} Energy",
+    "Latias ex",
+    "Ultra Ball",
+    "Brock’s Scouting"
+   ],
+   "discarded": [
+    "Budew",
+    "Basic {P} Energy"
+   ],
+   "fetched": [
+    "Drakloak"
+   ]
+  },
+  {
+   "turn": 9,
+   "step": 131,
+   "reason": "S-4: Ultra Ball",
+   "hand_before": [
+    "Crispin",
+    "Latias ex",
+    "Poké Pad",
+    "Boss’s Orders",
+    "Crispin",
+    "Ultra Ball",
+    "Lillie's Determination",
+    "Poké Pad"
+   ],
+   "discarded": [
+    "Crispin",
+    "Poké Pad"
+   ],
+   "fetched": [
+    "Dragapult ex"
+   ]
+  },
+  {
+   "turn": 9,
+   "step": 135,
+   "reason": "S-4: Ultra Ball",
+   "hand_before": [
+    "Brock’s Scouting",
+    "Boss’s Orders",
+    "Night Stretcher",
+    "Buddy-Buddy Poffin",
+    "Buddy-Buddy Poffin",
+    "Ultra Ball"
+   ],
+   "discarded": [
+    "Buddy-Buddy Poffin",
+    "Buddy-Buddy Poffin"
+   ],
+   "fetched": [
+    "Dragapult ex"
+   ]
+  },
+  {
+   "turn": 11,
+   "step": 169,
+   "reason": "S-4: Ultra Ball",
+   "hand_before": [
+    "Boss’s Orders",
+    "Crispin",
+    "Ultra Ball",
+    "Basic {R} Energy",
+    "Latias ex",
+    "Buddy-Buddy Poffin",
+    "Lillie's Determination",
+    "Basic {R} Energy"
+   ],
+   "discarded": [
+    "Basic {R} Energy",
+    "Buddy-Buddy Poffin"
+   ],
+   "fetched": []
+  }
+ ]
+}

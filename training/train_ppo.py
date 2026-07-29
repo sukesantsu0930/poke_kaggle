@@ -28,7 +28,7 @@
 使い方（サーバー gs83 / Docker）:
   docker compose run --rm ptcg uv run python training/train_ppo.py \
       --agent agents/marnie_munkidori_rb \
-      --deck decks/fleet/winrate_2_marnie_grimmsnarl.csv \
+      --deck decks/fleet/marnie_mainstream_0718.csv \
       --exclude okidogi,lopunny,rocket --iters 60 --games-per-iter 256 \
       --out build/ppo/marnie
 
@@ -556,7 +556,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--agent", default="agents/marnie_munkidori_rb")
     ap.add_argument("--deck",
-                    default="decks/fleet/winrate_2_marnie_grimmsnarl.csv")
+                    default="decks/fleet/marnie_mainstream_0718.csv")
     ap.add_argument("--field", default="research/meta/2026-07-14_field.csv")
     ap.add_argument("--exclude", default="okidogi,lopunny,rocket",
                     help="学習プールから外す holdout（CEM/EXP-009 と同じ既定）")

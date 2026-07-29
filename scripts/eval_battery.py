@@ -10,7 +10,7 @@
 使い方:
   PYTHONIOENCODING=utf-8 .venv/Scripts/python.exe scripts/eval_battery.py ^
       --agent agents/marnie_munkidori_rb ^
-      --deck decks/fleet/winrate_2_marnie_grimmsnarl.csv ^
+      --deck decks/fleet/marnie_mainstream_0718.csv ^
       --archetype-cards 648,112 --holdout downloads/episodes/2026-07-05 ^
       [--games 30] [--check-games 10] [--div-max-games 60] [--min-score 900] [--only l1,l3]
 

@@ -1,0 +1,1900 @@
+[
+ {
+  "step": 0,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 0,
+  "select_type": "YES_NO",
+  "select_context": "IS_FIRST",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: yes"
+  ],
+  "options": [
+   "0: yes",
+   "1: no"
+  ]
+ },
+ {
+  "step": 1,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 0,
+  "select_type": "CARD",
+  "select_context": "SETUP_ACTIVE_POKEMON",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Snorunt (ID 860) / area=HAND / index=5"
+  ],
+  "options": [
+   "0: card Snorunt (ID 860) / area=HAND / index=5"
+  ]
+ },
+ {
+  "step": 2,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 0,
+  "select_type": "CARD",
+  "select_context": "SETUP_ACTIVE_POKEMON",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Dwebble (ID 344) / area=HAND / index=3"
+  ],
+  "options": [
+   "0: card Dwebble (ID 344) / area=HAND / index=3"
+  ]
+ },
+ {
+  "step": 3,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Buddy-Buddy Poffin (ID 1086) / index=0"
+  ],
+  "options": [
+   "0: play Buddy-Buddy Poffin (ID 1086) / index=0",
+   "1: play Poké Pad (ID 1152) / index=2",
+   "2: attach Basic {D} Energy (ID 7) / area=HAND / index=4 / target=ACTIVE:0",
+   "3: attach Basic {D} Energy (ID 7) / area=HAND / index=6 / target=ACTIVE:0",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 4,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "CARD",
+  "select_context": "TO_BENCH",
+  "min_count": 0,
+  "max_count": 2,
+  "action": [
+   0,
+   1
+  ],
+  "selected": [
+   "0: card Marnie's Impidimp (ID 646) / area=DECK / index=34",
+   "1: card Marnie's Impidimp (ID 646) / area=DECK / index=38"
+  ],
+  "options": [
+   "0: card Marnie's Impidimp (ID 646) / area=DECK / index=34",
+   "1: card Marnie's Impidimp (ID 646) / area=DECK / index=38",
+   "2: card Snorunt (ID 860) / area=DECK / index=41",
+   "3: card Marnie's Impidimp (ID 646) / area=DECK / index=42",
+   "4: card Marnie's Impidimp (ID 646) / area=DECK / index=43"
+  ]
+ },
+ {
+  "step": 5,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Poké Pad (ID 1152) / index=1"
+  ],
+  "options": [
+   "0: play Poké Pad (ID 1152) / index=1",
+   "1: attach Basic {D} Energy (ID 7) / area=HAND / index=3 / target=ACTIVE:0",
+   "2: attach Basic {D} Energy (ID 7) / area=HAND / index=3 / target=BENCH:0",
+   "3: attach Basic {D} Energy (ID 7) / area=HAND / index=3 / target=BENCH:1",
+   "4: attach Basic {D} Energy (ID 7) / area=HAND / index=5 / target=ACTIVE:0",
+   "5: attach Basic {D} Energy (ID 7) / area=HAND / index=5 / target=BENCH:0",
+   "6: attach Basic {D} Energy (ID 7) / area=HAND / index=5 / target=BENCH:1",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 6,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Munkidori (ID 112) / area=DECK / index=7"
+  ],
+  "options": [
+   "0: card Munkidori (ID 112) / area=DECK / index=7",
+   "1: card Froslass (ID 104) / area=DECK / index=12",
+   "2: card Snorunt (ID 860) / area=DECK / index=14",
+   "3: card Marnie's Morgrem (ID 647) / area=DECK / index=15",
+   "4: card Munkidori (ID 112) / area=DECK / index=19",
+   "5: card Munkidori (ID 112) / area=DECK / index=21",
+   "6: card Marnie's Impidimp (ID 646) / area=DECK / index=24",
+   "7: card Marnie's Impidimp (ID 646) / area=DECK / index=30",
+   "8: card Munkidori (ID 112) / area=DECK / index=35",
+   "9: card Froslass (ID 104) / area=DECK / index=39"
+  ]
+ },
+ {
+  "step": 7,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   6
+  ],
+  "selected": [
+   "6: play Munkidori (ID 112) / index=5"
+  ],
+  "options": [
+   "0: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=ACTIVE:0",
+   "1: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=BENCH:0",
+   "2: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=BENCH:1",
+   "3: attach Basic {D} Energy (ID 7) / area=HAND / index=4 / target=ACTIVE:0",
+   "4: attach Basic {D} Energy (ID 7) / area=HAND / index=4 / target=BENCH:0",
+   "5: attach Basic {D} Energy (ID 7) / area=HAND / index=4 / target=BENCH:1",
+   "6: play Munkidori (ID 112) / index=5",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 8,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=BENCH:2"
+  ],
+  "options": [
+   "0: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=ACTIVE:0",
+   "1: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=BENCH:0",
+   "2: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=BENCH:1",
+   "3: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=BENCH:2",
+   "4: attach Basic {D} Energy (ID 7) / area=HAND / index=4 / target=ACTIVE:0",
+   "5: attach Basic {D} Energy (ID 7) / area=HAND / index=4 / target=BENCH:0",
+   "6: attach Basic {D} Energy (ID 7) / area=HAND / index=4 / target=BENCH:1",
+   "7: attach Basic {D} Energy (ID 7) / area=HAND / index=4 / target=BENCH:2",
+   "8: end turn"
+  ]
+ },
+ {
+  "step": 9,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: end turn"
+  ],
+  "options": [
+   "0: end turn"
+  ]
+ },
+ {
+  "step": 10,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   4
+  ],
+  "selected": [
+   "4: play Buddy-Buddy Poffin (ID 1086) / index=5"
+  ],
+  "options": [
+   "0: play Hilda (ID 1225) / index=0",
+   "1: attach Mist Energy (ID 11) / area=HAND / index=1 / target=ACTIVE:0",
+   "2: play Xerosic’s Machinations (ID 1197) / index=2",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0",
+   "4: play Buddy-Buddy Poffin (ID 1086) / index=5",
+   "5: play Buddy-Buddy Poffin (ID 1086) / index=6",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 11,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "TO_BENCH",
+  "min_count": 0,
+  "max_count": 2,
+  "action": [
+   0,
+   1
+  ],
+  "selected": [
+   "0: card Dwebble (ID 344) / area=DECK / index=11",
+   "1: card Dwebble (ID 344) / area=DECK / index=18"
+  ],
+  "options": [
+   "0: card Dwebble (ID 344) / area=DECK / index=11",
+   "1: card Dwebble (ID 344) / area=DECK / index=18",
+   "2: card Dwebble (ID 344) / area=DECK / index=25"
+  ]
+ },
+ {
+  "step": 12,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   9
+  ],
+  "selected": [
+   "9: play Buddy-Buddy Poffin (ID 1086) / index=5"
+  ],
+  "options": [
+   "0: play Hilda (ID 1225) / index=0",
+   "1: attach Mist Energy (ID 11) / area=HAND / index=1 / target=ACTIVE:0",
+   "2: attach Mist Energy (ID 11) / area=HAND / index=1 / target=BENCH:0",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=1 / target=BENCH:1",
+   "4: play Xerosic’s Machinations (ID 1197) / index=2",
+   "5: play Switch (ID 1123) / index=3",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:0",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:1",
+   "9: play Buddy-Buddy Poffin (ID 1086) / index=5",
+   "10: end turn"
+  ]
+ },
+ {
+  "step": 13,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "TO_BENCH",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Dwebble (ID 344) / area=DECK / index=9"
+  ],
+  "options": [
+   "0: card Dwebble (ID 344) / area=DECK / index=9"
+  ]
+ },
+ {
+  "step": 14,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Hilda (ID 1225) / index=0"
+  ],
+  "options": [
+   "0: play Hilda (ID 1225) / index=0",
+   "1: attach Mist Energy (ID 11) / area=HAND / index=1 / target=ACTIVE:0",
+   "2: attach Mist Energy (ID 11) / area=HAND / index=1 / target=BENCH:0",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=1 / target=BENCH:1",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=1 / target=BENCH:2",
+   "5: play Xerosic’s Machinations (ID 1197) / index=2",
+   "6: play Switch (ID 1123) / index=3",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:0",
+   "9: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:1",
+   "10: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:2",
+   "11: end turn"
+  ]
+ },
+ {
+  "step": 15,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Crustle (ID 345) / area=DECK / index=3"
+  ],
+  "options": [
+   "0: card Crustle (ID 345) / area=DECK / index=3",
+   "1: card Crustle (ID 345) / area=DECK / index=35",
+   "2: card Crustle (ID 345) / area=DECK / index=37"
+  ]
+ },
+ {
+  "step": 16,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Grow Grass Energy (ID 18) / area=DECK / index=0"
+  ],
+  "options": [
+   "0: card Grow Grass Energy (ID 18) / area=DECK / index=0",
+   "1: card Mist Energy (ID 11) / area=DECK / index=12",
+   "2: card Grow Grass Energy (ID 18) / area=DECK / index=21",
+   "3: card Spiky Energy (ID 14) / area=DECK / index=25",
+   "4: card Spiky Energy (ID 14) / area=DECK / index=26",
+   "5: card Mist Energy (ID 11) / area=DECK / index=27",
+   "6: card Grow Grass Energy (ID 18) / area=DECK / index=30",
+   "7: card Basic {G} Energy (ID 1) / area=DECK / index=40"
+  ]
+ },
+ {
+  "step": 17,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   9
+  ],
+  "selected": [
+   "9: attach Grow Grass Energy (ID 18) / area=HAND / index=5 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: attach Mist Energy (ID 11) / area=HAND / index=0 / target=ACTIVE:0",
+   "1: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:0",
+   "2: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:1",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:2",
+   "4: play Switch (ID 1123) / index=2",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=3 / target=ACTIVE:0",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:0",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:1",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:2",
+   "9: attach Grow Grass Energy (ID 18) / area=HAND / index=5 / target=ACTIVE:0",
+   "10: attach Grow Grass Energy (ID 18) / area=HAND / index=5 / target=BENCH:0",
+   "11: attach Grow Grass Energy (ID 18) / area=HAND / index=5 / target=BENCH:1",
+   "12: attach Grow Grass Energy (ID 18) / area=HAND / index=5 / target=BENCH:2",
+   "13: end turn"
+  ]
+ },
+ {
+  "step": 18,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: attack Ascension damage=0"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=2",
+   "1: attack Ascension damage=0",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 19,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "EVOLVES_TO",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Crustle (ID 345) / area=DECK / index=11"
+  ],
+  "options": [
+   "0: card Crustle (ID 345) / area=DECK / index=11",
+   "1: card Crustle (ID 345) / area=DECK / index=18"
+  ]
+ },
+ {
+  "step": 20,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: evolve Marnie's Morgrem (ID 647) / area=HAND / index=0 / target=BENCH:0"
+  ],
+  "options": [
+   "0: evolve Marnie's Morgrem (ID 647) / area=HAND / index=0 / target=BENCH:0",
+   "1: evolve Marnie's Morgrem (ID 647) / area=HAND / index=0 / target=BENCH:1",
+   "2: play Team Rocket's Petrel (ID 1219) / index=1",
+   "3: attach Basic {D} Energy (ID 7) / area=HAND / index=3 / target=ACTIVE:0",
+   "4: attach Basic {D} Energy (ID 7) / area=HAND / index=3 / target=BENCH:0",
+   "5: attach Basic {D} Energy (ID 7) / area=HAND / index=3 / target=BENCH:1",
+   "6: attach Basic {D} Energy (ID 7) / area=HAND / index=3 / target=BENCH:2",
+   "7: play Team Rocket's Petrel (ID 1219) / index=4",
+   "8: end turn"
+  ]
+ },
+ {
+  "step": 21,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Team Rocket's Petrel (ID 1219) / index=0",
+   "1: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=ACTIVE:0",
+   "2: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=BENCH:0",
+   "3: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=BENCH:1",
+   "4: attach Basic {D} Energy (ID 7) / area=HAND / index=2 / target=BENCH:2",
+   "5: play Team Rocket's Petrel (ID 1219) / index=3",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 22,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Team Rocket's Petrel (ID 1219) / index=0"
+  ],
+  "options": [
+   "0: play Team Rocket's Petrel (ID 1219) / index=0",
+   "1: play Team Rocket's Petrel (ID 1219) / index=2",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 23,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   6
+  ],
+  "selected": [
+   "6: card Rare Candy (ID 1079) / area=DECK / index=12"
+  ],
+  "options": [
+   "0: card Lillie's Determination (ID 1227) / area=DECK / index=0",
+   "1: card Unfair Stamp (ID 1080) / area=DECK / index=3",
+   "2: card Spikemuth Gym (ID 1259) / area=DECK / index=4",
+   "3: card Spikemuth Gym (ID 1259) / area=DECK / index=6",
+   "4: card Lillie's Determination (ID 1227) / area=DECK / index=9",
+   "5: card Buddy-Buddy Poffin (ID 1086) / area=DECK / index=10",
+   "6: card Rare Candy (ID 1079) / area=DECK / index=12",
+   "7: card Lillie's Determination (ID 1227) / area=DECK / index=13",
+   "8: card Pokégear 3.0 (ID 1122) / area=DECK / index=17",
+   "9: card Team Rocket's Petrel (ID 1219) / area=DECK / index=18",
+   "10: card Spikemuth Gym (ID 1259) / area=DECK / index=19",
+   "11: card Buddy-Buddy Poffin (ID 1086) / area=DECK / index=21",
+   "12: card Rare Candy (ID 1079) / area=DECK / index=22",
+   "13: card Night Stretcher (ID 1097) / area=DECK / index=24",
+   "14: card Poké Pad (ID 1152) / area=DECK / index=25",
+   "15: card Team Rocket's Petrel (ID 1219) / area=DECK / index=26",
+   "16: card Boss’s Orders (ID 1182) / area=DECK / index=27",
+   "17: card Dawn (ID 1231) / area=DECK / index=29",
+   "18: card Night Stretcher (ID 1097) / area=DECK / index=30",
+   "19: card Poké Pad (ID 1152) / area=DECK / index=37",
+   "20: card Buddy-Buddy Poffin (ID 1086) / area=DECK / index=38",
+   "21: card Lillie's Determination (ID 1227) / area=DECK / index=39",
+   "22: card Night Stretcher (ID 1097) / area=DECK / index=40",
+   "23: card Poké Pad (ID 1152) / area=DECK / index=41"
+  ]
+ },
+ {
+  "step": 24,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: end turn"
+  ],
+  "options": [
+   "0: end turn"
+  ]
+ },
+ {
+  "step": 25,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   9
+  ],
+  "selected": [
+   "9: evolve Crustle (ID 345) / area=HAND / index=4 / target=BENCH:0"
+  ],
+  "options": [
+   "0: attach Mist Energy (ID 11) / area=HAND / index=0 / target=ACTIVE:0",
+   "1: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:0",
+   "2: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:1",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:2",
+   "4: play Switch (ID 1123) / index=2",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=3 / target=ACTIVE:0",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:0",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:1",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:2",
+   "9: evolve Crustle (ID 345) / area=HAND / index=4 / target=BENCH:0",
+   "10: evolve Crustle (ID 345) / area=HAND / index=4 / target=BENCH:1",
+   "11: evolve Crustle (ID 345) / area=HAND / index=4 / target=BENCH:2",
+   "12: play Battle Cage (ID 1264) / index=5",
+   "13: end turn"
+  ]
+ },
+ {
+  "step": 26,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   9
+  ],
+  "selected": [
+   "9: play Battle Cage (ID 1264) / index=4"
+  ],
+  "options": [
+   "0: attach Mist Energy (ID 11) / area=HAND / index=0 / target=ACTIVE:0",
+   "1: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:0",
+   "2: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:1",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:2",
+   "4: play Switch (ID 1123) / index=2",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=3 / target=ACTIVE:0",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:0",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:1",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:2",
+   "9: play Battle Cage (ID 1264) / index=4",
+   "10: end turn"
+  ]
+ },
+ {
+  "step": 27,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: attach Mist Energy (ID 11) / area=HAND / index=0 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: attach Mist Energy (ID 11) / area=HAND / index=0 / target=ACTIVE:0",
+   "1: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:0",
+   "2: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:1",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=0 / target=BENCH:2",
+   "4: play Switch (ID 1123) / index=2",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=3 / target=ACTIVE:0",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:0",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:1",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:2",
+   "9: end turn"
+  ]
+ },
+ {
+  "step": 28,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: end turn"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=1",
+   "1: end turn"
+  ]
+ },
+ {
+  "step": 29,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Team Rocket's Petrel (ID 1219) / index=1"
+  ],
+  "options": [
+   "0: play Team Rocket's Petrel (ID 1219) / index=1",
+   "1: end turn"
+  ]
+ },
+ {
+  "step": 30,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   8
+  ],
+  "selected": [
+   "8: card Rare Candy (ID 1079) / area=DECK / index=15"
+  ],
+  "options": [
+   "0: card Boss’s Orders (ID 1182) / area=DECK / index=1",
+   "1: card Lillie's Determination (ID 1227) / area=DECK / index=2",
+   "2: card Night Stretcher (ID 1097) / area=DECK / index=5",
+   "3: card Spikemuth Gym (ID 1259) / area=DECK / index=6",
+   "4: card Poké Pad (ID 1152) / area=DECK / index=8",
+   "5: card Buddy-Buddy Poffin (ID 1086) / area=DECK / index=9",
+   "6: card Night Stretcher (ID 1097) / area=DECK / index=11",
+   "7: card Buddy-Buddy Poffin (ID 1086) / area=DECK / index=13",
+   "8: card Rare Candy (ID 1079) / area=DECK / index=15",
+   "9: card Poké Pad (ID 1152) / area=DECK / index=18",
+   "10: card Buddy-Buddy Poffin (ID 1086) / area=DECK / index=19",
+   "11: card Lillie's Determination (ID 1227) / area=DECK / index=20",
+   "12: card Pokégear 3.0 (ID 1122) / area=DECK / index=22",
+   "13: card Spikemuth Gym (ID 1259) / area=DECK / index=23",
+   "14: card Night Stretcher (ID 1097) / area=DECK / index=24",
+   "15: card Dawn (ID 1231) / area=DECK / index=29",
+   "16: card Spikemuth Gym (ID 1259) / area=DECK / index=30",
+   "17: card Team Rocket's Petrel (ID 1219) / area=DECK / index=34",
+   "18: card Poké Pad (ID 1152) / area=DECK / index=36",
+   "19: card Lillie's Determination (ID 1227) / area=DECK / index=37",
+   "20: card Lillie's Determination (ID 1227) / area=DECK / index=38",
+   "21: card Team Rocket's Petrel (ID 1219) / area=DECK / index=39"
+  ]
+ },
+ {
+  "step": 31,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: end turn"
+  ],
+  "options": [
+   "0: end turn"
+  ]
+ },
+ {
+  "step": 32,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attach Mist Energy (ID 11) / area=HAND / index=2 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: play Xerosic’s Machinations (ID 1197) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: attach Mist Energy (ID 11) / area=HAND / index=2 / target=ACTIVE:0",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=2 / target=BENCH:0",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=2 / target=BENCH:1",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=2 / target=BENCH:2",
+   "6: play Switch (ID 1123) / index=3",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 33,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Xerosic’s Machinations (ID 1197) / index=0"
+  ],
+  "options": [
+   "0: play Xerosic’s Machinations (ID 1197) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: play Switch (ID 1123) / index=2",
+   "3: attack Superb Scissors damage=120",
+   "4: retreat",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 34,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 6,
+  "select_type": "CARD",
+  "select_context": "DISCARD",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: card Unfair Stamp (ID 1080) / area=HAND / index=2"
+  ],
+  "options": [
+   "0: card Rare Candy (ID 1079) / area=HAND / index=0",
+   "1: card Rare Candy (ID 1079) / area=HAND / index=1",
+   "2: card Unfair Stamp (ID 1080) / area=HAND / index=2",
+   "3: card Rare Candy (ID 1079) / area=HAND / index=3"
+  ]
+ },
+ {
+  "step": 35,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attack Superb Scissors damage=120"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: attack Superb Scissors damage=120",
+   "3: retreat",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 36,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=PRIZE / index=0"
+  ],
+  "options": [
+   "0: card area=PRIZE / index=0",
+   "1: card area=PRIZE / index=1",
+   "2: card area=PRIZE / index=2",
+   "3: card area=PRIZE / index=3",
+   "4: card area=PRIZE / index=4",
+   "5: card area=PRIZE / index=5"
+  ]
+ },
+ {
+  "step": 37,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 6,
+  "select_type": "CARD",
+  "select_context": "TO_ACTIVE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Marnie's Morgrem (ID 647) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Marnie's Morgrem (ID 647) / area=BENCH / index=0",
+   "1: card Marnie's Impidimp (ID 646) / area=BENCH / index=1",
+   "2: card Munkidori (ID 112) / area=BENCH / index=2"
+  ]
+ },
+ {
+  "step": 38,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Munkidori (ID 112) / index=3"
+  ],
+  "options": [
+   "0: play Munkidori (ID 112) / index=3",
+   "1: retreat",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 39,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: retreat"
+  ],
+  "options": [
+   "0: retreat",
+   "1: end turn"
+  ]
+ },
+ {
+  "step": 40,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "ENERGY",
+  "select_context": "DISCARD_ENERGY",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: energy Marnie's Morgrem (ID 647) / area=ACTIVE / index=0"
+  ],
+  "options": [
+   "0: energy Marnie's Morgrem (ID 647) / area=ACTIVE / index=0"
+  ]
+ },
+ {
+  "step": 41,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "CARD",
+  "select_context": "SWITCH",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Marnie's Impidimp (ID 646) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Marnie's Impidimp (ID 646) / area=BENCH / index=0",
+   "1: card Munkidori (ID 112) / area=BENCH / index=1",
+   "2: card Munkidori (ID 112) / area=BENCH / index=2"
+  ]
+ },
+ {
+  "step": 42,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: end turn"
+  ],
+  "options": [
+   "0: end turn"
+  ]
+ },
+ {
+  "step": 43,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 8,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   6
+  ],
+  "selected": [
+   "6: play Mega Kangaskhan ex (ID 756) / index=3"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=ACTIVE:0",
+   "3: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:0",
+   "4: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:1",
+   "5: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:2",
+   "6: play Mega Kangaskhan ex (ID 756) / index=3",
+   "7: attack Superb Scissors damage=120",
+   "8: retreat",
+   "9: end turn"
+  ]
+ },
+ {
+  "step": 44,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 8,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   6
+  ],
+  "selected": [
+   "6: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:3"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=ACTIVE:0",
+   "3: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:0",
+   "4: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:1",
+   "5: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:2",
+   "6: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:3",
+   "7: attack Superb Scissors damage=120",
+   "8: retreat",
+   "9: end turn"
+  ]
+ },
+ {
+  "step": 45,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 8,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attack Superb Scissors damage=120"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: attack Superb Scissors damage=120",
+   "3: retreat",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 46,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 8,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=PRIZE / index=0"
+  ],
+  "options": [
+   "0: card area=PRIZE / index=0",
+   "1: card area=PRIZE / index=1",
+   "2: card area=PRIZE / index=2",
+   "3: card area=PRIZE / index=3",
+   "4: card area=PRIZE / index=4"
+  ]
+ },
+ {
+  "step": 47,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 8,
+  "select_type": "CARD",
+  "select_context": "TO_ACTIVE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Marnie's Morgrem (ID 647) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Marnie's Morgrem (ID 647) / area=BENCH / index=0",
+   "1: card Munkidori (ID 112) / area=BENCH / index=1",
+   "2: card Munkidori (ID 112) / area=BENCH / index=2"
+  ]
+ },
+ {
+  "step": 48,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 9,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Munkidori (ID 112) / index=3"
+  ],
+  "options": [
+   "0: play Munkidori (ID 112) / index=3",
+   "1: end turn"
+  ]
+ },
+ {
+  "step": 49,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 9,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: end turn"
+  ],
+  "options": [
+   "0: end turn"
+  ]
+ },
+ {
+  "step": 50,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 10,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=ACTIVE:0",
+   "3: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:0",
+   "4: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:1",
+   "5: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:2",
+   "6: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:3",
+   "7: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=ACTIVE:0",
+   "8: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:0",
+   "9: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:1",
+   "10: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:2",
+   "11: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:3",
+   "12: attack Superb Scissors damage=120",
+   "13: retreat",
+   "14: end turn"
+  ]
+ },
+ {
+  "step": 51,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 10,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attack Superb Scissors damage=120"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: attack Superb Scissors damage=120",
+   "3: retreat",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 52,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 10,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=PRIZE / index=0"
+  ],
+  "options": [
+   "0: card area=PRIZE / index=0",
+   "1: card area=PRIZE / index=1",
+   "2: card area=PRIZE / index=2",
+   "3: card area=PRIZE / index=3"
+  ]
+ },
+ {
+  "step": 53,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 10,
+  "select_type": "CARD",
+  "select_context": "TO_ACTIVE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Munkidori (ID 112) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Munkidori (ID 112) / area=BENCH / index=0",
+   "1: card Munkidori (ID 112) / area=BENCH / index=1",
+   "2: card Munkidori (ID 112) / area=BENCH / index=2"
+  ]
+ },
+ {
+  "step": 54,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 11,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: attach Basic {D} Energy (ID 7) / area=HAND / index=3 / target=BENCH:0"
+  ],
+  "options": [
+   "0: attach Basic {D} Energy (ID 7) / area=HAND / index=3 / target=ACTIVE:0",
+   "1: attach Basic {D} Energy (ID 7) / area=HAND / index=3 / target=BENCH:0",
+   "2: attach Basic {D} Energy (ID 7) / area=HAND / index=3 / target=BENCH:1",
+   "3: retreat",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 55,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 11,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: retreat"
+  ],
+  "options": [
+   "0: retreat",
+   "1: end turn"
+  ]
+ },
+ {
+  "step": 56,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 11,
+  "select_type": "ENERGY",
+  "select_context": "DISCARD_ENERGY",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: energy Munkidori (ID 112) / area=ACTIVE / index=0"
+  ],
+  "options": [
+   "0: energy Munkidori (ID 112) / area=ACTIVE / index=0"
+  ]
+ },
+ {
+  "step": 57,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 11,
+  "select_type": "CARD",
+  "select_context": "SWITCH",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Munkidori (ID 112) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Munkidori (ID 112) / area=BENCH / index=0",
+   "1: card Munkidori (ID 112) / area=BENCH / index=1"
+  ]
+ },
+ {
+  "step": 58,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 11,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: end turn"
+  ],
+  "options": [
+   "0: end turn"
+  ]
+ },
+ {
+  "step": 59,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 12,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   12
+  ],
+  "selected": [
+   "12: play Mega Kangaskhan ex (ID 756) / index=4"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=ACTIVE:0",
+   "3: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:0",
+   "4: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:1",
+   "5: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:2",
+   "6: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:3",
+   "7: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=ACTIVE:0",
+   "8: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:0",
+   "9: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:1",
+   "10: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:2",
+   "11: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:3",
+   "12: play Mega Kangaskhan ex (ID 756) / index=4",
+   "13: attack Superb Scissors damage=120",
+   "14: retreat",
+   "15: end turn"
+  ]
+ },
+ {
+  "step": 60,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 12,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=ACTIVE:0",
+   "3: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:0",
+   "4: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:1",
+   "5: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:2",
+   "6: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:3",
+   "7: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:4",
+   "8: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=ACTIVE:0",
+   "9: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:0",
+   "10: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:1",
+   "11: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:2",
+   "12: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:3",
+   "13: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:4",
+   "14: attack Superb Scissors damage=120",
+   "15: retreat",
+   "16: end turn"
+  ]
+ },
+ {
+  "step": 61,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 12,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attack Superb Scissors damage=120"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: attack Superb Scissors damage=120",
+   "3: retreat",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 62,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 12,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=PRIZE / index=0"
+  ],
+  "options": [
+   "0: card area=PRIZE / index=0",
+   "1: card area=PRIZE / index=1",
+   "2: card area=PRIZE / index=2"
+  ]
+ },
+ {
+  "step": 63,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 12,
+  "select_type": "CARD",
+  "select_context": "TO_ACTIVE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Munkidori (ID 112) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Munkidori (ID 112) / area=BENCH / index=0",
+   "1: card Munkidori (ID 112) / area=BENCH / index=1"
+  ]
+ },
+ {
+  "step": 64,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 13,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: end turn"
+  ],
+  "options": [
+   "0: end turn"
+  ]
+ },
+ {
+  "step": 65,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 14,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   6
+  ],
+  "selected": [
+   "6: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:3"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=ACTIVE:0",
+   "3: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:0",
+   "4: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:1",
+   "5: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:2",
+   "6: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:3",
+   "7: attach Spiky Energy (ID 14) / area=HAND / index=2 / target=BENCH:4",
+   "8: play Lillie's Determination (ID 1227) / index=3",
+   "9: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=ACTIVE:0",
+   "10: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:0",
+   "11: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:1",
+   "12: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:2",
+   "13: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:3",
+   "14: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:4",
+   "15: attack Superb Scissors damage=120",
+   "16: retreat",
+   "17: end turn"
+  ]
+ },
+ {
+  "step": 66,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 14,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Lillie's Determination (ID 1227) / index=2"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=0",
+   "1: play Switch (ID 1123) / index=1",
+   "2: play Lillie's Determination (ID 1227) / index=2",
+   "3: attack Superb Scissors damage=120",
+   "4: retreat",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 67,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 14,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Pokégear 3.0 (ID 1122) / index=3"
+  ],
+  "options": [
+   "0: play Pokégear 3.0 (ID 1122) / index=3",
+   "1: play Pokégear 3.0 (ID 1122) / index=4",
+   "2: attack Superb Scissors damage=120",
+   "3: retreat",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 68,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 14,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=LOOKING / index=1"
+  ],
+  "options": [
+   "0: card area=LOOKING / index=1",
+   "1: card area=LOOKING / index=4"
+  ]
+ },
+ {
+  "step": 69,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 14,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Pokégear 3.0 (ID 1122) / index=3"
+  ],
+  "options": [
+   "0: play Pokégear 3.0 (ID 1122) / index=3",
+   "1: attack Superb Scissors damage=120",
+   "2: retreat",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 70,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 14,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=LOOKING / index=5"
+  ],
+  "options": [
+   "0: card area=LOOKING / index=5"
+  ]
+ },
+ {
+  "step": 71,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 14,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: attack Superb Scissors damage=120"
+  ],
+  "options": [
+   "0: attack Superb Scissors damage=120",
+   "1: retreat",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 72,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 14,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=PRIZE / index=0"
+  ],
+  "options": [
+   "0: card area=PRIZE / index=0",
+   "1: card area=PRIZE / index=1"
+  ]
+ },
+ {
+  "step": 73,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 14,
+  "select_type": "CARD",
+  "select_context": "TO_ACTIVE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Munkidori (ID 112) / area=BENCH / index=0"
+  ],
+  "options": [
+   "0: card Munkidori (ID 112) / area=BENCH / index=0"
+  ]
+ },
+ {
+  "step": 74,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 15,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Poké Pad (ID 1152) / index=4"
+  ],
+  "options": [
+   "0: play Poké Pad (ID 1152) / index=4",
+   "1: end turn"
+  ]
+ },
+ {
+  "step": 75,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 15,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: card Marnie's Impidimp (ID 646) / area=DECK / index=16"
+  ],
+  "options": [
+   "0: card Froslass (ID 104) / area=DECK / index=7",
+   "1: card Marnie's Impidimp (ID 646) / area=DECK / index=16",
+   "2: card Munkidori (ID 112) / area=DECK / index=22",
+   "3: card Snorunt (ID 860) / area=DECK / index=23",
+   "4: card Marnie's Morgrem (ID 647) / area=DECK / index=25",
+   "5: card Marnie's Impidimp (ID 646) / area=DECK / index=32"
+  ]
+ },
+ {
+  "step": 76,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 15,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Marnie's Impidimp (ID 646) / index=4"
+  ],
+  "options": [
+   "0: play Marnie's Impidimp (ID 646) / index=4",
+   "1: end turn"
+  ]
+ },
+ {
+  "step": 77,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 15,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: end turn"
+  ],
+  "options": [
+   "0: end turn"
+  ]
+ },
+ {
+  "step": 78,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 16,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   17
+  ],
+  "selected": [
+   "17: attack Superb Scissors damage=120"
+  ],
+  "options": [
+   "0: attach Basic {G} Energy (ID 1) / area=HAND / index=0 / target=ACTIVE:0",
+   "1: attach Basic {G} Energy (ID 1) / area=HAND / index=0 / target=BENCH:0",
+   "2: attach Basic {G} Energy (ID 1) / area=HAND / index=0 / target=BENCH:1",
+   "3: attach Basic {G} Energy (ID 1) / area=HAND / index=0 / target=BENCH:2",
+   "4: attach Basic {G} Energy (ID 1) / area=HAND / index=0 / target=BENCH:3",
+   "5: attach Basic {G} Energy (ID 1) / area=HAND / index=0 / target=BENCH:4",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=1 / target=ACTIVE:0",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=1 / target=BENCH:0",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=1 / target=BENCH:1",
+   "9: attach Mist Energy (ID 11) / area=HAND / index=1 / target=BENCH:2",
+   "10: attach Mist Energy (ID 11) / area=HAND / index=1 / target=BENCH:3",
+   "11: attach Mist Energy (ID 11) / area=HAND / index=1 / target=BENCH:4",
+   "12: play Lillie's Determination (ID 1227) / index=4",
+   "13: play Hilda (ID 1225) / index=5",
+   "14: evolve Crustle (ID 345) / area=HAND / index=6 / target=BENCH:1",
+   "15: evolve Crustle (ID 345) / area=HAND / index=6 / target=BENCH:2",
+   "16: play Hilda (ID 1225) / index=7",
+   "17: attack Superb Scissors damage=120",
+   "18: retreat",
+   "19: end turn"
+  ]
+ },
+ {
+  "step": 79,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 16,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card area=PRIZE / index=0"
+  ],
+  "options": [
+   "0: card area=PRIZE / index=0"
+  ]
+ }
+]

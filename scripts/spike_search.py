@@ -22,7 +22,7 @@ from ab_battle import load_agent, get_policy, read_deck, reset_agent  # noqa: E4
 
 MARNIE = ROOT / "agents" / "marnie_munkidori_rb"
 CHAND = ROOT / "agents" / "chandelure_rb"
-DECK0 = read_deck(ROOT / "decks" / "candidates" / "2026-06-30_top5" / "winrate_2_marnie_grimmsnarl.csv")
+DECK0 = read_deck(ROOT / "decks" / "fleet" / "marnie_mainstream_0718.csv")
 DECK1 = read_deck(ROOT / "decks" / "candidates" / "chandelure_top.csv")
 
 rng = random.Random(7)

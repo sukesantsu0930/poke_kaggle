@@ -1,5 +1,5 @@
 name: marnie_munkidori
-deck: decks/fleet/winrate_2_marnie_grimmsnarl.csv
+deck: decks/fleet/marnie_mainstream_0718.csv
 agent: agents/marnie_munkidori_rb
 concept: "オーロンゲexのShadow Bulletを打つ（サブゴール: 場のオーロンゲexにエネ2枚）"
 protocol: protocol.py

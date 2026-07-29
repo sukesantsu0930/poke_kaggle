@@ -9,7 +9,7 @@
 
 使い方:
   uv run python training/optimize_theta.py --agent agents/marnie_munkidori_rb \
-      --deck decks/fleet/winrate_2_marnie_grimmsnarl.csv \
+      --deck decks/fleet/marnie_mainstream_0718.csv \
       --init agents/marnie_munkidori_rb/theta.json --top-k 24 \
       [--pop 12] [--elite 3] [--iters 20] [--games 8] [--sigma 2000] \
       [--only marnie,alakazam] [--out build/cem/marnie]

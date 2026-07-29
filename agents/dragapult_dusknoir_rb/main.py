@@ -74,6 +74,7 @@ ULTRA_BALL = 1121
 POKE_PAD = 1152
 BOSS = mt.BOSS          # 1182
 CRISPIN = 1198          # アカマツ
+BROCK = 1210            # タケシのスカウト（山からたね2枚 or 進化1枚を手札へ）
 LILLIE = 1227           # リーリエの決心（手札を山へ戻して6ドロー）
 DAWN = 1231             # ヒカリ（たね+1進化+2進化サーチ）
 ROSA = 1240             # メイのはげまし（サイド負け時のみ・トラッシュから基本エネ2枚を2進化へ）
@@ -104,6 +105,10 @@ ATTACKER_IDS_LEARNED = frozenset({58, 63, 96, 108, 116, 117, 121, 169, 190, 245,
                                   381, 401, 431, 648, 666, 674, 678, 743, 849, 861, 1031})
 
 DRAGAPULT_LINE = frozenset({DREEPY, DRAKLOAK, DRAGAPULT_EX})
+# DUSK_CONCENTRATE の「集中先をまだ仕上げられる見込みがあるか」の材料（通常版 DIG_OUT_IDS
+# の移植）。手札にこれらがあるうちは、集中先のドラパルト化がまだ確定不可能とは言えない。
+# ヒカリは2進化を直接サーチできるので本機では追加（ポフィンはたね専用なので対象外）。
+DIG_OUT_IDS = frozenset({ULTRA_BALL, POKE_PAD, LILLIE, CRISPIN, BROCK, NIGHT_STRETCHER, DAWN})
 DUSKNOIR_LINE = frozenset({DUSKULL, DUSCLOPS, DUSKNOIR})
 
 # R-10: ライン最大コスト。ボムライン=0（自壊要員にエネは張らない）【ハード】、
@@ -123,6 +128,30 @@ UNNECESSARY = -10_000_000
 DUSK_STREAMS = os.environ.get("DUSK_STREAMS", "1") != "0"            # 本流優先・サブ従属の背骨（採用）
 DUSK_OPEN_BUDEW = os.environ.get("DUSK_OPEN_BUDEW", "1") != "0"      # 序盤 Poffin で Dreepy+Budew（T1 も）
 DUSK_PAD_DRAKLOAK = os.environ.get("DUSK_PAD_DRAKLOAK", "1") != "0"  # Pad→Drakloak（本流 engine の一部として再ON）
+# DUSK_BUDEW_OPEN2（2026-07-26）: 通常版 dragapult_rb の DRA_BUDEW_OPEN（EXP-043、
+# 対marnie +10.6pt）の移植。開幕にバトル場へ1エネ張って退却 → スボミー前出し → グッズロック。
+# 2026-07-26 の 2×2 分解（エージェント×デッキ・各320戦）で、対オーロンゲの通常版との差
+# 約20pt のうち **約10pt がエージェント側**と判明し、その主犯としてこの穴を特定した。
+# 【既定 OFF・移植したが無効と実測】発火はしている（3.27決定/試合）が、v2 リスト（スボミー2枚）
+# では既存 DUSK_OPEN_BUDEW で既にスボミーが前に出ており、ロック回数が増えない
+# （1.42→1.36回/試合・対オーロンゲ 320戦 17.5%→17.2%）。トグルとして温存。
+DUSK_BUDEW_OPEN2 = os.environ.get("DUSK_BUDEW_OPEN2", "0") != "0"
+
+# DUSK_CONCENTRATE（2026-07-26 ユーザー決定）: エネルギー分散の禁止。
+#
+# 病理（コード読解＋実測で確定）: `_attach_score` の素点表は e==1（片色済み・あと1枚で
+# ファントムダイブが完成する個体）を −120/−150 と減点するため、**未着手の新品**
+# （ドロンチ 20120 / ドラメシヤ 20100）が**完成間近の個体**（19880 / 19850）に勝つ。
+# 結果、4回に1回の手張りが「完成間近を横目に新しい個体へ着手」になっていた
+# （分散事故 24% vs 通常版 3%）。死蔵エネ 1.36個/試合 → {炎}{超}が揃う個体が
+# 1.39体（通常版 2.02体）→ ダイブ 1.91回（同 3.04回）→ 対オーロンゲ 18.8%（同 28.4%）。
+# 通常版 dragapult_rb は EXP-041 の DRA_CONCENTRATE で同じ穴を塞いでいる（対marnie +9.4pt）
+# が、本機は 2026-07-14 の分岐後に入った修正のため未移植だった。
+#
+# e==1 の減点は「ボスの指令で2エネのドロンチを吊り出されて焼かれる」恐れの現れだが、
+# **その心配はまずファントムダイブが撃てることを満たしてから**（ユーザー 2026-07-26）。
+# よって散らしてよいのは「散らしてもダイブが確定するとき」だけ = _dive_secured。
+DUSK_CONCENTRATE = os.environ.get("DUSK_CONCENTRATE", "1") != "0"
 
 # ── ファントムダイブ「持続 vs 損切り」の 2×2 閾値表（2026-07-25 ユーザー構想）──
 # バトル場が準備中（ドラパルト ex e<2 / 掘り進め中ドロンチ）のとき、今ターンにダイブを
@@ -137,6 +166,94 @@ DUSK_PAD_DRAKLOAK = os.environ.get("DUSK_PAD_DRAKLOAK", "1") != "0"  # Pad→Dra
 DUSK_TH_DIVE = float(os.environ.get("DUSK_TH_DIVE", "0.0"))
 # 場のドラパルト線 max 3 は既存の main_pokemon_count>=3 ゲート（_hand_score DREEPY）で
 # 既に成立（ユーザー「max 3匹でいい」と一致）。トグル不要 = 現状維持。
+
+# ── 対オーロンゲ（マリィのオーロンゲex）特殊化パッケージ（2026-07-26 ユーザー指示）──
+# 設計の不変条件【ハード】: **オーロンゲを認識した試合でしか挙動を変えない**。
+# 「オーロンゲデッキ相手にオーロンゲと気づかずにプレイする」のがおかしいのと同様、
+# 「オーロンゲでない相手にオーロンゲ用の手を打つ」のもおかしい。よって本パッケージの
+# 全ルールは vs_grimmsnarl() ゲートの内側にのみ書く。他対面の A/B が動いたらそれ自体がバグ。
+# 検証器 = scripts/dusknoir_gate_invariance.py（非オーロンゲ対面で決定一致率 100% を要求）。
+IMPIDIMP = 646                                 # マリィのベロバー HP70（オーロンゲ線のたね）
+MORGREM = 647                                  # マリィのギモー HP100
+GRIMMSNARL_EX = 648                            # マリィのオーロンゲex HP320・サイド2
+GRIMMSNARL_LINE = frozenset({IMPIDIMP, MORGREM, GRIMMSNARL_EX})
+DUSK_GRIM = os.environ.get("DUSK_GRIM", "1") != "0"          # パッケージ全体の A/B トグル
+# G-1【ハード・ユーザー決定 2026-07-26】カーズドボムはオーロンゲex にしか撃たない。
+#   診断（120戦）: ボムの 0.57/試合 が マシマシラ(HP110・サイド1)に消え、正面200と合算して
+#   オーロンゲex(HP320・サイド2)を丸取りする mode2 は **0回**。ヨノワール自壊はサイド1献上
+#   なので、マシマシラ狩りは 1:1 交換（しかも相手は4枚積み・こちらは2進化を1体消費）＝損。
+#   200+130=330 >= 320 が唯一の勝ち交換（+2 −1 = +1）なので、そこまでボマーを温存する。
+DUSK_GRIM_BOMB = os.environ.get("DUSK_GRIM_BOMB", "1") != "0"
+# G-2 対オーロンゲでは「危ない廃墟」を張らない（ユーザー懸念 2026-07-26）。
+#   廃墟は「非{D}のたねがベンチに出るたび2個」。相手のたねは マリィのベロバー={悪} で対象外、
+#   マシマシラ/ノコッチだけが食らう。一方こちらは ドラメシヤ(70)/ヨマワル(60)/スボミー(30) が
+#   全部食らい、シャドーバレットのベンチ30 + マシマシラのダメカン移動30 の「2回で落ちる」圏へ
+#   自分から落ちる。＝相手に有利に働いている疑い。A/B で検証する。
+DUSK_GRIM_RUINS = os.environ.get("DUSK_GRIM_RUINS", "1") != "0"
+# GL 対オーロンゲの本流モード = 「グッズロック優先」（ユーザー決定 2026-07-26）。
+#   このデッキはオーロンゲ(HP320・シャドーバレット180+ベンチ30・マシマシラでダメカン移送)に
+#   サイドレースで構造的に負ける（実測 相手4.05 / 自分2.1〜2.4）。テラスタルはワザのダメージ
+#   しか防げず、アドレナブレインは「のせ替え」効果なので貫通する＝ベンチ退避で出血は止まらない。
+#   残る勝ち筋は むずむずかふん の**グッズロックだけ**。ロックは非対称（相手のグッズだけが
+#   止まり、こちらのグッズは通る）なので、ロックできる番はロックが常に正。
+#   ※重要な区別: これは 2026-07-26 に棄却済みの「パッシブ(DUSK_TH_DIVE=1.0)」とは別機構。
+#     棄却されたのは『準備中に掘り続けるか散らすか』の閾値軸で、こちらは行動優先度の軸。
+#   終了ラダー（_compute_grim_mode）: リーサル(既存R-07) > むずむず不可能 > 相手オーロンゲ起動済み
+#     > ペイロード完成(ダイブ可∧ヨノワール在場) > ベロバー線枯渇 > それ以外はロック継続。
+# 【既定 OFF・2026-07-26 の A/B で棄却】320戦で FULL 11.2% vs 素 16.9%。ロックは
+# スボミー枚数に律速され（1.42→1.36回/試合しか増えない）、優先させるとセットアップ資源を
+# 食って −5.7pt。機構はトグルとして温存（負の結果の記録）。
+DUSK_GRIM_LOCK = os.environ.get("DUSK_GRIM_LOCK", "0") != "0"
+
+# G-3【対オーロンゲ限定】ヨノワールラインを展開しない（2026-07-26）。
+#   実測の根拠: 同一の中立デッキ（ボムライン無し）だと本機は 21.0%（1280戦）だが、
+#   ボムライン2-2-2 を積んだ v2 では 18.6% に落ちる。ダイブ回数も 2.98 → 1.91 に半減。
+#   一方リターン側は、この対面ではボムが取るのはマシマシラ(サイド1)止まりで、自壊で
+#   サイド1を返すため収支が 1:1 = ±0。オーロンゲ(320・サイド2)を 200+130 で丸取りできる
+#   局面は全試合の17%しか成立しない。
+#   → **ボムラインはデッキに残したまま、この対面でだけ展開しない**（他6対面では
+#   thwackey 94 / meganium 82 / prism 81 と機能しているので抜かない）。
+DUSK_GRIM_NOBOMB = os.environ.get("DUSK_GRIM_NOBOMB", "1") != "0"
+
+# DUSK_RECON_FIRST（2026-07-26 差分マイニング）: 偵察指令（ドロンチ特性）を div-D3 の
+# 56000 帯（グッズ・エネ付け・進化より先）へ戻す。**対面非依存の一般ルール**なので
+# vs_grimmsnarl() ゲートの外側にある = 全対面の再計測が必要。詳細は _score_any の注記。
+# 【既定 OFF・実測で棄却】640戦/腕で 16.1%（ルール7のまま）→ 12.7%（div-D3 に戻す）。
+# 「進化前に偵察を使い忘れて特性を捨てている（0.9回/試合）」という読みは立つが、
+# それ以上にポフィンの遅延が痛い。**ユーザーのルール7（ポフィン→リーリエ→偵察）が正しい**。
+# 通常版との最大の決定差分は、バグではなく意図的かつ妥当な差だったということ。
+DUSK_RECON_FIRST = os.environ.get("DUSK_RECON_FIRST", "0") != "0"
+
+# ルール12+（ユーザー 2026-07-26）: ポフィンは温存しない = R-11（山薄）より上で常に即プレイ。
+# 対面非依存の一般ルールなので全対面の再計測が要る。
+DUSK_POFFIN_ALWAYS = os.environ.get("DUSK_POFFIN_ALWAYS", "1") != "0"
+
+# S-0!（ユーザー 2026-07-26・loss1.json 観戦）: 手番内ファントムダイブ判定を**進化の選択**に
+# 繋ぐ。「バトル場のドロンチを進化させればこの番に撃てる」を最優先。対面非依存の一般ルール。
+DUSK_DIVE_NOW = os.environ.get("DUSK_DIVE_NOW", "1") != "0"
+
+# R-13+【ユーザー決定 2026-07-26】ハイパーボールの3点セットを「即プレイできるか」で統一する。
+#   ① 切る札 = **この番に即プレイできない札**。手札評価の高低ではない。
+#      （例: この番リーリエを打つと決まっているなら、他のサポートは全部切ってよい。
+#        ドラパルト ex も、進化先が場に無い序盤なら切ってよい。試合が進めば場にドロンチが
+#        いて「即プレイできる」側に入るので、自然に切られなくなる）
+#   ② ハイパーボール自身の優先度 = **グッズの最後**。他のグッズを打ち切ってから打てば、
+#      手札に残るのは即プレイ不能札だけになり、①のコストが最小になる。
+#   ③ 呼ぶ札も **即プレイできる札**（進化先が場に無い2進化を持ってきても手札で腐る）。
+#   発見の経緯: 実測で ドラパルト ex 0.12/試合・基本エネ 0.33/試合・ポフィン 0.19/試合 を
+#   トラッシュしていた。さらに基盤の R-13 ハード保護（default_score_discard の
+#   LINE_PROTECT_IDS）はドラパルト系では**一度も呼ばれていない死にコード**だった。
+DUSK_PLAYABLE_NOW = os.environ.get("DUSK_PLAYABLE_NOW", "1") != "0"
+# ふしぎなアメの例外（ユーザー 2026-07-26）: 「持ってくる札で即プレイ可能になるならホールド」。
+# 進化元が場にいて対応する2進化が手札か山にあれば、この番に同時プレイできる = 切らない。
+DUSK_CANDY_HOLD = os.environ.get("DUSK_CANDY_HOLD", "1") != "0"
+# カナリア（既定OFF・本番挙動に無関与）: ゲート検証器が「検出力があること」を示すための
+# 意図的な差分。ON にすると対オーロンゲでだけダイブ閾値がパッシブ(1.0)に変わる。
+DUSK_GRIM_CANARY = os.environ.get("DUSK_GRIM_CANARY", "0") != "0"
+
+# リスト A/B 用のフック（2026-07-26）。設定するとその CSV を自デッキ勘定に使う。
+# 未設定＝従来どおり deck.csv → DECK_FALLBACK の順（提出物の挙動は不変）。
+DECK_CSV_OVERRIDE = os.environ.get("DUSK_DECK_CSV", "")
 
 # デッキリスト（dragapult_dusknoir_paper.csv と同一。deck.csv 不在時のフォールバック）
 DECK_FALLBACK = (
@@ -244,6 +361,11 @@ class DragapultDusknoirPolicy(BasePolicy):
         # （ユーザー 2026-07-25）。手札/盤面がターン中に変わっても判断をブレさせない。
         self._dive_plan = None      # {"kind","persist","prob","threshold"} or None
         self._dive_plan_turn = -1   # プランを確定したターン番号
+        self._grim_seen = False     # 対オーロンゲ: 一度見たらラッチ（_latch_grimmsnarl）
+        self._grim_mode = None      # "lock" | "dive" | None（対オーロンゲ以外）
+        self._grim_reason = ""      # モード確定の理由（プローブ用・挙動には無関与）
+        self._grim_plan_turn = -1   # モードを確定したターン番号（ターン頭で一度だけ）
+        self._playable_ids = set()  # R-13+: この番に即プレイできる手札IDのスナップショット
 
     def reset_game(self):
         super().reset_game()
@@ -260,6 +382,140 @@ class DragapultDusknoirPolicy(BasePolicy):
         self.stuck = False
         self._dive_plan = None
         self._dive_plan_turn = -1
+        self._grim_seen = False
+        self._grim_mode = None
+        self._grim_plan_turn = -1
+        self._playable_ids = set()
+
+    # ═══════════ 対オーロンゲ検出（ラッチ式・特殊化パッケージの唯一のゲート） ═══════════
+
+    def _latch_grimmsnarl(self, obs):
+        """「オーロンゲを見たか」を単調（False→True のみ）にラッチする。
+
+        なぜ基盤の detect_matchup をそのまま使わないか: R-20 は毎手番、相手の『場』の
+        カードIDだけから再計算するため、オーロンゲ線が場から消える（ベロバーが気絶して
+        トラッシュに落ちた・まだ出ていない）と matchup が generic に戻る＝認識が揺れる。
+        特殊化は「一度オーロンゲと分かったらその試合は最後までオーロンゲとして指す」で
+        なければ意味がないので、こちらで独立のラッチを持つ。
+        基盤の self.t["matchup"] には手を触れない = 他デッキ・他対面へ影響しない。
+
+        呼ぶ場所が update_belief でなく choose() の先頭なのは順序の都合:
+        本デッキの choose は _analyze(→_plan_bomb) を基盤の update_belief より先に回すため、
+        belief 側に置くと計画1回ぶん認識が遅れる。"""
+        if not self._grim_seen and self._grim_visible(obs):
+            self._grim_seen = True
+
+    @staticmethod
+    def _grim_visible(obs):
+        """相手の場（バトル場・ベンチ）とトラッシュにオーロンゲ線が見えているか。
+        トラッシュも見るのは、ベロバーが気絶した後でも認識を落とさないため。"""
+        opp = opp_state(obs)
+        for pk in list(opp.active or []) + list(opp.bench or []):
+            if pk is not None and pk.id in GRIMMSNARL_LINE:
+                return True
+        for card in (opp.discard or []):
+            if card is not None and getattr(card, "id", None) in GRIMMSNARL_LINE:
+                return True
+        return False
+
+    def vs_grimmsnarl(self):
+        """対オーロンゲ特殊化を有効にしてよいか。**特殊化ルールは必ずこれで囲う**。"""
+        return DUSK_GRIM and self._grim_seen
+
+    # ═══════════ GL: 対オーロンゲの本流モード（グッズロック vs ダイブ） ═══════════
+
+    def _grim_lock(self):
+        """この番はグッズロック維持モードか。GL 系ルールはこれで囲う。"""
+        return self._grim_mode == "lock"
+
+    def _ensure_grim_plan(self, obs):
+        """モードは【ターン頭で一度だけ】確定して固定する（_dive_plan と同じ規律）。"""
+        turn = getattr(obs.current, "turn", -1)
+        if turn == self._grim_plan_turn and self._grim_mode is not None:
+            return
+        self._grim_plan_turn = turn
+        self._grim_mode = self._compute_grim_mode(obs)
+
+    def _compute_grim_mode(self, obs):
+        """終了ラダー（上から優先）。ロックを畳む条件だけを列挙し、残りは全部ロック継続。
+
+        「いつまでロックするか」は、実は『ロックもダイブも両方立つ番にどちらを選ぶか』に
+        還元される（ダイブが立たない番はロックが常に正＝非対称な得、ロックが不能な番は
+        ダイブ一択）。よってここでは "畳む理由" だけを判定する。
+          ① リーサルは基盤 R-07 が LETHAL_BAND で常に最優先 → ここでは扱わない（不可侵）
+          ② むずむず不可能（スボミーが永久に取れない）→ 即ダイブ（ユーザー 2026-07-26）
+          ③ 相手オーロンゲex が起動済み（悪エネ2個＝毎番殴れる）→ グッズを止めても意味が無い
+          ④ ペイロード完成（ダイブが撃てる ∧ ヨノワール在場 = 200+130 の丸取りが立つ）
+          ⑤ ベロバー線枯渇（トラッシュにベロバー4枚 ∧ 場にベロバー/ギモー無し）＝もう
+             オーロンゲを作れない → 圧が消えたので取りに行く
+        """
+        self._grim_reason = ""
+        if not (self.vs_grimmsnarl() and DUSK_GRIM_LOCK):
+            return None
+        if self._lock_impossible(obs):
+            self._grim_reason = "lock_impossible"
+            return "dive"
+        if self._grim_online(obs):
+            self._grim_reason = "grim_online"
+            return "dive"
+        if self.flags.get("can_main_attack") and self._bomb_payload_ready(obs):
+            self._grim_reason = "payload_ready"
+            return "dive"
+        if self._impidimp_exhausted(obs):
+            self._grim_reason = "impidimp_exhausted"
+            return "dive"
+        self._grim_reason = "lock"
+        return "lock"
+
+    def _lock_impossible(self, obs):
+        """むずむずかふんが永久に不能か（_dive_impossible と同型の到達可能性判定）。
+        スボミーが 場・手札・山・（夜のタンカで回収可能な）トラッシュ のどこにも無い＝不能。
+        サイド落ちは deck_counts が 0 を返すので自動的に不能側に入る。"""
+        p = self.p or {}
+        if (p.get("fc") or {}).get(BUDEW, 0) >= 1:
+            return False
+        ms = my_state(obs)
+        if any(c is not None and c.id == BUDEW for c in (ms.hand or [])):
+            return False
+        deck = p.get("deck_counts") or {}
+        if deck.get(BUDEW, 0) >= 1:
+            return False
+        if any(c is not None and c.id == BUDEW for c in (ms.discard or [])):
+            # トラッシュのスボミーは夜のタンカでのみ手札に戻せる
+            if (any(c is not None and c.id == NIGHT_STRETCHER for c in (ms.hand or []))
+                    or deck.get(NIGHT_STRETCHER, 0) >= 1):
+                return False
+        return True
+
+    @staticmethod
+    def _grim_online(obs):
+        """相手のオーロンゲex が起動済み（悪エネ2個以上＝シャドーバレットを毎番撃てる）。"""
+        osn = opp_state(obs)
+        for pk in (list(osn.active or []) + list(osn.bench or [])):
+            if pk is not None and pk.id == GRIMMSNARL_EX and len(pk.energyCards or []) >= 2:
+                return True
+        return False
+
+    @staticmethod
+    def _impidimp_exhausted(obs):
+        """ベロバー線が枯れた＝もう新しいオーロンゲを立てられない。
+        ベロバーはデッキに4枚。トラッシュに4枚あれば全部死んでいる（進化した個体は
+        進化元として盤面に残るのでトラッシュには来ない）。場に ベロバー/ギモー も
+        居なければ、手札のオーロンゲ/ギモーは行き場が無い。"""
+        osn = opp_state(obs)
+        trashed = sum(1 for c in (osn.discard or [])
+                      if c is not None and getattr(c, "id", None) == IMPIDIMP)
+        if trashed < 4:
+            return False
+        for pk in (list(osn.active or []) + list(osn.bench or [])):
+            if pk is not None and pk.id in (IMPIDIMP, MORGREM):
+                return False
+        return True
+
+    @staticmethod
+    def _bomb_payload_ready(obs):
+        """ヨノワールが場にいる＝ダイブ200と合算して 330 の丸取りが立つ。"""
+        return any(pk is not None and pk.id == DUSKNOIR for pk in all_my_pokemon(obs))
 
     # ═══════════════ ログ追跡（pre_ko / no_item） ═══════════════
 
@@ -274,9 +530,19 @@ class DragapultDusknoirPolicy(BasePolicy):
     # ═══════════════ R-18: サイド落ち推定 ═══════════════
 
     def _deck_list(self):
+        """R-18（サイド落ち推定）の母集合となる自デッキ60枚。
+
+        提出時は kaggle 側の deck.csv、ローカル評価では DECK_FALLBACK が使われる。
+        リスト A/B のときは policy 側の勘定も一緒に切り替えないと deck_counts が
+        嘘になるので、環境変数 DUSK_DECK_CSV で差し替えられるようにしてある
+        （未設定なら従来どおり = 提出物の挙動は不変）。"""
         if self._deck_cache is None:
             try:
-                self._deck_cache = _read_deck_csv()
+                if DECK_CSV_OVERRIDE:
+                    with open(DECK_CSV_OVERRIDE) as f:
+                        self._deck_cache = [int(l.strip()) for l in f if l.strip()][:60]
+                else:
+                    self._deck_cache = _read_deck_csv()
             except Exception:
                 self._deck_cache = list(DECK_FALLBACK)
         return self._deck_cache
@@ -317,6 +583,7 @@ class DragapultDusknoirPolicy(BasePolicy):
     # ═══════════════ ターン分析 ═══════════════
 
     def choose(self, obs):
+        self._latch_grimmsnarl(obs)     # _analyze(_plan_bomb) より先に認識を確定させる
         self.p = self._analyze(obs)
         return super().choose(obs)
 
@@ -443,6 +710,20 @@ class DragapultDusknoirPolicy(BasePolicy):
             # ダイブ「持続 vs 損切り」を【このターンで一度だけ】確定（ユーザー 2026-07-25）。
             # 以後この番の attach/use_support は _dive_plan を固定参照する（判断をブレさせない）。
             self._ensure_dive_plan(obs)
+            # GL: 対オーロンゲの本流モード（ロック維持 / ダイブ移行）も同じくターン頭で確定。
+            # _hand_score・do_switch・前出し採点がこの後この値を固定参照する。
+            self._ensure_grim_plan(obs)
+            # R-13+: 「この番に即プレイできる手札」を記録する。エンジンは合法手しか
+            # 選択肢に出さないので、PLAY/EVOLVE/ATTACH に出ている手札カード = 即プレイ可能。
+            # DISCARD やサーチ先の採点はこのターンの間このスナップショットを参照する。
+            playable = set()
+            for o in obs.select.option:
+                if o.type in (OptionType.PLAY, OptionType.EVOLVE, OptionType.ATTACH):
+                    c0 = option_card(obs, o)
+                    if c0 is not None:
+                        playable.add(c0.id)
+            self._playable_ids = playable
+
             can_attach_now = False
             can_evolve_now = False
             for o in obs.select.option:
@@ -497,10 +778,24 @@ class DragapultDusknoirPolicy(BasePolicy):
                 if data is not None and data.cardType == CardType.SUPPORTER and card.id != BOSS:
                     p["support_count"] += 1
 
+        # DUSK_BUDEW_OPEN2（2026-07-26）: 開幕（両者の最初の番 = turn<=2）にダイブが撃てない
+        # なら、バトル場に1エネ張って退却しスボミーを前に出してムズムズ花粉（相手グッズロック）
+        # を撃つ。旧 DUSK_OPEN_BUDEW は「ポフィンでスボミーを盤面に置く」までで、退却が
+        # turn>=2 ゲートに阻まれて先行T1 で前に出せていなかった（通常版 EXP-043 と同じ穴）。
+        budew_open = (DUSK_BUDEW_OPEN2
+                      and not self.flags["can_main_attack"]
+                      and obs.current.turn <= 2
+                      and active_id != BUDEW and fc[BUDEW] >= 1)
+        p["budew_open"] = budew_open
         p["do_switch"] = (not self.flags["can_main_attack"]
                           and (bench_attacker
                                or (active_id != BUDEW and fc[BUDEW] >= 1
-                                   and obs.current.turn >= 2)))
+                                   and (obs.current.turn >= 2 or budew_open))))
+        # GL-2: ロックモード中はスボミーの在位を最優先で維持する。
+        #   場に居て前でない → 前に出す（攻撃できる番でも。ロックのほうが価値が高い）
+        #   既に前 → 絶対に退却させない（ベンチアタッカーが居ても降ろさない）
+        if self._grim_lock() and fc[BUDEW] >= 1:
+            p["do_switch"] = (active_id != BUDEW)
         return p
 
     # ═══════════════ 配分プラン（枝刈り DFS。dragapult_rb 移植） ═══════════════
@@ -738,9 +1033,13 @@ class DragapultDusknoirPolicy(BasePolicy):
         cards = ([osn.active[0]] if osn.active else [None]) + list(osn.bench)
         can_dive = self.flags.get("can_main_attack", False)
         best = None
+        grim_only = self.vs_grimmsnarl() and DUSK_GRIM_BOMB
         for i, pk in enumerate(cards):
             # ボムは特性 = ミストを貫通。除外は本体特性持ちのみ（ルール9の分離ガード）
             if pk is None or _counter_blocked_by_body(pk):
+                continue
+            # G-1【ハード】: 対オーロンゲでは的をオーロンゲex に限定する（ボマーの温存）
+            if grim_only and pk.id != GRIMMSNARL_EX:
                 continue
             remain = pk.hp
             prize = self._prize_count(pk, False)
@@ -908,8 +1207,18 @@ class DragapultDusknoirPolicy(BasePolicy):
             if cid == LUMIOSE_CITY:
                 return 1, "Lumiose City (low)"
             # ルール7【ソフト（順序）】: 偵察指令は不確定ドロー先・確定サーチ後。
-            # ポフィン46000 →（リーリエ45800）→ 偵察45700 → ポケパッド45000。
-            # 旧型 div-D3 の 56000（特性最優先）をユーザー決定で置換
+            # 旧: ポフィン46000 →（リーリエ45800）→ 偵察45700 → ポケパッド45000。
+            #
+            # DUSK_RECON_FIRST（2026-07-26 差分マイニングで発見）: 上の実装は**ルール7の
+            # 原則そのものと矛盾**していた。偵察指令＝不確定ドロー / ポフィン＝確定サーチ
+            # なので、原則どおりなら偵察が先。実装は 45700 < 46000 で逆になっていた。
+            # 通常版との決定差分 1065件のうち **399件(37%)** がこの一族で、最大クラスタは
+            # 「偵察指令を使う前にドロンチをドラパルト ex へ進化させて特性を捨てる」
+            # （72回/80戦 ≈ 0.9回/試合の偵察を丸ごと無駄にしていた）。
+            # → 通常版の div-D3（07-08 人間リプレイ実測「Recon はグッズ・エネ付けより先」）
+            #   の 56000 帯へ戻す。リーリエだけは手札を山へ戻すので例外的に先（56100）。
+            if DUSK_RECON_FIRST:
+                return 56000, "div-D3: Recon Directive first (before goods/attach/evolve)"
             return 45700, "S-4/rule7: Recon Directive (after thinning, before Poke Pad)"
 
         if opt.type == OptionType.RETREAT:
@@ -946,6 +1255,15 @@ class DragapultDusknoirPolicy(BasePolicy):
         if cid == DRAGAPULT_EX:
             if p["fc"][DRAGAPULT_EX] >= 1:
                 return -1, "div-D4: hold 2nd Dragapult ex"
+            # S-0!【ハード・ユーザー 2026-07-26（loss1.json の観戦で発見）】
+            # 「バトル場のドロンチを進化させれば**この番のうちにファントムダイブが撃てる**」
+            # 局面は、他のどの進化よりも優先する。旧実装は Dreepy→Drakloak が 58000、
+            # 本行が 48000−sac=45900 で、**ベンチのドラメシヤ進化が常に勝っていた**
+            # （＝手番内ダイブ判定が進化の選択に一切繋がっていなかった）。
+            if (DUSK_DIVE_NOW and opt.inPlayArea == AreaType.ACTIVE
+                    and not self.flags.get("can_main_attack")
+                    and self._dive_now_after_evolve(obs, target)):
+                return 62000, "S-0!: evolve active -> Dragapult ex (dive THIS turn)"
             return 48000 + e - sac, "S-3: evolve -> Dragapult ex"
         if cid == DUSCLOPS:
             return 47500 + e - sac, "S-3b: evolve Duskull -> Dusclops"
@@ -1013,8 +1331,12 @@ class DragapultDusknoirPolicy(BasePolicy):
             return -1, "R-16: hold Boss"
         if cid == LILLIE:
             if cid == self.use_support:
-                # ルール7: 圧縮（ポフィン46000）→ リーリエ → 偵察指令45700 → ポケパッド45000。
+                # ルール7: リーリエは手札を山へ戻すので、偵察指令で取った札を戻す無駄を
+                # 避けるため偵察より先（R-26/R-28 と同じ構造）。DUSK_RECON_FIRST で
+                # 偵察を 56000 に上げたので、この例外も 56100 へ追随させる。
                 # 進化 47500+ はリーリエより先（手札の進化パーツを山へ戻さない）
+                if DUSK_RECON_FIRST:
+                    return 56100, "rule7: Lillie before Recon"
                 return 45800, "rule7: Lillie before Recon"
             return -1, "Lillie: other supporter"
         if cid == DAWN:
@@ -1029,6 +1351,10 @@ class DragapultDusknoirPolicy(BasePolicy):
             if cid == self.use_support:
                 return 35000, "S-6: Crispin"
             return -1, "Crispin: not chosen"
+        if cid == BROCK:
+            if cid == self.use_support:
+                return 35000, "S-4b: Brock's Scouting"
+            return -1, "Brock: not chosen"
         if cid == WATCHTOWER:
             # ルール11（2026-07-14 ユーザー）: スタジアムは温存しない。
             # 相手スタジアム置換 / T1 は即時（80000）。自分のスタジアムが出ている間だけ保持。
@@ -1039,11 +1365,28 @@ class DragapultDusknoirPolicy(BasePolicy):
                 return 80000, "play Watchtower (replace/T1)"
             return 490, "rule11: play stadium before attack"
         if cid == RISKY_RUINS:
+            # G-2: 対オーロンゲでは張らない（相手のたねは{悪}で無傷・こちらの小駒だけが削れる）
+            if self.vs_grimmsnarl() and DUSK_GRIM_RUINS:
+                return -1, "G-2: hold Risky Ruins (vs Grimmsnarl)"
             # ルール5+11: 攻撃の直前に張る（全行動を済ませた後 = 正帯最下層。
             # ATTACK(154) と END(0) より上、他の全正帯より下）。攻撃できない番も温存しない
             if p["stadium_id"] in (RISKY_RUINS, WATCHTOWER):
                 return -1, "Risky Ruins: own stadium up"
             return 500, "rule5/11: Risky Ruins before attack"
+        # ルール12+【ソフト・ユーザー 2026-07-26】ポフィンは**いついかなるときも即プレイ**。
+        # ルール7の意図は「グッズが要求札に足りない時、偵察指令で先に要求を埋める」であって、
+        # ポフィンは要求札そのもの（＝偵察より先）。ドロンチが立った後も温存する利得は無く、
+        # 山の圧縮も兼ねる。旧実装は R-11（deckCount<=8）が先に効いて終盤ずっと握っていた
+        # ので、判定を R-11 より**上**へ移す。例外は対LOのみ（自山を削るのが致命的、R-28 同条件）。
+        if cid == POFFIN and DUSK_POFFIN_ALWAYS:
+            # 的の有無だけを見る（G-3 中でもヨマワルを的に数える = ポフィン自体は必ず打つ。
+            # ヨマワルをベンチに置くかは TO_BENCH 側の採点で断る）
+            targets = deck[DREEPY] + deck[BUDEW] + deck[DUSKULL]
+            if targets <= 0:
+                return -1, "Poffin: no target"
+            if p["no_draw"] and self.t["matchup"] in mt.LO_ARCHETYPES:
+                return -1, "R-11: deck thin (LO only)"
+            return 46000, "rule12+: Poffin (always play, never hold)"
         if p["no_draw"]:
             return -1, "R-11: deck thin (draw item/supporter)"
         if cid == POFFIN:
@@ -1058,6 +1401,18 @@ class DragapultDusknoirPolicy(BasePolicy):
                     and hc[MEOWTH_EX] == 0 and deck[MEOWTH_EX] >= 1
                     and p["support_count"] <= hc[BOSS]):
                 return 44500, "rule10: Ultra Ball -> Meowth -> Lillie (unstick)"
+            # R-13+②: ハイパーボールは**グッズの最後**（41000 = ポフィン46000・ポケパッド
+            # 45000・夜のタンカ42000 の下）。他のグッズを打ち切ってから打てば、手札に残るのは
+            # 即プレイ不能札だけになり、切るコストが最小になる。
+            # 発火条件も「切れる札（＝即プレイ不能札）が2枚あるか」で定義する。
+            if DUSK_PLAYABLE_NOW:
+                hand_ids_ = [c.id for c in (my_state(obs).hand or []) if c is not None]
+                if ULTRA_BALL in hand_ids_:
+                    hand_ids_.remove(ULTRA_BALL)     # 打つ1枚は勘定から外す
+                spare = sum(1 for x in hand_ids_ if not self._playable_now(obs, x))
+                if spare >= 2:
+                    return 41000, "S-4/R-13+: Ultra Ball (last item, cut non-playable)"
+                return -1, "Ultra Ball: hold (fewer than 2 spare cards)"
             if p["negative_hand"] >= 2:
                 return 44000, "S-4: Ultra Ball"
             return -1, "Ultra Ball: hold"
@@ -1095,6 +1450,13 @@ class DragapultDusknoirPolicy(BasePolicy):
         ms = my_state(obs)
         if pokemon.id == BUDEW:
             return -1
+        # DUSK_BUDEW_OPEN2（2026-07-26）: 通常版 dragapult_rb の DRA_BUDEW_OPEN の移植。
+        # 開幕ロックのため、バトル場に「退却で捨てる前提の1エネ」を供給する。ベンチ充電
+        # （+20000帯）より上に置かないとバトル場が退却できず、スボミーが前に出られない。
+        # EXP-043 では通常版で対marnie +10.6pt（maximin 床上げ）の実測がある。
+        if p.get("budew_open") and active and e == 0:
+            self._attach_tag = "S-5: fund active retreat (Budew lock)"
+            return 20500
         # ルール8/R-29 候補（2026-07-14 ユーザー）: サブゴール前のバトル場は捨て駒。
         # 「ドラメシヤにエネを張って次の番に倒される」の対策 —
         #   ①逃げエネは容認（スボミーを前に出すための退却コスト。あと1枚で逃げられる時だけ）
@@ -1129,6 +1491,20 @@ class DragapultDusknoirPolicy(BasePolicy):
             if plan["persist"]:
                 return -1                  # 持続: 散らさず本流へ寄せる
             # 損切り: fall through してベンチ手張りを許可（エネ分散）
+        # DUSK_CONCENTRATE: 完成間近（e==1）の個体がいる間、未着手（e==0）の別個体へは
+        # 張らない。素点表が新品を優遇してしまう構造バグの是正（定数コメント参照）。
+        # 場のドラパルト ex 本体への付与は常に「ダイブ狙い」なので対象外。
+        if DUSK_CONCENTRATE and e == 0 and pokemon.id != DRAGAPULT_EX:
+            charged = any(pk is not pokemon and pk.id in DRAGAPULT_LINE
+                          and len(pk.energies or []) == 1
+                          for pk in all_my_pokemon(obs))
+            if charged and not self._dive_secured(obs):
+                # 集中先をまだ仕上げられる見込みがあるなら分散禁止（見込みが無いなら
+                # 抱えても死ぬだけなので散らす = 通常版 DRA_CONCENTRATE の安全弁）
+                hc = p["hc"]
+                if hc[DRAGAPULT_EX] >= 1 or any(hc[c] >= 1 for c in DIG_OUT_IDS):
+                    self._attach_tag = "DUSK_CONCENTRATE: no dispersal (finish the charged one)"
+                    return -1
         score = 20000
         if e == 1:
             if pokemon.energyCards and attach_id == pokemon.energyCards[0].id:
@@ -1163,6 +1539,121 @@ class DragapultDusknoirPolicy(BasePolicy):
         if p["no_more_dex"] and pokemon.id in (DREEPY, DRAKLOAK):
             score -= 500
         return score
+
+    # ═══════════ R-13+: 「この番に即プレイできるか」（切る/呼ぶ/打つ順の共通述語） ═══════════
+
+    def _playable_now(self, obs, cid):
+        """手札の cid を【この番のうちに】場へ出せるか。
+
+        判定はエンジンの選択肢（合法手）が根拠。ただしサポートだけは1番1枚の制約があるので、
+        「この番打つと決めた1枚」以外は即プレイ不能として扱う（ユーザー 2026-07-26:
+        リーリエを打つと決まっているなら他のサポートは積極的に切ってよい）。"""
+        # ふしぎなアメの例外【ユーザー 2026-07-26】: アメは「ハイパーボールで持ってくる札で
+        # 即プレイ可能になるならホールド」。むしろアメが手札にある時は2進化を能動的に掘って
+        # 同ターンに同時プレイするのが正解（ドラパルト ex 優先・ヨノワールは従属）。
+        # 素の合法性判定だと、2進化が手札に無い間ずっと「即プレイ不能」になって切られてしまう。
+        if cid == RARE_CANDY and DUSK_CANDY_HOLD:
+            pp = self.p or {}
+            hc2, deck2 = pp.get("hc") or {}, pp.get("deck_counts") or {}
+            if (pp.get("can_evolve_dreepy")
+                    and (hc2.get(DRAGAPULT_EX, 0) >= 1 or deck2.get(DRAGAPULT_EX, 0) >= 1)):
+                return True
+            if (pp.get("can_evolve_duskull")
+                    and not (self.vs_grimmsnarl() and DUSK_GRIM_NOBOMB)
+                    and (hc2.get(DUSKNOIR, 0) >= 1 or deck2.get(DUSKNOIR, 0) >= 1)):
+                return True
+        if cid is None or cid not in (self._playable_ids or ()):
+            return False
+        data = CARD_DB.get(cid)
+        if data is not None and data.cardType == CardType.SUPPORTER:
+            return (not obs.current.supporterPlayed) and cid == self.use_support
+        return True
+
+    def _fetch_playable_now(self, obs, p, cid):
+        """ハイパーボール等で山から**手札に取った直後にそのまま場へ出せる**カードか。
+
+        たね = ベンチに空きがあれば可。進化カード = 対応する進化元が場にいる（またはドラメシヤ/
+        ヨマワル + ふしぎなアメ）なら可。手札で腐る2進化を掘らないための判定。"""
+        data = CARD_DB.get(cid)
+        if data is None or int(getattr(data, "cardType", -1)) != int(CardType.POKEMON):
+            return False
+        ms = my_state(obs)
+        hc = p["hc"]
+        if cid == DRAKLOAK:
+            return bool(p["can_evolve_dreepy"])
+        if cid == DRAGAPULT_EX:
+            return bool(p["can_evolve_drakloak"]
+                        or (p["can_evolve_dreepy"] and hc[RARE_CANDY] >= 1))
+        if cid == DUSCLOPS:
+            return bool(p["can_evolve_duskull"])
+        if cid == DUSKNOIR:
+            return bool(p["can_evolve_dusclops"]
+                        or (p["can_evolve_duskull"] and hc[RARE_CANDY] >= 1))
+        # たね: ベンチに空きがあるか
+        return len(ms.bench or []) < getattr(ms, "benchMax", 5)
+
+    def _dive_now_after_evolve(self, obs, target):
+        """この進化を実行したら【この番のうちに】ファントムダイブを撃てるか（確定判定）。
+
+        ファントムダイブは {炎}{超}。進化してもエネは引き継がれるので、進化後の不足色は
+        target に今ついている色だけで決まる。撃てるのはバトル場だけなので呼び出し側で
+        ACTIVE に限定する。**確定できる経路だけを True** にする（推測では上げない）:
+          ① もう {炎}{超} が揃っている → 進化した瞬間に撃てる
+          ② 1色不足 かつ 手張り権が残っていて不足色が手札にある
+          ③ 1色不足 かつ サポート未使用でアカマツが手札にあり、不足色が山に残っている
+             （アカマツは山から基本エネを2枚まで、1枚を場に付け1枚を手札へ）
+          ④ 2色不足 かつ 手張り権もサポートも残っていてアカマツがあり、両色が山にある
+             （アカマツで1枚付与＋手札に来た1枚を手張り）"""
+        if target is None:
+            return False
+        have = {c.id for c in (getattr(target, "energyCards", None) or []) if c is not None}
+        need = {FIRE_ENERGY, PSYCHIC_ENERGY} - have
+        if not need:
+            return True
+        ms = my_state(obs)
+        hand = [c.id for c in (ms.hand or []) if c is not None]
+        deck = (self.p or {}).get("deck_counts") or {}
+        attach_left = not obs.current.energyAttached
+        crispin_ready = (not obs.current.supporterPlayed) and CRISPIN in hand
+        if len(need) == 1:
+            col = next(iter(need))
+            if attach_left and col in hand:
+                return True
+            if crispin_ready and deck.get(col, 0) >= 1:
+                return True
+            return False
+        if attach_left and crispin_ready:
+            return all(deck.get(c, 0) >= 1 for c in need)
+        return False
+
+    def _dive_secured(self, obs):
+        """ファントムダイブが【もう確定している】か（ユーザー 2026-07-26）。
+
+        「エネルギーを散らしてよいのは、散らしてもダイブが確定するときだけ。ボスの指令で
+        2エネのドロンチを吊られる心配は、まずダイブが撃てることを満たしてから」という
+        優先順位の実装。確定と見なすのは次の3つだけ（推測での確定は認めない）:
+          ① この番すでにダイブが撃てる（can_main_attack）
+          ② 場のドラパルト ex に {炎}{超} が揃っている（次の番に確実に撃てる）
+          ③ {炎}{超} が揃ったドロンチ／ドラメシヤがいて、手札に進化先が揃っている
+             （ドロンチ→ex 1枚 / ドラメシヤ→ex + ふしぎなアメ）"""
+        if self.flags.get("can_main_attack"):
+            return True
+        hc = (self.p or {}).get("hc") or {}
+        for pk in all_my_pokemon(obs):
+            if pk is None or pk.id not in DRAGAPULT_LINE:
+                continue
+            cols = {c.id for c in (pk.energyCards or []) if c is not None}
+            if FIRE_ENERGY not in cols or PSYCHIC_ENERGY not in cols:
+                continue
+            if pk.id == DRAGAPULT_EX:
+                return True
+            if hc.get(DRAGAPULT_EX, 0) < 1:
+                continue
+            if pk.id == DRAKLOAK:
+                return True
+            if pk.id == DREEPY and hc.get(RARE_CANDY, 0) >= 1:
+                return True
+        return False
 
     def _best_attach(self, obs, p, attach_id):
         ms = my_state(obs)
@@ -1413,6 +1904,8 @@ class DragapultDusknoirPolicy(BasePolicy):
         """ダイブ「持続 vs 損切り」の単一閾値（2026-07-26 統一・アグレッシブ既定 0.0）。
         旧 2×2(safe×pain) は実測で無効（グリッド平坦・両極端でアグレが全対面優位）と判り廃止。
         obs は将来また状態依存にしたくなった時のため受けるだけ（現状は未使用）。"""
+        if DUSK_GRIM_CANARY and self.vs_grimmsnarl():
+            return 1.0      # ゲート検証器用のカナリア（既定OFF）。本番の既定挙動には無関与
         return DUSK_TH_DIVE
 
     def _plan_phase(self, obs, p):
@@ -1452,6 +1945,10 @@ class DragapultDusknoirPolicy(BasePolicy):
                     10000 if fc[DRAGAPULT_EX] == 1 else 50
             else:
                 score = 50 if fc[DRAGAPULT_EX] >= 2 else 2000
+        elif cid in DUSKNOIR_LINE and self.vs_grimmsnarl() and DUSK_GRIM_NOBOMB:
+            # G-3: 対オーロンゲではボムラインを展開しない（ベンチ枠・サーチ先・アメ・
+            # 立ち上がりのアクションを本流に集中させる。トラッシュ要員として切ってよい）
+            score = UNNECESSARY
         elif cid == DUSKULL:
             line = fc[DUSKULL] + fc[DUSCLOPS] + fc[DUSKNOIR]
             # サブストリーム: 立ち上げ(setup)ではボムは種1体までのサブタスク。engine
@@ -1488,7 +1985,12 @@ class DragapultDusknoirPolicy(BasePolicy):
             elif len(osn.prize) == 1:
                 score = UNNECESSARY
         elif cid == BUDEW:
-            if fc[BUDEW] + fc[DRAKLOAK] + fc[DRAGAPULT_EX] >= 1:
+            # GL-3: ロック中はスボミーを切らさない。既定ルールは「ドロンチ/ドラパルトが
+            # 立ったらスボミーは不要」だが、対オーロンゲではロックが勝ち筋なので逆
+            # （ポフィン・ポケパッド・ハイパーボール・夜のタンカ の第一対象になる）
+            if self._grim_lock() and fc[BUDEW] == 0:
+                score = 36000
+            elif fc[BUDEW] + fc[DRAKLOAK] + fc[DRAGAPULT_EX] >= 1:
                 score = UNNECESSARY
             # DUSK_OPEN_BUDEW（ユーザー 2026-07-25）: 序盤 Poffin で Dreepy と一緒に
             # スボミーを盤面へ（先行T1=turn 1 も。旧 turn>=2 ゲートを解錠）
@@ -1516,11 +2018,16 @@ class DragapultDusknoirPolicy(BasePolicy):
             else:
                 score = 80
         elif cid == POFFIN:
-            count = deck[DREEPY] + (1 if deck[DUSKULL] >= 1 else 0)
+            # G-3: 対オーロンゲではポフィンでヨマワルを拾わない（本流のたねだけ数える）
+            count = deck[DREEPY]
+            if deck[DUSKULL] >= 1 and not (self.vs_grimmsnarl() and DUSK_GRIM_NOBOMB):
+                count += 1
             if count == 0:
                 score = UNNECESSARY
             else:
-                if obs.current.turn <= 2 and fc[BUDEW] == 0 and deck[BUDEW] >= 1:
+                # GL-3: ロック中はターン制限なくスボミーをポフィンの対象に数える
+                if ((obs.current.turn <= 2 or self._grim_lock())
+                        and fc[BUDEW] == 0 and deck[BUDEW] >= 1):
                     count += 1
                 if count >= 2:
                     score = 35000
@@ -1541,6 +2048,15 @@ class DragapultDusknoirPolicy(BasePolicy):
                         self._hand_score(obs, p, DUSKNOIR, ignore_count),
                         self._hand_score(obs, p, MUNKIDORI, ignore_count),
                         self._hand_score(obs, p, BUDEW, ignore_count))
+        elif cid == BROCK:
+            # v2 リストの新規カード（2026-07-26）。たね2枚を一度に取れるので、
+            # 立ち上げでは「スボミー＋ドラメシヤ」を1枚で揃えられる = リーリエより上。
+            # 中盤以降は進化1枚サーチに落ちるのでリーリエ(45800)の下に置く。
+            if not ignore_count or p["support_count"] == 0:
+                if obs.current.turn <= 2 and fc[BUDEW] == 0:
+                    score = 50000
+                else:
+                    score = 30000
         elif cid == BOSS:
             if self.plan_a["attack"] > 0:
                 score = 60000   # R-16
@@ -1582,7 +2098,10 @@ class DragapultDusknoirPolicy(BasePolicy):
             if p["stadium_id"] != 0 and p["stadium_id"] != WATCHTOWER:
                 score = 4000
         elif cid == RISKY_RUINS:
-            if p["stadium_id"] != RISKY_RUINS:
+            # G-2: 対オーロンゲでは張らないので手札に取る価値も無い（サーチ先から外す）
+            if self.vs_grimmsnarl() and DUSK_GRIM_RUINS:
+                score = 0
+            elif p["stadium_id"] != RISKY_RUINS:
                 score = 3000
         elif cid in BASIC_ENERGIES:
             if f["can_main_attack"] and (len(osn.prize) <= 2
@@ -1622,7 +2141,8 @@ class DragapultDusknoirPolicy(BasePolicy):
             elif cid == DRAGAPULT_EX:
                 score += 50000
             elif cid == BUDEW:
-                if ctx != SelectContext.SWITCH:
+                # GL-2: ロック中は SWITCH 文脈でも無条件で最優先（ロックを切らさない）
+                if ctx != SelectContext.SWITCH or self._grim_lock():
                     score += 100000
                 elif not self.p.get("bench_attacker"):
                     score += 30000
@@ -1692,6 +2212,14 @@ class DragapultDusknoirPolicy(BasePolicy):
                     and p["effect_id"] == POKE_PAD and cid == DRAKLOAK
                     and p["can_evolve_dreepy"]):
                 score = max(score, 33000)
+            # R-13+③: ハイパーボールで呼ぶ札も「即プレイできる札」に限る。進化先が場に
+            # 無い2進化を掘っても手札で腐り、次のハイパーボールで切る羽目になる。
+            if (DUSK_PLAYABLE_NOW and ctx == SelectContext.TO_HAND
+                    and p["effect_id"] == ULTRA_BALL and cid is not None):
+                if self._fetch_playable_now(obs, p, cid):
+                    score += 20000
+                else:
+                    score -= 20000
             if ctx == SelectContext.TO_HAND:
                 return self._take_band(score), "S-4: take to hand"
             return min(score, 900000), "S-2: take to bench"
@@ -1704,6 +2232,11 @@ class DragapultDusknoirPolicy(BasePolicy):
             if data is not None and data.cardType == CardType.SUPPORTER:
                 p["support_count"] -= 1
             score = -self._hand_score(obs, p, cid, False)
+            # R-13+①: 切るのは「この番に即プレイできない札」から。即プレイできる札は
+            # 一律 200,000 下へ落として最後まで残す（不能札の評価順 = 従来どおり保存される。
+            # 不能札のスコアは -80,000 以上なので、この差は必ず勝つ）
+            if DUSK_PLAYABLE_NOW and self._playable_now(obs, cid):
+                return min(score, 900000) - 200000, "R-13+: keep (playable this turn)"
             return min(score, 900000), "R-13: discard lowest value"
 
         if ctx in (SelectContext.DAMAGE_COUNTER, SelectContext.DAMAGE_COUNTER_ANY):

@@ -1,0 +1,73 @@
+{
+ "agent": "agents/dragapult_rb",
+ "deck": "decks/fleet/popular_4_dragapult.csv",
+ "opponent": "marnie",
+ "result": "loss",
+ "steps": 222,
+ "ultra_ball_uses": [
+  {
+   "turn": 3,
+   "step": 24,
+   "reason": "S-4: Ultra Ball",
+   "hand_before": [
+    "Crispin",
+    "Brock’s Scouting",
+    "Buddy-Buddy Poffin",
+    "Buddy-Buddy Poffin",
+    "Ultra Ball",
+    "Crushing Hammer"
+   ],
+   "discarded": [
+    "Buddy-Buddy Poffin",
+    "Buddy-Buddy Poffin"
+   ],
+   "fetched": [
+    "Dreepy"
+   ]
+  },
+  {
+   "turn": 7,
+   "step": 83,
+   "reason": "S-4: Ultra Ball",
+   "hand_before": [
+    "Ultra Ball",
+    "Crispin",
+    "Rare Candy",
+    "Dragapult ex",
+    "Crispin",
+    "Buddy-Buddy Poffin",
+    "Poké Pad",
+    "Drakloak"
+   ],
+   "discarded": [
+    "Crispin",
+    "Buddy-Buddy Poffin"
+   ],
+   "fetched": [
+    "Fezandipiti ex"
+   ]
+  },
+  {
+   "turn": 11,
+   "step": 135,
+   "reason": "S-4: Ultra Ball",
+   "hand_before": [
+    "Basic {R} Energy",
+    "Poké Pad",
+    "Ultra Ball",
+    "Ultra Ball",
+    "Crushing Hammer",
+    "Buddy-Buddy Poffin",
+    "Crispin",
+    "Team Rocket's Watchtower"
+   ],
+   "discarded": [
+    "Basic {R} Energy",
+    "Buddy-Buddy Poffin"
+   ],
+   "fetched": [
+    "Dragapult ex"
+   ]
+  }
+ ]
+}

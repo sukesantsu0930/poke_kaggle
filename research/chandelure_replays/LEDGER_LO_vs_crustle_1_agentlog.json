@@ -1,0 +1,3246 @@
+[
+ {
+  "step": 0,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 0,
+  "select_type": "YES_NO",
+  "select_context": "IS_FIRST",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: yes"
+  ],
+  "options": [
+   "0: yes",
+   "1: no"
+  ]
+ },
+ {
+  "step": 1,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 0,
+  "select_type": "CARD",
+  "select_context": "SETUP_ACTIVE_POKEMON",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: card Mega Kangaskhan ex (ID 756) / area=HAND / index=6"
+  ],
+  "options": [
+   "0: card Dwebble (ID 344) / area=HAND / index=4",
+   "1: card Mega Kangaskhan ex (ID 756) / area=HAND / index=6"
+  ]
+ },
+ {
+  "step": 2,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 0,
+  "select_type": "CARD",
+  "select_context": "SETUP_ACTIVE_POKEMON",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Comfey (ID 164) / area=HAND / index=2"
+  ],
+  "options": [
+   "0: card Comfey (ID 164) / area=HAND / index=2",
+   "1: card Comfey (ID 164) / area=HAND / index=3"
+  ]
+ },
+ {
+  "step": 3,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 0,
+  "select_type": "COUNT",
+  "select_context": "DRAW_COUNT",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: number 1"
+  ],
+  "options": [
+   "0: number 0",
+   "1: number 1"
+  ]
+ },
+ {
+  "step": 4,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 0,
+  "select_type": "CARD",
+  "select_context": "SETUP_BENCH_POKEMON",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Comfey (ID 164) / area=HAND / index=2"
+  ],
+  "options": [
+   "0: card Comfey (ID 164) / area=HAND / index=2"
+  ]
+ },
+ {
+  "step": 5,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 0,
+  "select_type": "CARD",
+  "select_context": "SETUP_BENCH_POKEMON",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Dwebble (ID 344) / area=HAND / index=4"
+  ],
+  "options": [
+   "0: card Dwebble (ID 344) / area=HAND / index=4"
+  ]
+ },
+ {
+  "step": 6,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   4
+  ],
+  "selected": [
+   "4: play Poké Pad (ID 1152) / index=3"
+  ],
+  "options": [
+   "0: attach Gravity Gemstone (ID 1166) / area=HAND / index=0 / target=ACTIVE:0",
+   "1: attach Gravity Gemstone (ID 1166) / area=HAND / index=0 / target=BENCH:0",
+   "2: play Battle Cage (ID 1264) / index=1",
+   "3: play Neutralization Zone (ID 1247) / index=2",
+   "4: play Poké Pad (ID 1152) / index=3",
+   "5: attach Gravity Gemstone (ID 1166) / area=HAND / index=5 / target=ACTIVE:0",
+   "6: attach Gravity Gemstone (ID 1166) / area=HAND / index=5 / target=BENCH:0",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 7,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   4
+  ],
+  "selected": [
+   "4: card Litwick (ID 97) / area=DECK / index=18"
+  ],
+  "options": [
+   "0: card Lampent (ID 494) / area=DECK / index=2",
+   "1: card Shaymin (ID 343) / area=DECK / index=4",
+   "2: card Lampent (ID 494) / area=DECK / index=7",
+   "3: card Comfey (ID 164) / area=DECK / index=9",
+   "4: card Litwick (ID 97) / area=DECK / index=18",
+   "5: card Chandelure (ID 98) / area=DECK / index=34",
+   "6: card Chandelure (ID 98) / area=DECK / index=35",
+   "7: card Chandelure (ID 98) / area=DECK / index=40",
+   "8: card Litwick (ID 97) / area=DECK / index=41",
+   "9: card Litwick (ID 97) / area=DECK / index=44"
+  ]
+ },
+ {
+  "step": 8,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   6
+  ],
+  "selected": [
+   "6: play Litwick (ID 97) / index=5"
+  ],
+  "options": [
+   "0: attach Gravity Gemstone (ID 1166) / area=HAND / index=0 / target=ACTIVE:0",
+   "1: attach Gravity Gemstone (ID 1166) / area=HAND / index=0 / target=BENCH:0",
+   "2: play Battle Cage (ID 1264) / index=1",
+   "3: play Neutralization Zone (ID 1247) / index=2",
+   "4: attach Gravity Gemstone (ID 1166) / area=HAND / index=4 / target=ACTIVE:0",
+   "5: attach Gravity Gemstone (ID 1166) / area=HAND / index=4 / target=BENCH:0",
+   "6: play Litwick (ID 97) / index=5",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 9,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: attach Gravity Gemstone (ID 1166) / area=HAND / index=0 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: attach Gravity Gemstone (ID 1166) / area=HAND / index=0 / target=ACTIVE:0",
+   "1: attach Gravity Gemstone (ID 1166) / area=HAND / index=0 / target=BENCH:0",
+   "2: attach Gravity Gemstone (ID 1166) / area=HAND / index=0 / target=BENCH:1",
+   "3: play Battle Cage (ID 1264) / index=1",
+   "4: play Neutralization Zone (ID 1247) / index=2",
+   "5: attach Gravity Gemstone (ID 1166) / area=HAND / index=4 / target=ACTIVE:0",
+   "6: attach Gravity Gemstone (ID 1166) / area=HAND / index=4 / target=BENCH:0",
+   "7: attach Gravity Gemstone (ID 1166) / area=HAND / index=4 / target=BENCH:1",
+   "8: end turn"
+  ]
+ },
+ {
+  "step": 10,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attach Gravity Gemstone (ID 1166) / area=HAND / index=3 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: attach Gravity Gemstone (ID 1166) / area=HAND / index=3 / target=BENCH:0",
+   "3: attach Gravity Gemstone (ID 1166) / area=HAND / index=3 / target=BENCH:1",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 11,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 1,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: end turn"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 12,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   9
+  ],
+  "selected": [
+   "9: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0"
+  ],
+  "options": [
+   "0: play Hilda (ID 1225) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Buddy-Buddy Poffin (ID 1086) / index=2",
+   "3: play Boss’s Orders (ID 1182) / index=3",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:0",
+   "6: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=ACTIVE:0",
+   "7: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:0",
+   "8: play Shaymin (ID 343) / index=6",
+   "9: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "10: end turn"
+  ]
+ },
+ {
+  "step": 13,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   8
+  ],
+  "selected": [
+   "8: play Shaymin (ID 343) / index=6"
+  ],
+  "options": [
+   "0: play Hilda (ID 1225) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Buddy-Buddy Poffin (ID 1086) / index=2",
+   "3: play Boss’s Orders (ID 1182) / index=3",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:0",
+   "6: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=ACTIVE:0",
+   "7: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:0",
+   "8: play Shaymin (ID 343) / index=6",
+   "9: attach Spiky Energy (ID 14) / area=HAND / index=7 / target=ACTIVE:0",
+   "10: attach Spiky Energy (ID 14) / area=HAND / index=7 / target=BENCH:0",
+   "11: play Battle Cage (ID 1264) / index=8",
+   "12: end turn"
+  ]
+ },
+ {
+  "step": 14,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Buddy-Buddy Poffin (ID 1086) / index=2"
+  ],
+  "options": [
+   "0: play Hilda (ID 1225) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Buddy-Buddy Poffin (ID 1086) / index=2",
+   "3: play Boss’s Orders (ID 1182) / index=3",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:0",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:1",
+   "7: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=ACTIVE:0",
+   "8: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:0",
+   "9: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:1",
+   "10: attach Spiky Energy (ID 14) / area=HAND / index=6 / target=ACTIVE:0",
+   "11: attach Spiky Energy (ID 14) / area=HAND / index=6 / target=BENCH:0",
+   "12: attach Spiky Energy (ID 14) / area=HAND / index=6 / target=BENCH:1",
+   "13: play Battle Cage (ID 1264) / index=7",
+   "14: end turn"
+  ]
+ },
+ {
+  "step": 15,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "TO_BENCH",
+  "min_count": 0,
+  "max_count": 2,
+  "action": [
+   0,
+   1
+  ],
+  "selected": [
+   "0: card Dwebble (ID 344) / area=DECK / index=9",
+   "1: card Dwebble (ID 344) / area=DECK / index=11"
+  ],
+  "options": [
+   "0: card Dwebble (ID 344) / area=DECK / index=9",
+   "1: card Dwebble (ID 344) / area=DECK / index=11"
+  ]
+ },
+ {
+  "step": 16,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Hilda (ID 1225) / index=0"
+  ],
+  "options": [
+   "0: play Hilda (ID 1225) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Boss’s Orders (ID 1182) / index=2",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=3 / target=ACTIVE:0",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:0",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:1",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:2",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:3",
+   "8: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=ACTIVE:0",
+   "9: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:0",
+   "10: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:1",
+   "11: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:2",
+   "12: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:3",
+   "13: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=ACTIVE:0",
+   "14: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:0",
+   "15: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:1",
+   "16: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:2",
+   "17: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:3",
+   "18: play Battle Cage (ID 1264) / index=6",
+   "19: end turn"
+  ]
+ },
+ {
+  "step": 17,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Crustle (ID 345) / area=DECK / index=7"
+  ],
+  "options": [
+   "0: card Crustle (ID 345) / area=DECK / index=7",
+   "1: card Crustle (ID 345) / area=DECK / index=23",
+   "2: card Crustle (ID 345) / area=DECK / index=35",
+   "3: card Crustle (ID 345) / area=DECK / index=36"
+  ]
+ },
+ {
+  "step": 18,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: card Grow Grass Energy (ID 18) / area=DECK / index=11"
+  ],
+  "options": [
+   "0: card Basic {G} Energy (ID 1) / area=DECK / index=3",
+   "1: card Spiky Energy (ID 14) / area=DECK / index=9",
+   "2: card Grow Grass Energy (ID 18) / area=DECK / index=11",
+   "3: card Grow Grass Energy (ID 18) / area=DECK / index=18",
+   "4: card Spiky Energy (ID 14) / area=DECK / index=21",
+   "5: card Mist Energy (ID 11) / area=DECK / index=25",
+   "6: card Mist Energy (ID 11) / area=DECK / index=27",
+   "7: card Grow Grass Energy (ID 18) / area=DECK / index=29",
+   "8: card Grow Grass Energy (ID 18) / area=DECK / index=30",
+   "9: card Mist Energy (ID 11) / area=DECK / index=31"
+  ]
+ },
+ {
+  "step": 19,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: attach Mist Energy (ID 11) / area=HAND / index=2 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: attach Mist Energy (ID 11) / area=HAND / index=2 / target=ACTIVE:0",
+   "2: attach Mist Energy (ID 11) / area=HAND / index=2 / target=BENCH:0",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=2 / target=BENCH:1",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=2 / target=BENCH:2",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=2 / target=BENCH:3",
+   "6: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=ACTIVE:0",
+   "7: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:0",
+   "8: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:1",
+   "9: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:2",
+   "10: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:3",
+   "11: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=ACTIVE:0",
+   "12: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:0",
+   "13: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:1",
+   "14: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:2",
+   "15: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:3",
+   "16: play Battle Cage (ID 1264) / index=5",
+   "17: attach Grow Grass Energy (ID 18) / area=HAND / index=7 / target=ACTIVE:0",
+   "18: attach Grow Grass Energy (ID 18) / area=HAND / index=7 / target=BENCH:0",
+   "19: attach Grow Grass Energy (ID 18) / area=HAND / index=7 / target=BENCH:1",
+   "20: attach Grow Grass Energy (ID 18) / area=HAND / index=7 / target=BENCH:2",
+   "21: attach Grow Grass Energy (ID 18) / area=HAND / index=7 / target=BENCH:3",
+   "22: end turn"
+  ]
+ },
+ {
+  "step": 20,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 2,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: end turn"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Battle Cage (ID 1264) / index=4",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 21,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: evolve Lampent (ID 494) / area=HAND / index=3 / target=BENCH:1"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: play Xerosic’s Machinations (ID 1197) / index=2",
+   "3: evolve Lampent (ID 494) / area=HAND / index=3 / target=BENCH:1",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 22,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Xerosic’s Machinations (ID 1197) / index=2"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: play Xerosic’s Machinations (ID 1197) / index=2",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 23,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 3,
+  "select_type": "CARD",
+  "select_context": "DISCARD",
+  "min_count": 4,
+  "max_count": 4,
+  "action": [
+   2,
+   3,
+   6,
+   0
+  ],
+  "selected": [
+   "2: card Spiky Energy (ID 14) / area=HAND / index=2",
+   "3: card Spiky Energy (ID 14) / area=HAND / index=3",
+   "6: card Grow Grass Energy (ID 18) / area=HAND / index=6",
+   "0: card Battle Cage (ID 1264) / area=HAND / index=0"
+  ],
+  "options": [
+   "0: card Battle Cage (ID 1264) / area=HAND / index=0",
+   "1: card Boss’s Orders (ID 1182) / area=HAND / index=1",
+   "2: card Spiky Energy (ID 14) / area=HAND / index=2",
+   "3: card Spiky Energy (ID 14) / area=HAND / index=3",
+   "4: card Battle Cage (ID 1264) / area=HAND / index=4",
+   "5: card Crustle (ID 345) / area=HAND / index=5",
+   "6: card Grow Grass Energy (ID 18) / area=HAND / index=6"
+  ]
+ },
+ {
+  "step": 24,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 3,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: end turn"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 25,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   5
+  ],
+  "selected": [
+   "5: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: evolve Crustle (ID 345) / area=HAND / index=2 / target=BENCH:0",
+   "3: evolve Crustle (ID 345) / area=HAND / index=2 / target=BENCH:2",
+   "4: evolve Crustle (ID 345) / area=HAND / index=2 / target=BENCH:3",
+   "5: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 26,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: evolve Crustle (ID 345) / area=HAND / index=2 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: evolve Crustle (ID 345) / area=HAND / index=2 / target=BENCH:0",
+   "3: evolve Crustle (ID 345) / area=HAND / index=2 / target=BENCH:2",
+   "4: evolve Crustle (ID 345) / area=HAND / index=2 / target=BENCH:3",
+   "5: evolve Crustle (ID 345) / area=HAND / index=4 / target=BENCH:0",
+   "6: evolve Crustle (ID 345) / area=HAND / index=4 / target=BENCH:2",
+   "7: evolve Crustle (ID 345) / area=HAND / index=4 / target=BENCH:3",
+   "8: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=ACTIVE:0",
+   "9: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:0",
+   "10: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:1",
+   "11: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:2",
+   "12: attach Spiky Energy (ID 14) / area=HAND / index=5 / target=BENCH:3",
+   "13: end turn"
+  ]
+ },
+ {
+  "step": 27,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: evolve Crustle (ID 345) / area=HAND / index=3 / target=BENCH:2"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: evolve Crustle (ID 345) / area=HAND / index=3 / target=BENCH:2",
+   "3: evolve Crustle (ID 345) / area=HAND / index=3 / target=BENCH:3",
+   "4: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=ACTIVE:0",
+   "5: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:0",
+   "6: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:1",
+   "7: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:2",
+   "8: attach Spiky Energy (ID 14) / area=HAND / index=4 / target=BENCH:3",
+   "9: end turn"
+  ]
+ },
+ {
+  "step": 28,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=ACTIVE:0",
+   "3: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:0",
+   "4: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:1",
+   "5: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:2",
+   "6: attach Spiky Energy (ID 14) / area=HAND / index=3 / target=BENCH:3",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 29,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 4,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: end turn"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 30,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Enhanced Hammer (ID 1081) / index=2"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: play Enhanced Hammer (ID 1081) / index=2",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 31,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "ENERGY",
+  "select_context": "DISCARD_ENERGY",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: energy Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0"
+  ],
+  "options": [
+   "0: energy Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "1: energy Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0"
+  ]
+ },
+ {
+  "step": 32,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 5,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: end turn"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 33,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Mega Kangaskhan ex (ID 756) / index=3",
+   "3: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 34,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Mega Kangaskhan ex (ID 756) / index=3"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Mega Kangaskhan ex (ID 756) / index=3",
+   "3: play Hilda (ID 1225) / index=4",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=5 / target=ACTIVE:0",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:0",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:1",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:2",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:3",
+   "9: end turn"
+  ]
+ },
+ {
+  "step": 35,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Hilda (ID 1225) / index=3",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:0",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:1",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:2",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:3",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:4",
+   "9: end turn"
+  ]
+ },
+ {
+  "step": 36,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Hilda (ID 1225) / index=3"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Hilda (ID 1225) / index=3",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 37,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Crustle (ID 345) / area=DECK / index=26"
+  ],
+  "options": [
+   "0: card Crustle (ID 345) / area=DECK / index=26",
+   "1: card Crustle (ID 345) / area=DECK / index=30"
+  ]
+ },
+ {
+  "step": 38,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: card Grow Grass Energy (ID 18) / area=DECK / index=16"
+  ],
+  "options": [
+   "0: card Basic {G} Energy (ID 1) / area=DECK / index=1",
+   "1: card Spiky Energy (ID 14) / area=DECK / index=7",
+   "2: card Mist Energy (ID 11) / area=DECK / index=13",
+   "3: card Grow Grass Energy (ID 18) / area=DECK / index=16",
+   "4: card Grow Grass Energy (ID 18) / area=DECK / index=17",
+   "5: card Mist Energy (ID 11) / area=DECK / index=22",
+   "6: card Grow Grass Energy (ID 18) / area=DECK / index=27"
+  ]
+ },
+ {
+  "step": 39,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: evolve Crustle (ID 345) / area=HAND / index=3 / target=BENCH:3"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=1",
+   "1: evolve Crustle (ID 345) / area=HAND / index=3 / target=BENCH:3",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 40,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 6,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: end turn"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=1",
+   "1: end turn"
+  ]
+ },
+ {
+  "step": 41,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Hilda (ID 1225) / index=2"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: play Hilda (ID 1225) / index=2",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 42,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: card Chandelure (ID 98) / area=DECK / index=2"
+  ],
+  "options": [
+   "0: card Lampent (ID 494) / area=DECK / index=1",
+   "1: card Chandelure (ID 98) / area=DECK / index=2",
+   "2: card Chandelure (ID 98) / area=DECK / index=22",
+   "3: card Chandelure (ID 98) / area=DECK / index=25"
+  ]
+ },
+ {
+  "step": 43,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: card Telepath Psychic Energy (ID 19) / area=DECK / index=12"
+  ],
+  "options": [
+   "0: card Basic {P} Energy (ID 5) / area=DECK / index=10",
+   "1: card Telepath Psychic Energy (ID 19) / area=DECK / index=12",
+   "2: card Telepath Psychic Energy (ID 19) / area=DECK / index=14",
+   "3: card Telepath Psychic Energy (ID 19) / area=DECK / index=30",
+   "4: card Basic {P} Energy (ID 5) / area=DECK / index=32",
+   "5: card Telepath Psychic Energy (ID 19) / area=DECK / index=38"
+  ]
+ },
+ {
+  "step": 44,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: evolve Chandelure (ID 98) / area=HAND / index=2 / target=BENCH:1"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: evolve Chandelure (ID 98) / area=HAND / index=2 / target=BENCH:1",
+   "3: attach Telepath Psychic Energy (ID 19) / area=HAND / index=3 / target=ACTIVE:0",
+   "4: attach Telepath Psychic Energy (ID 19) / area=HAND / index=3 / target=BENCH:0",
+   "5: attach Telepath Psychic Energy (ID 19) / area=HAND / index=3 / target=BENCH:1",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 45,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   5
+  ],
+  "selected": [
+   "5: ability Chandelure (ID 98) / area=BENCH / index=1"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: attach Telepath Psychic Energy (ID 19) / area=HAND / index=2 / target=ACTIVE:0",
+   "3: attach Telepath Psychic Energy (ID 19) / area=HAND / index=2 / target=BENCH:0",
+   "4: attach Telepath Psychic Energy (ID 19) / area=HAND / index=2 / target=BENCH:1",
+   "5: ability Chandelure (ID 98) / area=BENCH / index=1",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 46,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attach Telepath Psychic Energy (ID 19) / area=HAND / index=2 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: attach Telepath Psychic Energy (ID 19) / area=HAND / index=2 / target=ACTIVE:0",
+   "3: attach Telepath Psychic Energy (ID 19) / area=HAND / index=2 / target=BENCH:0",
+   "4: attach Telepath Psychic Energy (ID 19) / area=HAND / index=2 / target=BENCH:1",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 47,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "CARD",
+  "select_context": "TO_BENCH",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Comfey (ID 164) / area=DECK / index=29"
+  ],
+  "options": [
+   "0: card Comfey (ID 164) / area=DECK / index=29"
+  ]
+ },
+ {
+  "step": 48,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 7,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attack Flower Shower damage=0"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=0",
+   "1: play Neutralization Zone (ID 1247) / index=1",
+   "2: attack Flower Shower damage=0",
+   "3: attack Play Rough damage=20",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 49,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 8,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   23
+  ],
+  "selected": [
+   "23: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Xerosic’s Machinations (ID 1197) / index=2",
+   "3: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=ACTIVE:0",
+   "4: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:0",
+   "5: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:1",
+   "6: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:2",
+   "7: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:3",
+   "8: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:4",
+   "9: play Pokégear 3.0 (ID 1122) / index=4",
+   "10: play Switch (ID 1123) / index=5",
+   "11: attach Mist Energy (ID 11) / area=HAND / index=6 / target=ACTIVE:0",
+   "12: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:0",
+   "13: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:1",
+   "14: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:2",
+   "15: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:3",
+   "16: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:4",
+   "17: attach Mist Energy (ID 11) / area=HAND / index=7 / target=ACTIVE:0",
+   "18: attach Mist Energy (ID 11) / area=HAND / index=7 / target=BENCH:0",
+   "19: attach Mist Energy (ID 11) / area=HAND / index=7 / target=BENCH:1",
+   "20: attach Mist Energy (ID 11) / area=HAND / index=7 / target=BENCH:2",
+   "21: attach Mist Energy (ID 11) / area=HAND / index=7 / target=BENCH:3",
+   "22: attach Mist Energy (ID 11) / area=HAND / index=7 / target=BENCH:4",
+   "23: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "24: end turn"
+  ]
+ },
+ {
+  "step": 50,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 8,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Xerosic’s Machinations (ID 1197) / index=2"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Xerosic’s Machinations (ID 1197) / index=2",
+   "3: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=ACTIVE:0",
+   "4: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:0",
+   "5: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:1",
+   "6: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:2",
+   "7: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:3",
+   "8: attach Grow Grass Energy (ID 18) / area=HAND / index=3 / target=BENCH:4",
+   "9: play Pokégear 3.0 (ID 1122) / index=4",
+   "10: play Switch (ID 1123) / index=5",
+   "11: attach Mist Energy (ID 11) / area=HAND / index=6 / target=ACTIVE:0",
+   "12: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:0",
+   "13: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:1",
+   "14: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:2",
+   "15: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:3",
+   "16: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:4",
+   "17: attach Mist Energy (ID 11) / area=HAND / index=7 / target=ACTIVE:0",
+   "18: attach Mist Energy (ID 11) / area=HAND / index=7 / target=BENCH:0",
+   "19: attach Mist Energy (ID 11) / area=HAND / index=7 / target=BENCH:1",
+   "20: attach Mist Energy (ID 11) / area=HAND / index=7 / target=BENCH:2",
+   "21: attach Mist Energy (ID 11) / area=HAND / index=7 / target=BENCH:3",
+   "22: attach Mist Energy (ID 11) / area=HAND / index=7 / target=BENCH:4",
+   "23: play Switch (ID 1123) / index=9",
+   "24: end turn"
+  ]
+ },
+ {
+  "step": 51,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 8,
+  "select_type": "CARD",
+  "select_context": "DISCARD",
+  "min_count": 3,
+  "max_count": 3,
+  "action": [
+   0,
+   2,
+   3
+  ],
+  "selected": [
+   "0: card Battle Cage (ID 1264) / area=HAND / index=0",
+   "2: card Boss’s Orders (ID 1182) / area=HAND / index=2",
+   "3: card Buddy-Buddy Poffin (ID 1086) / area=HAND / index=3"
+  ],
+  "options": [
+   "0: card Battle Cage (ID 1264) / area=HAND / index=0",
+   "1: card Neutralization Zone (ID 1247) / area=HAND / index=1",
+   "2: card Boss’s Orders (ID 1182) / area=HAND / index=2",
+   "3: card Buddy-Buddy Poffin (ID 1086) / area=HAND / index=3",
+   "4: card Lillie's Determination (ID 1227) / area=HAND / index=4",
+   "5: card Energy Search (ID 1119) / area=HAND / index=5"
+  ]
+ },
+ {
+  "step": 52,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 8,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=1",
+   "1: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=ACTIVE:0",
+   "2: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:0",
+   "3: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:1",
+   "4: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:2",
+   "5: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:3",
+   "6: attach Grow Grass Energy (ID 18) / area=HAND / index=2 / target=BENCH:4",
+   "7: play Pokégear 3.0 (ID 1122) / index=3",
+   "8: play Switch (ID 1123) / index=4",
+   "9: attach Mist Energy (ID 11) / area=HAND / index=5 / target=ACTIVE:0",
+   "10: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:0",
+   "11: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:1",
+   "12: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:2",
+   "13: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:3",
+   "14: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:4",
+   "15: attach Mist Energy (ID 11) / area=HAND / index=6 / target=ACTIVE:0",
+   "16: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:0",
+   "17: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:1",
+   "18: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:2",
+   "19: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:3",
+   "20: attach Mist Energy (ID 11) / area=HAND / index=6 / target=BENCH:4",
+   "21: play Switch (ID 1123) / index=8",
+   "22: end turn"
+  ]
+ },
+ {
+  "step": 53,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 8,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   4
+  ],
+  "selected": [
+   "4: end turn"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=1",
+   "1: play Pokégear 3.0 (ID 1122) / index=2",
+   "2: play Switch (ID 1123) / index=3",
+   "3: play Switch (ID 1123) / index=7",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 54,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 9,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   4
+  ],
+  "selected": [
+   "4: ability Chandelure (ID 98) / area=BENCH / index=1"
+  ],
+  "options": [
+   "0: play Neutralization Zone (ID 1247) / index=0",
+   "1: play Lillie's Determination (ID 1227) / index=1",
+   "2: play Energy Search (ID 1119) / index=2",
+   "3: play Crushing Hammer (ID 1120) / index=3",
+   "4: ability Chandelure (ID 98) / area=BENCH / index=1",
+   "5: attack Flower Shower damage=0",
+   "6: attack Play Rough damage=20",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 55,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 9,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Energy Search (ID 1119) / index=2"
+  ],
+  "options": [
+   "0: play Neutralization Zone (ID 1247) / index=0",
+   "1: play Lillie's Determination (ID 1227) / index=1",
+   "2: play Energy Search (ID 1119) / index=2",
+   "3: play Crushing Hammer (ID 1120) / index=3",
+   "4: attack Flower Shower damage=0",
+   "5: attack Play Rough damage=20",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 56,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 9,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Basic {P} Energy (ID 5) / area=DECK / index=5"
+  ],
+  "options": [
+   "0: card Basic {P} Energy (ID 5) / area=DECK / index=5",
+   "1: card Basic {P} Energy (ID 5) / area=DECK / index=27"
+  ]
+ },
+ {
+  "step": 57,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 9,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   4
+  ],
+  "selected": [
+   "4: attach Basic {P} Energy (ID 5) / area=HAND / index=4 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Neutralization Zone (ID 1247) / index=0",
+   "1: play Lillie's Determination (ID 1227) / index=1",
+   "2: play Crushing Hammer (ID 1120) / index=2",
+   "3: attach Basic {P} Energy (ID 5) / area=HAND / index=4 / target=ACTIVE:0",
+   "4: attach Basic {P} Energy (ID 5) / area=HAND / index=4 / target=BENCH:0",
+   "5: attach Basic {P} Energy (ID 5) / area=HAND / index=4 / target=BENCH:1",
+   "6: attach Basic {P} Energy (ID 5) / area=HAND / index=4 / target=BENCH:2",
+   "7: attack Flower Shower damage=0",
+   "8: attack Play Rough damage=20",
+   "9: end turn"
+  ]
+ },
+ {
+  "step": 58,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 9,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Crushing Hammer (ID 1120) / index=2"
+  ],
+  "options": [
+   "0: play Neutralization Zone (ID 1247) / index=0",
+   "1: play Lillie's Determination (ID 1227) / index=1",
+   "2: play Crushing Hammer (ID 1120) / index=2",
+   "3: attack Flower Shower damage=0",
+   "4: attack Play Rough damage=20",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 59,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 9,
+  "select_type": "ENERGY",
+  "select_context": "DISCARD_ENERGY",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: energy Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0"
+  ],
+  "options": [
+   "0: energy Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "1: energy Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "2: energy Crustle (ID 345) / area=BENCH / index=0"
+  ]
+ },
+ {
+  "step": 60,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 9,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attack Flower Shower damage=0"
+  ],
+  "options": [
+   "0: play Neutralization Zone (ID 1247) / index=0",
+   "1: play Lillie's Determination (ID 1227) / index=1",
+   "2: attack Flower Shower damage=0",
+   "3: attack Play Rough damage=20",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 61,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 10,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   17
+  ],
+  "selected": [
+   "17: play Xerosic’s Machinations (ID 1197) / index=9"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Pokégear 3.0 (ID 1122) / index=2",
+   "3: play Switch (ID 1123) / index=3",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:0",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:1",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:2",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:3",
+   "9: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:4",
+   "10: attach Mist Energy (ID 11) / area=HAND / index=5 / target=ACTIVE:0",
+   "11: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:0",
+   "12: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:1",
+   "13: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:2",
+   "14: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:3",
+   "15: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:4",
+   "16: play Switch (ID 1123) / index=7",
+   "17: play Xerosic’s Machinations (ID 1197) / index=9",
+   "18: attach Spiky Energy (ID 14) / area=HAND / index=10 / target=ACTIVE:0",
+   "19: attach Spiky Energy (ID 14) / area=HAND / index=10 / target=BENCH:0",
+   "20: attach Spiky Energy (ID 14) / area=HAND / index=10 / target=BENCH:1",
+   "21: attach Spiky Energy (ID 14) / area=HAND / index=10 / target=BENCH:2",
+   "22: attach Spiky Energy (ID 14) / area=HAND / index=10 / target=BENCH:3",
+   "23: attach Spiky Energy (ID 14) / area=HAND / index=10 / target=BENCH:4",
+   "24: play Switch (ID 1123) / index=11",
+   "25: attach Grow Grass Energy (ID 18) / area=HAND / index=13 / target=ACTIVE:0",
+   "26: attach Grow Grass Energy (ID 18) / area=HAND / index=13 / target=BENCH:0",
+   "27: attach Grow Grass Energy (ID 18) / area=HAND / index=13 / target=BENCH:1",
+   "28: attach Grow Grass Energy (ID 18) / area=HAND / index=13 / target=BENCH:2",
+   "29: attach Grow Grass Energy (ID 18) / area=HAND / index=13 / target=BENCH:3",
+   "30: attach Grow Grass Energy (ID 18) / area=HAND / index=13 / target=BENCH:4",
+   "31: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "32: end turn"
+  ]
+ },
+ {
+  "step": 62,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 10,
+  "select_type": "CARD",
+  "select_context": "DISCARD",
+  "min_count": 3,
+  "max_count": 3,
+  "action": [
+   3,
+   4,
+   5
+  ],
+  "selected": [
+   "3: card Telepath Psychic Energy (ID 19) / area=HAND / index=3",
+   "4: card Poké Pad (ID 1152) / area=HAND / index=4",
+   "5: card Buddy-Buddy Poffin (ID 1086) / area=HAND / index=5"
+  ],
+  "options": [
+   "0: card Neutralization Zone (ID 1247) / area=HAND / index=0",
+   "1: card Lillie's Determination (ID 1227) / area=HAND / index=1",
+   "2: card Rare Candy (ID 1079) / area=HAND / index=2",
+   "3: card Telepath Psychic Energy (ID 19) / area=HAND / index=3",
+   "4: card Poké Pad (ID 1152) / area=HAND / index=4",
+   "5: card Buddy-Buddy Poffin (ID 1086) / area=HAND / index=5"
+  ]
+ },
+ {
+  "step": 63,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 10,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   26
+  ],
+  "selected": [
+   "26: attach Grow Grass Energy (ID 18) / area=HAND / index=12 / target=BENCH:2"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=1",
+   "1: play Pokégear 3.0 (ID 1122) / index=2",
+   "2: play Switch (ID 1123) / index=3",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:0",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:1",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:2",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:3",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:4",
+   "9: attach Mist Energy (ID 11) / area=HAND / index=5 / target=ACTIVE:0",
+   "10: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:0",
+   "11: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:1",
+   "12: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:2",
+   "13: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:3",
+   "14: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:4",
+   "15: play Switch (ID 1123) / index=7",
+   "16: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=ACTIVE:0",
+   "17: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:0",
+   "18: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:1",
+   "19: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:2",
+   "20: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:3",
+   "21: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:4",
+   "22: play Switch (ID 1123) / index=10",
+   "23: attach Grow Grass Energy (ID 18) / area=HAND / index=12 / target=ACTIVE:0",
+   "24: attach Grow Grass Energy (ID 18) / area=HAND / index=12 / target=BENCH:0",
+   "25: attach Grow Grass Energy (ID 18) / area=HAND / index=12 / target=BENCH:1",
+   "26: attach Grow Grass Energy (ID 18) / area=HAND / index=12 / target=BENCH:2",
+   "27: attach Grow Grass Energy (ID 18) / area=HAND / index=12 / target=BENCH:3",
+   "28: attach Grow Grass Energy (ID 18) / area=HAND / index=12 / target=BENCH:4",
+   "29: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "30: end turn"
+  ]
+ },
+ {
+  "step": 64,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 10,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   6
+  ],
+  "selected": [
+   "6: end turn"
+  ],
+  "options": [
+   "0: play Battle Cage (ID 1264) / index=1",
+   "1: play Pokégear 3.0 (ID 1122) / index=2",
+   "2: play Switch (ID 1123) / index=3",
+   "3: play Switch (ID 1123) / index=7",
+   "4: play Switch (ID 1123) / index=10",
+   "5: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 65,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 11,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: ability Chandelure (ID 98) / area=BENCH / index=1"
+  ],
+  "options": [
+   "0: play Neutralization Zone (ID 1247) / index=0",
+   "1: play Lillie's Determination (ID 1227) / index=1",
+   "2: play Boss’s Orders (ID 1182) / index=3",
+   "3: ability Chandelure (ID 98) / area=BENCH / index=1",
+   "4: attack Flower Shower damage=0",
+   "5: attack Play Rough damage=20",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 66,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 11,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   6
+  ],
+  "selected": [
+   "6: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:2"
+  ],
+  "options": [
+   "0: play Neutralization Zone (ID 1247) / index=0",
+   "1: play Lillie's Determination (ID 1227) / index=1",
+   "2: play Boss’s Orders (ID 1182) / index=3",
+   "3: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=ACTIVE:0",
+   "4: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:0",
+   "5: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:1",
+   "6: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:2",
+   "7: attack Flower Shower damage=0",
+   "8: attack Play Rough damage=20",
+   "9: end turn"
+  ]
+ },
+ {
+  "step": 67,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 11,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: attack Flower Shower damage=0"
+  ],
+  "options": [
+   "0: play Neutralization Zone (ID 1247) / index=0",
+   "1: play Lillie's Determination (ID 1227) / index=1",
+   "2: play Boss’s Orders (ID 1182) / index=3",
+   "3: attack Flower Shower damage=0",
+   "4: attack Play Rough damage=20",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 68,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 12,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   4
+  ],
+  "selected": [
+   "4: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Pokégear 3.0 (ID 1122) / index=2",
+   "3: play Switch (ID 1123) / index=3",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=4 / target=ACTIVE:0",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:0",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:1",
+   "7: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:2",
+   "8: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:3",
+   "9: attach Mist Energy (ID 11) / area=HAND / index=4 / target=BENCH:4",
+   "10: attach Mist Energy (ID 11) / area=HAND / index=5 / target=ACTIVE:0",
+   "11: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:0",
+   "12: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:1",
+   "13: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:2",
+   "14: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:3",
+   "15: attach Mist Energy (ID 11) / area=HAND / index=5 / target=BENCH:4",
+   "16: play Switch (ID 1123) / index=7",
+   "17: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=ACTIVE:0",
+   "18: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:0",
+   "19: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:1",
+   "20: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:2",
+   "21: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:3",
+   "22: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:4",
+   "23: play Switch (ID 1123) / index=10",
+   "24: play Hand Trimmer (ID 1087) / index=12",
+   "25: play Lillie's Determination (ID 1227) / index=13",
+   "26: play Lillie's Determination (ID 1227) / index=14",
+   "27: play Boss’s Orders (ID 1182) / index=15",
+   "28: play Hilda (ID 1225) / index=16",
+   "29: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "30: end turn"
+  ]
+ },
+ {
+  "step": 69,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 12,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   7
+  ],
+  "selected": [
+   "7: play Lillie's Determination (ID 1227) / index=12"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Battle Cage (ID 1264) / index=1",
+   "2: play Pokégear 3.0 (ID 1122) / index=2",
+   "3: play Switch (ID 1123) / index=3",
+   "4: play Switch (ID 1123) / index=6",
+   "5: play Switch (ID 1123) / index=9",
+   "6: play Hand Trimmer (ID 1087) / index=11",
+   "7: play Lillie's Determination (ID 1227) / index=12",
+   "8: play Lillie's Determination (ID 1227) / index=13",
+   "9: play Boss’s Orders (ID 1182) / index=14",
+   "10: play Hilda (ID 1225) / index=15",
+   "11: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "12: end turn"
+  ]
+ },
+ {
+  "step": 70,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 12,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: end turn"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=2",
+   "1: play Battle Cage (ID 1264) / index=4",
+   "2: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 71,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 13,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   10
+  ],
+  "selected": [
+   "10: ability Chandelure (ID 98) / area=BENCH / index=1"
+  ],
+  "options": [
+   "0: play Neutralization Zone (ID 1247) / index=0",
+   "1: play Lillie's Determination (ID 1227) / index=1",
+   "2: play Boss’s Orders (ID 1182) / index=3",
+   "3: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=ACTIVE:0",
+   "4: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:0",
+   "5: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:1",
+   "6: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:2",
+   "7: play Lillie's Determination (ID 1227) / index=5",
+   "8: play Xerosic’s Machinations (ID 1197) / index=6",
+   "9: play Switch (ID 1123) / index=7",
+   "10: ability Chandelure (ID 98) / area=BENCH / index=1",
+   "11: attack Flower Shower damage=0",
+   "12: attack Play Rough damage=20",
+   "13: end turn"
+  ]
+ },
+ {
+  "step": 72,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 13,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   8
+  ],
+  "selected": [
+   "8: play Xerosic’s Machinations (ID 1197) / index=6"
+  ],
+  "options": [
+   "0: play Neutralization Zone (ID 1247) / index=0",
+   "1: play Lillie's Determination (ID 1227) / index=1",
+   "2: play Boss’s Orders (ID 1182) / index=3",
+   "3: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=ACTIVE:0",
+   "4: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:0",
+   "5: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:1",
+   "6: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:2",
+   "7: play Lillie's Determination (ID 1227) / index=5",
+   "8: play Xerosic’s Machinations (ID 1197) / index=6",
+   "9: play Switch (ID 1123) / index=7",
+   "10: play Hilda (ID 1225) / index=8",
+   "11: attack Flower Shower damage=0",
+   "12: attack Play Rough damage=20",
+   "13: end turn"
+  ]
+ },
+ {
+  "step": 73,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 13,
+  "select_type": "CARD",
+  "select_context": "DISCARD",
+  "min_count": 6,
+  "max_count": 6,
+  "action": [
+   4,
+   5,
+   8,
+   0,
+   2,
+   3
+  ],
+  "selected": [
+   "4: card Battle Cage (ID 1264) / area=HAND / index=4",
+   "5: card Mega Kangaskhan ex (ID 756) / area=HAND / index=5",
+   "8: card Crustle (ID 345) / area=HAND / index=8",
+   "0: card Lillie's Determination (ID 1227) / area=HAND / index=0",
+   "2: card Switch (ID 1123) / area=HAND / index=2",
+   "3: card Hilda (ID 1225) / area=HAND / index=3"
+  ],
+  "options": [
+   "0: card Lillie's Determination (ID 1227) / area=HAND / index=0",
+   "1: card Jumbo Ice Cream (ID 1147) / area=HAND / index=1",
+   "2: card Switch (ID 1123) / area=HAND / index=2",
+   "3: card Hilda (ID 1225) / area=HAND / index=3",
+   "4: card Battle Cage (ID 1264) / area=HAND / index=4",
+   "5: card Mega Kangaskhan ex (ID 756) / area=HAND / index=5",
+   "6: card Xerosic’s Machinations (ID 1197) / area=HAND / index=6",
+   "7: card Jumbo Ice Cream (ID 1147) / area=HAND / index=7",
+   "8: card Crustle (ID 345) / area=HAND / index=8"
+  ]
+ },
+ {
+  "step": 74,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 13,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   6
+  ],
+  "selected": [
+   "6: attack Flower Shower damage=0"
+  ],
+  "options": [
+   "0: play Neutralization Zone (ID 1247) / index=0",
+   "1: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=ACTIVE:0",
+   "2: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:0",
+   "3: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:1",
+   "4: attach Telepath Psychic Energy (ID 19) / area=HAND / index=4 / target=BENCH:2",
+   "5: play Switch (ID 1123) / index=6",
+   "6: attack Flower Shower damage=0",
+   "7: attack Play Rough damage=20",
+   "8: end turn"
+  ]
+ },
+ {
+  "step": 75,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 14,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Xerosic’s Machinations (ID 1197) / index=1"
+  ],
+  "options": [
+   "0: play Xerosic’s Machinations (ID 1197) / index=1",
+   "1: attach Hero’s Cape (ID 1159) / area=HAND / index=4 / target=ACTIVE:0",
+   "2: attach Hero’s Cape (ID 1159) / area=HAND / index=4 / target=BENCH:0",
+   "3: attach Hero’s Cape (ID 1159) / area=HAND / index=4 / target=BENCH:1",
+   "4: attach Hero’s Cape (ID 1159) / area=HAND / index=4 / target=BENCH:2",
+   "5: attach Hero’s Cape (ID 1159) / area=HAND / index=4 / target=BENCH:3",
+   "6: attach Hero’s Cape (ID 1159) / area=HAND / index=4 / target=BENCH:4",
+   "7: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "8: end turn"
+  ]
+ },
+ {
+  "step": 76,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 14,
+  "select_type": "CARD",
+  "select_context": "DISCARD",
+  "min_count": 8,
+  "max_count": 8,
+  "action": [
+   3,
+   4,
+   6,
+   7,
+   10,
+   1,
+   5,
+   0
+  ],
+  "selected": [
+   "3: card Boss’s Orders (ID 1182) / area=HAND / index=3",
+   "4: card Telepath Psychic Energy (ID 19) / area=HAND / index=4",
+   "6: card Switch (ID 1123) / area=HAND / index=6",
+   "7: card Hilda (ID 1225) / area=HAND / index=7",
+   "10: card Poké Pad (ID 1152) / area=HAND / index=10",
+   "1: card Lillie's Determination (ID 1227) / area=HAND / index=1",
+   "5: card Lillie's Determination (ID 1227) / area=HAND / index=5",
+   "0: card Neutralization Zone (ID 1247) / area=HAND / index=0"
+  ],
+  "options": [
+   "0: card Neutralization Zone (ID 1247) / area=HAND / index=0",
+   "1: card Lillie's Determination (ID 1227) / area=HAND / index=1",
+   "2: card Rare Candy (ID 1079) / area=HAND / index=2",
+   "3: card Boss’s Orders (ID 1182) / area=HAND / index=3",
+   "4: card Telepath Psychic Energy (ID 19) / area=HAND / index=4",
+   "5: card Lillie's Determination (ID 1227) / area=HAND / index=5",
+   "6: card Switch (ID 1123) / area=HAND / index=6",
+   "7: card Hilda (ID 1225) / area=HAND / index=7",
+   "8: card Litwick (ID 97) / area=HAND / index=8",
+   "9: card Lampent (ID 494) / area=HAND / index=9",
+   "10: card Poké Pad (ID 1152) / area=HAND / index=10"
+  ]
+ },
+ {
+  "step": 77,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 14,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: attach Hero’s Cape (ID 1159) / area=HAND / index=3 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: attach Hero’s Cape (ID 1159) / area=HAND / index=3 / target=ACTIVE:0",
+   "1: attach Hero’s Cape (ID 1159) / area=HAND / index=3 / target=BENCH:0",
+   "2: attach Hero’s Cape (ID 1159) / area=HAND / index=3 / target=BENCH:1",
+   "3: attach Hero’s Cape (ID 1159) / area=HAND / index=3 / target=BENCH:2",
+   "4: attach Hero’s Cape (ID 1159) / area=HAND / index=3 / target=BENCH:3",
+   "5: attach Hero’s Cape (ID 1159) / area=HAND / index=3 / target=BENCH:4",
+   "6: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 78,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 14,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: end turn"
+  ],
+  "options": [
+   "0: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "1: end turn"
+  ]
+ },
+ {
+  "step": 79,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 15,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: ability Chandelure (ID 98) / area=BENCH / index=1"
+  ],
+  "options": [
+   "0: play Litwick (ID 97) / index=1",
+   "1: ability Chandelure (ID 98) / area=BENCH / index=1",
+   "2: attack Flower Shower damage=0",
+   "3: attack Play Rough damage=20",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 80,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 15,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Litwick (ID 97) / index=1"
+  ],
+  "options": [
+   "0: play Litwick (ID 97) / index=1",
+   "1: play Lillie's Determination (ID 1227) / index=4",
+   "2: attack Flower Shower damage=0",
+   "3: attack Play Rough damage=20",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 81,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 15,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: attack Flower Shower damage=0"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=3",
+   "1: attack Flower Shower damage=0",
+   "2: attack Play Rough damage=20",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 82,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 16,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   4
+  ],
+  "selected": [
+   "4: attach Basic {G} Energy (ID 1) / area=HAND / index=5 / target=BENCH:3"
+  ],
+  "options": [
+   "0: attach Basic {G} Energy (ID 1) / area=HAND / index=5 / target=ACTIVE:0",
+   "1: attach Basic {G} Energy (ID 1) / area=HAND / index=5 / target=BENCH:0",
+   "2: attach Basic {G} Energy (ID 1) / area=HAND / index=5 / target=BENCH:1",
+   "3: attach Basic {G} Energy (ID 1) / area=HAND / index=5 / target=BENCH:2",
+   "4: attach Basic {G} Energy (ID 1) / area=HAND / index=5 / target=BENCH:3",
+   "5: attach Basic {G} Energy (ID 1) / area=HAND / index=5 / target=BENCH:4",
+   "6: play Lillie's Determination (ID 1227) / index=6",
+   "7: play Hilda (ID 1225) / index=7",
+   "8: play Switch (ID 1123) / index=8",
+   "9: play Pokégear 3.0 (ID 1122) / index=9",
+   "10: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "11: end turn"
+  ]
+ },
+ {
+  "step": 83,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 16,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: play Hilda (ID 1225) / index=6"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=5",
+   "1: play Hilda (ID 1225) / index=6",
+   "2: play Switch (ID 1123) / index=7",
+   "3: play Pokégear 3.0 (ID 1122) / index=8",
+   "4: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 84,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 16,
+  "select_type": "CARD",
+  "select_context": "TO_HAND",
+  "min_count": 0,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: card Grow Grass Energy (ID 18) / area=DECK / index=2"
+  ],
+  "options": [
+   "0: card Grow Grass Energy (ID 18) / area=DECK / index=2",
+   "1: card Mist Energy (ID 11) / area=DECK / index=4",
+   "2: card Spiky Energy (ID 14) / area=DECK / index=9"
+  ]
+ },
+ {
+  "step": 85,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 16,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: end turn"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=6",
+   "1: play Pokégear 3.0 (ID 1122) / index=7",
+   "2: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 86,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 17,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   7
+  ],
+  "selected": [
+   "7: ability Chandelure (ID 98) / area=BENCH / index=1"
+  ],
+  "options": [
+   "0: play Rare Candy (ID 1079) / index=0",
+   "1: evolve Lampent (ID 494) / area=HAND / index=1 / target=BENCH:3",
+   "2: play Lillie's Determination (ID 1227) / index=3",
+   "3: play Lillie's Determination (ID 1227) / index=4",
+   "4: play Litwick (ID 97) / index=5",
+   "5: play Crushing Hammer (ID 1120) / index=6",
+   "6: play Crushing Hammer (ID 1120) / index=7",
+   "7: ability Chandelure (ID 98) / area=BENCH / index=1",
+   "8: attack Flower Shower damage=0",
+   "9: attack Play Rough damage=20",
+   "10: end turn"
+  ]
+ },
+ {
+  "step": 87,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 17,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: evolve Lampent (ID 494) / area=HAND / index=1 / target=BENCH:3"
+  ],
+  "options": [
+   "0: play Rare Candy (ID 1079) / index=0",
+   "1: evolve Lampent (ID 494) / area=HAND / index=1 / target=BENCH:3",
+   "2: play Lillie's Determination (ID 1227) / index=3",
+   "3: play Lillie's Determination (ID 1227) / index=4",
+   "4: play Litwick (ID 97) / index=5",
+   "5: play Crushing Hammer (ID 1120) / index=6",
+   "6: play Crushing Hammer (ID 1120) / index=7",
+   "7: play Buddy-Buddy Poffin (ID 1086) / index=8",
+   "8: attack Flower Shower damage=0",
+   "9: attack Play Rough damage=20",
+   "10: end turn"
+  ]
+ },
+ {
+  "step": 88,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 17,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Litwick (ID 97) / index=4"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=2",
+   "1: play Lillie's Determination (ID 1227) / index=3",
+   "2: play Litwick (ID 97) / index=4",
+   "3: play Crushing Hammer (ID 1120) / index=5",
+   "4: play Crushing Hammer (ID 1120) / index=6",
+   "5: play Buddy-Buddy Poffin (ID 1086) / index=7",
+   "6: attack Flower Shower damage=0",
+   "7: attack Play Rough damage=20",
+   "8: end turn"
+  ]
+ },
+ {
+  "step": 89,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 17,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Crushing Hammer (ID 1120) / index=4"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=2",
+   "1: play Lillie's Determination (ID 1227) / index=3",
+   "2: play Crushing Hammer (ID 1120) / index=4",
+   "3: play Crushing Hammer (ID 1120) / index=5",
+   "4: attack Flower Shower damage=0",
+   "5: attack Play Rough damage=20",
+   "6: end turn"
+  ]
+ },
+ {
+  "step": 90,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 17,
+  "select_type": "ENERGY",
+  "select_context": "DISCARD_ENERGY",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: energy Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0"
+  ],
+  "options": [
+   "0: energy Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "1: energy Crustle (ID 345) / area=BENCH / index=0",
+   "2: energy Crustle (ID 345) / area=BENCH / index=2",
+   "3: energy Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "4: energy Crustle (ID 345) / area=BENCH / index=3"
+  ]
+ },
+ {
+  "step": 91,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 17,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Crushing Hammer (ID 1120) / index=4"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=2",
+   "1: play Lillie's Determination (ID 1227) / index=3",
+   "2: play Crushing Hammer (ID 1120) / index=4",
+   "3: attack Flower Shower damage=0",
+   "4: attack Play Rough damage=20",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 92,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 17,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attack Flower Shower damage=0"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=2",
+   "1: play Lillie's Determination (ID 1227) / index=3",
+   "2: attack Flower Shower damage=0",
+   "3: attack Play Rough damage=20",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 93,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 18,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   4
+  ],
+  "selected": [
+   "4: attach Grow Grass Energy (ID 18) / area=HAND / index=8 / target=BENCH:0"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=5",
+   "1: play Switch (ID 1123) / index=6",
+   "2: play Pokégear 3.0 (ID 1122) / index=7",
+   "3: attach Grow Grass Energy (ID 18) / area=HAND / index=8 / target=ACTIVE:0",
+   "4: attach Grow Grass Energy (ID 18) / area=HAND / index=8 / target=BENCH:0",
+   "5: attach Grow Grass Energy (ID 18) / area=HAND / index=8 / target=BENCH:1",
+   "6: attach Grow Grass Energy (ID 18) / area=HAND / index=8 / target=BENCH:2",
+   "7: attach Grow Grass Energy (ID 18) / area=HAND / index=8 / target=BENCH:3",
+   "8: attach Grow Grass Energy (ID 18) / area=HAND / index=8 / target=BENCH:4",
+   "9: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=ACTIVE:0",
+   "10: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:0",
+   "11: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:1",
+   "12: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:2",
+   "13: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:3",
+   "14: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:4",
+   "15: play Boss’s Orders (ID 1182) / index=11",
+   "16: play Boss’s Orders (ID 1182) / index=12",
+   "17: play Hand Trimmer (ID 1087) / index=13",
+   "18: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "19: end turn"
+  ]
+ },
+ {
+  "step": 94,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 18,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Lillie's Determination (ID 1227) / index=5"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=5",
+   "1: play Switch (ID 1123) / index=6",
+   "2: play Pokégear 3.0 (ID 1122) / index=7",
+   "3: play Boss’s Orders (ID 1182) / index=10",
+   "4: play Boss’s Orders (ID 1182) / index=11",
+   "5: play Hand Trimmer (ID 1087) / index=12",
+   "6: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 95,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 18,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: end turn"
+  ],
+  "options": [
+   "0: play Switch (ID 1123) / index=5",
+   "1: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "2: end turn"
+  ]
+ },
+ {
+  "step": 96,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 19,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   7
+  ],
+  "selected": [
+   "7: ability Chandelure (ID 98) / area=BENCH / index=1"
+  ],
+  "options": [
+   "0: play Rare Candy (ID 1079) / index=0",
+   "1: evolve Chandelure (ID 98) / area=HAND / index=1 / target=BENCH:3",
+   "2: play Lillie's Determination (ID 1227) / index=2",
+   "3: play Lillie's Determination (ID 1227) / index=3",
+   "4: play Dawn (ID 1231) / index=5",
+   "5: play Crushing Hammer (ID 1120) / index=6",
+   "6: play Boss’s Orders (ID 1182) / index=7",
+   "7: ability Chandelure (ID 98) / area=BENCH / index=1",
+   "8: attack Flower Shower damage=0",
+   "9: attack Play Rough damage=20",
+   "10: end turn"
+  ]
+ },
+ {
+  "step": 97,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 19,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: evolve Chandelure (ID 98) / area=HAND / index=1 / target=BENCH:3"
+  ],
+  "options": [
+   "0: play Rare Candy (ID 1079) / index=0",
+   "1: evolve Chandelure (ID 98) / area=HAND / index=1 / target=BENCH:3",
+   "2: play Lillie's Determination (ID 1227) / index=2",
+   "3: play Lillie's Determination (ID 1227) / index=3",
+   "4: play Dawn (ID 1231) / index=5",
+   "5: play Crushing Hammer (ID 1120) / index=6",
+   "6: play Boss’s Orders (ID 1182) / index=7",
+   "7: play Poké Pad (ID 1152) / index=9",
+   "8: attack Flower Shower damage=0",
+   "9: attack Play Rough damage=20",
+   "10: end turn"
+  ]
+ },
+ {
+  "step": 98,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 19,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   6
+  ],
+  "selected": [
+   "6: ability Chandelure (ID 98) / area=BENCH / index=3"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=1",
+   "1: play Lillie's Determination (ID 1227) / index=2",
+   "2: play Dawn (ID 1231) / index=4",
+   "3: play Crushing Hammer (ID 1120) / index=5",
+   "4: play Boss’s Orders (ID 1182) / index=6",
+   "5: play Poké Pad (ID 1152) / index=8",
+   "6: ability Chandelure (ID 98) / area=BENCH / index=3",
+   "7: attack Flower Shower damage=0",
+   "8: attack Play Rough damage=20",
+   "9: end turn"
+  ]
+ },
+ {
+  "step": 99,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 19,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: play Crushing Hammer (ID 1120) / index=5"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=1",
+   "1: play Lillie's Determination (ID 1227) / index=2",
+   "2: play Dawn (ID 1231) / index=4",
+   "3: play Crushing Hammer (ID 1120) / index=5",
+   "4: play Boss’s Orders (ID 1182) / index=6",
+   "5: play Poké Pad (ID 1152) / index=8",
+   "6: attack Flower Shower damage=0",
+   "7: attack Play Rough damage=20",
+   "8: end turn"
+  ]
+ },
+ {
+  "step": 100,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 19,
+  "select_type": "ENERGY",
+  "select_context": "DISCARD_ENERGY",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: energy Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0"
+  ],
+  "options": [
+   "0: energy Crustle (ID 345) / area=BENCH / index=0",
+   "1: energy Crustle (ID 345) / area=BENCH / index=2",
+   "2: energy Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "3: energy Crustle (ID 345) / area=BENCH / index=3",
+   "4: energy Crustle (ID 345) / area=BENCH / index=0"
+  ]
+ },
+ {
+  "step": 101,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 19,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: play Lillie's Determination (ID 1227) / index=1"
+  ],
+  "options": [
+   "0: play Lillie's Determination (ID 1227) / index=1",
+   "1: play Lillie's Determination (ID 1227) / index=2",
+   "2: play Dawn (ID 1231) / index=4",
+   "3: play Boss’s Orders (ID 1182) / index=5",
+   "4: play Poké Pad (ID 1152) / index=7",
+   "5: attack Flower Shower damage=0",
+   "6: attack Play Rough damage=20",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 102,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 19,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   6
+  ],
+  "selected": [
+   "6: attack Flower Shower damage=0"
+  ],
+  "options": [
+   "0: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=ACTIVE:0",
+   "1: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:0",
+   "2: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:1",
+   "3: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:2",
+   "4: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:3",
+   "5: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:4",
+   "6: attack Flower Shower damage=0",
+   "7: attack Play Rough damage=20",
+   "8: end turn"
+  ]
+ },
+ {
+  "step": 103,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 20,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: attach Mist Energy (ID 11) / area=HAND / index=3 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: attach Mist Energy (ID 11) / area=HAND / index=3 / target=ACTIVE:0",
+   "2: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:0",
+   "3: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:1",
+   "4: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:2",
+   "5: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:3",
+   "6: attach Mist Energy (ID 11) / area=HAND / index=3 / target=BENCH:4",
+   "7: play Switch (ID 1123) / index=5",
+   "8: play Lillie's Determination (ID 1227) / index=7",
+   "9: play Switch (ID 1123) / index=9",
+   "10: play Hand Trimmer (ID 1087) / index=10",
+   "11: play Pokégear 3.0 (ID 1122) / index=11",
+   "12: play Boss’s Orders (ID 1182) / index=12",
+   "13: attach Spiky Energy (ID 14) / area=HAND / index=13 / target=ACTIVE:0",
+   "14: attach Spiky Energy (ID 14) / area=HAND / index=13 / target=BENCH:0",
+   "15: attach Spiky Energy (ID 14) / area=HAND / index=13 / target=BENCH:1",
+   "16: attach Spiky Energy (ID 14) / area=HAND / index=13 / target=BENCH:2",
+   "17: attach Spiky Energy (ID 14) / area=HAND / index=13 / target=BENCH:3",
+   "18: attach Spiky Energy (ID 14) / area=HAND / index=13 / target=BENCH:4",
+   "19: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "20: end turn"
+  ]
+ },
+ {
+  "step": 104,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 20,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Lillie's Determination (ID 1227) / index=6"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: play Switch (ID 1123) / index=4",
+   "2: play Lillie's Determination (ID 1227) / index=6",
+   "3: play Switch (ID 1123) / index=8",
+   "4: play Hand Trimmer (ID 1087) / index=9",
+   "5: play Pokégear 3.0 (ID 1122) / index=10",
+   "6: play Boss’s Orders (ID 1182) / index=11",
+   "7: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "8: end turn"
+  ]
+ },
+ {
+  "step": 105,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 20,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   3
+  ],
+  "selected": [
+   "3: end turn"
+  ],
+  "options": [
+   "0: play Pokégear 3.0 (ID 1122) / index=1",
+   "1: play Switch (ID 1123) / index=7",
+   "2: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 106,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 21,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   13
+  ],
+  "selected": [
+   "13: ability Chandelure (ID 98) / area=BENCH / index=1"
+  ],
+  "options": [
+   "0: play Dawn (ID 1231) / index=1",
+   "1: play Lillie's Determination (ID 1227) / index=2",
+   "2: play Rare Candy (ID 1079) / index=3",
+   "3: play Hilda (ID 1225) / index=5",
+   "4: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=ACTIVE:0",
+   "5: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:0",
+   "6: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:1",
+   "7: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:2",
+   "8: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:3",
+   "9: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:4",
+   "10: play Xerosic’s Machinations (ID 1197) / index=7",
+   "11: play Boss’s Orders (ID 1182) / index=8",
+   "12: play Eri (ID 1186) / index=10",
+   "13: ability Chandelure (ID 98) / area=BENCH / index=1",
+   "14: ability Chandelure (ID 98) / area=BENCH / index=3",
+   "15: attack Flower Shower damage=0",
+   "16: attack Play Rough damage=20",
+   "17: end turn"
+  ]
+ },
+ {
+  "step": 107,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 21,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Rare Candy (ID 1079) / index=3"
+  ],
+  "options": [
+   "0: play Dawn (ID 1231) / index=1",
+   "1: play Lillie's Determination (ID 1227) / index=2",
+   "2: play Rare Candy (ID 1079) / index=3",
+   "3: play Hilda (ID 1225) / index=5",
+   "4: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=ACTIVE:0",
+   "5: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:0",
+   "6: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:1",
+   "7: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:2",
+   "8: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:3",
+   "9: attach Basic {P} Energy (ID 5) / area=HAND / index=6 / target=BENCH:4",
+   "10: play Xerosic’s Machinations (ID 1197) / index=7",
+   "11: play Boss’s Orders (ID 1182) / index=8",
+   "12: play Eri (ID 1186) / index=10",
+   "13: ability Chandelure (ID 98) / area=BENCH / index=3",
+   "14: attack Flower Shower damage=0",
+   "15: attack Play Rough damage=20",
+   "16: end turn"
+  ]
+ },
+ {
+  "step": 108,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 21,
+  "select_type": "EVOLVE",
+  "select_context": "EVOLVE",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   0
+  ],
+  "selected": [
+   "0: evolve Chandelure (ID 98) / area=HAND / index=8 / target=BENCH:4"
+  ],
+  "options": [
+   "0: evolve Chandelure (ID 98) / area=HAND / index=8 / target=BENCH:4"
+  ]
+ },
+ {
+  "step": 109,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 21,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: play Lillie's Determination (ID 1227) / index=2"
+  ],
+  "options": [
+   "0: play Dawn (ID 1231) / index=1",
+   "1: play Lillie's Determination (ID 1227) / index=2",
+   "2: play Hilda (ID 1225) / index=4",
+   "3: attach Basic {P} Energy (ID 5) / area=HAND / index=5 / target=ACTIVE:0",
+   "4: attach Basic {P} Energy (ID 5) / area=HAND / index=5 / target=BENCH:0",
+   "5: attach Basic {P} Energy (ID 5) / area=HAND / index=5 / target=BENCH:1",
+   "6: attach Basic {P} Energy (ID 5) / area=HAND / index=5 / target=BENCH:2",
+   "7: attach Basic {P} Energy (ID 5) / area=HAND / index=5 / target=BENCH:3",
+   "8: attach Basic {P} Energy (ID 5) / area=HAND / index=5 / target=BENCH:4",
+   "9: play Xerosic’s Machinations (ID 1197) / index=6",
+   "10: play Boss’s Orders (ID 1182) / index=7",
+   "11: play Eri (ID 1186) / index=8",
+   "12: ability Chandelure (ID 98) / area=BENCH / index=3",
+   "13: ability Chandelure (ID 98) / area=BENCH / index=4",
+   "14: attack Flower Shower damage=0",
+   "15: attack Play Rough damage=20",
+   "16: end turn"
+  ]
+ },
+ {
+  "step": 110,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 21,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: ability Chandelure (ID 98) / area=BENCH / index=3"
+  ],
+  "options": [
+   "0: play Poké Pad (ID 1152) / index=3",
+   "1: ability Chandelure (ID 98) / area=BENCH / index=3",
+   "2: ability Chandelure (ID 98) / area=BENCH / index=4",
+   "3: attack Flower Shower damage=0",
+   "4: attack Play Rough damage=20",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 111,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 21,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: ability Chandelure (ID 98) / area=BENCH / index=4"
+  ],
+  "options": [
+   "0: play Poké Pad (ID 1152) / index=3",
+   "1: ability Chandelure (ID 98) / area=BENCH / index=4",
+   "2: attack Flower Shower damage=0",
+   "3: attack Play Rough damage=20",
+   "4: end turn"
+  ]
+ },
+ {
+  "step": 112,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 21,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: attack Play Rough damage=20"
+  ],
+  "options": [
+   "0: play Poké Pad (ID 1152) / index=3",
+   "1: attack Flower Shower damage=0",
+   "2: attack Play Rough damage=20",
+   "3: end turn"
+  ]
+ },
+ {
+  "step": 113,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 22,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   5
+  ],
+  "selected": [
+   "5: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=ACTIVE:0"
+  ],
+  "options": [
+   "0: play Pokégear 3.0 (ID 1122) / index=1",
+   "1: play Boss’s Orders (ID 1182) / index=2",
+   "2: play Boss’s Orders (ID 1182) / index=3",
+   "3: play Switch (ID 1123) / index=7",
+   "4: play Switch (ID 1123) / index=8",
+   "5: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=ACTIVE:0",
+   "6: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:0",
+   "7: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:1",
+   "8: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:2",
+   "9: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:3",
+   "10: attach Spiky Energy (ID 14) / area=HAND / index=9 / target=BENCH:4",
+   "11: play Pokégear 3.0 (ID 1122) / index=11",
+   "12: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "13: end turn"
+  ]
+ },
+ {
+  "step": 114,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 22,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: play Boss’s Orders (ID 1182) / index=2"
+  ],
+  "options": [
+   "0: play Pokégear 3.0 (ID 1122) / index=1",
+   "1: play Boss’s Orders (ID 1182) / index=2",
+   "2: play Boss’s Orders (ID 1182) / index=3",
+   "3: play Switch (ID 1123) / index=7",
+   "4: play Switch (ID 1123) / index=8",
+   "5: play Pokégear 3.0 (ID 1122) / index=10",
+   "6: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "7: end turn"
+  ]
+ },
+ {
+  "step": 115,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 22,
+  "select_type": "CARD",
+  "select_context": "SWITCH",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   1
+  ],
+  "selected": [
+   "1: card Chandelure (ID 98) / area=BENCH / index=1"
+  ],
+  "options": [
+   "0: card Comfey (ID 164) / area=BENCH / index=0",
+   "1: card Chandelure (ID 98) / area=BENCH / index=1",
+   "2: card Comfey (ID 164) / area=BENCH / index=2",
+   "3: card Chandelure (ID 98) / area=BENCH / index=3",
+   "4: card Chandelure (ID 98) / area=BENCH / index=4"
+  ]
+ },
+ {
+  "step": 116,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 22,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   5
+  ],
+  "selected": [
+   "5: end turn"
+  ],
+  "options": [
+   "0: play Pokégear 3.0 (ID 1122) / index=1",
+   "1: play Switch (ID 1123) / index=6",
+   "2: play Switch (ID 1123) / index=7",
+   "3: play Pokégear 3.0 (ID 1122) / index=9",
+   "4: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "5: end turn"
+  ]
+ },
+ {
+  "step": 117,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 23,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: play Xerosic’s Machinations (ID 1197) / index=9"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=6",
+   "1: play Eri (ID 1186) / index=7",
+   "2: play Xerosic’s Machinations (ID 1197) / index=9",
+   "3: attach Basic {P} Energy (ID 5) / area=HAND / index=10 / target=ACTIVE:0",
+   "4: attach Basic {P} Energy (ID 5) / area=HAND / index=10 / target=BENCH:0",
+   "5: attach Basic {P} Energy (ID 5) / area=HAND / index=10 / target=BENCH:1",
+   "6: attach Basic {P} Energy (ID 5) / area=HAND / index=10 / target=BENCH:2",
+   "7: attach Basic {P} Energy (ID 5) / area=HAND / index=10 / target=BENCH:3",
+   "8: attach Basic {P} Energy (ID 5) / area=HAND / index=10 / target=BENCH:4",
+   "9: ability Chandelure (ID 98) / area=ACTIVE / index=0",
+   "10: ability Chandelure (ID 98) / area=BENCH / index=3",
+   "11: ability Chandelure (ID 98) / area=BENCH / index=4",
+   "12: end turn"
+  ]
+ },
+ {
+  "step": 118,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 23,
+  "select_type": "CARD",
+  "select_context": "DISCARD",
+  "min_count": 7,
+  "max_count": 7,
+  "action": [
+   1,
+   6,
+   7,
+   9,
+   0,
+   3,
+   5
+  ],
+  "selected": [
+   "1: card Pokégear 3.0 (ID 1122) / area=HAND / index=1",
+   "6: card Switch (ID 1123) / area=HAND / index=6",
+   "7: card Switch (ID 1123) / area=HAND / index=7",
+   "9: card Pokégear 3.0 (ID 1122) / area=HAND / index=9",
+   "0: card Jumbo Ice Cream (ID 1147) / area=HAND / index=0",
+   "3: card Jumbo Ice Cream (ID 1147) / area=HAND / index=3",
+   "5: card Jumbo Ice Cream (ID 1147) / area=HAND / index=5"
+  ],
+  "options": [
+   "0: card Jumbo Ice Cream (ID 1147) / area=HAND / index=0",
+   "1: card Pokégear 3.0 (ID 1122) / area=HAND / index=1",
+   "2: card Boss’s Orders (ID 1182) / area=HAND / index=2",
+   "3: card Jumbo Ice Cream (ID 1147) / area=HAND / index=3",
+   "4: card Buddy-Buddy Poffin (ID 1086) / area=HAND / index=4",
+   "5: card Jumbo Ice Cream (ID 1147) / area=HAND / index=5",
+   "6: card Switch (ID 1123) / area=HAND / index=6",
+   "7: card Switch (ID 1123) / area=HAND / index=7",
+   "8: card Jumbo Ice Cream (ID 1147) / area=HAND / index=8",
+   "9: card Pokégear 3.0 (ID 1122) / area=HAND / index=9"
+  ]
+ },
+ {
+  "step": 119,
+  "actor": "agent0",
+  "your_index": 0,
+  "turn": 23,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   9
+  ],
+  "selected": [
+   "9: end turn"
+  ],
+  "options": [
+   "0: attach Basic {P} Energy (ID 5) / area=HAND / index=9 / target=ACTIVE:0",
+   "1: attach Basic {P} Energy (ID 5) / area=HAND / index=9 / target=BENCH:0",
+   "2: attach Basic {P} Energy (ID 5) / area=HAND / index=9 / target=BENCH:1",
+   "3: attach Basic {P} Energy (ID 5) / area=HAND / index=9 / target=BENCH:2",
+   "4: attach Basic {P} Energy (ID 5) / area=HAND / index=9 / target=BENCH:3",
+   "5: attach Basic {P} Energy (ID 5) / area=HAND / index=9 / target=BENCH:4",
+   "6: ability Chandelure (ID 98) / area=ACTIVE / index=0",
+   "7: ability Chandelure (ID 98) / area=BENCH / index=3",
+   "8: ability Chandelure (ID 98) / area=BENCH / index=4",
+   "9: end turn"
+  ]
+ },
+ {
+  "step": 120,
+  "actor": "agent1",
+  "your_index": 1,
+  "turn": 24,
+  "select_type": "MAIN",
+  "select_context": "MAIN",
+  "min_count": 1,
+  "max_count": 1,
+  "action": [
+   2
+  ],
+  "selected": [
+   "2: end turn"
+  ],
+  "options": [
+   "0: play Boss’s Orders (ID 1182) / index=0",
+   "1: ability Mega Kangaskhan ex (ID 756) / area=ACTIVE / index=0",
+   "2: end turn"
+  ]
+ }
+]

@@ -29,7 +29,7 @@ DECKS = {
     "kangaskhan": ("agents/mega_kangaskhan_rb", "decks/fleet/mega_kangaskhan_top.csv"),
     "dragapult": ("agents/dragapult_rb", "decks/fleet/popular_4_dragapult.csv"),
     "marnie": ("agents/marnie_munkidori_rb",
-               "decks/fleet/winrate_2_marnie_grimmsnarl.csv"),
+               "decks/fleet/marnie_mainstream_0718.csv"),
 }
 
 

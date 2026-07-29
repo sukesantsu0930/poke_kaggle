@@ -1,7 +1,7 @@
 archetype,share,field_wr,agent_or_deck,deck
 alakazam,30.0,52.4,agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv
 crustle_wall,11.0,53.7,generic,decks/opponents/crustle_wall_kanga_budew_0713.csv
-marnie,9.0,53.6,agents/marnie_munkidori_rb,decks/fleet/winrate_2_marnie_grimmsnarl.csv
+marnie,9.0,53.6,agents/marnie_munkidori_rb,decks/fleet/marnie_mainstream_0718.csv
 crustle_prism,8.0,53.1,generic,decks/opponents/crustle_prism_thirdptcgclub_0713.csv
 garchomp,7.0,42.9,agents/cynthia_garchomp_rb,decks/fleet/cynthia_garchomp_top.csv
 chandelure,6.0,60.0,agents/chandelure_rb,decks/fleet/chandelure_top.csv

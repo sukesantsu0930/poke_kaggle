@@ -29,7 +29,8 @@ decks/
 |---|---|
 | fleet/dragapult_dusknoir_paper.csv | dragapult_dusknoir_rb（9体目・開発中） |
 | fleet/popular_4_dragapult.csv | dragapult_rb |
-| fleet/winrate_2_marnie_grimmsnarl.csv | marnie_munkidori_rb |
+| fleet/marnie_gold_luca_0723.csv | marnie_munkidori_rb（**金圏正本**。Luca 1位 + GUOHAOYANG 6位が完全同一の60枚） |
+| fleet/marnie_mainstream_0718.csv | marnie_munkidori_rb（07-18 主流形。金圏正本と2枠差。A/B の対抗腕） |
 | fleet/alakazam_top_0710.csv | alakazam_rb（現行提出リスト。5th は旧） |
 | fleet/alakazam_5th.csv | alakazam_rb（旧リスト） |
 | fleet/chandelure_top.csv | chandelure_rb |

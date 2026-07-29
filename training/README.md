@@ -129,16 +129,16 @@ docker compose run --rm ptcg uv run python training/train_ppo.py --self-test
 # 2) 本番学習（60 iter × 256 games ≈ 3〜4時間、CPU のみで可）
 docker compose run --rm ptcg uv run python training/train_ppo.py \
     --agent agents/marnie_munkidori_rb \
-    --deck decks/fleet/winrate_2_marnie_grimmsnarl.csv \
+    --deck decks/fleet/marnie_mainstream_0718.csv \
     --iters 60 --games-per-iter 256 --out build/ppo/marnie
 # 3) L2 screening（80試合、holdout除外8対面）: OFF vs EMA
 docker compose run --rm ptcg uv run python scripts/gauntlet.py \
     --agent agents/marnie_munkidori_rb \
-    --deck decks/fleet/winrate_2_marnie_grimmsnarl.csv \
+    --deck decks/fleet/marnie_mainstream_0718.csv \
     --exclude okidogi,lopunny,rocket --games 10 --net off
 docker compose run --rm ptcg uv run python scripts/gauntlet.py \
     --agent agents/marnie_munkidori_rb \
-    --deck decks/fleet/winrate_2_marnie_grimmsnarl.csv \
+    --deck decks/fleet/marnie_mainstream_0718.csv \
     --exclude okidogi,lopunny,rocket --games 10 --net build/ppo/marnie/ema.npz
 # 4) screening +7pt 以上なら確定測定（--games 40 = 320試合）+ holdout 非劣化
 #    （--only okidogi,lopunny,rocket --games 30）

@@ -68,6 +68,99 @@ MAR_SEARCH = os.environ.get("MAR_SEARCH", "1") != "0"    # ② TO_HAND サーチ
 # ③ div-4 attach 系 216 は本ラウンド未実装（トグル MAR_ATT4 は宣言のみで実装無し = 死文だった
 # ため削除。2026-07-22 検証時）。次ラウンド候補として設計 md 未決事項に記載。
 
+# ── 金圏正本の固有2枚（2026-07-26。艦隊リスト = marnie_gold_luca_0723） ──
+# 07-23 帯センサスで 1100+ 帯（金メダル圏）のオーロンゲは1種類しかなく、Luca(LB1位) と
+# GUOHAOYANG(6位) が完全同一の60枚を回している（帯内勝率 60.6%）。mainstream_0718 との差は
+# 2枠のみ = ツールスクラッパー1 + ポケギア3.0 1 IN / ハンディサーキュレーター2 OUT。
+# この2枚はルール完全未実装（R-30 の学習帯 400 に素通し）だったため実装する。
+# 正本採用に伴い MAR_FAN（ハンディサーキュレーター）は死文化する（デッキに無い札のルールは無害）。
+MAR_GOLD = os.environ.get("MAR_GOLD", "1") != "0"
+
+# ── 残HP計算の二重引き修正（2026-07-27。設計md 未決事項8） ──
+# `Pokemon.hp` は現在HP（cg/api.py L342）で `damage_on = maxHp - hp`。したがって
+# 旧 `hp - damage_on(pk)` は 2hp − maxHp の二重引きだった（MAR_BOSS の吊り出しキル判定
+# 2箇所。_score_placement / _adrena_plan_for は 07-22 に現在HP直読みへ修正済みで無傷）。
+# 実害は非対称: 軽傷では残HPを過小評価してキル圏を過大判定（倒せない駒に撃つ）、
+# hp < maxHp/2 の重傷では負値になり `0 < rem` が偽 = キル候補から脱落（倒せる駒を吊らない）。
+MAR_BOSSHP = os.environ.get("MAR_BOSSHP", "1") != "0"
+
+# ── MAR_ATT4（2026-07-27。設計md 未決事項7 = 決定性R3の③） ──
+# 07-27 トレース（均等7対面・140戦・5,447決定）の実測:
+#   ・ATTACH_FROM は **Punk Up 専用**（候補は常にマリィのライン駒のみ。マシマシラは
+#     「マリィのポケモン」ではないので候補に出ず、悪エネは手張り = OptionType.ATTACH でのみ入る）
+#   ・ATTACH_TO/TO_FIELD 側の「Punk Up の付与先」ブロックは **発火ゼロ = 死にコード**
+#     （ATTACH_TO に来るのは div-3 の「山から取る枚数」764件だけ）
+#   ・旧実装の格差は 150/80/70/30/10 と小さく、同 reason 内（ベロバー2体など）は
+#     index タイブレーク = 完全に無意見（決定性監査の ATTACH_FROM 226決定の実体）
+# 中身3点: (b) R-08 追い銭防止（倒される駒への先置きは悪エネがトラッシュ直行）/
+# (c) 進化路予算（これから場に出せるオーロンゲ = 3 − 場 − トラッシュ を超える先置きは無意味。
+# 山から抜く枚数 div-8 の preload cap にも反映）/ (d) 同種内は傷の浅い個体を優先。
+# 種の相対順序（オーロンゲ > ベロバー > ギモー）は検証済み div-4/7 のまま保存する。
+# 判定（2026-07-27・EXP-057）: 勝率は非劣化（制圧度 2240戦/腕で 64.4 → 64.7、ミラー 640戦で
+# 46.9 → 47.9 = いずれも差なし）で、決定性は loss決定の decisive 51.9% → 55.2%（+3.3pt）・
+# ATTACH_FROM 226決定のクラスタが上位から消滅 → 既定 ON（MAR_DMGMOVE/MAR_SEARCH と同じ基準）。
+MAR_ATT4 = os.environ.get("MAR_ATT4", "1") != "0"
+
+# ── MAR_TANKDOWN（2026-07-27。設計md 未決事項5） ──
+# 07-18 final 監査の負帯最大クラスタ「keep tank active 41x」= 主流形教師はタンクを下げる。
+# ただし実データ（cg CARD_DB）では **オーロンゲex の逃げコストは2** で、金圏正本には
+# 交代札（サーキュレーター/入れ替え系）が1枚も無い → 下げる = 悪エネ2枚がトラッシュ直行し
+# Shadow Bullet が撃てなくなる。教師の 41x はサーキュレーター×2 を積んだ mainstream_0718 期の
+# ものなので、そのまま写すのは危険。「次に倒れてサイド2枚を献上する ∧ 控えのオーロンゲが
+# 即殴れる」= 交換して得な局面だけに限定して解錠する。
+# 判定（2026-07-27・EXP-057）: 発火 10件/168戦 = **0.06回/試合の稀事象**で、A/B の分解能
+# （1120戦の SE 1.4pt）では効果を測れない（chandelure 第8弾 SHAYMIN_RETREAT と同型）。
+# 2標本とも非劣化（制圧度 2240戦で 64.7 → 66.2 = +1.5pt/1.1σ・ミラー 51.3% で最良）。
+# 条件を満たす局面では明白に得な交換（サイド2枚 > 悪エネ2枚）なので既定 ON。
+MAR_TANKDOWN = os.environ.get("MAR_TANKDOWN", "1") != "0"
+
+# ── MAR_DMGPLAN（2026-07-27。ユーザー指示ドクトリン: ダメカンの配分） ──
+# 「効率よくサイドを取ることを考えたとき、試合終了時に相手盤面にダメカンが残っていたら
+# 非効率だったことを意味する。相手が進化するかどうかでこちらのプランが崩れるのも弱い」
+# （ユーザー 2026-07-27）。マシマシラの3点（Adrena-Brain）と Shadow Bullet のベンチ30 を
+# 次の優先順で配る:
+#   ① 相手バトル場の**確定数がずれる**なら バトル場へ（例: 残210 に 30 載せて 180 = 1発圏）
+#   ② 相手ベンチで **アタッカー ∧ 確定数がずれる** 駒へ
+#   ③ 相手ベンチで **進化先が存在せず** 最も残HPが低い駒へ
+#      （進化する70 より 進化しない110 に載せ続ける = 進化でプランが崩れない所に投資する）
+# 確定数 = ceil(残HP ÷ 自分のバトル場がその駒に出せる最大打点)。「ずれる」= 手持ちの
+# ダメカンで確定数を1つ減らせること。旧 MAR_DMGMOVE は KO 圏（確定数 1→0）と
+# 1発圏（2→1）しか見ておらず、進化の有無とアタッカーか否かは一切考慮していなかった。
+MAR_DMGPLAN = os.environ.get("MAR_DMGPLAN", "1") != "0"
+
+# ── ユーザー指示ドクトリン第2弾（2026-07-27。決定性監査の「真の無意見」227件から） ──
+# MAR_PROMOTE: 前出しの個体選択。「Shadow Bullet が確定している/打つ可能性があるときは、
+#   もっとも打てる可能性のあるポケモンをバトル場に出す。打てないことが確定している場合は
+#   いけにえから出す。この場合マシマシラではなくベロバーラインが妥当 — 仮にオーロンゲに
+#   進化できた場合は、特性でバトル場にエネルギーをつけて逃げて殴る、ということができるから」
+# MAR_MUNKI: 「手張りは積極的にマシマシラにつけることのほうが大事。ベロバーラインは特性で
+#   確保できるので」= 1番1枚の手張りをライン駒の先置きに使わず、Punk Up に任せる。
+# MAR_PULL: ボスの吊り先が複数キル可能なときの決定化（サイド枚数 > アタッカー > 残HP）。
+# MAR_DISCARD: 捨て札の序列化。dragapult_rb の設計を参照（**当該エージェントは別セッションが
+#   編集中につき読み取りのみ・不可侵**）= ①この番に即プレイできる札は捨てない ②同名2枚目から
+#   ③残りは手札価値の低い順。marnie は基盤 R-13 のみで generic 1000 が同点だった。
+MAR_PROMOTE = os.environ.get("MAR_PROMOTE", "1") != "0"
+MAR_MUNKI = os.environ.get("MAR_MUNKI", "1") != "0"
+MAR_PULL = os.environ.get("MAR_PULL", "1") != "0"
+# MAR_DISCARD は **A/B で棄却 → 既定 OFF**（2026-07-27・EXP-059c。コードは温存）。
+# 3標本 3360戦/腕: 両方OFF 62.9% / MUNKI のみ **64.4%** / 両方ON 61.6%
+# ⇒ MUNKI との併用で **−2.8pt（2.4σ）**。捨て札は基盤 R-13（default_score_discard）のままが強い。
+# 「即プレイできる札を守る」①だけなら有用な可能性が残るので、再挑戦するなら ①と②を
+# 分離して個別に測ること（今回は①②を1トグルに束ねてしまい犯人を分離できていない）。
+MAR_DISCARD = os.environ.get("MAR_DISCARD", "0") != "0"
+
+# ── MAR_PLAYABLE（2026-07-27。ユーザー観戦によるバグ報告） ──
+# 「スタジアム、ポケパッドで持ってくる対象についてルール追加です。**即プレイできるポケモンを
+# 持ってきてください**。場にベロバーしかいないのに、1進化のギモーをすっ飛ばしてオーロンゲを
+# 持ってきて、番を返すという滑稽な振る舞いを確認しました」（ユーザー 2026-07-27）
+# 原因: `take Grimmsnarl` は進化路が無くても 4200 で、`take Morgrem` の 800（div-13 で
+# 「ギモーの取りすぎ」を是正した際に下げた帯）を大きく上回っていた。スパイクタウンジムは
+# 「マリィのポケモン」しか出せないので、この局面の候補は ベロバー/ギモー/オーロンゲ だけ。
+# 対処: ①**この番に場へ出せないポケモンは帯を 1/10 に圧縮**（順序は保つので、全候補が
+# 即プレイ不可でも従来の選好で決まる）②**アメ直行が使えない局面ではギモーが唯一の進化路**
+# なので 6500（ベロバー 6000 の上）へ引き上げる。chandelure 第11弾 CHA_PAD_PLAYABLE と同型。
+MAR_PLAYABLE = os.environ.get("MAR_PLAYABLE", "1") != "0"
+
 # ── カードID（デッキ設計_マリィ.md のリスト） ──
 
 IMPIDIMP = 646        # マリィのベロバー HP70（Filch: 1ドロー）
@@ -90,6 +183,9 @@ ENERGY_RECYCLER = 1139  # 旧リスト（死文）
 HERO_CAPE = 1159        # 旧リスト（死文）
 UNFAIR_STAMP = 1080     # ACE SPEC: 前の相手ターンに自分がきぜつ時のみ。両者手札を山へ・自分5枚/相手2枚ドロー
 HANDHELD_FAN = 1161     # どうぐ: 装着者がバトル場で攻撃を受けた時、攻撃側のエネ1個を相手ベンチへ
+                        # （金圏正本では不採用 = MAR_FAN は死文）
+TOOL_SCRAPPER = 1137    # グッズ: おたがいの場の「ポケモンのどうぐ」を2枚まで選びトラッシュ
+POKEGEAR = 1122         # グッズ: 山札の上から7枚見て、その中からサポート1枚を手札へ
 LILLIE = 1227
 DAWN = 1231
 XEROSIC = 1197          # 旧リスト（死文）
@@ -100,10 +196,34 @@ DARK_ENERGY = 7
 
 ATK_FILCH = 934           # Impidimp {C} 0dmg 1ドロー
 ATK_SHADOW_BULLET = 937   # Grimmsnarl {D}{D} 180 + ベンチ30
+SHADOW_BULLET_DAMAGE = 180   # 主力打点（MAR_DMGPLAN の確定数計算の基準）
 ATK_SPIKY_WHEEL = 938     # Morpeko {C}{C}{C} 20 + {D}×40（自己スケール）
 
 MARNIE_LINE = {IMPIDIMP, MORGREM, GRIMMSNARL_EX}
 MARNIE_POKEMON = MARNIE_LINE | {MORPEKO}
+GRIMMSNARL_COPIES = 3     # 金圏正本・主流形とも3枚（MAR_ATT4 の進化路予算の上限）
+
+_EVOLVES_FROM_NAMES = None
+
+
+def _pool_has_evolution(cid):
+    """このカードに進化先が存在するか（カードプール全体で判定。MAR_DMGPLAN ③）。
+
+    `CardData.evolvesFrom` は進化元の**名前**なので、全カードの evolvesFrom を集めた集合に
+    自分の名前が入っていれば「進化先が存在する」。相手デッキに実際その進化先が入っているかまでは
+    分からないが、「そもそも進化しないポケモン」（マシマシラ 110 等）と「進化する前座」
+    （ベロバー 70 等）は確実に分離できる — ダメカンを載せても進化で無効化されない駒を選ぶ、
+    というドクトリンにはこの粒度で足りる。"""
+    global _EVOLVES_FROM_NAMES
+    if _EVOLVES_FROM_NAMES is None:
+        names = set()
+        for d in CARD_DB.values():
+            src = getattr(d, "evolvesFrom", None)
+            if src:
+                names.add(src)
+        _EVOLVES_FROM_NAMES = names
+    data = CARD_DB.get(cid)
+    return bool(data is not None and data.name in _EVOLVES_FROM_NAMES)
 
 
 class MarniePolicy(BasePolicy):
@@ -123,16 +243,42 @@ class MarniePolicy(BasePolicy):
         self.p = {}
         # MAR_DMGMOVE: Adrena-Brain の数量選択で立てた計画（配置選択が同一ターン内で消費）
         self._adrena_plan = None
+        # MAR_DISCARD: 「この番に即プレイできる手札」のスナップショット（ターン境界でクリア）
+        self._playable_ids = set()
+        self._playable_turn = None
 
     def reset_game(self):
         super().reset_game()
         self._adrena_plan = None
+        self._playable_ids = set()
+        self._playable_turn = None
 
     # ═══════════════ ターン分析（軽量: 枚数と旗だけ） ═══════════════
 
     def choose(self, obs):
         self.p = self._analyze(obs)
+        if MAR_DISCARD:
+            self._track_playable(obs)
         return super().choose(obs)
+
+    def _track_playable(self, obs):
+        """「この番に即プレイできる手札」を記録する（DISCARD の採点が参照する）。
+
+        エンジンは合法手しか選択肢に出さないので、PLAY/EVOLVE/ATTACH に出ている手札カード =
+        この番プレイできる札。設計は dragapult_rb の R-13+（`_playable_ids`）を参照した
+        （**当該エージェントは別セッションが編集中のため読み取りのみ・こちらからは触れていない**）。"""
+        turn = getattr(obs.current, "turn", None)
+        if turn != self._playable_turn:
+            self._playable_turn = turn
+            self._playable_ids = set()
+        sel = obs.select
+        if sel is None or not sel.option:
+            return
+        for o in sel.option:
+            if o.type in (OptionType.PLAY, OptionType.EVOLVE, OptionType.ATTACH):
+                c = option_card(obs, o)
+                if c is not None:
+                    self._playable_ids.add(c.id)
 
     def _analyze(self, obs):
         ms = my_state(obs)
@@ -157,13 +303,24 @@ class MarniePolicy(BasePolicy):
         # R-11: 山札切れガード（リーサル確定時は解除）
         safe_draws = ms.deckCount - my_prize - 1
         own_damage = any(damage_on(pk) > 0 for pk in all_my_pokemon(obs))
+        # MAR_GOLD: ツールスクラッパー/ポケギア3.0 の判定材料
+        os_ = opp_state(obs)
+        opp_tools = sum(1 for pk in (list(os_.active) + list(os_.bench))
+                        if pk is not None and has_tool(pk))
+        my_tools = sum(1 for pk in all_my_pokemon(obs) if has_tool(pk))
+        has_supporter = any(
+            CARD_DB.get(c.id) is not None
+            and CARD_DB[c.id].cardType == CardType.SUPPORTER
+            for c in (ms.hand or []) if c is not None)
         return {
             "fc": fc, "hc": hc, "dc": dc,
             "hand_size": hand_size, "bench_free": bench_free,
             "stadium_id": stadium_id, "safe_draws": safe_draws,
             "own_damage": own_damage,
             "marnie_line": fc[IMPIDIMP] + fc[MORGREM] + fc[GRIMMSNARL_EX],
-            "opp_hand": opp_state(obs).handCount,
+            "opp_hand": os_.handCount,
+            "opp_tools": opp_tools, "my_tools": my_tools,
+            "has_supporter": has_supporter,
         }
 
     def _safe_draws(self):
@@ -184,6 +341,18 @@ class MarniePolicy(BasePolicy):
                        if ec.id == DARK_ENERGY)
             return 20 + dark * 40
         return super().attack_damage(obs, attacker, attack_id)
+
+    @staticmethod
+    def _remaining_hp(pk):
+        """残HP。`Pokemon.hp` がそのまま現在HP（= 残HP）。
+
+        MAR_BOSSHP OFF 時は旧実装（二重引き）を再現する（ペア A/B 用）。"""
+        if pk is None:
+            return 0
+        hp = getattr(pk, "hp", 0) or 0
+        if MAR_BOSSHP:
+            return hp
+        return hp - damage_on(pk)
 
     def _max_active_damage_vs(self, obs, target):
         """バトル場の攻撃者が（リトリート無しで）target に出せる最大ダメージ。
@@ -238,6 +407,118 @@ class MarniePolicy(BasePolicy):
                 out.append(((int(AreaType.BENCH), i), pk))
         return out
 
+    # ── MAR_PROMOTE（2026-07-27・ユーザー指示ドクトリン）: 前出しの個体選択 ──
+
+    def _sb_possible(self, obs):
+        """Shadow Bullet を打てる / 打てる可能性があるか（偽 = 打てないことが確定 →
+        いけにえ方針に切り替える）。
+
+        場にオーロンゲがいれば手張りか Punk Up で届く。いなくても「進化1手で Punk Up が
+        起動する」線（場のギモー + 手札のオーロンゲ / 場のベロバー + 手札のアメ + オーロンゲ）が
+        あれば、その番のうちに殴れる。"""
+        for pk in all_my_pokemon(obs):
+            if pk.id == GRIMMSNARL_EX:
+                return True
+        hc, fc = self.p["hc"], self.p["fc"]
+        return bool(hc[GRIMMSNARL_EX] >= 1
+                    and (fc[MORGREM] >= 1
+                         or (fc[IMPIDIMP] >= 1 and hc[RARE_CANDY] >= 1)))
+
+    def _promote_bonus(self, obs, card, cid):
+        """前出しの個体差。デッキ内の種の序列（div-1）は保ったまま、同種の個体間を決める。
+
+        打てる可能性がある間は「**もっとも打てる可能性のある個体**」を前に出す
+        （進化すれば Punk Up がバトル場にエネを付けるので、その番から殴れる/逃げて殴れる）。
+        打てないことが確定している間は「**いけにえ**」= 化ける余地のあるベロバーラインを、
+        しかも**エネを載せていない個体**から差し出す（載せた分を捨てると投資が丸損）。"""
+        if cid == GRIMMSNARL_EX:
+            return 0                      # 既存の +エネ×100 が個体差を表現している
+        e = energy_count(card)
+        hc = self.p["hc"]
+        evolve_now = (hc[GRIMMSNARL_EX] >= 1 and
+                      (cid == MORGREM or (cid == IMPIDIMP and hc[RARE_CANDY] >= 1)))
+        if self._sb_possible(obs):
+            # 化ける個体（この番オーロンゲになれる）を優先し、エネの乗った個体を次に
+            return (600 if evolve_now else 0) + min(e, 2) * 50
+        # いけにえ: ベロバーラインを先に出す（マシマシラ・ユキ線より上）。
+        # 同種内では素の個体から差し出す
+        return (250 if cid in (IMPIDIMP, MORGREM) else 0) - min(e, 2) * 150
+
+    @staticmethod
+    def _opp_is_attacker(pk):
+        """相手の駒が『いずれ殴ってくる駒』か（エネが付いている / ex / 2進化）。
+        ベンチの前座・エンジン駒と、育ちつつあるアタッカーを分ける。"""
+        d = CARD_DB.get(pk.id)
+        return bool(energy_count(pk) >= 1
+                    or (d is not None and (getattr(d, "ex", False)
+                                           or getattr(d, "stage2", False))))
+
+    def _main_damage_vs(self, obs, pk):
+        """その駒に対する自分の**主力打点**（Shadow Bullet 180 相当・弱点/抵抗込み）。
+
+        バトル場が実際に出せる打点を優先するが、オーロンゲ不在やエネ不足で主力を下回るときは
+        180 の想定値に戻す。**実測で必要だった補正**（2026-07-27）: 前座の10点技を基準に
+        確定数を数えると「29発が28発になる」ような判定が rank0 に紛れ込む。"""
+        d = self._max_active_damage_vs(obs, pk)
+        if d >= SHADOW_BULLET_DAMAGE:
+            return d
+        for pkm in all_my_pokemon(obs):
+            if pkm.id == GRIMMSNARL_EX:
+                return max(d, self.guard_damage(SHADOW_BULLET_DAMAGE, pkm, pk))
+        return max(d, SHADOW_BULLET_DAMAGE)
+
+    def _hits_and_need(self, obs, pk):
+        """(確定数, 確定数を1つ減らすのに要るダメカン数)。
+
+        確定数 = ceil(残HP ÷ 主力打点)。
+        例: 残210・Shadow Bullet 180 なら 確定数2・need 3（30点載せて 180 = 1発圏）。"""
+        dmg = self._main_damage_vs(obs, pk)
+        rem = self._remaining_hp(pk)
+        if dmg <= 0 or rem <= 0:
+            return 99, 99
+        hits = -(-rem // dmg)
+        return hits, max(1, -(-(rem - dmg * (hits - 1)) // 10))
+
+    def _dmg_rank(self, obs, coord, pk, cap):
+        """ダメカン配分のランク（小さいほど優先）。戻り値 (rank, hits, need, non_ex, rem)。
+
+        同ランク内は「**倒すのが近い（確定数が小さい）** > 要る枚数が少ない > ex > 残HPが低い」。
+        確定数を先に見るのは、370HP に1個載せて 3発→2発 にするより、210HP に3個載せて
+        **2発→1発（＝次のターンにサイドへ変換）** にする方が効率が高いため。"""
+        is_active = coord[0] == int(AreaType.ACTIVE)
+        rem = self._remaining_hp(pk)
+        hits, need = self._hits_and_need(obs, pk)
+        non_ex = 0 if self._is_ex(pk.id) else 1
+        if need <= cap:            # 確定数がずれる = 載せた分が必ずサイドに変換される
+            if is_active:
+                return (0, hits, need, non_ex, rem)      # ① 相手バトル場
+            if self._opp_is_attacker(pk):
+                return (1, hits, need, non_ex, rem)      # ② ベンチのアタッカー
+            return (2, hits, need, non_ex, rem)          # ずれるが非アタッカー
+        if not is_active and not _pool_has_evolution(pk.id):
+            return (3, 99, 99, non_ex, rem)              # ③ 進化しない駒に載せ続ける（低HP順）
+        return (4, 99, 99, non_ex, rem)                  # 進化で崩れる駒・ずらせない駒は最後
+
+    def _dmg_plan(self, obs, cap):
+        """Adrena-Brain の配分計画。戻り値 {n, coord, rank} または None。"""
+        best = None
+        e2a = self._active_ko_by_attack_alone(obs)
+        for coord, t in self._adrena_targets(obs):
+            if self._remaining_hp(t) <= 0:
+                continue
+            if coord[0] == int(AreaType.ACTIVE) and e2a:
+                continue           # E-2a【ハード】: 攻撃だけで倒せる前には載せない
+            key = self._dmg_rank(obs, coord, t, cap)
+            if best is None or key < best[0]:
+                best = (key, coord)
+        if best is None:
+            return None
+        (rank, _hits, need, _ne, _rem), coord = best
+        # 確定数がずれるなら「ずらすのに要る最小枚数」だけ動かす（過剰打点＝盤面に残る
+        # ダメカンの防止）。ずらせない相手には最大枚数 = 自陣の回復を最大化しつつ蓄積する
+        n = need if rank <= 2 else cap
+        return {"n": max(1, min(cap, n)), "coord": coord, "rank": rank}
+
     def _adrena_plan_for(self, obs, cap):
         """ドクトリン (a)+(b): 「今ターン or 次ターンに KO 圏へ入れる最小移動数」の計画。
 
@@ -288,19 +569,27 @@ class MarniePolicy(BasePolicy):
             p = self.p
             if "adrena_count" not in p:
                 cap = max((o.number or 0) for o in obs.select.option)
-                plan = self._adrena_plan_for(obs, cap)
+                plan = (self._dmg_plan(obs, cap) if MAR_DMGPLAN
+                        else self._adrena_plan_for(obs, cap))
                 if plan is not None:
                     p["adrena_count"] = plan["n"]
                     p["adrena_has_plan"] = True
+                    p["adrena_rank"] = plan.get("rank")
                     self._adrena_plan = {"turn": getattr(obs.current, "turn", None),
                                          "coord": plan["coord"], "n": plan["n"]}
                 else:
                     p["adrena_count"] = cap
                     p["adrena_has_plan"] = False
+                    p["adrena_rank"] = None
                     self._adrena_plan = None
             if (opt.number or 0) == p["adrena_count"]:
                 if p["adrena_has_plan"]:
-                    return 5000, "MAR_DMGMOVE: min move into KO range"
+                    rank = p.get("adrena_rank")
+                    if not MAR_DMGPLAN:
+                        return 5000, "MAR_DMGMOVE: min move into KO range"
+                    if rank is not None and rank >= 3:
+                        return 5000, "MAR_DMGPLAN: stack on non-evolving target"
+                    return 5000, "MAR_DMGPLAN: min counters to shift hits"
                 return 5000, "MAR_DMGMOVE: heal max (no KO plan)"
             return (opt.number or 0), "number"
         return super().score_number(obs, opt)
@@ -323,6 +612,12 @@ class MarniePolicy(BasePolicy):
             if ap is not None and (int(opt.area), int(opt.index or 0)) == tuple(ap["coord"]):
                 return 18000, "MAR_DMGMOVE: planned move target"
             cap = ap["n"] if ap is not None else 3
+            if MAR_DMGPLAN:
+                # 計画対象が選べない場合の代替も同じドクトリンで並べる
+                rank, hits, need, non_ex, rem2 = self._dmg_rank(
+                    obs, (int(opt.area), int(opt.index or 0)), card, cap)
+                return (17000 - rank * 3000 - min(hits, 9) * 100 - need * 20
+                        - non_ex * 200 - rem2 // 10, f"MAR_DMGPLAN: move rank{rank}")
             if rem <= cap * 10:
                 return (15000 + (2000 if is_ex else 0) + (cap * 10 - rem),
                         "MAR_DMGMOVE: counter-move KO")
@@ -330,13 +625,70 @@ class MarniePolicy(BasePolicy):
                 return 9000 + dmg // 2 - rem // 10, "MAR_DMGMOVE: chip ex (prize value)"
             return (max(100, 8000 - rem * 20) + dmg // 10,
                     "MAR_DMGMOVE: lowest remaining HP")
-        # Shadow Bullet のベンチ30 等（effect=648）。div-12 棄却の学びを尊重し
-        # 低HP基準（R-15）は保持、格差だけ決定化（×20）+ ex KO を優先
+        # Shadow Bullet のベンチ30 等（effect=648）
+        if MAR_DMGPLAN:
+            # ベンチ30 は 3個相当。Adrena と同じ優先順位で配る（確定数がずれる所 >
+            # 進化しない駒。div-12「大物に積む」の棄却とは両立する = 低HP基準は rank3 内で保持）
+            rank, hits, need, non_ex, rem2 = self._dmg_rank(
+                obs, (int(opt.area), int(opt.index or 0)), card, 3)
+            return (17000 - rank * 3000 - min(hits, 9) * 100 - need * 20
+                    - non_ex * 200 - rem2 // 10, f"MAR_DMGPLAN: snipe rank{rank}")
+        # div-12 棄却の学びを尊重し 低HP基準（R-15）は保持、格差だけ決定化（×20）+ ex KO を優先
         if rem <= 30:
             return (15000 + (2000 if is_ex else 0) + (30 - rem) * 10,
                     "MAR_DMGMOVE: snipe KO")
         return (max(100, 10000 - rem * 20) + dmg // 2,
                 "MAR_DMGMOVE: snipe lowest HP")
+
+    # ═══════════════ MAR_ATT4（2026-07-27）: Punk Up の付与先ドクトリン ═══════════════
+
+    def _grimm_future(self):
+        """これから場に出せるオーロンゲex の残り本数（進化路予算）。
+
+        山とサイドの内訳はローカル対戦では見えない（my_deck_list はデッキ選択手番が
+        来ないと入らない = chandelure 第12弾で確定した既知条件）ので、採用枚数から
+        「場 + トラッシュ」を引いた上限で見積もる。手札の分はこれから出せるので引かない。"""
+        p = self.p
+        return max(0, GRIMMSNARL_COPIES
+                   - p["fc"][GRIMMSNARL_EX] - p["dc"][GRIMMSNARL_EX])
+
+    @staticmethod
+    def _preloaded_line(obs):
+        """先置き済みのライン駒（エネの乗ったベロバー/ギモー）の数。"""
+        return sum(1 for pk in all_my_pokemon(obs)
+                   if pk.id in (IMPIDIMP, MORGREM) and energy_count(pk) >= 1)
+
+    def _punkup_target_score(self, obs, card, cid, e, dark_on):
+        """Punk Up の付与先。div-4/7 の検証済み種順序（オーロンゲ > ベロバー > ギモー）を
+        保存したまま格差を桁上げし、(b) 追い銭防止 / (c) 進化路予算 / (d) 同種内タイブレーク
+        を足す。旧実装は 150/80/70/30/10 の小格差 + 同 reason 内は index 順だった。"""
+        tie = -(damage_on(card) // 10)    # (d) 同種内は傷の浅い個体へ（追い銭防止の連続版）
+        if cid == GRIMMSNARL_EX:
+            if e < 2:
+                # この番に殴るための燃料。倒されそうでも付ける（R-08 の減点対象外）
+                return 15000 + (2 - e) * 100, "MAR_ATT4: fuel Shadow Bullet"
+            # div-7: 満タンのオーロンゲには足さず次のライン駒へ回す
+            return 3000 + tie, "MAR_ATT4: Grimmsnarl charged (spill)"
+        if cid == MORPEKO:
+            return 6000 + dark_on * 5 + tie, "MAR_ATT4: Morpeko scaling"   # 旧リスト（死文）
+        if cid == MUNKIDORI:
+            # Punk Up の対象は「マリィのポケモン」なので候補に出ない想定（実測でも0件）。保険
+            return (4000 if dark_on == 0 else 500) + tie, "MAR_ATT4: Munkidori last"
+        if cid in (IMPIDIMP, MORGREM):
+            if e >= 2:
+                return 500 + tie, "MAR_ATT4: line already loaded"   # R-10: 進化後コスト2まで
+            if e == 0 and self._preloaded_line(obs) >= self._grimm_future():
+                # (c) これ以上オーロンゲにできない線に新規で置いても悪エネが遊ぶ。
+                # 継続投資（e==1 の駒の2枚目）は「1体を仕上げる」側なので止めない
+                return 500 + tie, "MAR_ATT4: no evolution path left"
+            if self.is_threatened(card):
+                # (b) 倒される駒に付けた悪エネはトラッシュ直行（手張り _score_attach と同じ思想）
+                return 900 + tie, "MAR_ATT4: threatened line (no over-invest)"
+            base = 8000 if cid == IMPIDIMP else 7000     # div-4 の種順序を保存
+            if e == 1:
+                base += 300      # 分散させず1体を仕上げる（進化した番に即2枚 = 即攻撃）
+            return base + tie, "MAR_ATT4: pre-load line"
+        return 100 + tie, "MAR_ATT4: attach other"
 
     # ═══════════════ セットアップコンテキスト（S-1/S-2） ═══════════════
 
@@ -428,6 +780,13 @@ class MarniePolicy(BasePolicy):
             active = active_pokemon(obs)
             aid = active.id if active else None
             if aid == GRIMMSNARL_EX:
+                if MAR_TANKDOWN and self.is_threatened(active):
+                    ready = any(pk.id == GRIMMSNARL_EX and energy_count(pk) >= 2
+                                for pk in my_state(obs).bench if pk)
+                    if ready:
+                        # 悪エネ2枚（逃げコスト）を払ってサイド2枚を守る交換。
+                        # 帯は div-14 の「retreat to promote tank」3500 の直下
+                        return 3400, "MAR_TANKDOWN: swap threatened tank"
                 return -5000, "keep tank active"
             ready = any(pk.id == GRIMMSNARL_EX and energy_count(pk) >= 2
                         for pk in my_state(obs).bench if pk)
@@ -457,7 +816,28 @@ class MarniePolicy(BasePolicy):
         if opt.type in (OptionType.CARD, OptionType.ENERGY):
             return self._score_card(obs, opt, combat)
 
+        # ── TOOL_CARD（装着済みどうぐの対象選択 = ツールスクラッパーの DISCARD_TOOL_CARD） ──
+        if opt.type == OptionType.TOOL_CARD:
+            return self._score_tool_card(obs, opt)
+
         return 100, "fallback"
+
+    def _score_tool_card(self, obs, opt):
+        """DISCARD_TOOL_CARD（ツールスクラッパー）の剥がす対象。
+
+        スクラッパーは「おたがいの場の」どうぐを2枚まで落とすので、自陣のどうぐも
+        候補に出る。相手側だけを正帯にし、自陣側は負帯へ（minCount で強制される時だけ
+        選ばれる = choose() のマスク処理に委ねる）。相手のバトル場を優先 = 今の攻防に効く。
+        MAR_GOLD OFF 時は従来の実効挙動（全同点 100 = インデックス順）を保つ。"""
+        if not MAR_GOLD:
+            return 100, "tool card (no opinion)"
+        yi = obs.current.yourIndex
+        pi = opt.playerIndex if opt.playerIndex is not None else yi
+        if pi == yi:
+            return -1, "MAR_GOLD: keep own tool"
+        if opt.area == AreaType.ACTIVE:
+            return 9200, "MAR_GOLD: scrap opp active tool"
+        return 9000, "MAR_GOLD: scrap opp bench tool"
 
     # ── PLAY（フェーズで優先が入れ替わる中心） ──
 
@@ -552,6 +932,23 @@ class MarniePolicy(BasePolicy):
             if any(not has_tool(pk) for pk in all_my_pokemon(obs)):
                 return 3200, "MAR_FAN: wide band (BC sorts)"
             return -1, "save Fan"
+        if cid == TOOL_SCRAPPER and MAR_GOLD:
+            # 【ユーザー決定 2026-07-26・即プレイ】盤面読みの条件は付けない = 打てるなら打つ。
+            # 唯一のガード: 剥がす相手のどうぐが場に無い時は完全な空打ち（手札とデッキを
+            # 1枚ずつ損して効果ゼロ）なので打たない。自陣のどうぐは巻き込むので対象にしない
+            # （対象選択は DISCARD_TOOL_CARD 側で相手側のみを正帯にする）。
+            if p["opp_tools"] >= 1:
+                return 16500, "MAR_GOLD: Scrapper (immediate)"
+            return -1, "MAR_GOLD: Scrapper (no opp tool)"
+        if cid == POKEGEAR and MAR_GOLD:
+            # 山上7枚からサポート1枚。本来の使いどき = サポートを握っていない時。
+            # 握っている時は候補にだけ残す（学習帯。1ターン1枚しか使えないため価値は薄いが
+            # 次ターン用の確保には意味がある）。取得先の選好は _score_to_hand_v2 側。
+            if self._safe_draws() < 1:
+                return -1, "R-11: deck thin (Pokegear)"
+            if not p["has_supporter"]:
+                return 16000, "MAR_GOLD: Pokegear (no supporter)"
+            return 400, "MAR_GOLD: Pokegear (learn band)"
         if cid == UNFAIR_STAMP and MAR_STAMP:
             # ACE SPEC。合法時（前の相手ターンに自分がきぜつ）のみエンジンが提示。
             # 帯は推測（相手手札が肥えている時に潰すのが本命。BC 並べ替え前提）
@@ -596,7 +993,7 @@ class MarniePolicy(BasePolicy):
                 for pk in (opp_state(obs).bench or []):
                     if pk is None:
                         continue
-                    rem = pk.hp - damage_on(pk)
+                    rem = self._remaining_hp(pk)   # 未決事項8: 二重引き修正
                     if 0 < rem <= self._max_active_damage_vs(obs, pk):
                         return 5300, "MAR_BOSS: pull benched kill"
             return 400, "MAR_BOSS: save Boss (learn band)"
@@ -657,13 +1054,16 @@ class MarniePolicy(BasePolicy):
         elif tid == GRIMMSNARL_EX:
             score = 8200 if e < 2 else -1            # R-10: Shadow Bullet コスト2（解錠禁止）
             reason = "S-5: fuel Shadow Bullet"
-        elif tid == MORGREM:
+        elif tid in (MORGREM, IMPIDIMP):
             # div-10 は棄却（2026-07-12 二分探索: 対旧版200戦 43.3%、div-9/10 除去で 52.5% に
             # 回復 = L3 は +3pt でも L2 の直接対決 −7pt の主因。L2改善∧L3非悪化を満たさず差し戻し）
-            score = 8100 if e < 2 else -1            # R-10（解錠禁止）
-            reason = "S-5: pre-load line"
-        elif tid == IMPIDIMP:
-            score = 8000 if e < 2 else -1            # ライン先置き（進化後コスト2まで・R-10）
+            if MAR_MUNKI:
+                # 【ユーザー決定 2026-07-27・完全禁止】手札からベロバーラインへのエネ付けは
+                # 一切しない。**手札の悪エネは未来のマシマシラの分**であり、ライン駒は
+                # Punk Up（進化時に山から5枚）で賄える。1番1枚しかない手張りをここへ使うと、
+                # 次に降りてくるマシマシラに付けるエネが無くなる（MAR_UNLOCK の学習帯より優先）
+                return -1, "MAR_MUNKI: never hand-attach to line (energy is for Munkidori)"
+            score = (8100 if tid == MORGREM else 8000) if e < 2 else -1   # R-10（解錠禁止）
             reason = "S-5: pre-load line"
         elif tid == MORPEKO:
             score = 7900 + dark_on * 10            # 自己スケール（R-10 例外）
@@ -676,7 +1076,58 @@ class MarniePolicy(BasePolicy):
 
     # ── CARD/ENERGY 選択（サーチ先・ダメカン移動先・前出し等） ──
 
+    def _gear_supporter_pick(self, obs):
+        """ポケギア3.0 の取得先選択か（= 候補が全てサポート）。
+
+        デッキ内でサポート限定サーチはポケギアだけなので候補の型で発生源を同定できる
+        （ラムダはトレーナーズ全般 = グッズ/スタジアムが混ざる、ジム/ポフィン/パッド/
+        ヒカリ/タンカ はポケモン系）。TO_HAND は発生源のカードを教えてくれないため、
+        状態を持ち越さずに済むこの判定を使う。"""
+        n = 0
+        for o in obs.select.option:
+            c = option_card(obs, o)
+            d = CARD_DB.get(c.id) if c is not None else None
+            if d is None or d.cardType != CardType.SUPPORTER:
+                return False
+            n += 1
+        return n > 0
+
+    def _immediately_playable(self, obs, cid):
+        """山から手札に取った直後、**この番のうちに場へ出せる**か（MAR_PLAYABLE）。
+
+        判定は「場の駒」だけで行う — **同じ番に出したたねは進化できない**ので、手札の
+        ベロバーを数えて「オーロンゲが出せる」と判定してはいけない。
+        たね = ベンチに空きがある / 1進化 = 進化元が場にいる /
+        2進化 = ギモーが場にいる、または ベロバーが場 ∧ 手札にふしぎなアメ。"""
+        p = self.p
+        fc, hc = p["fc"], p["hc"]
+        if cid == GRIMMSNARL_EX:
+            return fc[MORGREM] >= 1 or (fc[IMPIDIMP] >= 1 and hc[RARE_CANDY] >= 1)
+        if cid == MORGREM:
+            return fc[IMPIDIMP] >= 1
+        if cid == FROSLASS:
+            return fc[SNORUNT] >= 1
+        if cid == DUDUNSPARCE:
+            return fc[DUNSPARCE] >= 1
+        return p["bench_free"] >= 1          # たね（ベンチに空きが要る）
+
     def _score_to_hand_v2(self, obs, cid, combat):
+        """MAR_PLAYABLE のラッパー: 検証済みの梯子（div-13 / MAR_SEARCH）はそのまま使い、
+        **この番に場へ出せないポケモンだけ帯を 1/10 に圧縮**する。
+        圧縮であって −1 マスクでないのは、全候補が即プレイ不可でも
+        従来の選好で1枚選べるようにするため。"""
+        score, reason = self._to_hand_ladder(obs, cid, combat)
+        if not MAR_PLAYABLE:
+            return score, reason
+        data = CARD_DB.get(cid)
+        if data is None or data.cardType != CardType.POKEMON:
+            return score, reason
+        if self._immediately_playable(obs, cid):
+            return score, reason
+        base = 250 - self.p["hc"].get(cid, 0) * 100
+        return base + (score - base) // 10, f"MAR_PLAYABLE: not playable now ({reason})"
+
+    def _to_hand_ladder(self, obs, cid, combat):
         """MAR_SEARCH（2026-07-22 R3-②）: TO_HAND サーチ選好の決定化。
 
         div-13 の検証済み相対順序（Grimmsnarl > アメ > ジム > ベロバー > ポフィン >
@@ -688,6 +1139,21 @@ class MarniePolicy(BasePolicy):
         p = self.p
         fc, hc = p["fc"], p["hc"]
         base = 250 - hc.get(cid, 0) * 100
+        if MAR_GOLD and self._gear_supporter_pick(obs):
+            # ポケギア3.0 の取得先【ユーザー決定 2026-07-26】: 序盤はドロー、終盤はボス。
+            # ポケギアはグッズなので、取得したサポートは同じターンに使える
+            # （序盤 = リーリエで実質「6〜8枚ドロー」/ 終盤 = ボスで吊り出しキル）。
+            # ここは候補が全てサポートの時だけ通るので、ジム/ラムダ/ポフィン等の
+            # 検証済み梯子（div-13 / MAR_SEARCH）には一切触れない。
+            if cid == LILLIE:
+                return base + (8000 if not combat else 3500), "MAR_GOLD: gear->Lillie (draw)"
+            if cid == BOSS_ORDERS:
+                return base + (9000 if combat else 1000), "MAR_GOLD: gear->Boss"
+            if cid == PETREL:
+                return base + 2500, "MAR_GOLD: gear->Lambda"
+            if cid == DAWN:
+                return base + 2000, "MAR_GOLD: gear->Dawn"
+            return base, "MAR_GOLD: gear->other"
         if cid == GRIMMSNARL_EX:
             path = fc[MORGREM] >= 1 or (fc[IMPIDIMP] >= 1 and hc[RARE_CANDY] >= 1)
             return base + (9000 if path else 4200), "take Grimmsnarl"
@@ -717,8 +1183,13 @@ class MarniePolicy(BasePolicy):
             return base + (2600 if missing else 1900), "MAR_SEARCH: take Dawn"
         if cid == BOSS_ORDERS and MAR_PETREL:
             return base + (2400 if combat else 300), "MAR_PET: take Boss"
+        if cid == TOOL_SCRAPPER and MAR_GOLD:
+            # ラムダ等の汎用サーチで拾う場合。剥がす相手のどうぐがある時だけ意味がある
+            return base + (2200 if p["opp_tools"] >= 1 else -300), "MAR_GOLD: take Scrapper"
         if cid == PETREL:
             return base + 1600, "MAR_SEARCH: take Petrel"
+        if cid == POKEGEAR and MAR_GOLD:
+            return base + (1500 if not p["has_supporter"] else 200), "MAR_GOLD: take Pokegear"
         if cid == HANDHELD_FAN and MAR_PETREL:
             bare = any(pk.id == GRIMMSNARL_EX and not has_tool(pk)
                        for pk in all_my_pokemon(obs))
@@ -728,6 +1199,11 @@ class MarniePolicy(BasePolicy):
         if cid == LILLIE:
             return base + 1000, "MAR_SEARCH: take Lillie"
         if cid == MORGREM:
+            if MAR_PLAYABLE and fc[IMPIDIMP] >= 1 and not (
+                    hc[RARE_CANDY] >= 1 and (hc[GRIMMSNARL_EX] >= 1 or fc[GRIMMSNARL_EX] >= 1)):
+                # 場にベロバーがいて即進化できる ∧ アメ直行が使えない = **ギモーが唯一の進化路**。
+                # div-13 で下げた帯（+800）を、この条件でだけベロバー(6000)の上へ戻す
+                return base + 6500, "MAR_PLAYABLE: Morgrem is the only evolution path"
             return base + 800, "take Morgrem"
         if cid == HERO_CAPE:
             return base + 750, "take Cape"
@@ -736,6 +1212,75 @@ class MarniePolicy(BasePolicy):
         if cid == NIGHT_STRETCHER and MAR_PETREL:
             return base + 400, "MAR_PET: take Stretcher"
         return base, "take other"
+
+    def _score_discard_v2(self, obs, opt, cid, combat):
+        """MAR_DISCARD: 捨て札の序列（**高いほど先に捨てる**）。
+
+        基盤 R-13（ライン保護 −5000 / 余剰エネ 12000 / 同名2枚目 8000）を土台に、
+        ① **この番に即プレイできる札は捨てない** ② 残った generic 1000 の同点帯を
+        「今この試合で仕事が無い札」から順に序列化する（監査で generic discard が
+        同点のまま 12件残っていた）。設計は dragapult_rb の DISCARD を参照した
+        （**当該エージェントは別セッションが編集中のため読み取りのみ・不可侵**）。"""
+        base, reason = self.default_score_discard(obs, opt)
+        if cid is None:
+            return base, reason
+        p, dc = self.p, self.p["dc"]
+        data = CARD_DB.get(cid)
+        # ① 即プレイできる札の保護（サポートは1番1枚なので、既に使った後は保護しない）
+        if cid in self._playable_ids and base < 12000:
+            is_sup = data is not None and data.cardType == CardType.SUPPORTER
+            if not (is_sup and obs.current.supporterPlayed):
+                return base - 20000, "MAR_DISCARD: keep (playable this turn)"
+        if base != 1000:
+            return base, reason      # R-13 の保護・余剰エネ・同名2枚目はそのまま尊重
+        # ② 【ユーザー指摘 2026-07-27】「即プレイできない = 不要」ではない。
+        # ドラパルトの捨てルールもここが未成熟で、**この番打てないが次の番に効く札**を
+        # 捨ててしまう。そこで序列の軸を「今仕事があるか」ではなく
+        # **「代替が効くか（デッキ内の残り枚数）× 今後の出番」** に置く。
+        # 1枚積み（ACE SPEC / スクラッパー / ポケギア / ヒカリ）は捨てると二度と使えないので保持側、
+        # 4枚積み（ジム/ポフィン/パッド/リーリエ/ラムダ）で今も次も仕事が無いものから捨てる。
+        if cid == SPIKEMUTH_GYM:                                   # ×4
+            if p["stadium_id"] == SPIKEMUTH_GYM:
+                return 5000, "MAR_DISCARD: gym x4 (already up)"
+            return 900, "MAR_DISCARD: keep gym"
+        if cid == SNORUNT:                                         # ×2（線は1体で足りる）
+            if p["fc"][SNORUNT] + p["fc"][FROSLASS] >= 2:
+                return 4200, "MAR_DISCARD: snorunt (line filled)"
+            return 800, "MAR_DISCARD: keep snorunt"
+        if cid == POFFIN:                                          # ×4
+            if not (p["fc"][IMPIDIMP] < 2 or p["fc"][SNORUNT] + p["fc"][FROSLASS] < 1):
+                return 3600, "MAR_DISCARD: poffin x4 (basics filled)"
+            return 700, "MAR_DISCARD: keep poffin"
+        if cid == POKE_PAD:                                        # ×4
+            if combat:
+                return 3400, "MAR_DISCARD: pad x4 (combat)"
+            return 800, "MAR_DISCARD: keep pad"
+        if cid in (LILLIE, PETREL):                                # ×4 ずつ = 骨格だが厚い
+            if obs.current.supporterPlayed:
+                return 3000, "MAR_DISCARD: bulk supporter (used this turn)"
+            return 1000, "MAR_DISCARD: keep bulk supporter"
+        if cid == DARK_ENERGY:                                     # ×10
+            return 2000, "MAR_DISCARD: single energy"
+        if cid == NIGHT_STRETCHER:                                 # ×3（回収は後半に効く）
+            if (dc[GRIMMSNARL_EX] + dc[IMPIDIMP] + dc[MORGREM]
+                    + dc[MUNKIDORI] + dc[DARK_ENERGY]) == 0:
+                return 1800, "MAR_DISCARD: stretcher (nothing to recover yet)"
+            return 1100, "MAR_DISCARD: keep stretcher"
+        if cid == BOSS_ORDERS:                                     # ×2（サイドを取りに行く札）
+            return 1500, "MAR_DISCARD: keep boss (only 2)"
+        if cid == DAWN:                                            # ×1
+            return 1200, "MAR_DISCARD: keep Dawn (only 1)"
+        if cid == POKEGEAR:                                        # ×1
+            return 600, "MAR_DISCARD: keep pokegear (only 1)"
+        if cid == TOOL_SCRAPPER:                                   # ×1
+            return 500, "MAR_DISCARD: keep scrapper (only 1)"
+        if cid == UNFAIR_STAMP:                                    # ×1・ACE SPEC = 再録不能
+            return 400, "MAR_DISCARD: keep stamp (ACE SPEC)"
+        if data is not None and data.cardType == CardType.SUPPORTER:
+            if obs.current.supporterPlayed:
+                return 2800, "MAR_DISCARD: supporter (already used this turn)"
+            return 1000, "MAR_DISCARD: keep supporter"
+        return base, reason
 
     def _score_card(self, obs, opt, combat):
         p = self.p
@@ -768,14 +1313,27 @@ class MarniePolicy(BasePolicy):
                     score, reason = 3000, "div-1: protect Munkidori (engine)"
                 else:
                     score, reason = 1000, "promote other"
+                if MAR_PROMOTE and card is not None:
+                    bonus = self._promote_bonus(obs, card, cid)
+                    if bonus:
+                        score += bonus
+                        reason = (f"MAR_PROMOTE: {'reach Shadow Bullet' if bonus > 0 else 'sacrifice bare piece'}"
+                                  f" ({reason})")
                 return self.default_score_promote(obs, opt, score, reason)   # R-08
             # 相手側の吊り出し先（ボスの指令）
             if MAR_BOSS and card is not None:
-                hp = getattr(card, "hp", 0) or 0
-                rem = hp - damage_on(card)
+                rem = self._remaining_hp(card)   # 未決事項8: 二重引き修正
                 dmg = self._max_active_damage_vs(obs, card)
                 cdata = CARD_DB.get(cid)
                 if 0 < rem <= dmg:
+                    if MAR_PULL:
+                        # 倒せる駒が複数いるときの決定化（2026-07-27。旧実装は ex 加点だけで
+                        # 残HPが同じだと同点 = インデックス順だった）。
+                        # サイド枚数 > 相手のアタッカーを潰す > 残HPが低い（＝確実に落とす）
+                        prize = 2 if (cdata is not None and getattr(cdata, "ex", False)) else 1
+                        atk = 1 if self._opp_is_attacker(card) else 0
+                        return (5000 + prize * 1500 + atk * 400 + max(0, 400 - rem) // 4,
+                                "MAR_PULL: pull kill target")
                     bonus = 2000 if (cdata is not None and getattr(cdata, "ex", False)) else 0
                     return 5000 + bonus - rem, "MAR_BOSS: pull kill target"
                 # 非キル時: エネ無しの駒を縛る > 低残HP（相対順序のみの推測帯）
@@ -902,6 +1460,8 @@ class MarniePolicy(BasePolicy):
             if card is not None and hasattr(card, "energyCards"):
                 e = energy_count(card)
                 dark_on = sum(1 for ec in (card.energyCards or []) if ec.id == DARK_ENERGY)
+                if MAR_ATT4:
+                    return self._punkup_target_score(obs, card, cid, e, dark_on)
                 if cid == GRIMMSNARL_EX:
                     # div-7（2026-07-11 実測・07-08/07-09 両日）: 満タン(e>=2)のオーロンゲには
                     # 足さず、次のライン駒へ回す。両日最大の不一致クラスタ
@@ -953,12 +1513,22 @@ class MarniePolicy(BasePolicy):
                             # 1〜2枚多く取り、次のライン駒に先置きする（human 4-5枚 vs ours 2枚が
                             # 両日で 31x/28x。div-3 の「山に残す」は保守的すぎた）
                             preload += max(0, 2 - energy_count(pk))
-                    p["energy_quota"] = max(1, min(5, need + min(2, preload)))
+                    cap_pre = min(2, preload)
+                    if MAR_ATT4 and self._grimm_future() <= 0:
+                        # MAR_ATT4 (c): これ以上オーロンゲが出ないなら先置き分は取らず
+                        # 山の悪エネを温存する（div-3 の思想。付与先側の予算と一貫させる）
+                        cap_pre = 0
+                    p["energy_quota"] = max(1, min(5, need + cap_pre))
                 if p["energy_quota"] > 0:
                     p["energy_quota"] -= 1
                     return 1000, "div-3: take needed energy"
                 return -1, "div-3: leave energy in deck (next Punk Up)"
             # Punk Up の付与先（S-3）: Grimmsnarl 2 → Munkidori 各1 → Morpeko → ライン
+            # 【死にコード。2026-07-27 実測】付与先が聞かれるのは ATTACH_FROM
+            # （= "Select the Pokémon to attach the card to"）であり、ここ（ATTACH_TO =
+            # "Select the card to attach"）に来るのは山から取る悪エネだけ。140戦・5,447決定の
+            # トレースで下記 "Punk Up: ..." の発火は 0 件だった。挙動不変のため残置するが、
+            # 付与先の正本は ATTACH_FROM 側（div-4/7 と MAR_ATT4）である。
             if card is not None and hasattr(card, "energyCards"):
                 e = energy_count(card)
                 dark_on = sum(1 for ec in (card.energyCards or []) if ec.id == DARK_ENERGY)
@@ -974,6 +1544,8 @@ class MarniePolicy(BasePolicy):
             return 1000, "to field"
 
         if ctx in (SelectContext.DISCARD, SelectContext.DISCARD_CARD_OR_ATTACHED_CARD):
+            if MAR_DISCARD:
+                return self._score_discard_v2(obs, opt, cid, combat)
             return self.default_score_discard(obs, opt)   # R-13
 
         if ctx == SelectContext.TO_DECK:

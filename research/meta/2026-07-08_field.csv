@@ -1,5 +1,5 @@
 archetype,share,field_wr,agent_or_deck,deck
-marnie,34.0,44.1,agents/marnie_munkidori_rb,decks/fleet/winrate_2_marnie_grimmsnarl.csv
+marnie,34.0,44.1,agents/marnie_munkidori_rb,decks/fleet/marnie_mainstream_0718.csv
 alakazam,20.0,55.0,agents/alakazam_rb,decks/fleet/alakazam_5th.csv
 kangaskhan,9.5,55.3,agents/mega_kangaskhan_rb,decks/fleet/mega_kangaskhan_top.csv
 garchomp,8.5,47.1,agents/cynthia_garchomp_rb,decks/fleet/cynthia_garchomp_top.csv

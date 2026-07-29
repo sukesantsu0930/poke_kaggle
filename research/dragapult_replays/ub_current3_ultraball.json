@@ -1,0 +1,78 @@
+{
+ "agent": "agents/dragapult_rb",
+ "deck": "decks/fleet/popular_4_dragapult.csv",
+ "opponent": "marnie",
+ "result": "loss",
+ "steps": 150,
+ "ultra_ball_uses": [
+  {
+   "turn": 9,
+   "step": 72,
+   "reason": "S-4: Ultra Ball",
+   "hand_before": [
+    "Poké Pad",
+    "Buddy-Buddy Poffin",
+    "Meowth ex",
+    "Boss’s Orders",
+    "Dragapult ex",
+    "Boss’s Orders",
+    "Basic {P} Energy",
+    "Night Stretcher",
+    "Ultra Ball",
+    "Poké Pad",
+    "Ultra Ball"
+   ],
+   "discarded": [
+    "Buddy-Buddy Poffin",
+    "Boss’s Orders"
+   ],
+   "fetched": [
+    "Budew"
+   ]
+  },
+  {
+   "turn": 9,
+   "step": 76,
+   "reason": "S-4: Ultra Ball",
+   "hand_before": [
+    "Poké Pad",
+    "Meowth ex",
+    "Dragapult ex",
+    "Boss’s Orders",
+    "Basic {P} Energy",
+    "Night Stretcher",
+    "Poké Pad",
+    "Ultra Ball"
+   ],
+   "discarded": [
+    "Poké Pad",
+    "Basic {P} Energy"
+   ],
+   "fetched": [
+    "Dreepy"
+   ]
+  },
+  {
+   "turn": 13,
+   "step": 121,
+   "reason": "S-4: Ultra Ball",
+   "hand_before": [
+    "Lillie's Determination",
+    "Basic {R} Energy",
+    "Crushing Hammer",
+    "Crispin",
+    "Dragapult ex",
+    "Crispin",
+    "Crispin",
+    "Ultra Ball"
+   ],
+   "discarded": [
+    "Basic {R} Energy",
+    "Dragapult ex"
+   ],
+   "fetched": [
+    "Drakloak"
+   ]
+  }
+ ]
+}
