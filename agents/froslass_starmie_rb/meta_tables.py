@@ -157,3 +157,82 @@ def _alakazam_ceiling(obs, opp):
 OPP_DAMAGE_ESTIMATORS = {
     "alakazam": _alakazam_ceiling,
 }
+
+
+# ═══════════════ R-33: サーチ札の取得ドメイン（2026-07-27） ═══════════════
+#
+# 「この札で何が取れるか」の正本。**カードテキストの読解ではなく実測**で作る
+# （`scripts/searcher_domain_probe.py` がエンジンの提示する選択肢を集計する）。
+# 手書きの表がダイブ到達判定の穴の発生源だったため、正本を1箇所に集約した。
+#
+# 形式: card_id -> {
+#     "zone":   取得元（"deck" = 山 / "discard" = トラッシュ）
+#     "to":     行き先（"hand" / "bench" / "attach"）
+#     "pred":   取れるカードの述語名（下の DOMAIN_PREDICATES）
+#     "count":  一度に取れる枚数
+#     "cost":   消費する資源（"item" / "supporter" / "ability"）
+# }
+# ※ 実測で判明した誤り（旧・手書き）:
+#     ポケパッド … スボミーも取れる（非ルールボックス全般）
+#     夜のタンカ … ポケモン全種 + 基本エネ（ドロンチ/ドラメシヤの回収を見落としていた）
+#     ニャース ex … サポート全般（アカマツ限定ではない）
+#     ドロンチ    … 偵察指令は山上2枚から1枚 = 実質全種。取得手段として数えていなかった
+# 追加フィールド（2026-07-27 設計改訂）:
+#   "action":   実行時にどの OptionType で現れるか（"play" = 手札からプレイ /
+#               "ability" = 盤面の特性）。経路執行のマッチングに使う。
+#   "reliable": **確定モードで使ってよいか**。全山サーチ（山のどこにあっても取れる）
+#               だけが True。山上N枚を見るだけの効果（偵察指令）は、カードが山に
+#               あっても上N枚に無ければ取れない = 確定の根拠にならない（False）。
+#               旧実装はここを区別せず「嘘の確定」を出していた（07-27 実測 42%が空振り）。
+SEARCHER_DOMAIN = {
+    1086: {"zone": "deck", "to": "bench", "pred": "basic_hp70", "count": 2,
+           "cost": "item", "action": "play", "reliable": True},   # なかよしポフィン
+    1152: {"zone": "deck", "to": "hand", "pred": "no_rule_box", "count": 1,
+           "cost": "item", "action": "play", "reliable": True},   # ポケパッド
+    1121: {"zone": "deck", "to": "hand", "pred": "pokemon", "count": 1,
+           "cost": "item_discard2", "action": "play", "reliable": True},  # ハイパーボール
+    1097: {"zone": "discard", "to": "hand", "pred": "pokemon_or_basic_energy",
+           "count": 1, "cost": "item", "action": "play", "reliable": True},  # 夜のタンカ
+    1210: {"zone": "deck", "to": "hand", "pred": "pokemon", "count": 1,
+           "cost": "supporter", "action": "play", "reliable": True},  # タケシのスカウト
+    1198: {"zone": "deck", "to": "attach_and_hand", "pred": "basic_energy",
+           "count": 2, "cost": "supporter", "action": "play",
+           "reliable": True},               # アカマツ（1枚を場へ・1枚を手札へ）
+    1071: {"zone": "deck", "to": "hand", "pred": "supporter", "count": 1,
+           "cost": "ability", "action": "play",
+           "reliable": True},               # ニャース ex（場に出したときの特性）
+    120: {"zone": "deck_top2", "to": "hand", "pred": "any", "count": 1,
+          "cost": "ability", "action": "ability",
+          "reliable": False},               # ドロンチ 偵察指令（山上2枚→1枚 = 引き運）
+    140: {"zone": "deck_top3", "to": "hand", "pred": "any", "count": 1,
+          "cost": "ability", "action": "ability",
+          "reliable": False},               # フェザンディペティ ex フリップザスクリプト
+                                            # （被KO返しに3ドロー = 引き運。possibility 専用）
+}
+
+
+def domain_match(pred, card_data):
+    """SEARCHER_DOMAIN の述語判定。card_data は CARD_DB の要素。"""
+    if card_data is None:
+        return False
+    ct = int(getattr(card_data, "cardType", -1))
+    is_pokemon = ct == 0
+    basic = bool(getattr(card_data, "basic", False))
+    hp = getattr(card_data, "hp", 0) or 0
+    rule_box = bool(getattr(card_data, "ex", False)
+                    or getattr(card_data, "megaEx", False))
+    if pred == "any":
+        return True
+    if pred == "pokemon":
+        return is_pokemon
+    if pred == "basic_hp70":
+        return is_pokemon and basic and hp <= 70
+    if pred == "no_rule_box":
+        return is_pokemon and not rule_box
+    if pred == "basic_energy":
+        return ct == 5
+    if pred == "supporter":
+        return ct == 3
+    if pred == "pokemon_or_basic_energy":
+        return is_pokemon or ct == 5
+    return False

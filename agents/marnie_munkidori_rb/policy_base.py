@@ -40,6 +40,7 @@ ptcg-abc は設計参照のみ（無ライセンスのためコード引用な�
 import json
 import os
 from abc import ABC, abstractmethod
+from collections import Counter
 from dataclasses import dataclass, field
 
 from cg.api import (
@@ -375,6 +376,12 @@ class BasePolicy(ABC):
         # （gauntlet --search が代入する。SEARCH=False のクラスでも A/B 可能）。
         self.search_enabled = bool(self.SEARCH)
         self.my_deck_list = None          # make_agent のデッキ選択時 or ハーネスが注入
+        # R-32: 自山カウンティング（一般ルール 2026-07-27・ユーザー指示「自分の山札くらい
+        # 暗記しろ」）。deck_min/deck_max の2本を持つ理由は `deck_min` の docstring 参照。
+        self._dk_total = None             # Counter(デッキリスト60枚)
+        self._dk_visible = None           # Counter(見えているゾーンの自分のカード)
+        self._dk_prizes = None            # Counter or None（None = サイド未確定）
+        self._dk_prize_slots = None       # 直近に観測したサイド枚数
         self.overage_remaining = None     # make_agent が obs_dict から毎手更新（R-23）
         self._search_time_used = 0.0
         self._searcher = None
@@ -397,10 +404,325 @@ class BasePolicy(ABC):
         self._cur_turn_logs = []
         self.t = {"phase": "setup", "lethal": None, "threats": [], "matchup": "generic"}
         self._search_time_used = 0.0
+        self._dk_total = None
+        self._dk_visible = None
+        self._dk_prizes = None
+        self._dk_prize_slots = None
         if self._searcher is not None:
             for p in (self._searcher._pilot_self, self._searcher._pilot_opp):
                 if p is not None:
                     p.reset_game()
+
+    # ═══════════ R-32: 自山カウンティング（一般ルール・2026-07-27） ═══════════
+    #
+    # ユーザー指示「自分の山札くらい暗記しろ」。従来は dragapult 系と chandelure が
+    # 別々に自前実装し、他10体は何も持っていなかった。ここに一本化する。
+    #
+    # 【なぜ1本の枚数では足りないか】見えていない自分のカードは「山」と「サイド」の
+    # どちらにもあり得る。サイドが確定するまで、両者は区別できない。ところが
+    #   ・「確定できる」（この番アカマツで色を取れる 等）の主張は **下限** を要求する
+    #   ・「不可能」（もうどこからも取れない）の判定は **上限** を要求する
+    # ので、単一の値で両方を語ると必ずどちらかが嘘になる。実際 07-27 まで
+    # dragapult のダイブ確定判定は「山＋サイド」の数を「山」として使っており、
+    # **サイド落ちの色を『確定で取れる』と主張していた**。
+
+    def _dk_stack_into(self, node, counter, my_index):
+        """盤面ポケモンの進化スタック + 付与カードを counter に足す（自分の札のみ）。"""
+        if node is None:
+            return
+        cid = getattr(node, "id", None)
+        if cid is not None:
+            # ポケモンは playerIndex を持たない（= 自分の盤面から辿っている）ので、
+            # 属性の有無で判定する（型 import に依存しない）
+            pi = getattr(node, "playerIndex", None)
+            if pi is None or pi == my_index:
+                counter[cid] += 1
+        for attr in ("preEvolution", "energyCards", "tools"):
+            for c in (getattr(node, attr, None) or []):
+                self._dk_stack_into(c, counter, my_index)
+
+    def update_deck_knowledge(self, obs):
+        """毎手番の自山会計。山全体が見えた瞬間にサイドを確定して記憶する。
+
+        安全側の設計（chandelure 第12弾の実装から移植した不変条件）:
+          ① サイドを確定するのは **全山ビュー**（len(select.deck) == deckCount）のときだけ。
+             部分公開でこれをやると「まだ見ていない山」を丸ごとサイド扱いする破滅的な誤り。
+          ② サイドを取られたら（枚数減）どれが減ったか不明 → **未確定に戻す**。
+             戻さないと、取ったサイドを手札側と `_dk_prizes` 側で二重に引いて山を過小評価する
+             （dragapult 旧実装のバグ。負の枚数にもなり得た）。"""
+        if self._dk_total is None:
+            deck_list = self.my_deck_list
+            if not deck_list:
+                # 基盤が自力で取りにいく（per-agent フックを要求しない）。
+                # make_agent がデッキ選択時に my_deck_list を入れるが、評価ハーネスは
+                # その経路を通らないことがあるため、ここで deck.csv を直接読む。
+                try:
+                    deck_list = read_deck_csv()
+                except Exception:
+                    deck_list = None
+                if deck_list:
+                    self.my_deck_list = list(deck_list)
+            if not deck_list:
+                return
+            self._dk_total = Counter(deck_list)
+        ms = my_state(obs)
+        if ms is None:
+            return
+        yi = obs.current.yourIndex
+        visible = Counter()
+        for card in (ms.hand or []):
+            self._dk_stack_into(card, visible, yi)
+        for card in (ms.discard or []):
+            self._dk_stack_into(card, visible, yi)
+        for pk in list(ms.active or []) + list(ms.bench or []):
+            self._dk_stack_into(pk, visible, yi)
+        for card in (getattr(obs.current, "stadium", None) or []):
+            if getattr(card, "playerIndex", yi) == yi:
+                self._dk_stack_into(card, visible, yi)
+        self._dk_visible = visible
+
+        slots = len(ms.prize or [])
+        # ② サイドが減った = 中身が1枚手札へ移った（どれかは不明）→ 未確定に戻す
+        if (self._dk_prizes is not None and self._dk_prize_slots is not None
+                and slots < self._dk_prize_slots):
+            self._dk_prizes = None
+        self._dk_prize_slots = slots
+
+        # ① 全山ビューのときだけサイドを割り出す
+        sel = obs.select
+        deck_cards = getattr(sel, "deck", None) if sel is not None else None
+        if deck_cards:
+            deck_ids = [c.id for c in deck_cards if c is not None]
+            if deck_ids and len(deck_ids) == getattr(ms, "deckCount", -1):
+                self._dk_prizes = +(self._dk_total - Counter(deck_ids) - visible)
+                self._dk_prize_slots = slots
+
+    def _dk_unseen(self, card_id):
+        """まだ見えていない自分のカード枚数（= 山 + サイド）。"""
+        if self._dk_total is None or self._dk_visible is None:
+            return None
+        return max(0, self._dk_total.get(card_id, 0) - self._dk_visible.get(card_id, 0))
+
+    def deck_max(self, card_id):
+        """**山にあるかもしれない**上限枚数。0 なら『山からは絶対に取れない』が確定する。
+
+        「不可能」の判定にはこちらを使う（上限が0でなければ可能性は残る）。
+        知識が無い（デッキリスト未取得）なら None。"""
+        unseen = self._dk_unseen(card_id)
+        if unseen is None:
+            return None
+        if self._dk_prizes is None:
+            return unseen                      # サイド未確定 = 全部が山にあり得る
+        return max(0, unseen - self._dk_prizes.get(card_id, 0))
+
+    def deck_min(self, card_id):
+        """**確実に山にある**下限枚数。1以上なら『山から取れる』と断言してよい。
+
+        「確定」の主張にはこちらを使う。サイド未確定のうちは、見えていない枚数のうち
+        最大でサイド枠数までがサイド落ちしている可能性があるので、その分を引く。
+        サイド確定後は deck_max と一致する（= 文字どおりの完全記憶）。"""
+        unseen = self._dk_unseen(card_id)
+        if unseen is None:
+            return None
+        if self._dk_prizes is not None:
+            return max(0, unseen - self._dk_prizes.get(card_id, 0))
+        slots = self._dk_prize_slots or 0
+        return max(0, unseen - slots)
+
+    def prizes_known(self):
+        """サイド落ちが確定しているか（確定後は deck_min == deck_max）。"""
+        return self._dk_prizes is not None
+
+    # ═══════════ R-33: 取得到達判定（全エージェント共通の基盤能力・2026-07-27） ═══════════
+    #
+    # 「この番に必要札を揃えられるか」を答えるオラクル。**手を選ぶ探索ではない**
+    # （EXP-011 で reject された「探索で手を選ぶ」とは別物。ここは yes/no と最小コスト経路だけ）。
+    #
+    # 設計の根拠（2026-07-27 の実測調査）:
+    #   - エンジンの search API で自ターンを全展開すると 2秒で 47% しか完走しない
+    #     （深さ最大30・可換な手の順列が爆発）。**撃てる盤面まで展開するのが無駄**だった。
+    #   - 問いを「必要札が揃うか」に落とすと、判定は **確定17µs / 不可能87µs**（中央値）。
+    #     さらに 1101 局面のうち「可能だが確定しない」は 6 件だけ = ほぼ二値で決まる。
+    #   - 取得手段の表（mt.SEARCHER_DOMAIN）は**実測から導き実測で検証**する
+    #     （`scripts/searcher_domain_probe.py`）。手書きのカードテキスト読解が穴の原因だった。
+    #
+    # certain=True  … 山からの取得は deck_min（サイド落ちを当てにしない）。ドローは使わない。
+    #                 True を返したら「取れると証明できる」。
+    # certain=False … deck_max + ドローも可。False を返したら「どうやっても取れない」。
+
+    ACQUIRE_COST = {"item": 1, "supporter": 2, "ability": 0, "item_discard2": 4}
+
+    def acquire_plan(self, obs, needs, certain=True, max_depth=4,
+                     supporter_available=None, item_available=True,
+                     blocked=None, searcher_guards=None):
+        """needs（card_id -> 必要枚数）を**手札に**揃えられるか（R-33 の中核）。
+
+        戻り値 (総コスト, 経路) / 揃わないなら (None, None)。
+        経路 = [(action, searcher_id, target_id), ...]。空リスト [] = もう揃っている。
+        **経路全体を返す**のは執行側が「履歴をなぞる」ため（2026-07-27 ユーザー設計）。
+        最初の1手だけだと、取得先の選択（TO_HAND）・支払い（DISCARD）が経路と
+        無関係に決まり、経路が必要とする札を自分で焼く事故が起きる。
+
+        certain の意味論（07-27 改訂）:
+          True  … 過小近似。「取れると**証明**できる」ときだけ揃うと言う。
+                  山は deck_min（サイド落ちを当てにしない）・全山サーチのみ
+                  （偵察指令のような山上N枚効果は reliable=False で除外）。
+          False … 過大近似。「どうやっても取れない」ときだけ揃わないと言う。
+                  山は deck_max・引き運チャネル（偵察指令/リーリエ等）も許可。
+                  この方向の分離が「嘘の確定」「嘘の不可能」を両方防ぐ。
+
+        合法性制約（07-27 の嘘確定の残りの原因）:
+          supporter_available: サポート枠を取得に使ってよいか。呼び出し側の計画が
+              サポートを打つなら False（枠は1つ。二重に数えると嘘の確定）。
+          item_available: グッズを打てるか（ムズムズ花粉被弾ターンは False）。
+          blocked: このターン打てないと**観測で確認済み**の searcher id 集合。
+          searcher_guards: sid -> bool。False の searcher は使わない
+              （例: 監視塔下のニャース ex = 特性無効）。"""
+        ms = my_state(obs)
+        if ms is None or not needs:
+            return (0, []) if not needs else (None, None)
+        hand = {}
+        for c in (ms.hand or []):
+            if c is not None:
+                hand[c.id] = hand.get(c.id, 0) + 1
+        dc = {}
+        for c in (ms.discard or []):
+            if c is not None:
+                dc[c.id] = dc.get(c.id, 0) + 1
+        get = self.deck_min if certain else self.deck_max
+        deck = {}
+        for cid in set(self.my_deck_list or []):
+            n = get(cid)
+            if n:
+                deck[cid] = n
+        st = obs.current
+        sup = not st.supporterPlayed
+        if supporter_available is not None:
+            sup = bool(supporter_available) and sup
+        hand_size = len([c for c in (ms.hand or []) if c is not None])
+
+        # 取得手段の表。possibility ではドロー/リフレッシュ札を「万能取得」として足す
+        # （過大近似は不可能証明の方向として正しい。リーリエは手札を山へ戻すが、
+        #  失う側を無視するのも同じ方向の近似）。
+        specs = dict(mt.SEARCHER_DOMAIN)
+        if not certain:
+            for did in (mt.HAND_REFRESH_IDS | mt.DRAW_SUPPORT_IDS):
+                if did in specs:
+                    continue
+                data = CARD_DB.get(did)
+                ck = ("supporter" if data is not None
+                      and data.cardType == CardType.SUPPORTER else "item")
+                specs[did] = {"zone": "deck", "to": "hand", "pred": "any",
+                              "count": 1, "cost": ck, "action": "play",
+                              "reliable": False}
+
+        blocked = blocked or set()
+
+        # 盤面の特性由来の取得手段（例: ドロンチの偵察指令）。**手札の札ではない**ので
+        # 手札カウントでは可用性を判定できない — 07-27 の「嘘の不可能」の主因
+        # （偵察指令しかチャネルが無い局面を『取得手段なし』と誤判定していた）。
+        # 使用済みフラグは観測に無いため過大近似（reliable=False なので certain には
+        # 影響せず、possibility 側の緩和のみ = 不可能証明の方向として正しい）。
+        board = {}
+        for pk in list(ms.active or []) + list(ms.bench or []):
+            if pk is None:
+                continue
+            sp = specs.get(pk.id)
+            if sp is not None and sp.get("action") == "ability":
+                board[pk.id] = board.get(pk.id, 0) + 1
+
+        def usable(sid, spec):
+            if sid in blocked:
+                return False
+            if searcher_guards is not None and searcher_guards.get(sid) is False:
+                return False
+            if spec["cost"] in ("item", "item_discard2") and not item_available:
+                return False
+            if certain and not spec.get("reliable", True):
+                return False
+            if spec.get("to") not in ("hand", "attach_and_hand"):
+                return False        # ベンチ直行（ポフィン）は手札需要を満たさない
+            return True
+
+        best = [None, None]
+        seen = {}
+        self._acq_dfs(needs, hand, deck, dc, sup, hand_size, board, 0, max_depth,
+                      best, seen, (), specs, usable)
+        return best[0], (list(best[1]) if best[1] is not None else None)
+
+    def _acq_missing(self, needs, hand):
+        return {cid: n - hand.get(cid, 0)
+                for cid, n in needs.items() if n - hand.get(cid, 0) > 0}
+
+    def _acq_dfs(self, needs, hand, deck, dc, sup, hand_size, board, cost, depth,
+                 best, seen, path, specs, usable):
+        if best[0] is not None and cost >= best[0]:
+            return
+        missing = self._acq_missing(needs, hand)
+        if not missing:
+            if best[0] is None or cost < best[0]:
+                best[0], best[1] = cost, path
+            return
+        if depth <= 0:
+            return
+        key = (tuple(sorted(hand.items())), tuple(sorted(deck.items())),
+               tuple(sorted(dc.items())), sup, min(hand_size, 9),
+               tuple(sorted(board.items())))
+        if seen.get(key, 1 << 30) <= cost:
+            return
+        seen[key] = cost
+        for sid, spec in specs.items():
+            # 盤面特性型（board に載っている sid）は盤面の使用回数、それ以外は手札枚数
+            has_src = (board.get(sid, 0) >= 1 if sid in board
+                       else hand.get(sid, 0) >= 1)
+            if not has_src or not usable(sid, spec):
+                continue
+            ckind = spec["cost"]
+            if ckind == "supporter" and not sup:
+                continue
+            if ckind == "item_discard2":
+                # ハイパーボールの2枚は「経路が必要としない札」から払う必要がある。
+                # 必要札で頭数だけ合わせると、支払いで経路自身を焼く（07-27 実測の事故）。
+                locked = sum(min(hand.get(c, 0), needs.get(c, 0)) for c in needs)
+                if hand_size - 1 - locked < 2:
+                    continue
+            pool = dc if spec["zone"] == "discard" else deck
+            for want in list(missing):
+                if pool.get(want, 0) < 1:
+                    continue
+                if not mt.domain_match(spec["pred"], CARD_DB.get(want)):
+                    continue
+                nh = dict(hand)
+                nb = board
+                if sid in board:            # 盤面特性 = 手札を消費しない（使用回数を消費）
+                    nb = dict(board)
+                    nb[sid] -= 1
+                    if nb[sid] <= 0:
+                        nb.pop(sid, None)
+                else:
+                    nh[sid] -= 1
+                    if nh[sid] <= 0:
+                        nh.pop(sid, None)
+                nh[want] = nh.get(want, 0) + 1
+                np_ = dict(pool)
+                np_[want] -= 1
+                if np_[want] <= 0:
+                    np_.pop(want, None)
+                nd, ndc = (deck, np_) if spec["zone"] == "discard" else (np_, dc)
+                self._acq_dfs(needs, nh, nd, ndc,
+                              False if ckind == "supporter" else sup,
+                              hand_size - (2 if ckind == "item_discard2" else 0),
+                              nb,
+                              cost + self.ACQUIRE_COST.get(ckind, 1),
+                              depth - 1, best, seen,
+                              path + ((spec.get("action", "play"), sid, want),),
+                              specs, usable)
+
+    def prized_count(self, card_id):
+        """サイド落ちしている枚数。未確定なら None（推測は返さない）。"""
+        if self._dk_prizes is None:
+            return None
+        return self._dk_prizes.get(card_id, 0)
 
     def track_logs(self, obs):
         # R-17: TURN_END で区切って相手の最終攻撃を記録
@@ -839,6 +1161,11 @@ class BasePolicy(ABC):
             return None
         if obs.select.context != SelectContext.MAIN or obs.select.maxCount != 1:
             return None
+        # レビュー確定所見（07-28 wf_faed270f）: リーサル帯と同様に、上位帯
+        # （D-2 経路執行 300000 等・sub-100k の候補窓の外）が最上位のときは
+        # 探索/ネットに上書きさせない = 確定的な決定に従う
+        if scored and scored[0][0] >= 100_000:
+            return None
         cands = [(i, s) for s, i, r in scored if 0 <= s < 100_000]
         cands = cands[:self.SEARCH_MAX_CANDIDATES]
         if len(cands) < self.SEARCH_MIN_CANDIDATES:
@@ -896,6 +1223,11 @@ class BasePolicy(ABC):
             return None
         if obs.select.context != SelectContext.MAIN or obs.select.maxCount != 1:
             return None
+        # レビュー確定所見（07-28 wf_faed270f）: リーサル帯と同様に、上位帯
+        # （D-2 経路執行 300000 等・sub-100k の候補窓の外）が最上位のときは
+        # 探索/ネットに上書きさせない = 確定的な決定に従う
+        if scored and scored[0][0] >= 100_000:
+            return None
         cands = [(i, s, r) for s, i, r in scored if 0 <= s < 100_000]
         cands = cands[:self.NET_MAX_CANDIDATES]
         if len(cands) < 2:
@@ -935,6 +1267,7 @@ class BasePolicy(ABC):
 
     def choose(self, obs):
         # 判定は毎手番・常時実行（安いので常時。反応の強弱はフェーズと優先則側で制御）
+        self.update_deck_knowledge(obs)   # R-32: 自山カウンティング（参照しなければ挙動不変）
         self.update_belief(obs)
 
         scored = []
