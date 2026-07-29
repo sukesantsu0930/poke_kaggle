@@ -211,6 +211,26 @@ DUSK_ATTACH_V2 = os.environ.get("DUSK_ATTACH_V2", "1") != "0"
 # 通常版との最大の決定差分は、バグではなく意図的かつ妥当な差だったということ。
 DUSK_RECON_FIRST = os.environ.get("DUSK_RECON_FIRST", "0") != "0"
 
+# ═══════ 序盤ルール群（ユーザー採用 2026-07-29・EXP-076。観戦 EXP-074 由来）═══════
+# 勝敗の実体は**初ダイブターン**（勝ち T6.8 / 負け T9.7・到達率 98% vs 80%）。
+# 「ファントムダイブを打つためにもっとも確率の高いことをし続ける」ための4件。
+#
+# A: 序盤にサポート枠を遊休させない（負け 2.03回/試合 vs 勝ち 1.57）。use_support が
+#    どれも選ばれなかった番に、ボス以外のサポートを打つ受け皿を置く（EN-3 と同型）。
+DUSK_SUP_IDLE = os.environ.get("DUSK_SUP_IDLE", "1") != "0"
+# B: 未使用の偵察指令を持つドロンチを進化で消さない（0.8回/試合の無料ドロー放棄）。
+#    その個体の偵察だけを、その個体を消す進化の直上へ昇格させる（_score_any の注記）。
+DUSK_RECON_EVO_HOLD = os.environ.get("DUSK_RECON_EVO_HOLD", "1") != "0"
+# C: 立ち上げ(setup)のベンチは本流優先。サブストリーム規律は**サーチ先**には効いていた
+#    （_hand_score のヨマワル 4000帯）のに、**手札からの PLAY**（S-2b 53000）には
+#    効いておらず、同じカードに二重基準があった。PLAY 側を同じ規律へ揃える。
+DUSK_SETUP_BENCH = os.environ.get("DUSK_SETUP_BENCH", "1") != "0"
+# D: 捨て札コストを「次のターン頭」の視点で見る（ユーザー指定の地平線 = **次の番まで。
+#    2ターン後以降は考慮しない**）。R-13+（この番プレイ可能 = -200000）と通常札の間に
+#    中間 keep 帯 -100000 を置く。観測した実害 = 場のヨマワルの進化先サマヨール（土台が
+#    出たばかりで can_evolve=False → 2500 で最安値）と、サポート使用後のニャース ex（40）。
+DUSK_KEEP_NEXT = os.environ.get("DUSK_KEEP_NEXT", "1") != "0"
+
 # ルール12+（ユーザー 2026-07-26）: ポフィンは温存しない = R-11（山薄）より上で常に即プレイ。
 # 対面非依存の一般ルールなので全対面の再計測が要る。
 DUSK_POFFIN_ALWAYS = os.environ.get("DUSK_POFFIN_ALWAYS", "1") != "0"
@@ -502,6 +522,22 @@ class DragapultDusknoirPolicy(BasePolicy):
         energy_in_hand = sum(1 for c in (ms.hand or [])
                              if c is not None and c.id in BASIC_ENERGIES)
 
+        # G【欠陥修正・2026-07-29 ユーザー指示】手札枚数表を MAIN ブロックより**前**に埋める。
+        # 旧構造では hc の充填が MAIN ブロック（ダイブ計画・攻撃探索・詰まり判定）の**後**に
+        # あり、hc は defaultdict なので例外も出さず「手札は空」として評価されていた。
+        # R-32 の deck_counts は手札のカードを除外するので、必要な色が手札にあると
+        # 「手札にも山にも無い」= 到達不能側に倒れる。実測（45戦・読むだけのプローブ）:
+        #   ダイブ計画 1,945回中 1,933回(99.4%)が hc 空 / 持続⇔損切りの反転 25回（全て
+        #   「損切り→持続」= 不当な諦め）/ 確率推定の差 194回・平均 +0.652。
+        # 通常版 dragapult_rb は D-2 経路計算を choose() 側（update_belief の後）へ
+        # 出しているため無傷 — ボム版だけが旧構造で残っていた。
+        # 【重要】ここで埋めるのは hc のみ。support_count / hand_scores / negative_hand は
+        # 前倒ししない（use_support 選定は `support_count == 0` ガードに依存しており、
+        # 前倒しすると全サポートが 0 点になって選定が全滅する）。
+        for card in (ms.hand or []):
+            if card is not None:
+                hc[card.id] += 1
+
         p = {
             # deck_counts = 上限（山にあるかもしれない） / deck_min = 下限（確実に山にある）
             "fc": fc, "hc": hc, "dc": dc, "deck_counts": deck_counts,
@@ -540,6 +576,8 @@ class DragapultDusknoirPolicy(BasePolicy):
         # MAIN でだけ: 配分プラン（DFS）+ ボム計画 + 詰まり判定 + 使うサポートの択一
         if obs.select.context == SelectContext.MAIN:
             self._main_option_proc(obs, p)
+            # G: flags が更新された直後に前出し方針を確定させる（この後の手張り採点が読む）
+            self._set_switch_plan(obs, p, active_id, fc, bench_attacker)
             # A-1: 攻撃探索は配分プラン(_main_option_proc)の後・ボム計画の前に回す。
             # ボム計画とばら撒き配分の両方がこの結果を参照する。
             self.atk_plan = self._attack_search(obs) if DUSK_ATK_SEARCH else None
@@ -596,6 +634,7 @@ class DragapultDusknoirPolicy(BasePolicy):
             self.use_support = 0
             if not obs.current.supporterPlayed:
                 best = 0
+                fallback = 0
                 for o in obs.select.option:
                     if o.type != OptionType.PLAY:
                         continue
@@ -606,6 +645,16 @@ class DragapultDusknoirPolicy(BasePolicy):
                         if best < s:
                             best = s
                             self.use_support = card.id
+                        if card.id != BOSS and fallback == 0:
+                            fallback = card.id
+                # A【2026-07-29 ユーザー決定】「ボス以外は雑に打つ。ボスは終盤まで温存」。
+                # 採点が全滅（＝どれも 0 点）でも、**ボス以外**のサポートが合法手として
+                # 出ているなら打つ = サポート枠を空けたまま番を終えない（chandelure
+                # EXP-067 と同型）。ボスは吊り出す的がある番だけ（既存の 60000 ゲート）。
+                # 実測: この受け皿が必要になる番は 0.03〜0.04回/試合＝ほぼ発火しない。
+                # 現行の非ボスサポートは全て正のスコアを持つため、構造保証としての受け皿。
+                if DUSK_SUP_IDLE and not self.use_support and fallback:
+                    self.use_support = fallback
                 # ルート実行（ユーザー 2026-07-25「計算したルートを実際に辿れるか」）:
                 # ターン頭の決定が【持続】で、かつダイブ完成が手張りチャネルでは不可・アカマツで
                 # のみ可能な局面なら、汎用サポート選定を上書きして必ずアカマツを打つ（route を確定
@@ -620,6 +669,12 @@ class DragapultDusknoirPolicy(BasePolicy):
                     self.use_support = CRISPIN
 
         # 手札スコア（PLAY 採点の材料）
+        # G: 上で事前充填した hc をここで空へ戻し、走査しながら再充填する。この
+        # progressive counting（自分より前の札しか hc に無い）は仕様であって事故ではない
+        # ＝重複減点の尾部（`if not ignore_count and hc[cid] > 0` → -100000）がこれに依存
+        # している。走査完了後の hc の内容は事前充填と完全に一致する。
+        hc = defaultdict(int)
+        p["hc"] = hc
         for card in (ms.hand or []):
             s = self._hand_score(obs, p, card.id, False) if card is not None else 0
             p["hand_scores"].append(s)
@@ -635,6 +690,15 @@ class DragapultDusknoirPolicy(BasePolicy):
         # なら、バトル場に1エネ張って退却しスボミーを前に出してムズムズ花粉（相手グッズロック）
         # を撃つ。旧 DUSK_OPEN_BUDEW は「ポフィンでスボミーを盤面に置く」までで、退却が
         # turn>=2 ゲートに阻まれて先行T1 で前に出せていなかった（通常版 EXP-043 と同じ穴）。
+        self._set_switch_plan(obs, p, active_id, fc, bench_attacker)
+        return p
+
+    def _set_switch_plan(self, obs, p, active_id, fc, bench_attacker):
+        """budew_open / do_switch の確定。self.flags（_main_option_proc が更新）に依存する。
+
+        G: MAIN ブロック内の手張り採点（_attach_score の S-5 分岐）がこの2つを読むので、
+        MAIN では _main_option_proc の直後にも一度呼ぶ。非 MAIN 文脈では従来どおり
+        _analyze の末尾で前回 flags ベースに確定する（＝呼び出し2回目は同値の再計算）。"""
         budew_open = (DUSK_BUDEW_OPEN2
                       and not self.flags["can_main_attack"]
                       and obs.current.turn <= 2
@@ -644,7 +708,6 @@ class DragapultDusknoirPolicy(BasePolicy):
                           and (bench_attacker
                                or (active_id != BUDEW and fc[BUDEW] >= 1
                                    and (obs.current.turn >= 2 or budew_open))))
-        return p
 
     # ═══════════════ 配分プラン（枝刈り DFS。dragapult_rb 移植） ═══════════════
 
@@ -1456,6 +1519,26 @@ class DragapultDusknoirPolicy(BasePolicy):
             #   の 56000 帯へ戻す。リーリエだけは手札を山へ戻すので例外的に先（56100）。
             if DUSK_RECON_FIRST:
                 return 56000, "div-D3: Recon Directive first (before goods/attach/evolve)"
+            # B【2026-07-29 ユーザー採用・EXP-076】無料特性を捨てない。
+            # 帯の一斉引き上げ（DUSK_RECON_FIRST）は −3.4pt で棄却済み（ポフィンまで
+            # 後ろへ追いやるため）。ここでは**その個体の偵察と、その個体を消す進化の
+            # 一対だけ**を反転させる: 同じ盤面座標を対象にする EVOLVE が今この番の
+            # 選択肢にあるなら、その進化スコアの**直上**へ昇格する。
+            #   ・+1 だけ跳ねるので、進化より下に居た他の手（ポフィン46000 等）との
+            #     相対順序は進化が上位のときだけ変わる = 影響が最小
+            #   ・「降格」ではなく「昇格」なのは、進化を 45700 未満へ落とすと
+            #     リーリエ(45800)が先に来て手札のドラパルト ex を山へ戻すため
+            if DUSK_RECON_EVO_HOLD and cid == DRAKLOAK:
+                rival = None
+                for o in obs.select.option:
+                    if (o.type == OptionType.EVOLVE
+                            and o.inPlayArea == opt.area
+                            and o.inPlayIndex == opt.index):
+                        s0 = self._score_evolve(obs, o)[0]
+                        if rival is None or s0 > rival:
+                            rival = s0
+                if rival is not None and rival >= 45700:
+                    return rival + 1, "B: Recon before evolving this Drakloak"
             return 45700, "S-4/rule7: Recon Directive (after thinning, before Poke Pad)"
 
         if opt.type == OptionType.RETREAT:
@@ -1526,7 +1609,16 @@ class DragapultDusknoirPolicy(BasePolicy):
         if cid == DREEPY:
             return 54000, "S-2: play Dreepy"
         if cid == DUSKULL:
-            if fc[DUSKULL] + fc[DUSCLOPS] + fc[DUSKNOIR] < 2:
+            line = fc[DUSKULL] + fc[DUSCLOPS] + fc[DUSKNOIR]
+            # C【2026-07-29 ユーザー採用】立ち上げではボムは「たね1体までのサブタスク」。
+            # サーチ先の採点（_hand_score）は既にこの規律で 4000 帯に置いていたのに、
+            # 手札からの PLAY だけが 53000（ドラメシヤ 54000 の直下）で無条件に発火し、
+            # 同じカードに二重基準があった。ベンチ枠・手張り・進化・アメを本流に集中させる。
+            if DUSK_SETUP_BENCH and DUSK_STREAMS and self._plan_phase(obs, p) == "setup":
+                if line >= 1:
+                    return -1, "C: bomb line is a sub-task in setup"
+                return 4000, "C: play Duskull (setup sub-task band)"
+            if line < 2:
                 return 53000, "S-2b: play Duskull (bomb line)"
             return -1, "Duskull: enough bomb line"
         if cid == MUNKIDORI:
@@ -1880,6 +1972,48 @@ class DragapultDusknoirPolicy(BasePolicy):
                         or (p["can_evolve_duskull"] and hc[RARE_CANDY] >= 1))
         # たね: ベンチに空きがあるか
         return len(ms.bench or []) < getattr(ms, "benchMax", 5)
+
+    def _playable_next(self, obs, cid):
+        """D【2026-07-29 ユーザー採用】手札の cid が【次のターン頭に】プレイできるか。
+
+        地平線はユーザー指定で **次の1ターンまで**（2ターン後以降は考慮しない）。
+        捨て札コストは `-_hand_score`（＝この番の価値）なので、価値が来番にしか無い札が
+        最安値になって切られていた。観測した実害:
+          ・サマヨール = 土台のヨマワルがこの番に出たばかりだと can_evolve_duskull が
+            False で 2500（来番には必ず進化できるのに、最安値）
+          ・ニャース ex = サポートを打った後は 40（来番のサポートアクセス手段なのに）
+        この番プレイできる札は R-13+ が既に守っているので、ここでは扱わない。
+        エネ・たねは対象外 — ほぼ常に「来番可能」になり保護が無意味化する
+        （ベンチ満杯でたねが出せないなら来番も同じ、という非対称も無い）。"""
+        if not DUSK_KEEP_NEXT or cid is None:
+            return False
+        p = self.p or {}
+        fc = p.get("fc") or {}
+        data = CARD_DB.get(cid)
+        if data is None:
+            return False
+        # 進化札: 進化元が**すでに場にいる**なら来番には必ず進化できる（進化酔いは解ける）。
+        # 進化元が手札にしか無い場合は2ターン以上先なので、指定どおり考慮しない。
+        if cid == DRAKLOAK:
+            return fc.get(DREEPY, 0) >= 1
+        if cid == DRAGAPULT_EX:
+            return fc.get(DRAKLOAK, 0) >= 1
+        if cid == DUSCLOPS:
+            return fc.get(DUSKULL, 0) >= 1
+        if cid == DUSKNOIR:
+            return fc.get(DUSCLOPS, 0) >= 1
+        # ふしぎなアメ: 土台が場にいて、飛ばす先の2進化を持っている
+        if cid == RARE_CANDY:
+            return ((fc.get(DREEPY, 0) >= 1 and (p.get("hc") or {}).get(DRAGAPULT_EX, 0) >= 1)
+                    or (fc.get(DUSKULL, 0) >= 1
+                        and (p.get("hc") or {}).get(DUSKNOIR, 0) >= 1))
+        # 【サポート・ニャース ex は対象外】初版はここで「来番の1枚になる」として保護したが、
+        # これは **R-13+① のユーザードクトリンと正面から矛盾**していた
+        #   =「この番リーリエを打つと決まっているなら、他のサポートは全部切ってよい」。
+        # 実測でも初版（サポート保護あり）は 640/枠で **−1.38pt**（crustle −4.4 /
+        # meganium −3.7 / froslass −3.2 = 有利対面ほど悪化 ＝ 手札が詰まってエンジンが
+        # 遅くなる形）。保護対象は「進化元が場にいる進化札」だけに絞る。
+        return False
 
     def _dive_now_after_evolve(self, obs, target):
         """この進化を実行したら【この番のうちに】ファントムダイブを撃てるか（確定判定）。
@@ -2515,6 +2649,10 @@ class DragapultDusknoirPolicy(BasePolicy):
             # 不能札のスコアは -80,000 以上なので、この差は必ず勝つ）
             if DUSK_PLAYABLE_NOW and self._playable_now(obs, cid):
                 return min(score, 900000) - 200000, "R-13+: keep (playable this turn)"
+            # D: 「次の番に使える札」は、この番の価値がゼロでも中間帯で残す
+            # （R-13+ の -200000 より浅い = 即プレイ可能札から先に守られる）
+            if self._playable_next(obs, cid):
+                return min(score, 900000) - 100000, "D: keep (playable next turn)"
             return min(score, 900000), "R-13: discard lowest value"
 
         if ctx in (SelectContext.DAMAGE_COUNTER, SelectContext.DAMAGE_COUNTER_ANY):
