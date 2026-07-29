@@ -1,0 +1,15 @@
+agent,deck,archetype,share,games,wins,losses,draws,unfinished,winrate
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,alakazam,30.0,160,112,48,0,0,0.7000
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,crustle_wall,11.0,160,112,48,0,0,0.7000
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,marnie,9.0,160,75,85,0,0,0.4688
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,crustle_prism,8.0,160,134,26,0,0,0.8375
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,garchomp,7.0,160,83,77,0,0,0.5188
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,chandelure,6.0,160,108,52,0,0,0.6750
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,lucario,6.0,160,141,19,0,0,0.8812
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,rocket,5.0,160,158,2,0,0,0.9875
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,megastarmie,4.0,160,106,54,0,0,0.6625
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,froslass_starmie,4.0,160,113,47,0,0,0.7063
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,archaludon,4.0,160,72,88,0,0,0.4500
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,dragapult,2.0,160,83,77,0,0,0.5188
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,thwackey_festival,2.0,160,151,9,0,0,0.9437
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,meganium_ogerpon,2.0,160,146,14,0,0,0.9125

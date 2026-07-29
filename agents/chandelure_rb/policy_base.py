@@ -69,6 +69,8 @@ LETHAL_BAND = 1_000_000  # R-07: リーサル手の専用スコア帯（全優�
 R30_ENABLED = os.environ.get("R30", "1") != "0"
 # R-31「KO 後の前出しは、にげエネ0のベンチがいれば常にそれ」（既定 ON。詳細 = _r31_promote_free）
 R31_ENABLED = os.environ.get("R31", "1") != "0"
+# R-34「ACE SPEC は能動的に切らない」（既定 ON。詳細 = _r34_ace_spec_guard）
+R34_ENABLED = os.environ.get("R34", "1") != "0"
 
 
 def band_of(score):
@@ -1016,8 +1018,29 @@ class BasePolicy(ABC):
         score, reason = self.apply_overrides(obs, opt, score, reason)
         score, reason = self._r30_default_item(obs, opt, score, reason)
         score, reason = self._r31_promote_free(obs, opt, score, reason)
+        score, reason = self._r34_ace_spec_guard(obs, opt, score, reason)
         score = self._apply_theta(score, reason)
         return self.apply_protocol(obs, opt, score, reason)
+
+    def _r34_ace_spec_guard(self, obs, opt, score, reason):
+        """R-34（2026-07-29 一般ルール・ユーザー決定）: **ACE SPEC は能動的に切らない**。
+
+        起点 = 観戦で dusknoir がハイパーボールのコストにアンフェアスタンプを選んだ。
+        ACE SPEC はデッキに1枚しか入れられない切り札で、切った分は二度と戻らない。
+        手札からの捨て選択（DISCARD / DISCARD_CARD_OR_ATTACHED_CARD）では全カードの
+        最後尾（-4,000,000 = 各デッキの keep 帯 -2e6/-3e6 より深い）に落とし、
+        minCount の強制充足でしか選ばれないようにする（能動的には切らない・強制なら従う）。
+        DISCARD_ENERGY（退却コスト等の装着エネ選択）は対象外。"""
+        if not R34_ENABLED:
+            return score, reason
+        if obs.select.context not in (SelectContext.DISCARD,
+                                      SelectContext.DISCARD_CARD_OR_ATTACHED_CARD):
+            return score, reason
+        card = option_card(obs, opt)
+        data = CARD_DB.get(card.id) if card is not None else None
+        if data is None or not getattr(data, "aceSpec", False):
+            return score, reason
+        return -4_000_000.0, "R-34: never discard ACE SPEC"
 
     def _r31_promote_free(self, obs, opt, score, reason):
         """R-31（2026-07-24 一般ルール・ユーザー決定）: バトル場が空いた時（KO 後の
