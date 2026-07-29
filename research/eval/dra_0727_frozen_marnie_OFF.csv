@@ -1,0 +1,2 @@
+agent,deck,archetype,share,games,wins,losses,draws,unfinished,winrate
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,marnie,100.0,2560,1159,1399,2,0,0.4531

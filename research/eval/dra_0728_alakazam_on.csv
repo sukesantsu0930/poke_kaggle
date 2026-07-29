@@ -1,0 +1,2 @@
+agent,deck,archetype,share,games,wins,losses,draws,unfinished,winrate
+agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv,alakazam,14.2857,2560,1801,759,0,0,0.7035

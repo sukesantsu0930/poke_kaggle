@@ -1,0 +1,8 @@
+archetype,share,agent_or_deck,deck
+archaludon,14.2857,experiments/frozen_agents/archaludon_rb_0727,decks/fleet/archaludon_cityleague.csv
+alakazam,14.2857,experiments/frozen_agents/alakazam_rb_0727,decks/fleet/alakazam_top_0710.csv
+thwackey_festival,14.2857,generic,decks/opponents/band_thwackey_festival_0720.csv
+crustle_prism,14.2857,generic,decks/opponents/crustle_prism_thirdptcgclub_0713.csv
+meganium_ogerpon,14.2857,generic,decks/opponents/band_meganium_ogerpon_0720.csv
+froslass_starmie,14.2857,generic,decks/fleet/froslass_starmie_taksai.csv
+marnie,14.2857,experiments/frozen_agents/marnie_munkidori_0727,decks/fleet/marnie_mainstream_0718.csv
