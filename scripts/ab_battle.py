@@ -82,6 +82,17 @@ def read_deck(path: Path):
 
 
 def run_battles(games, first_mod, first_deck, second_mod, second_deck, max_steps, label):
+    # R-32 前提の注入（2026-07-28 恒久修正）: ローカル対戦ではデッキ選択手番が来ない
+    # （デッキを battle_start に直接渡す）ため、make_agent の my_deck_list 注入経路が
+    # 通らず、基盤の自山カウンティングが初期化されない。旧コードは各機の
+    # _visible_counts フォールバックで偶然生きていたが、R-32 一本化でフォールバックを
+    # 撤去した際に**ガントレット系の全計測が全ゼロ勘定で走る事故**が起きた
+    # （dragapult 制圧度 72.0→54.8 の崩壊。原因切り分けは 07-28 の関数二分探索）。
+    # ここは全対戦ハーネスの唯一の隘路なので、両者へ常時注入する。
+    for mod, dk in ((first_mod, first_deck), (second_mod, second_deck)):
+        pol = get_policy(mod)
+        if pol is not None and getattr(pol, "my_deck_list", None) in (None, []):
+            pol.my_deck_list = list(dk)
     wins = Counter()
     for g in range(games):
         try:
