@@ -1,0 +1,8 @@
+agent,deck,archetype,share,games,wins,losses,draws,unfinished,winrate
+agents/dragapult_dusknoir_rb,decks/fleet/dragapult_dusknoir_v2.csv,archaludon,14.2857,640,229,411,0,0,0.3578
+agents/dragapult_dusknoir_rb,decks/fleet/dragapult_dusknoir_v2.csv,alakazam,14.2857,640,369,271,0,0,0.5766
+agents/dragapult_dusknoir_rb,decks/fleet/dragapult_dusknoir_v2.csv,thwackey_festival,14.2857,640,607,33,0,0,0.9484
+agents/dragapult_dusknoir_rb,decks/fleet/dragapult_dusknoir_v2.csv,crustle_prism,14.2857,640,529,111,0,0,0.8266
+agents/dragapult_dusknoir_rb,decks/fleet/dragapult_dusknoir_v2.csv,meganium_ogerpon,14.2857,640,566,74,0,0,0.8844
+agents/dragapult_dusknoir_rb,decks/fleet/dragapult_dusknoir_v2.csv,froslass_starmie,14.2857,640,414,226,0,0,0.6469
+agents/dragapult_dusknoir_rb,decks/fleet/dragapult_dusknoir_v2.csv,marnie,14.2857,640,304,336,0,0,0.4750

@@ -223,7 +223,7 @@ DUSK_LETHAL = os.environ.get("DUSK_LETHAL", "1") != "0"
 DUSK_DIVE_ROUTE = os.environ.get("DUSK_DIVE_ROUTE", "1") != "0"
 # E2: 「この番にボマーを立てれば取り切れる」形を A-1 の資源に予測的に足す。
 # 現状 A-1 は**場に既にいるボマーしか数えない**ので、成立が絡む取り切りが見えない。
-DUSK_BOMB_ESTAB = os.environ.get("DUSK_BOMB_ESTAB", "0") != "0"
+DUSK_BOMB_ESTAB = os.environ.get("DUSK_BOMB_ESTAB", "1") != "0"
 # ═══════ EN: 手張り規律（ユーザー 2026-07-29・観戦由来）═══════
 # 「エネルギーが手札にあって、手張りしないターンはつくらない」。3段構造:
 #   EN-1 完成張り: この1枚でライン個体の {R}{P} が完成するなら最優先で張る
