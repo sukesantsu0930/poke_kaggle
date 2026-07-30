@@ -224,6 +224,24 @@ DUSK_DIVE_ROUTE = os.environ.get("DUSK_DIVE_ROUTE", "1") != "0"
 # E2: 「この番にボマーを立てれば取り切れる」形を A-1 の資源に予測的に足す。
 # 現状 A-1 は**場に既にいるボマーしか数えない**ので、成立が絡む取り切りが見えない。
 DUSK_BOMB_ESTAB = os.environ.get("DUSK_BOMB_ESTAB", "1") != "0"
+
+# ═══════ LP: リーリエ前ルール（ユーザー 2026-07-30・リプレイ 88937745 観戦）═══════
+# 「一番もったいないのが、リーリエ前に使用できる札を山に戻すこと。即プレイできる行動は
+# 基本的にすべてやっておきたい。ポケパッドでドラメシヤ持ってきてエネルギー貼って、
+# リーリエ打っていたらどんだけよかったか」
+# 「サポートの優先順位として値が高いんだけど、その前に使いたいカードが多いよねという話。
+# リーリエルールが発火したら、次のルールに進んでほしい」
+# ＝ **選定は正しい。変えるのは実行順**。詳細は `_lillie_last`。
+DUSK_LILLIE_LAST = os.environ.get("DUSK_LILLIE_LAST", "1") != "0"
+# EN-2（07-29「手札にあっても張らない場合は、リーリエを打つとき」）は LP と衝突する。
+# 07-30 のユーザー裁定で **LP を優先**（今日の例のドラメシヤへの1枚目は「完成しない
+# エネ」なので、EN-2 が生きていると観察された良形が再現できない）。負の結果ではなく
+# ドクトリンの上書きなので、トグルを温存して戻せるようにしてある。
+DUSK_EN2 = os.environ.get("DUSK_EN2", "1") != "0"
+# EN-2b: EN-2 の例外 =「ダイブ線の個体に新しい色を1つ足す張り」だけはリーリエ前に張る。
+# EN-2 を丸ごと撤去すると勝率 −0.29・初ダイブT +0.9 の代償が出た（640/枠 実測）ので、
+# ユーザーの狙った形だけを通す最小の穴にする。
+DUSK_EN2B = os.environ.get("DUSK_EN2B", "1") != "0"
 # ═══════ EN: 手張り規律（ユーザー 2026-07-29・観戦由来）═══════
 # 「エネルギーが手札にあって、手張りしないターンはつくらない」。3段構造:
 #   EN-1 完成張り: この1枚でライン個体の {R}{P} が完成するなら最優先で張る
@@ -1629,6 +1647,31 @@ class DragapultDusknoirPolicy(BasePolicy):
     def score_combat(self, obs, opt):
         return self._score_any(obs, opt)
 
+    def _lillie_last(self, obs, opt, score, reason):
+        """LP【ユーザー 2026-07-30・リプレイ観戦】リーリエの前に、即プレイできる行動は
+        全部やっておく。
+
+        観察: 「ポケパッドでドラメシヤ持ってきてエネルギー貼って、リーリエ打っていたら
+        どんだけよかったか」。**リーリエの選定（サポートとしての優先度）は正しい。
+        変えるのは実行順**。リーリエ(45800)より下にいた即プレイ行動 —
+        ポケパッド45000 / ハイパーボール41000-44500 / 夜のタンカ42000 / スタジアム490,500 /
+        手張り(EN-1 26000・汎用20000〜45400・悪8300・受け皿400帯) / ボム2600 /
+        アドレナ2500 / 立ち上げのヨマワル4000 — が、山戻しに巻き込まれて消えていた。
+
+        実装: リーリエを**沈めるのではなく、先行すべき行動を持ち上げる**。
+        （沈める案は ATTACK が生の attackId を返す = ムズムズ花粉323 等がリーリエを
+        追い越す事故になる。154 が上限ではない）
+        (0, 45800) のスコアを **(45810, 45856] へ単調写像**するので相互の順序は完全保存。
+        ポフィン46000・進化47500+・D-2経路300000・リーサル1e6 には届かない。
+
+        持ち上げないもの: 特性の尾部45700（偵察指令 = ルール7「引いた札を山へ返さない」
+        のでリーリエの**後**が正しい）/ ATTACK・END・退却 / サポートのPLAY / 非正スコア。"""
+        if not DUSK_LILLIE_LAST or self.use_support != LILLIE:
+            return score, reason
+        if obs.current.supporterPlayed or not (0 < score < 45800):
+            return score, reason
+        return 45810 + score / 1000.0, f"LP: before Lillie ({reason})"
+
     def _score_any(self, obs, opt):
         p = self.p
         yi = obs.current.yourIndex
@@ -1663,7 +1706,8 @@ class DragapultDusknoirPolicy(BasePolicy):
             return 0, "own energy (retreat cost)"
 
         if opt.type == OptionType.PLAY:
-            return self._score_play(obs, opt)
+            return self._lillie_last(obs, opt,
+                                     *self._score_play(obs, opt))
 
         if opt.type == OptionType.ATTACH:
             card = option_card(obs, opt)
@@ -1672,7 +1716,8 @@ class DragapultDusknoirPolicy(BasePolicy):
                 return 0, "attach none"
             score = self._attach_score(obs, p, card.id, target,
                                        opt.inPlayArea == AreaType.ACTIVE)
-            return score, (self._attach_tag or "S-5: attach")
+            return self._lillie_last(obs, opt, score,
+                                     self._attach_tag or "S-5: attach")
 
         if opt.type == OptionType.EVOLVE:
             return self._score_evolve(obs, opt)
@@ -1688,7 +1733,8 @@ class DragapultDusknoirPolicy(BasePolicy):
                     return -1, "B-1: hold Cursed Blast (no KO)"
                 if self._bomb_lethal_now(obs):
                     return LETHAL_BAND + 1, "B-1: LETHAL Cursed Blast"
-                return 2600, f"B-1: Cursed Blast mode{bp['mode']}"
+                return self._lillie_last(obs, opt, 2600,
+                                         f"B-1: Cursed Blast mode{bp['mode']}")
             if cid == MUNKIDORI:
                 # E-6: アドレナブレイン。自分の場にダメカンがある時だけ（回復+削り）。
                 # 順序は攻撃直前帯（marnie div-14 準拠）。
@@ -1696,10 +1742,12 @@ class DragapultDusknoirPolicy(BasePolicy):
                 # （自壊コストが無いので撃ち得。的はサイド寄与 or A-4 の押し込み先）
                 if DUSK_ATK_SEARCH and self.atk_plan is not None:
                     if self.atk_plan.get("munki") is not None:
-                        return 2500, "E-6/A-3: Adrena-Brain (plan target)"
+                        return self._lillie_last(
+                            obs, opt, 2500, "E-6/A-3: Adrena-Brain (plan target)")
                     return -1, "E-6: save Adrena-Brain (no plan target)"
                 if p["own_damage"]:
-                    return 2500, "E-6: Adrena-Brain (move counters)"
+                    return self._lillie_last(
+                        obs, opt, 2500, "E-6: Adrena-Brain (move counters)")
                 return -1, "E-6: save Adrena-Brain (no damage)"
             if p["no_draw"]:
                 return -1, "R-11: deck thin (ability)"
@@ -1973,7 +2021,8 @@ class DragapultDusknoirPolicy(BasePolicy):
         data = CARD_DB.get(attach_id)
         if data is None or data.cardType != CardType.BASIC_ENERGY:
             return score
-        if self.use_support == LILLIE and not self._dive_impossible(obs):
+        if DUSK_EN2 and self.use_support == LILLIE \
+                and not self._dive_impossible(obs):
             return score                    # EN-2 が優先（山へ返す）。不可能確定なら受け皿有効
         if len(pokemon.energies or []) >= LINE_MAX_COST.get(pokemon.id, 2):
             return score                    # R-10【ハード】
@@ -2019,12 +2068,23 @@ class DragapultDusknoirPolicy(BasePolicy):
         # 【ユーザー 2026-07-29 追補】ダイブ不可能が**確定**しているときはこの例外を
         # 無視して普通にラインへ張る — 引き直しに賭ける意味があるのは、色を満たせる
         # 可能性が残っているときだけ（不可能判定 = R-32 上限ベースの _dive_impossible）。
-        if (DUSK_ATTACH_V2 and self.use_support == LILLIE
+        if (DUSK_EN2 and DUSK_ATTACH_V2 and self.use_support == LILLIE
                 and data is not None
                 and data.cardType == CardType.BASIC_ENERGY
                 and not self._dive_impossible(obs)):
-            self._attach_tag = "EN-2: hold for Lillie reshuffle"
-            return -1
+            # EN-2b【2026-07-30・LP との両立】ユーザーの狙った形
+            # 「パッドでドラメシヤ持ってきてエネルギー貼ってリーリエ」の1枚目は
+            # 定義上「完成しないエネ」なので、素の EN-2 では張れない。
+            # **ダイブ線の個体に新しい色を1つ足す張り**（= 前進する張り）だけ例外にする。
+            # 線外（マシマシラ/フェザン/ニャース/スボミー）や同色重ねは従来どおり山へ返す。
+            cols = {c.id for c in (pokemon.energyCards or []) if c is not None}
+            progresses = (DUSK_EN2B and pokemon.id in DRAGAPULT_LINE
+                          and attach_id in (FIRE_ENERGY, PSYCHIC_ENERGY)
+                          and attach_id not in cols and len(cols) < 2)
+            if not progresses:
+                self._attach_tag = "EN-2: hold for Lillie reshuffle"
+                return -1
+            self._attach_tag = "EN-2b: progress the dive line before Lillie"
 
         e = len(pokemon.energies or [])
         if e >= LINE_MAX_COST.get(pokemon.id, 2):
