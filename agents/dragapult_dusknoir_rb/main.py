@@ -99,6 +99,7 @@ LILLIES_PEARL = 1172
 LOW_VALUE_TARGETS = frozenset({173, 174, 190, 1071})  # Noctowl/Fan Rotom/Archaludon ex/Meowth ex
 BONUS_COUNTER_TARGETS = frozenset({133, 351})   # 相手の Dusknoir/Rapidash（優先スナイプ）
 LUMIOSE_CITY = 1267
+NIGHTTIME_MINE = 1266   # よるのこうざん: 場のテラスタルの攻撃コスト +{C}（アラカザム型）
 
 # アタッカー運用ポケモン（S-7 配分探索用。research/meta/attacker_pokemon.md）
 ATTACKER_IDS_LEARNED = frozenset({58, 63, 96, 108, 116, 117, 121, 169, 190, 245, 272,
@@ -190,6 +191,39 @@ DUSK_BOMB_RACE = os.environ.get("DUSK_BOMB_RACE", "0") != "0"
 # その手順をそのまま辿る（ダイブ到達オラクル D-2 と同じ「探索して執行」の型）。
 # 次ターン以降は考えない = 手番内に閉じるのでパターン数は数千で収まる。
 DUSK_ATK_SEARCH = os.environ.get("DUSK_ATK_SEARCH", "1") != "0"
+# ═══════ L: リーサル全展開（ユーザー指示 2026-07-30）═══════
+# 質問「ファントムダイブ全展開は作らなかったっけ。サイド最大枚数をとろうとして即勝利を
+# 見逃している？」への答え = **全展開(A-1)は作ってある。取りこぼしは列挙空間の"外"**。
+# win は take の単調関数なので (take,...) 最大化がリーサルを見落とすことは**ない**。
+# 実際の見逃しは3つ:
+#   ① 山のボス: `_atk_resources` の boss_ok は**手札のみ**を見ていた。ボスが山にあって
+#      ニャース ex（場に出した時に山からサポート1枚・全山サーチ・確実）で取れる勝ち筋が
+#      そもそも列挙されない。実測 **0.267回/試合**（75戦で20決定・残りサイド2が13/1が7）
+#   ② 誤宣言: `_bomb_lethal_now` が `bp["prize"] + plan_a["prizes"]` を足すが、A-1 世界の
+#      plan_a["prizes"] には**ボムの分が既に入っている**＝二重計上
+#   ③ 順序: R-07 の boss 経路はボスPLAYと攻撃が**同点 LETHAL_BAND** で、選択肢の索引順
+#      任せだった（攻撃が先に来るとボスを打たずに殴って勝ちを逃す）
+# 展開は**ファントムダイブがこの番撃てる時だけ**（ユーザー指定・計算資源の節約）。
+DUSK_LETHAL = os.environ.get("DUSK_LETHAL", "1") != "0"
+
+# ═══════ 展開の3分類（ユーザー定義 2026-07-30）═══════
+#   E1 ファントムダイブ**発動**展開 … 撃てる状態を作る探索（進化/手張り/アカマツ/アメ/サーチ）
+#   E2 ヨノワール線**進化**展開     … ボムを立てる探索（サマヨール/ヨノワール）
+#   E3 **攻撃**展開                 … 手番内サイド最大化（A-1・実装済み）
+# 観察された事故「ダイブを打てば勝てる番に、進化せずリーリエでドラパルト ex を山へ返す」は
+# E3 ではなく **E1 の未熟**が原因だった。E3 があるので展開は健全、と誤認していた。
+#
+# E1（DUSK_DIVE_ROUTE）= dragapult_rb の D-2/R-33（成立オラクル + 経路執行）の移植。
+# 300000 の経路帯が、移植時に生じていた以下の退行をまとめて構造解決する:
+#   ①div-D4（2体目温存）が S-0! より先で、勝ちを決める進化が無条件 −1 だった
+#   ②アメも同じ2体目ホールド + no_more_dex（勝ち番ほど True）で予備経路も死ぬ
+#   ③EN-1 完成張り(26000) < リーリエ(45800) ＝ 完成エネを張る前に山へ返る
+#   ④`_dive_now_after_evolve` は手書き4分岐のみでアメ/ロサ/タンカ/サーチを見ない
+#   ⑤よるのこうざん（テラ +{C}）を知らず「2エネで撃てる」と嘘の確定をする
+DUSK_DIVE_ROUTE = os.environ.get("DUSK_DIVE_ROUTE", "1") != "0"
+# E2: 「この番にボマーを立てれば取り切れる」形を A-1 の資源に予測的に足す。
+# 現状 A-1 は**場に既にいるボマーしか数えない**ので、成立が絡む取り切りが見えない。
+DUSK_BOMB_ESTAB = os.environ.get("DUSK_BOMB_ESTAB", "0") != "0"
 # ═══════ EN: 手張り規律（ユーザー 2026-07-29・観戦由来）═══════
 # 「エネルギーが手札にあって、手張りしないターンはつくらない」。3段構造:
 #   EN-1 完成張り: この1枚でライン個体の {R}{P} が完成するなら最優先で張る
@@ -364,6 +398,11 @@ class DragapultDusknoirPolicy(BasePolicy):
         # ダイブ「持続 vs 損切り」の決定は【ターン頭に一度だけ】確定し、その番は固定する
         # （ユーザー 2026-07-25）。手札/盤面がターン中に変わっても判断をブレさせない。
         self._dive_plan = None      # {"kind","persist","prob","threshold"} or None
+        # E1: 確定ダイブ経路の執行状態（MAIN 毎に再計画）
+        self._dive_route = None     # [(action, searcher/card, target), ...] or None
+        self._dive_step = None      # 経路の次の1手
+        self._dive_reserved = {}    # 経路が手札から消費する札（DISCARD 保護）
+        self._dive_fetch = None     # (searcher_id, 取得先, アカマツで場に付ける色)
         self._dive_plan_turn = -1   # プランを確定したターン番号
         self._playable_ids = set()  # R-13+: この番に即プレイできる手札IDのスナップショット
 
@@ -382,6 +421,10 @@ class DragapultDusknoirPolicy(BasePolicy):
         self.stuck = False
         self._dive_plan = None
         self._dive_plan_turn = -1
+        self._dive_route = None
+        self._dive_step = None
+        self._dive_reserved = {}
+        self._dive_fetch = None
         self._playable_ids = set()
 
     @staticmethod
@@ -435,6 +478,15 @@ class DragapultDusknoirPolicy(BasePolicy):
             self.my_deck_list = list(self._deck_list())
         self.update_deck_knowledge(obs)  # _analyze が deck_min/deck_max を読む
         self.p = self._analyze(obs)
+        # E1: 経路の再計画は **update_belief の後**（lethal の鮮度が要る。_analyze 時点の
+        # self.t は前の決定の値なので、ここで計算しないと古い lethal 判定で経路を捨てる。
+        # dragapult_rb の 07-27 法医学検証で実測した事故と同型）。
+        if DUSK_DIVE_ROUTE and obs.select.context == SelectContext.MAIN:
+            self.update_belief(obs)
+            self._dive_fetch = None
+            self._dive_route = self._compute_dive_route(obs)
+            self._dive_step = self._dive_route[0] if self._dive_route else None
+            self._dive_reserved = self._route_reserved(self._dive_route)
         return super().choose(obs)
 
     def _analyze(self, obs):
@@ -580,7 +632,9 @@ class DragapultDusknoirPolicy(BasePolicy):
             self._set_switch_plan(obs, p, active_id, fc, bench_attacker)
             # A-1: 攻撃探索は配分プラン(_main_option_proc)の後・ボム計画の前に回す。
             # ボム計画とばら撒き配分の両方がこの結果を参照する。
-            self.atk_plan = self._attack_search(obs) if DUSK_ATK_SEARCH else None
+            # p を明示的に渡す（self.p はこの時点では**前の決定**の値。E2 が
+            # can_evolve_* / no_item を読むので、必ず今の p を使わせる）
+            self.atk_plan = self._attack_search(obs, p) if DUSK_ATK_SEARCH else None
             self.bomb_plan = self._plan_bomb(obs)   # flags 更新後に計算（②③は can_main_attack 前提）
             if self.atk_plan is not None:
                 # 探索が吊り出し/正面/取り切り枚数を決めたら、既存の配分プランに載せ替える
@@ -939,8 +993,14 @@ class DragapultDusknoirPolicy(BasePolicy):
         cards = ([osn.active[0]] if osn.active else [None]) + list(osn.bench)
 
         def mk(coord, pk):
+            # L-1: サイド枚数はカードから読む（megaEx=3 / ex=2 / それ以外=1）。
+            # **チャネルで変わる**: レガシーエネ・リーリエの真珠は「ワザのダメージで
+            # KO された時」だけ1枚減らす ⇒ 正面200のとどめは prize_atk、ボム/アドレナ/
+            # ばら撒き（ダメカン配置）は prize。凍結7対面には該当カードが0枚なので
+            # 現時点では挙動不変の正しさ修正。
             return {"coord": coord, "id": pk.id, "hp": pk.hp,
                     "prize": self._prize_count(pk, False),
+                    "prize_atk": self._prize_count(pk, True),
                     "body": _counter_blocked_by_body(pk),
                     "cnt": _no_damage_counter(pk),
                     "imm": pk.id in NO_DAMAGE_DEX}
@@ -1099,32 +1159,47 @@ class DragapultDusknoirPolicy(BasePolicy):
                 munki_coord = t["coord"]
         return spread_push, munki_coord
 
-    def _attack_search(self, obs):
-        """**この手番に取れるサイドの最大値**とその手順を探索する（A-1）。
+    def _bomb_estab_plan(self, obs, p):
+        """E2: この番に**立てられる**ボマーの打点と成立手順。(dmg, steps) or None。
 
-        ルールで「ボムはKOが取れる時だけ」「ばら撒きはHP最小から」と個別に決める代わりに、
-        使える打点資源（正面/ばら撒き/ボム複数/アドレナ）と吊り出しの組合せを全部並べ、
-        **サイド枚数**で選ぶ。次ターン以降は見ない = 手番内に閉じるので組合せは数千。
-
-        着順の規律（B-3）はここにも入れる: 自分が取り切れないのに、献上で相手を
-        残り1枚にする形は選ばない（相手のほうが先に手番が回るため）。
-
-        【A-2 契約・ユーザー 2026-07-29】ボムは**サイド枚数が変化するときだけ**使う。
-        これは選択キー (take, -give, -waste) の辞書式比較で構造的に保証される:
-        ボム無し案は常に列挙されるので、あるボムを外しても take が同じなら
-        献上の少ない無し案が必ず勝つ = 限界寄与ゼロのボムは選ばれない。"""
-        osn = opp_state(obs)
-        if not osn.active or osn.active[0] is None:
+        A-1（E3）の `_atk_resources` は「場に既にいるボマー」しか数えないので、
+        「この番サマヨール／ヨノワールを立てればボム込みで取り切れる」形が見えない。
+        確定できる成立だけを列挙する（推測では立てない）:
+          ① 手札進化: サマヨール（+50）/ ヨノワール（+130）と、進化酔いでない土台が場
+          ② アメ: ふしぎなアメ + ヨノワール で ヨマワル から一足飛び（+130）
+          ③ ①②の不足札を R-33 で確定サーチできる（カーズドボムは特性なので即使える）
+        サポート枠は使わない（supporter_available=False）= ボス吊り出しと競合させない。"""
+        if not DUSK_BOMB_ESTAB or obs.current.turn < 3:
             return None
-        bombers, munki, front, spread, boss_ok = self._atk_resources(obs)
-        if not bombers and front <= 0:
-            return None
-        bench_idx = [i + 1 for i, pk in enumerate(osn.bench) if pk is not None]
-        boss_opts = [None] + (bench_idx if boss_ok else [])
-        my_left = len(my_state(obs).prize)
-        opp_left = len(osn.prize)
+        blocked, _sup, guards = self._dive_legal(obs, p)
+        cands = []
+        if p.get("can_evolve_dusclops"):
+            cands.append((130, {DUSKNOIR: 1}, [("evolve_bomb", DUSKNOIR, None)]))
+        if p.get("can_evolve_duskull"):
+            if not p.get("no_item"):        # アメはグッズ = ロック中は打てない
+                cands.append((130, {RARE_CANDY: 1, DUSKNOIR: 1},
+                              [("candy_bomb", RARE_CANDY, None)]))
+            cands.append((50, {DUSCLOPS: 1}, [("evolve_bomb", DUSCLOPS, None)]))
         best = None
+        for dmg, needs, deploy in cands:
+            if best is not None and dmg <= best[0]:
+                continue                    # 既により大きい打点が確定している
+            cost, acq = self.acquire_plan(
+                obs, needs, certain=True, supporter_available=False,
+                item_available=not p.get("no_item"),
+                blocked=blocked, searcher_guards=guards)
+            if cost is None:
+                continue
+            best = (dmg, list(acq) + deploy)
+        return best
 
+    def _atk_scan(self, obs, boss_opts, bombers, munki, front, spread,
+                  my_left, opp_left):
+        """A-1 の列挙本体（吊り出し × ボム全割当 × アドレナ × 正面 × ばら撒き）。
+
+        L-3 で「ボスを山から取った場合」を測り直すため、boss_opts を差し替えて
+        2回呼べるように `_attack_search` から切り出した（挙動は分離前と同一）。"""
+        best = None
         for boss in boss_opts:
             act, bench = self._atk_targets(obs, boss)
             if act is None:
@@ -1147,12 +1222,21 @@ class DragapultDusknoirPolicy(BasePolicy):
                     if mk is not None and not byc[mk]["body"]:
                         dealt[mk] = dealt.get(mk, 0) + munki
                     fc = None
+                    pre_front = 0
                     if front > 0:
                         fc = act["coord"]
                         if not act["imm"]:
+                            pre_front = dealt.get(fc, 0)
                             dealt[fc] = dealt.get(fc, 0) + front
-                    take = sum(t["prize"] for t in allt
-                               if dealt.get(t["coord"], 0) >= t["hp"])
+                    take = 0
+                    for t in allt:
+                        if dealt.get(t["coord"], 0) < t["hp"]:
+                            continue
+                        # L-1: 正面200が**とどめを刺した**的だけワザダメージ扱い
+                        if t["coord"] == fc and pre_front < t["hp"]:
+                            take += t["prize_atk"]
+                        else:
+                            take += t["prize"]
                     sp_prize, sp_use = ((0, {}) if not (spread > 0 and front > 0)
                                         else self._spread_best(bench, dealt, spread))
                     take += sp_prize
@@ -1172,6 +1256,74 @@ class DragapultDusknoirPolicy(BasePolicy):
                                 "net": take - give, "boss": boss,
                                 "bombs": used_bombs, "munki": mk,
                                 "front": fc, "spread": sp_use, "kills": kills}
+        return best
+
+    def _attack_search(self, obs, p=None):
+        """**この手番に取れるサイドの最大値**とその手順を探索する（A-1）。
+
+        ルールで「ボムはKOが取れる時だけ」「ばら撒きはHP最小から」と個別に決める代わりに、
+        使える打点資源（正面/ばら撒き/ボム複数/アドレナ）と吊り出しの組合せを全部並べ、
+        **サイド枚数**で選ぶ。次ターン以降は見ない = 手番内に閉じるので組合せは数千。
+
+        着順の規律（B-3）はここにも入れる: 自分が取り切れないのに、献上で相手を
+        残り1枚にする形は選ばない（相手のほうが先に手番が回るため）。
+
+        【A-2 契約・ユーザー 2026-07-29】ボムは**サイド枚数が変化するときだけ**使う。
+        これは選択キー (take, -give, -waste) の辞書式比較で構造的に保証される:
+        ボム無し案は常に列挙されるので、あるボムを外しても take が同じなら
+        献上の少ない無し案が必ず勝つ = 限界寄与ゼロのボムは選ばれない。"""
+        osn = opp_state(obs)
+        if not osn.active or osn.active[0] is None:
+            return None
+        p = p if p is not None else (self.p or {})
+        bombers, munki, front, spread, boss_ok = self._atk_resources(obs)
+        # E2 のゲートは can_main_attack（= ダイブが提示されている = front>0）なので、
+        # ここで打ち切っても E2 の勝ち筋を落とすことはない
+        if not bombers and front <= 0:
+            return None
+        bench_idx = [i + 1 for i, pk in enumerate(osn.bench) if pk is not None]
+        boss_opts = [None] + (bench_idx if boss_ok else [])
+        my_left = len(my_state(obs).prize)
+        opp_left = len(osn.prize)
+        best = None
+
+        best = self._atk_scan(obs, boss_opts, bombers, munki, front, spread,
+                              my_left, opp_left)
+        # ── L-3: 山のボスを勘定に入れる（ダイブ可能ターン限定・勝てる時だけ）──
+        # boss_ok は手札のボスしか見ないので、「ニャース ex を出す → 山からボス → 吊り出し
+        # → ダイブで取り切り」の勝ち筋が列挙空間の外にあった。到達判定は基盤 R-33
+        # （acquire_plan・certain=True = deck_min ベースで「取れると証明できる」時だけ）。
+        # supporter_available=False = サポート枠はボス本体のために予約する（枠は1つ）。
+        boss_fetch = False
+        if (DUSK_LETHAL and self.flags.get("can_main_attack") and bench_idx
+                and not boss_ok and not obs.current.supporterPlayed
+                and (best is None or best["take"] < my_left)):
+            stadium_id = 0
+            for c in obs.current.stadium:
+                stadium_id = c.id
+            cost, _path = self.acquire_plan(
+                obs, {BOSS: 1}, certain=True, supporter_available=False,
+                searcher_guards={MEOWTH_EX: stadium_id != WATCHTOWER})
+            if cost is not None:
+                alt = self._atk_scan(obs, [None] + bench_idx, bombers, munki,
+                                     front, spread, my_left, opp_left)
+                # 勝てる時だけ採用する（取得コストを払う価値があるのは取り切りのみ）
+                if alt is not None and alt["take"] >= my_left \
+                        and alt["boss"] is not None:
+                    best, boss_fetch = alt, True
+        # ── E2: この番に立てられるボマーを勘定に入れる（取り切れる時だけ）──
+        # E1 が要る番（ダイブ未発動）は E1 に譲る = 取得需要が重なって嘘の確定になるため、
+        # v1 では E1×E2 の同時成立を扱わない。
+        bomb_estab = None
+        if (DUSK_BOMB_ESTAB and self.flags.get("can_main_attack")
+                and (best is None or best["take"] < my_left)):
+            est = self._bomb_estab_plan(obs, p)
+            if est is not None:
+                alt = self._atk_scan(obs, boss_opts,
+                                     sorted(bombers + [est[0]], reverse=True),
+                                     munki, front, spread, my_left, opp_left)
+                if alt is not None and alt["take"] >= my_left:
+                    best, bomb_estab = alt, est[1]
         if best is None or best["take"] <= 0:
             # サイドが取れない番でも、資源（ばら撒き/アドレナ）があれば押し込みだけ行う
             if front <= 0 and not munki:
@@ -1207,6 +1359,13 @@ class DragapultDusknoirPolicy(BasePolicy):
         if best["munki"] is None and munki_push is not None:
             best["munki"] = munki_push
         best["spread"] = spread_goal        # {coord: 目標残HP}（0 = 取り切り）
+        # L-2: 「この手順で取り切れるか」を明示的に持たせる。win は take の単調関数なので
+        # **順位付けには影響しない**（= A-1 は元々リーサルを見落としていない）。
+        # リーサル宣言(_spread_lethal)とボム昇格(_bomb_lethal_now)が、独自の足し算を
+        # やめてこの1つの真実を読むための旗。
+        best["win"] = 1 if best["take"] >= my_left else 0
+        best["boss_fetch"] = boss_fetch
+        best["bomb_estab"] = bomb_estab
         return best
 
     def _plan_bomb(self, obs):
@@ -1362,6 +1521,16 @@ class DragapultDusknoirPolicy(BasePolicy):
         if bp is None or bp["mode"] != 1:
             return False
         my_remaining = len(my_state(obs).prize)
+        # L-5【誤宣言の修正】旧実装は `bp["prize"] + plan_a["prizes"]` を足していたが、
+        # A-1 世界では plan_a["prizes"] = 探索の take に**ボムの分が既に入っている**ため
+        # 二重計上になっていた（座標除外の条件が効いて滅多に発火しなかったので露見が遅れた）。
+        # 探索が有効なら、そのボマーが取り切り手順の一部かどうかだけを見る。
+        if DUSK_LETHAL and DUSK_ATK_SEARCH:
+            ap = self.atk_plan
+            if (ap is None or not ap.get("win") or ap.get("boss_fetch")
+                    or ap.get("bomb_estab")):
+                return bp["prize"] >= my_remaining
+            return any(c == bp["coord"] for _dmg, c in ap.get("bombs") or ())
         if bp["prize"] >= my_remaining:
             return True
         plan = self.plan_a
@@ -1394,7 +1563,22 @@ class DragapultDusknoirPolicy(BasePolicy):
 
     def _spread_lethal(self, obs):
         plan = self.plan_a
-        if plan["attack"] < 0 or plan["prizes"] < len(my_state(obs).prize):
+        # L-4: 取り切り判定は探索の結論（win）に一本化する。旧実装の
+        # `plan["prizes"] >= 残り` と同値だが、宣言の根拠を1箇所に集める
+        # （_bomb_lethal_now の二重計上のような分岐した勘定を作らないため）。
+        if DUSK_LETHAL and DUSK_ATK_SEARCH:
+            ap = self.atk_plan
+            if ap is None or not ap.get("win"):
+                return None
+            # まだ資源が揃っていない段階では宣言しない（ボスは手札に無い / ボマーは
+            # 場にいない）。取得・成立は各ピンが押し、揃った次の決定で自動的に宣言される。
+            # **これを忘れると偽リーサルになる**: R-07 のリーサル帯は R-34 を含む全てを
+            # 上書きし退却も禁止するので、実行不能な計画で宣言すると番ごと壊れる。
+            if ap.get("boss_fetch") or ap.get("bomb_estab"):
+                return None
+        elif plan["attack"] < 0 or plan["prizes"] < len(my_state(obs).prize):
+            return None
+        if plan["attack"] < 0:
             return None
         if not self.flags.get("can_main_attack"):
             return None
@@ -1451,6 +1635,21 @@ class DragapultDusknoirPolicy(BasePolicy):
 
         if opt.type == OptionType.CARD:
             return self._score_card(obs, opt)
+
+        # E1/D-2: 確定経路の執行（リーサル帯 1e6 の下・通常プレイ帯 8万 の上）。
+        # この帯が、リーリエ(45800) / EN-1 完成張り(26000) / div-D4(-1) / 素進化との
+        # 100点差 を**まとめて構造的に追い越す**（観察された「進化せずリーリエで
+        # ドラパルト ex を山へ返す」事故の本質的な修理）。
+        # 取得手を選んだ瞬間、続くサブ選択（TO_HAND/ATTACH_*）が経路と同じ札を選ぶよう
+        # `_dive_fetch` に意図を記録する = 「履歴をなぞる」の後半部分。
+        if (DUSK_DIVE_ROUTE and obs.select.context == SelectContext.MAIN
+                and self._dive_route_match(obs, opt, self._dive_step)):
+            kind = self._dive_step[0]
+            if kind in ("play", "ability") and self._dive_step[2] is not None:
+                self._dive_fetch = (self._dive_step[1], self._dive_step[2], None)
+            elif kind == "crispin":
+                self._dive_fetch = (CRISPIN, None, self._dive_step[2])
+            return 300000, "D-2: execute confirmed dive route (next step)"
 
         if opt.type in (OptionType.ENERGY_CARD, OptionType.ENERGY):
             pi = opt.playerIndex if opt.playerIndex is not None else yi
@@ -1573,6 +1772,14 @@ class DragapultDusknoirPolicy(BasePolicy):
         if cid == DRAKLOAK:
             return 58000 + e - sac, "div-D3/rule8b: evolve Dreepy (bench first)"
         if cid == DRAGAPULT_EX:
+            # S-0! は div-D4（2体目温存）**より先**に判定する。移植時にこの順序が
+            # 逆転しており、場にドラパルト ex が1体でもいると「この番撃てば勝てる」
+            # バトル場の進化まで無条件 −1 になっていた（dragapult_rb は rb:1369 が
+            # rb:1395 より先で「今すぐ撃てる時は div-D4 も上書き」と明記）。
+            if (DUSK_DIVE_NOW and opt.inPlayArea == AreaType.ACTIVE
+                    and not self.flags.get("can_main_attack")
+                    and self._dive_now_after_evolve(obs, target)):
+                return 62000, "S-0!: evolve active -> Dragapult ex (dive THIS turn)"
             if p["fc"][DRAGAPULT_EX] >= 1:
                 return -1, "div-D4: hold 2nd Dragapult ex"
             # S-0!【ハード・ユーザー 2026-07-26（loss1.json の観戦で発見）】
@@ -1636,6 +1843,11 @@ class DragapultDusknoirPolicy(BasePolicy):
         if cid == MEOWTH_EX:
             if obs.current.supporterPlayed or p["stadium_id"] == WATCHTOWER:
                 return -1, "Meowth: blocked"
+            # L-3: 取り切り経路の第1手。ニャースを出して山からボスを取れば勝てる、
+            # と探索が確定した番は、通常の温存判断（support_count）を飛ばして出す。
+            if DUSK_LETHAL and self.atk_plan is not None \
+                    and self.atk_plan.get("boss_fetch"):
+                return LETHAL_BAND + 3, "L-3: LETHAL Meowth (fetch Boss)"
             if p["support_count"] == 0:
                 return 50000, "play Meowth ex (fetch supporter)"
             if p["support_count"] == hc[BOSS] and not self.plan_a["attack"] <= 0:
@@ -2015,6 +2227,247 @@ class DragapultDusknoirPolicy(BasePolicy):
         # 遅くなる形）。保護対象は「進化元が場にいる進化札」だけに絞る。
         return False
 
+    # ═══════════ E1: ファントムダイブ発動展開（dragapult_rb の D-2/R-33 移植）═══════════
+
+    def _dive_legal(self, obs, p):
+        """(blocked, サポートを打てるか, searcher_guards) — 観測に基づく合法性制約。
+
+        「嘘の確定」の原因を潰す: グッズロック被弾ターンの UB/パッド、先攻1ターン目など
+        エンジンが打たせない番のサポート、監視塔下のニャース ex（{C}特性無効）。
+        **プレイ可能性はエンジンの提示（選択肢）を根拠にする**。"""
+        blocked = set()
+        if p.get("no_item"):
+            blocked |= {POFFIN, POKE_PAD, ULTRA_BALL, NIGHT_STRETCHER}
+        sup_playable = not obs.current.supporterPlayed
+        sel = obs.select
+        if sup_playable and sel is not None and sel.context == SelectContext.MAIN:
+            in_hand = any(
+                (CARD_DB.get(c.id) is not None
+                 and CARD_DB.get(c.id).cardType == CardType.SUPPORTER)
+                for c in (my_state(obs).hand or []) if c is not None)
+            if in_hand:
+                offered = False
+                for o in (sel.option or []):
+                    if o.type != OptionType.PLAY:
+                        continue
+                    c = option_card(obs, o)
+                    d = CARD_DB.get(c.id) if c is not None else None
+                    if d is not None and d.cardType == CardType.SUPPORTER:
+                        offered = True
+                        break
+                # 手札にサポートがあるのに1枚も選択肢に出ていない = この番は打てない
+                sup_playable = offered
+        ms = my_state(obs)
+        guards = {MEOWTH_EX: (p.get("stadium_id") != WATCHTOWER
+                              and len(ms.bench or []) < getattr(ms, "benchMax", 5))}
+        return blocked, sup_playable, guards
+
+    def _active_evolvable_now(self, obs, active):
+        """バトル場の個体がこの番進化できるか。**EVOLVE の選択肢があれば真値**。"""
+        sel = obs.select
+        if sel is not None and sel.context == SelectContext.MAIN:
+            for o in (sel.option or []):
+                if (o.type == OptionType.EVOLVE
+                        and o.inPlayArea == AreaType.ACTIVE):
+                    return True
+            # 進化先が手札にあるのに EVOLVE が選択肢に無い = この番は進化できない
+            if any(c is not None and c.id == DRAGAPULT_EX
+                   for c in (my_state(obs).hand or [])):
+                return False
+        return (not getattr(active, "appearThisTurn", False)
+                and obs.current.turn >= 3)
+
+    def _dive_assess(self, obs, certain=True, assume_evolve_active=False):
+        """(コスト, 経路) — ファントムダイブの必要札がこの番に揃うか（R-33 接続）。
+
+        「撃てる盤面まで展開するのは計算資源の無駄。必要札がそろうかどうかで探索する」
+        （ユーザー 2026-07-27）。揃った後の進化と手張りは探索ではなく算術。
+        経路 = 取得手 [(action, searcher, target), ...] + 配備手:
+            ("candy", アメ, None) / ("evolve_active", ドラパルト ex, None)
+            / ("attach", 色, None) / ("crispin", アカマツ, 場に付ける色)"""
+        ms = my_state(obs)
+        active = active_pokemon(obs)
+        if active is None or ms.asleep or ms.paralyzed:
+            return None, None
+        p = self.p or {}
+        blocked, sup_playable, guards = self._dive_legal(obs, p)
+        body = active.id
+        if assume_evolve_active and body == DRAKLOAK:
+            body = DRAGAPULT_EX
+        cols = {c.id for c in (active.energyCards or []) if c is not None}
+        return self._dive_body_route(obs, p, active, body, cols, certain,
+                                     blocked, sup_playable, guards)
+
+    def _dive_body_route(self, obs, p, active, body, cols, certain,
+                         blocked, sup_playable, guards):
+        """バトル場の個体（body に進化後を仮定可）でのダイブ経路。(コスト, 経路)。"""
+        missing = [c for c in (FIRE_ENERGY, PSYCHIC_ENERGY) if c not in cols]
+        base = {}
+        deploy_body = []
+        if body == DRAKLOAK:
+            if not self._active_evolvable_now(obs, active):
+                return None, None
+            base[DRAGAPULT_EX] = 1
+            deploy_body = [("evolve_active", DRAGAPULT_EX, None)]
+        elif body == DREEPY:
+            if (obs.current.turn <= 1
+                    or getattr(active, "appearThisTurn", False)
+                    or p.get("no_item")):     # アメはグッズ = ロック中は打てない
+                return None, None
+            base[RARE_CANDY] = 1
+            base[DRAGAPULT_EX] = 1
+            deploy_body = [("candy", RARE_CANDY, None)]
+        elif body != DRAGAPULT_EX:
+            return None, None
+
+        attach_left = not obs.current.energyAttached
+        deckf = self.deck_min if certain else self.deck_max
+
+        # 色の供給チャネルは手張り(1回)とアカマツ(サポート枠)だけ。ドロー/サーチは
+        # 色を**手札に**運ぶだけで、場に乗せる枠はこの2つ以外に存在しない。
+        # よるのこうざん（1266）: テラスタル（ドラパルト ex）の攻撃コスト +{C}。
+        # 印刷コストだけ見ると「2エネで撃てる」という**嘘の確定**になる。
+        # 自分のスタジアムを張れば剥がせるので、その変種も経路に含める。
+        mine_up = (p.get("stadium_id") == NIGHTTIME_MINE
+                   and bool(getattr(CARD_DB.get(DRAGAPULT_EX), "tera", False)))
+        other_of = {FIRE_ENERGY: PSYCHIC_ENERGY, PSYCHIC_ENERGY: FIRE_ENERGY}
+
+        def attach_variants(t):
+            cs = [t] if t != "ANY" else [FIRE_ENERGY, PSYCHIC_ENERGY]
+            return [({c: 1}, [("attach", c, None)]) for c in cs]
+
+        def crispin_variants(t):
+            cs = [t] if t != "ANY" else [FIRE_ENERGY, PSYCHIC_ENERGY]
+            out = []
+            for c in cs:
+                # アカマツは「違うタイプ2枚→1枚場・1枚手札」。山に1タイプしか無いと
+                # 1枚拾い（手札行き）になり場に付かない → 確定は両色在庫を要求
+                if (deckf(c) or 0) < 1:
+                    continue
+                if certain and (deckf(other_of[c]) or 0) < 1:
+                    continue
+                out.append(({CRISPIN: 1}, [("crispin", CRISPIN, c)]))
+            return out
+
+        def color_plans(extra_c, stadium_fix):
+            targets = list(missing) + ["ANY"] * extra_c
+            pre, fix_needs = [], {}
+            if stadium_fix:
+                pre = [("play", WATCHTOWER, None)]
+                fix_needs = {WATCHTOWER: 1}
+            outs = []
+            if not targets:
+                outs.append((dict(fix_needs), True, list(pre)))
+            elif len(targets) == 1:
+                t = targets[0]
+                if attach_left:
+                    for add, dep in attach_variants(t):
+                        n = dict(fix_needs)
+                        for k, v in add.items():
+                            n[k] = n.get(k, 0) + v
+                        outs.append((n, True, pre + dep))
+                if sup_playable:
+                    for add, dep in crispin_variants(t):
+                        n = dict(fix_needs)
+                        for k, v in add.items():
+                            n[k] = n.get(k, 0) + v
+                        outs.append((n, False, pre + dep))
+            elif len(targets) == 2 and attach_left and sup_playable:
+                for i in (0, 1):
+                    for add_a, dep_a in attach_variants(targets[i]):
+                        for add_c, dep_c in crispin_variants(targets[1 - i]):
+                            n = dict(fix_needs)
+                            for src in (add_a, add_c):
+                                for k, v in src.items():
+                                    n[k] = n.get(k, 0) + v
+                            outs.append((n, False, pre + dep_a + dep_c))
+            return outs        # 3枚以上はこの番のチャネルでは供給不能
+
+        raw_plans = color_plans(1 if mine_up else 0, False)
+        if mine_up:
+            raw_plans += color_plans(0, True)   # 監視塔で鉱山を剥がす変種
+        best = (None, None)
+        for add_needs, sup_free, color_deploy in raw_plans:
+            needs = dict(base)
+            for k, v in add_needs.items():
+                needs[k] = needs.get(k, 0) + v
+            cost, acq = self.acquire_plan(
+                obs, needs, certain=certain,
+                supporter_available=sup_free and sup_playable,
+                item_available=not p.get("no_item"),
+                blocked=blocked, searcher_guards=guards)
+            if cost is None:
+                continue
+            steps = list(acq) + deploy_body + color_deploy
+            total = cost + sum(2 if k == "crispin" else 1 if k == "candy" else 0
+                               for k, _, _ in steps)
+            if best[0] is None or total < best[0]:
+                best = (total, steps)
+        return best
+
+    def _compute_dive_route(self, obs):
+        """この番の確定ダイブ経路（steps）。確定できなければ None。
+
+        毎 MAIN 決定で**現在の状態から再計画**する。各ステップは needs を単調に縮める
+        （取得は手札を増やし、配備は不足を減らす）ので再計画は必ず収束する。"""
+        if not DUSK_DIVE_ROUTE or self.flags.get("can_main_attack"):
+            return None
+        if self.t["lethal"] is not None:
+            return None
+        cost, steps = self._dive_assess(obs, certain=True)
+        return steps if (cost is not None and steps) else None
+
+    @staticmethod
+    def _route_reserved(steps):
+        """残りの経路が**手札から**消費する札の多重集合（DISCARD/UB 支払いから守る）。"""
+        r = {}
+        for kind, cid, _tgt in (steps or []):
+            if kind == "attach":
+                r[cid] = r.get(cid, 0) + 1
+            elif kind == "evolve_active":
+                r[DRAGAPULT_EX] = r.get(DRAGAPULT_EX, 0) + 1
+            elif kind == "candy":
+                r[RARE_CANDY] = r.get(RARE_CANDY, 0) + 1
+                r[DRAGAPULT_EX] = r.get(DRAGAPULT_EX, 0) + 1
+            elif kind == "crispin":
+                r[CRISPIN] = r.get(CRISPIN, 0) + 1
+            elif kind == "play":
+                r[cid] = r.get(cid, 0) + 1
+            # "ability"（偵察指令等）は盤面の特性 = 手札を消費しない
+        return r
+
+    def _dive_route_match(self, obs, opt, step):
+        """このオプションが経路の次の1手か。"""
+        if step is None:
+            return False
+        kind, cid, _tgt = step
+        if kind == "evolve_active":
+            c = option_card(obs, opt)
+            return (opt.type == OptionType.EVOLVE
+                    and opt.inPlayArea == AreaType.ACTIVE
+                    and c is not None and c.id == DRAGAPULT_EX)
+        if kind == "candy":
+            c = option_card(obs, opt)
+            if opt.type == OptionType.PLAY and c is not None and c.id == RARE_CANDY:
+                return True
+            # アメ経由の進化が EVOLVE として直接提示される形にも対応
+            return (opt.type == OptionType.EVOLVE
+                    and opt.inPlayArea == AreaType.ACTIVE
+                    and c is not None and c.id == DRAGAPULT_EX)
+        if kind == "ability":
+            c = get_card(obs, opt.area, opt.index, obs.current.yourIndex)
+            return (opt.type == OptionType.ABILITY
+                    and c is not None and c.id == cid)
+        c = option_card(obs, opt)
+        if c is None or c.id != cid:
+            return False
+        if kind in ("play", "crispin"):
+            return opt.type == OptionType.PLAY
+        if kind == "attach":
+            return (opt.type == OptionType.ATTACH
+                    and opt.inPlayArea == AreaType.ACTIVE)
+        return False
+
     def _dive_now_after_evolve(self, obs, target):
         """この進化を実行したら【この番のうちに】ファントムダイブを撃てるか（確定判定）。
 
@@ -2031,7 +2484,17 @@ class DragapultDusknoirPolicy(BasePolicy):
             return False
         have = {c.id for c in (getattr(target, "energyCards", None) or []) if c is not None}
         need = {FIRE_ENERGY, PSYCHIC_ENERGY} - have
-        if not need:
+        # よるのこうざん（1266）: テラスタルの攻撃コスト +{C}。印刷コストだけ見ると
+        # 「2エネで撃てる」という**嘘の確定**になる（dragapult_rb で対アラカザムの
+        # 失敗が全てこれだった）。追加分は任意色なので、既に足りている色の枚数で満たす。
+        extra = 0
+        if ((self.p or {}).get("stadium_id") == NIGHTTIME_MINE
+                and bool(getattr(CARD_DB.get(DRAGAPULT_EX), "tera", False))):
+            attached = len([c for c in (getattr(target, "energyCards", None) or [])
+                            if c is not None])
+            # 必要総数 = 2色 + {C}1。今ある枚数で足りない分だけ追加要求になる
+            extra = max(0, 3 - attached - len(need))
+        if not need and extra == 0:
             return True
         ms = my_state(obs)
         hand = [c.id for c in (ms.hand or []) if c is not None]
@@ -2041,15 +2504,28 @@ class DragapultDusknoirPolicy(BasePolicy):
         deck = (self.p or {}).get("deck_min") or {}
         attach_left = not obs.current.energyAttached
         crispin_ready = (not obs.current.supporterPlayed) and CRISPIN in hand
-        if len(need) == 1:
-            col = next(iter(need))
+        # 鉱山下の追加 {C} も「1枚供給する」という点では不足色と同じ扱い（任意色でよい）
+        n_need = len(need) + extra
+        if n_need == 1:
+            col = next(iter(need)) if need else None
+            if col is None:      # 鉱山の {C} だけ足りない = 任意色を1枚
+                if attach_left and any(c in BASIC_ENERGIES for c in hand):
+                    return True
+                return crispin_ready and any(
+                    deck.get(c, 0) >= 1 for c in (FIRE_ENERGY, PSYCHIC_ENERGY))
             if attach_left and col in hand:
                 return True
             if crispin_ready and deck.get(col, 0) >= 1:
                 return True
             return False
-        if attach_left and crispin_ready:
-            return all(deck.get(c, 0) >= 1 for c in need)
+        if n_need == 2 and attach_left and crispin_ready:
+            if extra == 0:
+                return all(deck.get(c, 0) >= 1 for c in need)
+            # 色1 + {C}1: アカマツで色を場に付け、手札に来た1枚を手張り
+            col = next(iter(need))
+            return deck.get(col, 0) >= 1 and any(
+                deck.get(c, 0) >= 1 for c in (FIRE_ENERGY, PSYCHIC_ENERGY)
+                if c != col)
         return False
 
     def _dive_secured(self, obs):
@@ -2589,6 +3065,33 @@ class DragapultDusknoirPolicy(BasePolicy):
         card = option_card(obs, opt)
         cid = card.id if card is not None else getattr(opt, "cardId", None)
 
+        # E1/D-2: 経路の取得手のサブ選択を pin する（「履歴をなぞる」の後半部分）。
+        # これが無いと、UB を打つ判断は経路由来なのに取得先は汎用採点で決まり、
+        # 「打つ理由になった札を取らない」不一致が起きる。
+        if DUSK_DIVE_ROUTE and self._dive_fetch is not None:
+            f_sid, f_tgt, f_att = self._dive_fetch
+            if p["effect_id"] == f_sid:
+                if (ctx == SelectContext.TO_HAND and f_tgt is not None
+                        and cid == f_tgt):
+                    p["hc"][cid] = p["hc"].get(cid, 0) + 1
+                    return self._take_band(880000), "D-2: fetch dive-route target"
+                if (ctx == SelectContext.TO_HAND and f_att is not None
+                        and cid in (FIRE_ENERGY, PSYCHIC_ENERGY)):
+                    # アカマツ: 手札に取らなかった色が場に付く（S-6a）→
+                    # 場に付けたい色 f_att の**逆色**を手札に取る
+                    other = (PSYCHIC_ENERGY if f_att == FIRE_ENERGY
+                             else FIRE_ENERGY)
+                    if cid == other:
+                        p["hc"][cid] = p["hc"].get(cid, 0) + 1
+                        return self._take_band(880000), "D-2: Crispin keep other color"
+                if (ctx == SelectContext.ATTACH_TO and f_att is not None
+                        and cid == f_att):
+                    return self._take_band(880000), "D-2: Crispin pick route color"
+                if (ctx == SelectContext.ATTACH_FROM and f_att is not None
+                        and opt.area == AreaType.ACTIVE
+                        and card is not None and isinstance(card, Pokemon)):
+                    return self._take_band(880000), "D-2: Crispin attach to active"
+
         if ctx in (SelectContext.SWITCH, SelectContext.TO_ACTIVE):
             return self._score_promote(obs, opt)
 
@@ -2617,6 +3120,25 @@ class DragapultDusknoirPolicy(BasePolicy):
                 score = max(score, 46000)
             if self.stuck and p["effect_id"] == MEOWTH_EX and cid == LILLIE:
                 score = max(score, 61000)   # ボス(60000)より上 = 詰まり時はリーリエ直行
+            # L-3: 取り切り経路の第2手。ニャース/ハイパーボールのサーチ先をボスに固定する。
+            # TO_HAND は _take_band で 900000 に丸められ、apply_protocol にも TO_HAND の
+            # 分岐が無い（= R-07 のリーサル昇格が届かない）ので、ここで押すのが唯一の経路。
+            if (DUSK_LETHAL and self.atk_plan is not None
+                    and self.atk_plan.get("boss_fetch")
+                    and p["effect_id"] in (MEOWTH_EX, ULTRA_BALL, POKE_PAD)):
+                if cid == BOSS:
+                    score = max(score, 700000)
+                elif cid == MEOWTH_EX:
+                    score = max(score, 690000)   # UB→ニャース→ボスの中継
+            # E2: ボマー成立手順のサーチ先を固定する（進化 47500/49200・アメ 75000 は
+            # 既存帯で自然に先行するので、ピンが要るのは取得手だけ）。
+            if DUSK_BOMB_ESTAB and self.atk_plan is not None:
+                for kind, sid, tgt in (self.atk_plan.get("bomb_estab") or ()):
+                    if (kind not in ("evolve_bomb", "candy_bomb")
+                            and tgt is not None and p["effect_id"] == sid
+                            and cid == tgt):
+                        score = max(score, 700000)
+                        break
             # DUSK_PAD_DRAKLOAK（ユーザー 2026-07-25）: ポケパッドで手札に取るとき、
             # 場にドラメシヤを用意できる（進化元が居る）ならドロンチを優先的に持ってくる
             # （Dusknoir 21000 の上に置く。ダイブ線の次ターン完成を最優先）
@@ -2644,6 +3166,13 @@ class DragapultDusknoirPolicy(BasePolicy):
             if data is not None and data.cardType == CardType.SUPPORTER:
                 p["support_count"] -= 1
             score = -self._hand_score(obs, p, cid, False)
+            # E1/D-2: 経路が消費する札は支払いから守る（予約）。hc は直上で減算済みなので
+            # 「この1枚を切ると残りが予約数を割る」= 経路が壊れる、を検出できる。
+            # -3e6 は R-13+ keep(-200000) と D keep(-100000) より深く、経路保護が必ず勝つ。
+            if (DUSK_DIVE_ROUTE and self._dive_reserved
+                    and p["hc"][cid] < self._dive_reserved.get(cid, 0)):
+                tie = max(-100000.0, min(100000.0, score)) / 1000.0
+                return -3_000_000.0 + tie, "D-2: keep (dive route reserved)"
             # R-13+①: 切るのは「この番に即プレイできない札」から。即プレイできる札は
             # 一律 200,000 下へ落として最後まで残す（不能札の評価順 = 従来どおり保存される。
             # 不能札のスコアは -80,000 以上なので、この差は必ず勝つ）

@@ -947,6 +947,12 @@ class BasePolicy(ABC):
             return LETHAL_BAND, "R-07: LETHAL attack"
         if lethal["route"] == "boss" and opt.type == OptionType.PLAY:
             card = option_card(obs, opt)
+            # L-6（2026-07-30・棄却）: ここを LETHAL_BAND+2 に上げて「ボスは攻撃より先」を
+            # 構造保証する案を実測したが、**通常版 dragapult_rb が 74.94 → 73.56（−1.38・
+            # archaludon −5.3 = 2.7σ）**と悪化したので採用しない。読み: 同点（＝選択肢の
+            # 索引順）だと攻撃が先に来る番があり、そこで「ボスを使わずに勝てる/ボスを
+            # 温存できる」形が拾えていた。昇格させるとリーサル判定が少しでも外れた時に
+            # サポート枠ごと失う。順序保証が要るデッキは各機で局所的に上書きすること。
             if card and card.id == mt.BOSS:
                 return LETHAL_BAND, "R-07: LETHAL Boss"
         if lethal["route"] == "boss" and ctx in {SelectContext.SWITCH, SelectContext.TO_ACTIVE}:
