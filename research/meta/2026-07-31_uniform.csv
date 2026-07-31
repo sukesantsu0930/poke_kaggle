@@ -1,0 +1,8 @@
+archetype,share,agent_or_deck,deck
+marnie,14.2857,agents/marnie_munkidori_rb,decks/fleet/marnie_gold_luca_0723.csv
+alakazam,14.2857,agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv
+garchomp,14.2857,agents/cynthia_garchomp_rb,decks/fleet/cynthia_garchomp_top.csv
+crustle_wall,14.2857,agents/crustle_rb,decks/fleet/crustle_wall_top.csv
+rocket,14.2857,agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv
+other_megamimirop,14.2857,generic,decks/opponents/band_megamimirop_0731.csv
+dragapult,14.2857,agents/dragapult_rb,decks/fleet/popular_4_dragapult.csv

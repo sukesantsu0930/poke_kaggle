@@ -1,0 +1,9 @@
+agent,lb_score,note
+agents/marnie_munkidori_rb,779.5,marnie_munkidori_rb rule版（現行HEAD相当）
+agents/alakazam_rb,674.4,alakazam_rb__alakazam_top_0710
+agents/cynthia_garchomp_rb,711.3,cynthia_garchomp_rb__cynthia_garchomp_top
+agents/crustle_rb,596.2,crustle_rb__crustle_wall_top rule版
+agents/rocket_rb,698.9,rocket_rb_gen4
+agents/dragapult_rb,656.3,dragapult_rb_diveoracle（現行HEAD）
+agents/chandelure_rb,674.4,chandelure_rb_rules28
+agents/dragapult_dusknoir_rb,737.5,dragapult_dusknoir_rb_E1E2
