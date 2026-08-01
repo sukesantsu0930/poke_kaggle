@@ -1,0 +1,7 @@
+agent,deck,archetype,share,games,wins,losses,draws,unfinished,winrate
+agents/marnie_munkidori_rb,decks/fleet/marnie_gold_luca_0723.csv,alakazam,17.9,160,81,79,0,0,0.5062
+agents/marnie_munkidori_rb,decks/fleet/marnie_gold_luca_0723.csv,garchomp,7.9,160,81,79,0,0,0.5062
+agents/marnie_munkidori_rb,decks/fleet/marnie_gold_luca_0723.csv,crustle_wall,7.2,160,72,88,0,0,0.4500
+agents/marnie_munkidori_rb,decks/fleet/marnie_gold_luca_0723.csv,rocket,5.6,160,99,61,0,0,0.6188
+agents/marnie_munkidori_rb,decks/fleet/marnie_gold_luca_0723.csv,other_megamimirop,4.8,160,144,16,0,0,0.9000
+agents/marnie_munkidori_rb,decks/fleet/marnie_gold_luca_0723.csv,dragapult,1.8,160,81,79,0,0,0.5062
