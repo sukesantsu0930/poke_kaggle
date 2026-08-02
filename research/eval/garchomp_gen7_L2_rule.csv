@@ -1,0 +1,7 @@
+agent,deck,archetype,share,games,wins,losses,draws,unfinished,winrate
+agents/cynthia_garchomp_rb,decks/fleet/cynthia_garchomp_top.csv,marnie,54.7,160,83,77,0,0,0.5188
+agents/cynthia_garchomp_rb,decks/fleet/cynthia_garchomp_top.csv,alakazam,17.9,160,106,54,0,0,0.6625
+agents/cynthia_garchomp_rb,decks/fleet/cynthia_garchomp_top.csv,crustle_wall,7.2,160,65,95,0,0,0.4062
+agents/cynthia_garchomp_rb,decks/fleet/cynthia_garchomp_top.csv,rocket,5.6,160,96,64,0,0,0.6000
+agents/cynthia_garchomp_rb,decks/fleet/cynthia_garchomp_top.csv,other_megamimirop,4.8,160,145,15,0,0,0.9062
+agents/cynthia_garchomp_rb,decks/fleet/cynthia_garchomp_top.csv,dragapult,1.8,160,61,99,0,0,0.3812

@@ -1,0 +1,7 @@
+agent,deck,archetype,share,games,wins,losses,draws,unfinished,winrate
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,marnie,54.7,160,45,115,0,0,0.2812
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,alakazam,17.9,160,136,24,0,0,0.8500
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,garchomp,7.9,160,62,98,0,0,0.3875
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,crustle_wall,7.2,160,131,29,0,0,0.8187
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,other_megamimirop,4.8,160,73,87,0,0,0.4562
+agents/rocket_rb,decks/fleet/rocket_lolzpo_0715.csv,dragapult,1.8,160,49,111,0,0,0.3063
