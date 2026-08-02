@@ -1,0 +1,8 @@
+agent,deck,archetype,share,games,wins,losses,draws,unfinished,winrate
+agents/crustle_rb,decks/fleet/crustle_wall_top.csv,marnie,14.2857,80,67,13,0,0,0.8375
+agents/crustle_rb,decks/fleet/crustle_wall_top.csv,alakazam,14.2857,80,55,25,0,0,0.6875
+agents/crustle_rb,decks/fleet/crustle_wall_top.csv,crustle_wall,14.2857,80,38,42,0,0,0.4750
+agents/crustle_rb,decks/fleet/crustle_wall_top.csv,rocket,14.2857,80,29,51,0,0,0.3625
+agents/crustle_rb,decks/fleet/crustle_wall_top.csv,garchomp,14.2857,80,37,43,0,0,0.4625
+agents/crustle_rb,decks/fleet/crustle_wall_top.csv,other_megamimirop,14.2857,80,54,25,1,0,0.6835
+agents/crustle_rb,decks/fleet/crustle_wall_top.csv,dragapult,14.2857,80,61,19,0,0,0.7625

@@ -1,0 +1,8 @@
+agent,deck,archetype,share,games,wins,losses,draws,unfinished,winrate
+agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv,marnie,14.2857,80,49,31,0,0,0.6125
+agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv,alakazam,14.2857,80,47,33,0,0,0.5875
+agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv,crustle_wall,14.2857,80,27,53,0,0,0.3375
+agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv,rocket,14.2857,80,40,40,0,0,0.5000
+agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv,garchomp,14.2857,80,54,26,0,0,0.6750
+agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv,other_megamimirop,14.2857,80,74,6,0,0,0.9250
+agents/alakazam_rb,decks/fleet/alakazam_top_0710.csv,dragapult,14.2857,80,29,51,0,0,0.3625
