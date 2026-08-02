@@ -107,7 +107,14 @@ class GameSampler:
         self.opponents = []
         shares = []
         for row in field_rows:
-            opp_mod, opp_deck = build_opponent(row)   # θ=0・ネット凍結済み
+            opp_mod, opp_deck = build_opponent(row)   # θ=0・ネット凍結（field の net 列があればそれを注入）
+            # R-32 前提の注入（2026-08-02 修正）: play_game は ab_battle.run_battles を通らないため
+            # 相手側の my_deck_list が入らず、相手だけ自山カウンティング無効の弱体版で回っていた
+            # （target 側は上の self.policy.my_deck_list で入っている）。ab_battle.run_battles:92-95
+            # と同じ趣旨の注入を相手にも行い、プールの操縦強度を実戦と揃える。
+            opp_policy = get_policy(opp_mod)
+            if opp_policy is not None and getattr(opp_policy, "my_deck_list", None) in (None, []):
+                opp_policy.my_deck_list = list(opp_deck)
             self.opponents.append((row, opp_mod, opp_deck))
             shares.append(row["share"])
         self.p = np.asarray(shares, dtype=np.float64)

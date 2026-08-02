@@ -60,6 +60,9 @@ def read_field(path: Path):
                 "share": float(row["share"]),
                 "agent_or_deck": row["agent_or_deck"].strip(),
                 "deck": row["deck"].strip(),
+                # 任意列 net: 相手役に注入する policy_net npz（世代凍結昇格 = PSRO。
+                # 2026-08-02 gen8: 相手プールを gen7 ema で強化。無指定 = 従来の素ルール版）
+                "net": (row.get("net") or "").strip(),
             })
     return rows
 
@@ -73,6 +76,19 @@ def build_opponent(row):
         return SimpleNamespace(agent=agent_fn), deck
     mod = load_agent(ROOT / row["agent_or_deck"])
     _freeze_opponent_theta(mod)
+    if row.get("net"):
+        # 凍結（θ={}・net_enabled=False）の後に、field CSV が明示した固定ネットだけ載せる。
+        # 相手はライブ資産でなく「CSV に書かれた版」に固定される（凍結の趣旨は保たれる）。
+        # ロード失敗は fail-fast（沈黙で素ルール版に縮退させない）。
+        import importlib
+        pn = importlib.import_module("policy_net")
+        net = pn.PolicyNet.load(str(ROOT / row["net"]))
+        if net is None:
+            raise SystemExit(f"field net: ロード失敗（版不一致か破損）: {row['net']}")
+        policy = get_policy(mod)
+        policy._net = net
+        policy._net_load_tried = True
+        policy.net_enabled = True
     return mod, deck
 
 
